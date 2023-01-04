@@ -249,5 +249,17 @@ I made the most significant modifications to the following file that had the gra
 
 - `PokemonGUI.cpp`
 
-I added the necessary adjustments to tie in the json data I parsed from Pokemon's Website. I also created the necessary maps to display the problem.
+I added the necessary adjustments to the GUI file to bring in the `json` data that I put together from the following websites.
+
+For the `all-types.json` file, I got the information on type interactions from the following website.
+
+- https://pokemondb.net/type/dual
+
+For the `all-maps.json` file, I got the information on gyms and the attack and defensive types present from the following website.
+
+- https://serebii.net
+
+## Next Steps
+
+I would like to visualize the cover problems in greater detail on a website and will try to put together a graph cover visualizer soon. Thanks for reading!
 

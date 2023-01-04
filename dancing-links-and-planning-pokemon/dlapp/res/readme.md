@@ -28,3 +28,13 @@ The `.dst` files are used to draw maps to the screen. They use a logical layout 
   - The elite four is always given the abbreviation E4.
 
 See the examples in the .dst files for more details.
+
+## Citations
+
+For the `all-types.json` file, I got the information on type interactions from the following website.
+
+- https://pokemondb.net
+
+For the `all-maps.json` file, I got the information on gyms and the attack and defensive types present from the following website.
+
+- https://serebii.net
