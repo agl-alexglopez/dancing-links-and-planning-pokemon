@@ -1,3 +1,13 @@
+/**
+ * Author: Keith Schwarz with Modifications by Alex Lopez
+ * File: PokemonGUI
+ * ----------------
+ * This file contains a mix of implementations. First, I take the Graph drawing logic written by
+ * Keith Schwarz and Stanford Course Staff and apply it to Pokemon maps. I have marked with comments
+ * the sections of the code that I did not write. To use the GUI you can solve the map for an
+ * entire generation by pressing the solver buttons. If instead you would like to solve for specific
+ * gyms do so by selecting them with the G1-E4 buttons. Clear all selections with the CL button.
+ */
 #include "GUI/MiniGUI.h"
 #include "PokemonParser.h"
 #include "PokemonLinks.h"
@@ -17,6 +27,11 @@
 #include "strlib.h"
 
 namespace {
+
+
+    /* * * * * * *    Start of Adapted Graph Drawing Algorithm by Keith Schwarz   * * * * * * * * */
+
+
     /* File constants. */
     const std::string kProblemSuffix = ".dst";
     const std::string kBasePath = "res/dst/";
@@ -312,6 +327,10 @@ namespace {
         return result;
     }
 
+
+    /* * * * * * *     End of Adapted Graph Drawing Algorithm by Keith Schwarz    * * * * * * * * */
+
+
     class PokemonGUI: public ProblemHandler {
     public:
         PokemonGUI(GWindow& window);
@@ -347,6 +366,7 @@ namespace {
         GButton* overlappingAttackButton;
 
         Temporary<GContainer> gymControls;
+        /* I would rather use checkboxes but am having trouble hooking them to event listeners. */
         GButton* gym1;
         GButton* gym2;
         GButton* gym3;

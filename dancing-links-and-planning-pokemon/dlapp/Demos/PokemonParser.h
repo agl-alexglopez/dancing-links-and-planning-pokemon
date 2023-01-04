@@ -17,7 +17,6 @@
 #include <string>
 #include <vector>
 #include "MapParser.h"
-#include "set.h"
 #include "Utilities/Resistance.h"
 
 /* Leave a comment at the first line of the Pokemon Generation .dst file you want to construct with
