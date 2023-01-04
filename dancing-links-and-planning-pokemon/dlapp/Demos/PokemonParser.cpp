@@ -9,6 +9,10 @@
  * program runtime, in case QT becomes deprecated or I want to move this to a CLI implementation.
  * Then, I just need to rewrite the parser that gets me data from JSON files rather than rewrite
  * the whole program.
+ *
+ * To be more thorough I could seperate out each generation to its own .json file and just directly
+ * parse the correct generation information to a map. Right now, I am filtering out types from
+ * a map that contains the most recent generation typing information if I want an older generation.
  */
 #include "PokemonParser.h"
 #include "MapParser.h"

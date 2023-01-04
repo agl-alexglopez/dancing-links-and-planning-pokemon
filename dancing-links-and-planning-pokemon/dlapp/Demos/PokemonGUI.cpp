@@ -4,9 +4,13 @@
  * ----------------
  * This file contains a mix of implementations. First, I take the Graph drawing logic written by
  * Keith Schwarz and Stanford Course Staff and apply it to Pokemon maps. I have marked with comments
- * the sections of the code that I did not write. To use the GUI you can solve the map for an
- * entire generation by pressing the solver buttons. If instead you would like to solve for specific
- * gyms do so by selecting them with the G1-E4 buttons. Clear all selections with the CL button.
+ * the sections of the code that I did not write. I also modified the implementation to use the
+ * STL whenever possible, especially for containers over the Stanford C++ Library. I am gradually
+ * trying to move this project away from the Stanford Libraries and may even want to see if I can
+ * rewrite the graphics for this specific application from scratch as an exercise. To use the GUI
+ * you can solve the map for an entire generation by pressing the solver buttons. If instead you
+ * would like to solve for specific gyms do so by selecting them with the G1-E4 buttons. Clear all
+ * selections with the CL button.
  */
 #include "GUI/MiniGUI.h"
 #include "PokemonParser.h"
