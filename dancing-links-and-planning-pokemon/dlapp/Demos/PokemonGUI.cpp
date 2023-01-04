@@ -15,21 +15,19 @@
 #include <set>
 #include "filelib.h"
 #include "strlib.h"
-using namespace std;
-using namespace MiniGUI;
 
 namespace {
     /* File constants. */
-    const string kProblemSuffix = ".dst";
-    const string kBasePath = "res/dst/";
+    const std::string kProblemSuffix = ".dst";
+    const std::string kBasePath = "res/dst/";
     /* Background color. */
-    const string kBackgroundColor  = "#000000";
+    const std::string kBackgroundColor  = "#000000";
 
     /* Colors to use when drawing the network. */
     struct CityColors {
-        string borderColor;
-        string fillColor;
-        Font   font;
+        std::string borderColor;
+        std::string fillColor;
+        MiniGUI::Font font;
     };
 
     enum CityState { // "The state the city is in," not "Singapore." :-)
@@ -43,22 +41,22 @@ namespace {
     }MapDrawSelection;
 
     /* Colors to use when drawing cities. */
-    const vector<CityColors> kColorOptions = {
-        { "#101010", "#202020", Font(FontFamily::MONOSPACE, FontStyle::BOLD, 12, "#A0A0A0") },   // Uncovered
-        { "#806030", "#FFB000", Font(FontFamily::MONOSPACE, FontStyle::BOLD, 12, "#000000") },   // Directly covered
+    const std::vector<CityColors> kColorOptions = {
+        { "#101010", "#202020", MiniGUI::Font(MiniGUI::FontFamily::MONOSPACE, MiniGUI::FontStyle::BOLD, 12, "#A0A0A0") },   // Uncovered
+        { "#806030", "#FFB000", MiniGUI::Font(MiniGUI::FontFamily::MONOSPACE, MiniGUI::FontStyle::BOLD, 12, "#000000") },   // Directly covered
     };
 
-    const string GYM_1_STR = "G1";
-    const string GYM_2_STR = "G2";
-    const string GYM_3_STR = "G3";
-    const string GYM_4_STR = "G4";
-    const string GYM_5_STR = "G5";
-    const string GYM_6_STR = "G6";
-    const string GYM_7_STR = "G7";
-    const string GYM_8_STR = "G8";
-    const string ELT_4_STR = "E4";
+    const std::string GYM_1_STR = "G1";
+    const std::string GYM_2_STR = "G2";
+    const std::string GYM_3_STR = "G3";
+    const std::string GYM_4_STR = "G4";
+    const std::string GYM_5_STR = "G5";
+    const std::string GYM_6_STR = "G6";
+    const std::string GYM_7_STR = "G7";
+    const std::string GYM_8_STR = "G8";
+    const std::string ELT_4_STR = "E4";
 
-    const vector<string> BUTTON_TOGGLE_COLORS = {
+    const std::vector<std::string> BUTTON_TOGGLE_COLORS = {
         // NOT_SELECTED
         "#000000",
         // SELECTED
@@ -66,15 +64,15 @@ namespace {
     };
 
     /* Colors to use to draw the roads. */
-    const string kDarkRoadColor = "#505050";
-    const string kLightRoadColor = "#FFFFFF";
+    const std::string kDarkRoadColor = "#505050";
+    const std::string kLightRoadColor = "#FFFFFF";
 
     /* Line thicknesses. */
     const double kRoadWidth = 3;
     const double kCityWidth = 1.5;
 
     /* Font to use for city labels. */
-    const string kLabelFont = "Monospace-BOLD-12";
+    const std::string kLabelFont = "Monospace-BOLD-12";
 
     /* Radius of a city */
     const double kCityRadius = 25;
@@ -88,7 +86,7 @@ namespace {
     const double kLogicalPadding = 1e-5;
 
     /* Max length of a string in a label. */
-    const string::size_type kMaxLength = 3;
+    const std::string::size_type kMaxLength = 3;
 
     /* Geometry information for drawing the network. */
     struct Geometry {
@@ -105,15 +103,15 @@ namespace {
      * encountered in that set.
      */
     void computeDataBounds(const MapTest& network, Geometry& geo) {
-        geo.minDataX = geo.minDataY = numeric_limits<double>::infinity();
-        geo.maxDataX = geo.maxDataY = -numeric_limits<double>::infinity();
+        geo.minDataX = geo.minDataY = std::numeric_limits<double>::infinity();
+        geo.maxDataX = geo.maxDataY = -std::numeric_limits<double>::infinity();
 
-        for (const string& cityName: network.cityLocations) {
-            geo.minDataX = min(geo.minDataX, network.cityLocations[cityName].x);
-            geo.minDataY = min(geo.minDataY, network.cityLocations[cityName].y);
+        for (const auto& cityName: network.cityLocations) {
+            geo.minDataX = std::min(geo.minDataX, network.cityLocations.at(cityName.first).x);
+            geo.minDataY = std::min(geo.minDataY, network.cityLocations.at(cityName.first).y);
 
-            geo.maxDataX = max(geo.maxDataX, network.cityLocations[cityName].x);
-            geo.maxDataY = max(geo.maxDataY, network.cityLocations[cityName].y);
+            geo.maxDataX = std::max(geo.maxDataX, network.cityLocations.at(cityName.first).x);
+            geo.maxDataY = std::max(geo.maxDataY, network.cityLocations.at(cityName.first).y);
         }
 
         /* Pad the boundaries. This accounts for the edge case where one set of bounds is
@@ -190,8 +188,8 @@ namespace {
         GLine toDraw;
         toDraw.setLineWidth(kRoadWidth);
 
-        for (const string& source: network.network) {
-            for (const string& dest: network.network[source]) {
+        for (const auto& source: network.network) {
+            for (const std::string& dest: network.network.at(source.first)) {
                 /* Selected roads draw in the bright color; deselected
                  * roads draw in a the dark color.
                  */
@@ -200,8 +198,8 @@ namespace {
                 /* Draw the line, remembering that the coordinates are in
                  * logical rather than physical space.
                  */
-                auto src = logicalToPhysical(network.cityLocations[source], geo);
-                auto dst = logicalToPhysical(network.cityLocations[dest], geo);
+                auto src = logicalToPhysical(network.cityLocations.at(source.first), geo);
+                auto dst = logicalToPhysical(network.cityLocations.at(dest), geo);
                 toDraw.setStartPoint(src.x, src.y);
                 toDraw.setEndPoint(dst.x, dst.y);
 
@@ -214,7 +212,7 @@ namespace {
      * three letters of the name if it's a single word and otherwise use
      * its initials.
      */
-    string shorthandFor(const string& name) {
+    std::string shorthandFor(const std::string& name) {
         auto components = stringSplit(name, " ");
         if (components.size() == 0) {
             error("It shouldn't be possible for there to be no components of the city name.");
@@ -224,7 +222,7 @@ namespace {
             else return components[0].substr(0, 3);
         } else {
             /* Use initials. */
-            string result;
+            std::string result;
             for (size_t i = 0; result.length() < kMaxLength && i < components.size(); i++) {
                 /* Skip empty components, which might exist if there are consecutive spaces in
                  * the name
@@ -243,19 +241,19 @@ namespace {
     void drawCities(GWindow& window,
                     const Geometry& geo,
                     const MapTest& network,
-                    const Set<string>& selected) {
+                    const std::set<std::string>& selected) {
 
         /* For simplicity, just make a single oval. */
         GOval oval(0, 0, 2 * kCityRadius, 2 * kCityRadius);
         oval.setLineWidth(kCityWidth);
         oval.setFilled(true);
 
-        for (const string& city: network.network) {
+        for (const auto& city: network.network) {
             /* Figure out the center of the city on the screen. */
-            auto center = logicalToPhysical(network.cityLocations[city], geo);
+            auto center = logicalToPhysical(network.cityLocations.at(city.first), geo);
 
             /* See what state the city is in with regards to coverage. */
-            CityState state = selected.contains(city) ? COVERED_DIRECTLY : UNCOVERED;
+            CityState state = selected.count(city.first) ? COVERED_DIRECTLY : UNCOVERED;
 
             /* There's no way to draw a filled circle with a boundary as one call. */
             oval.setColor(kColorOptions[state].borderColor);
@@ -265,7 +263,7 @@ namespace {
                         center.y - kCityRadius);
 
             /* Set the label text and color. */
-            auto render = TextRender::construct(shorthandFor(city), {
+            auto render = TextRender::construct(shorthandFor(city.first), {
                                                     center.x - kCityRadius,
                                                     center.y - kCityRadius,
                                                     2 * kCityRadius,
@@ -279,7 +277,7 @@ namespace {
 
     void visualizeNetwork(GWindow& window,
                           const PokemonTest& network,
-                          const Set<string>& selected,
+                          const std::set<std::string>& selected,
                           const MapDrawSelection userSelection) {
         clearDisplay(window, kBackgroundColor);
 
@@ -293,7 +291,7 @@ namespace {
          * the window geometry can't be calculated properly. Therefore,
          * we're going skip all this logic if there's nothing to draw.
          */
-        if (!network.pokemonGenerationMap.network.isEmpty()) {
+        if (!network.pokemonGenerationMap.network.empty()) {
             Geometry geo = geometryFor(window, network.pokemonGenerationMap);
 
             /* Draw the roads under the cities to avoid weird graphics
@@ -304,8 +302,8 @@ namespace {
         }
     }
 
-    vector<string> sampleProblems(const string& basePath) {
-        vector<string> result;
+    std::vector<std::string> sampleProblems(const std::string& basePath) {
+        std::vector<std::string> result;
         for (const auto& file: listDirectory(basePath)) {
             if (endsWith(file, kProblemSuffix)) {
                 result.push_back(file);
@@ -362,25 +360,25 @@ namespace {
 
         /* Current network and solution. */
         PokemonTest mGeneration;
-        Set<string> mSelected;
-        Set<string> mAllSelected;
-        set<string> mAllGenerationAttackTypes;
+        std::set<std::string> mSelected;
+        std::set<std::string> mAllSelected;
+        std::set<std::string> mAllGenerationAttackTypes;
         MapDrawSelection mUserSelection;
 
-        unique_ptr<set<RankedSet<std::string>>> mAllCoverages;
+        std::unique_ptr<std::set<RankedSet<std::string>>> mAllCoverages;
 
         /* Loads the world with the given name. */
-        void loadWorld(const string& filename);
+        void loadWorld(const std::string& filename);
 
         void toggleSelectedGym(GButton*& button);
         void toggleAllGyms(const ButtonToggle& buttonState);
         void clearSelections();
         void solveDefense(const CoverageRequested& exactOrOverlapping);
         void solveAttack(const CoverageRequested& exactOrOverlapping);
-        void printDefenseSolution(bool hitLimit, const set<RankedSet<string>>& solution);
-        void printAttackSolution(bool hitLimit, const set<RankedSet<string>>& solution);
-        void printDefenseMessage(const set<string>& attacksToPrint);
-        void printAttackMessage(const map<string,set<Resistance>>& defenseToPrint);
+        void printDefenseSolution(bool hitLimit, const std::set<RankedSet<std::string>>& solution);
+        void printAttackSolution(bool hitLimit, const std::set<RankedSet<std::string>>& solution);
+        void printDefenseMessage(const std::set<std::string>& attacksToPrint);
+        void printAttackMessage(const std::map<std::string,std::set<Resistance>>& defenseToPrint);
     };
 
     PokemonGUI::PokemonGUI(GWindow& window) : ProblemHandler(window) {
@@ -426,7 +424,7 @@ namespace {
         controls->addToGrid(overlappingAttackButton, 3, 0);
         controls->setEnabled(false);
         GComboBox* choices = new GComboBox();
-        for (const string& file: sampleProblems(kBasePath)) {
+        for (const std::string& file: sampleProblems(kBasePath)) {
             choices->addItem(file);
         }
         choices->setEditable(false);
@@ -446,12 +444,12 @@ namespace {
     }
 
     void PokemonGUI::toggleSelectedGym(GButton*& button) {
-        string gymName = button->getText();
-        if (mSelected.contains(gymName)) {
-            mSelected.remove(gymName);
+        std::string gymName = button->getText();
+        if (mSelected.count(gymName)) {
+            mSelected.erase(gymName);
             button->setForeground(BUTTON_TOGGLE_COLORS[NOT_SELECTED]);
         } else {
-            mSelected.add(gymName);
+            mSelected.insert(gymName);
             button->setForeground(BUTTON_TOGGLE_COLORS[SELECTED]);
         }
         mUserSelection = SELECTED_GYMS;
@@ -520,13 +518,13 @@ namespace {
         }
     }
 
-    void PokemonGUI::loadWorld(const string& filename) {
-        ifstream input(kBasePath + filename);
+    void PokemonGUI::loadWorld(const std::string& filename) {
+        std::ifstream input(kBasePath + filename);
         if (!input) error("Cannot open file.");
 
         mGeneration = loadPokemonGeneration(input);
         for (const auto& s : mGeneration.pokemonGenerationMap.network) {
-            mAllSelected.add(s);
+            mAllSelected.insert(s.first);
         }
         for (const auto& attack : mGeneration.typeInteractions.begin()->second) {
             mAllGenerationAttackTypes.insert(attack.type());
@@ -544,22 +542,24 @@ namespace {
         requestRepaint();
     }
 
-    void PokemonGUI::printDefenseMessage(const set<string>& attacksToPrint) {
+    void PokemonGUI::printDefenseMessage(const std::set<std::string>& attacksToPrint) {
         (*mSolutionsDisplay) << "Defending against " << attacksToPrint.size()
                              << " attack types:\n\n";
         (*mSolutionsDisplay) << "| ";
         for (const auto& g : attacksToPrint) {
             (*mSolutionsDisplay) << g << " | ";
         }
-        (*mSolutionsDisplay) << "\n" << endl;
+        (*mSolutionsDisplay) << "\n" << std::endl;
     }
 
-    void PokemonGUI::printAttackSolution(bool hitLimit, const set<RankedSet<string>>& solution) {
+    void PokemonGUI::printAttackSolution(bool hitLimit,
+                                         const std::set<RankedSet<std::string>>& solution) {
         *mSolutionsDisplay << "Found " << solution.size()
                            << " attack configurations SCORE | TYPES |. Higher score is better.\n";
-        string maximumOutputExceeded = "\n";
+        std::string maximumOutputExceeded = "\n";
         if (hitLimit) {
-            maximumOutputExceeded = "...exceeded maximum output, stopping at " + to_string(solution.size()) + ".\n\n";
+            maximumOutputExceeded = "...exceeded maximum output, stopping at "
+                                    + std::to_string(solution.size()) + ".\n\n";
         }
         *mSolutionsDisplay << maximumOutputExceeded;
         for (auto it = solution.rbegin(); it != solution.rend(); it++) {
@@ -569,25 +569,28 @@ namespace {
             }
             *mSolutionsDisplay << "\n";
         }
-        *mSolutionsDisplay << maximumOutputExceeded << endl;
+        *mSolutionsDisplay << maximumOutputExceeded << std::endl;
     }
 
-    void PokemonGUI::printAttackMessage(const map<string,set<Resistance>>& defenseToPrint) {
+    void PokemonGUI::printAttackMessage(const std::map<std::string,
+                                                       std::set<Resistance>>& defenseToPrint) {
         (*mSolutionsDisplay) << "Attacking " << defenseToPrint.size() << " defensive types:\n\n";
         (*mSolutionsDisplay) << "| ";
         for (const auto& type : defenseToPrint) {
             (*mSolutionsDisplay) << type.first << " | ";
         }
-        (*mSolutionsDisplay) << "\n" << endl;
+        (*mSolutionsDisplay) << "\n" << std::endl;
     }
 
-    void PokemonGUI::printDefenseSolution(bool hitLimit, const set<RankedSet<string>>& solution) {
+    void PokemonGUI::printDefenseSolution(bool hitLimit,
+                                          const std::set<RankedSet<std::string>>& solution) {
         *mSolutionsDisplay << "Found " << solution.size()
                            << " Pokemon teams SCORE | TEAM |. Lower score is better.\n";
 
-        string maximumOutputExceeded = "\n";
+        std::string maximumOutputExceeded = "\n";
         if (hitLimit) {
-            maximumOutputExceeded = "...exceeded maximum output, stopping at " + to_string(solution.size()) + ".\n\n";
+            maximumOutputExceeded = "...exceeded maximum output, stopping at "
+                                    + std::to_string(solution.size()) + ".\n\n";
         }
         *mSolutionsDisplay << maximumOutputExceeded;
         for (const RankedSet<std::string>& cov : solution) {
@@ -597,7 +600,7 @@ namespace {
             }
             *mSolutionsDisplay << "\n";
         }
-        *mSolutionsDisplay << maximumOutputExceeded << endl;
+        *mSolutionsDisplay << maximumOutputExceeded << std::endl;
     }
 
     void PokemonGUI::solveDefense(const CoverageRequested& exactOrOverlapping) {
@@ -610,8 +613,7 @@ namespace {
 
 
         std::set<std::string> gymAttackTypes = {};
-
-        if (!mSelected.isEmpty()) {
+        if (!mSelected.empty()) {
             mUserSelection = SELECTED_GYMS;
             gymAttackTypes = loadSelectedGymsAttacks(mProblems->getSelectedItem(), mSelected);
             printDefenseMessage(gymAttackTypes);
@@ -623,7 +625,7 @@ namespace {
         // If gymAttackTypes is empty the constructor just builds the full generation of pokemon.
         PokemonLinks dlx(mGeneration.typeInteractions, gymAttackTypes);
 
-        set<RankedSet<std::string>> solution = {};
+        std::set<RankedSet<std::string>> solution = {};
 
         if (exactOrOverlapping == EXACT) {
             solution = dlx.getExactTypeCoverages();
@@ -631,7 +633,7 @@ namespace {
             solution = dlx.getOverlappingTypeCoverages();
         }
 
-        mAllCoverages.reset(new set<RankedSet<std::string>>(solution));
+        mAllCoverages.reset(new std::set<RankedSet<std::string>>(solution));
 
         printDefenseSolution(dlx.reachedOutputLimit(), *mAllCoverages);
 
@@ -657,10 +659,10 @@ namespace {
         /* We are not sure if the user wants solution for map or selected gyms yet. We will point
          * to whatever they have asked for instead of preemptively creating copies of large maps.
          */
-        map<string,set<Resistance>>* genToUse = &mGeneration.typeInteractions;
-        map<string,set<Resistance>> modifiedGeneration = {};
+        std::map<std::string,std::set<Resistance>>* genToUse = &mGeneration.typeInteractions;
+        std::map<std::string,std::set<Resistance>> modifiedGeneration = {};
 
-        if (!mSelected.isEmpty()) {
+        if (!mSelected.empty()) {
             mUserSelection = SELECTED_GYMS;
             modifiedGeneration = loadSelectedGymsDefense(mGeneration.typeInteractions,
                                                          mProblems->getSelectedItem(),
@@ -672,14 +674,14 @@ namespace {
             printAttackMessage(mGeneration.typeInteractions);
         }
 
-        set<RankedSet<std::string>> solution = {};
+        std::set<RankedSet<std::string>> solution = {};
         PokemonLinks dlx(*genToUse, PokemonLinks::ATTACK);
 
         req == EXACT ? solution = dlx.getExactTypeCoverages() :
                        solution = dlx.getOverlappingTypeCoverages();
 
 
-        mAllCoverages.reset(new set<RankedSet<std::string>>(solution));
+        mAllCoverages.reset(new std::set<RankedSet<std::string>>(solution));
 
         printAttackSolution(dlx.reachedOutputLimit(), *mAllCoverages);
 
