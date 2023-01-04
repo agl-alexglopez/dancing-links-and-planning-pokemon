@@ -29,8 +29,8 @@ class RankedSet {
 public:
     RankedSet() = default;
 
-    RankedSet(const int rank, const std::set<valueType>& set) : rank_(rank),
-                                                                set_(set) {}
+    RankedSet(int rank, const std::set<valueType>& set) : rank_(rank),
+                                                          set_(set) {}
 
     std::size_t size() const {
         return set_.size();
