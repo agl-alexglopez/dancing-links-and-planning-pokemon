@@ -51,8 +51,10 @@ class RankedSet {
 public:
     RankedSet() = default;
 
-    RankedSet(int rank, const std::set<valueType>& set) : rank_(rank),
-                                                          set_(set) {}
+    RankedSet(int rank, const std::set<valueType>& set)
+        : rank_(rank),
+          set_(set) {
+    }
 
     std::size_t size() const {
         return set_.size();
@@ -71,11 +73,11 @@ public:
         set_.insert(elem);
     }
 
-    void remove(const valueType& elem) {
+    void erase(const valueType& elem) {
         set_.erase(elem);
     }
 
-    void remove(const int rank, const valueType& elem) {
+    void erase(const int rank, const valueType& elem) {
         rank_ -= rank;
         set_.erase(elem);
     }

@@ -77,7 +77,7 @@ void PokemonLinks::fillExactCoverages(std::set<RankedSet<std::string>>& exactCov
             uncoverType(cur);
             return;
         }
-        coverage.remove(typeStrength.first, typeStrength.second);
+        coverage.erase(typeStrength.first, typeStrength.second);
         uncoverType(cur);
     }
 }
@@ -237,7 +237,7 @@ void PokemonLinks::fillOverlappingCoverages(std::set<RankedSet<std::string>>& ov
             overlappingUncoverType(cur);
             return;
         }
-        coverage.remove(typeStrength.first, typeStrength.second);
+        coverage.erase(typeStrength.first, typeStrength.second);
         overlappingUncoverType(cur);
     }
 }
@@ -295,14 +295,15 @@ bool PokemonLinks::reachedOutputLimit() {
 
 
 PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typeInteractions,
-                           const CoverageType requestedCoverSolution) :
-                           optionTable_({}),
-                           itemTable_({}),
-                           links_({}),
-                           numItems_(0),
-                           numOptions_(0),
-                           requestedCoverSolution_(requestedCoverSolution),
-                           hitLimit_(false){
+                           const CoverageType requestedCoverSolution)
+    : optionTable_(),
+      itemTable_(),
+      links_(),
+      numItems_(0),
+      numOptions_(0),
+      requestedCoverSolution_(requestedCoverSolution),
+      hitLimit_(false) {
+
     if (requestedCoverSolution == DEFENSE) {
         buildDefenseLinks(typeInteractions);
     } else if (requestedCoverSolution == ATTACK){
@@ -314,14 +315,15 @@ PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typ
 }
 
 PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typeInteractions,
-                           const std::set<std::string>& attackTypes) :
-                           optionTable_({}),
-                           itemTable_({}),
-                           links_({}),
-                           numItems_(0),
-                           numOptions_(0),
-                           requestedCoverSolution_(DEFENSE),
-                           hitLimit_(false){
+                           const std::set<std::string>& attackTypes)
+    : optionTable_(),
+      itemTable_(),
+      links_(),
+      numItems_(0),
+      numOptions_(0),
+      requestedCoverSolution_(DEFENSE),
+      hitLimit_(false) {
+
     if (attackTypes.empty()) {
         buildDefenseLinks(typeInteractions);
     } else {
