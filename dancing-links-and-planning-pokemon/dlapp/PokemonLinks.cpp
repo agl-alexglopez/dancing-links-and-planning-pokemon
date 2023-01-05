@@ -58,12 +58,12 @@ void PokemonLinks::fillExactCoverages(std::set<RankedSet<std::string>>& exactCov
     if (depthLimit <= 0) {
         return;
     }
-    int attackType = chooseItem();
+    int itemToCover = chooseItem();
     // An item has become inaccessible due to our chosen options so far, undo.
-    if (attackType == -1) {
+    if (itemToCover == -1) {
         return;
     }
-    for (int cur = links_[attackType].down; cur != attackType; cur = links_[cur].down) {
+    for (int cur = links_[itemToCover].down; cur != itemToCover; cur = links_[cur].down) {
         std::pair<int,std::string> typeStrength = coverType(cur);
         coverage.insert(typeStrength.first, typeStrength.second);
 
@@ -218,12 +218,12 @@ void PokemonLinks::fillOverlappingCoverages(std::set<RankedSet<std::string>>& ov
      * example, in gen 1 there is no effective defense against Dragon attacks. So even though we
      * never decrease length of a column, we could still have no way to cover an item.
      */
-    int attackType = chooseItem();
-    if (attackType == -1) {
+    int itemToCover = chooseItem();
+    if (itemToCover == -1) {
         return;
     }
 
-    for (int cur = links_[attackType].down; cur != attackType; cur = links_[cur].down) {
+    for (int cur = links_[itemToCover].down; cur != itemToCover; cur = links_[cur].down) {
         std::pair<int,std::string> typeStrength = overlappingCoverType(cur, depthTag);
         coverage.insert(typeStrength.first, typeStrength.second);
 
