@@ -14,7 +14,7 @@ Instead of building their new libraries, however, you will just build this older
 
 ## Overview
 
-In October of 2022, Donald Knuth released *The Art of Computer Programming: Volume 4b: Combinatorial Algorithms, Part 2*. In this work he revised his previous implementation of his Algorithm X via Dancing Links. His revision included changing the quadruply linked nodes that solved backtracking problems to an array of nodes. This is an interesting optimization. It provides good locality, ease of debugging, and memory safety if you use an array that does not need to be managed like a C++ vector. One of the points Knuth makes clear through his section on Dancing Links is that he wants to give people the tools they need to expand and try his backtracking strategies on many problems. If you want the original Algorithm, please read Knuth's work. Below, I will discuss how I applied or modified his strategies to fit a fun puzzle I have often considered for the game of Pokémon.
+In October of 2022, Donald Knuth released *The Art of Computer Programming: Volume 4b: Combinatorial Algorithms, Part 2*. In this work he revised his previous implementation of his Algorithm X via Dancing Links. His revision included changing the quadruple linked nodes that solved backtracking problems to an array of nodes. This is an interesting optimization. It provides good locality, ease of debugging, and memory safety if you use an array that does not need to be managed like a C++ vector. One of the points Knuth makes clear through his section on Dancing Links is that he wants to give people the tools they need to expand and try his backtracking strategies on many problems. If you want the original Algorithm, please read Knuth's work. Below, I will discuss how I applied or modified his strategies to fit a fun puzzle I have often considered for the game of Pokémon.
 
 ## Pokémon Type Coverage
 
@@ -260,6 +260,8 @@ For the `all-maps.json` file, I got the information on gyms and the attack and d
 - https://serebii.net
 
 ## Next Steps
+
+I had to check different Pokémon types against the generation in which they were introduced, especially for generation 1. This was very slow work. Ideally, I would create a `json` file for each generation--the one I use now is based on all types up to gen 9 and I just filter out types I don't need for a lower generation--but I haven't yet found a resource that breaks down Pokémon types by generation introduced. Beyond just the major introductions of new types like Steel, Dark, and Fairy, there were many new mixes on types that have been present since gen 1 scattered throughout the franchise timeline. I will try to find a way, and the time, to do this generation breakdown so I can keep the most accurate information for the cover problem. Apologies if some earlier generation maps have a few inaccuracies.
 
 I would like to visualize the cover problems in greater detail on a website and will try to put together a graph cover visualizer soon. Thanks for reading!
 
