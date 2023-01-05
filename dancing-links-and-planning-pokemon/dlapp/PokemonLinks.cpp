@@ -180,7 +180,7 @@ int PokemonLinks::chooseItem() const {
     int chosenIndex = 0;
     int head = 0;
     for (int cur = itemTable_[0].right; cur != head; cur = itemTable_[cur].right) {
-        // No way to reach this item. Bad past choices!
+        // No way to reach this item. Bad past choices or impossible to solve.
         if (links_[cur].topOrLen <= 0) {
             return -1;
         }
