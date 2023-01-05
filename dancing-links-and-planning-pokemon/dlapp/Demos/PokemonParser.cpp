@@ -65,32 +65,33 @@ namespace {
                                                "Fairy-Fighting","Ghost-Normal","Electric-Rock",
                                                "Electric-Grass","Electric-Psychic"};
 
-    const std::set<std::string> ADDED_GEN_6_TO_8 = {"Fairy","Fighting-Ghost","Electric-Normal",
+    const std::set<std::string> ADDED_GEN_5_TO_8 = {"Fairy","Fighting-Ghost","Electric-Normal",
                                                     "Fire-Normal","Fire-Water","Fighting-Ice",
                                                     "Bug-Ice","Poison-Rock","Ghost-Grass",
-                                                    "Fire-Poison","Poison-Psychic",
+                                                    "Fire-Poison","Poison-Psychic","Fire-Ghost"
                                                     "Electric-Poison","Dragon-Grass","Dark-Normal",
-                                                    "Fighting-Flying"};
+                                                    "Fighting-Flying","Dark-Fighting","Bug-Fire",
+                                                    "Dragon-Normal","Dragon-Fire","Dragon-Fighting",
+                                                    "Dragon-Poison","Dragon-Ice","Dragon-Electric",
+                                                    "Dragon-Rock","Dark-Dragon","Electric-Ground",
+                                                    "Bug-Electric","Fire-Psychic","Bug-Psychic",
+                                                    "Ghost-Psychic","Fire-Ice","Ghost-Ground",
+                                                    "Fighting-Normal","Ghost-Water","Dark-Ground",
+                                                    "Dark-Steel","Ghost-Steel"};
 
-    const std::set<std::string> ADDED_GEN_2_TO_5 = {"Dark","Steel","Dragon-Normal","Dragon-Fire",
-                                                    "Dragon-Water","Dragon-Electric",
-                                                    "Dragon-Ice","Dragon-Fighting","Dragon-Poison",
-                                                    "Dragon-Ground","Dragon-Psychic","Dragon-Rock",
-                                                    "Dragon-Ghost","Dark-Dragon","Dragon-Steel",
+    const std::set<std::string> ADDED_GEN_2_TO_4 = {"Dark","Steel","Dragon-Water","Dragon-Ground",
+                                                    "Dragon-Psychic","Dragon-Ghost","Dragon-Steel",
                                                     "Bug-Rock","Electric-Water","Fighting-Fire",
-                                                    "Bug-Electric","Fire-Psychic","Fighting-Grass",
-                                                    "Grass-Ice","Grass-Ground","Bug-Ghost",
-                                                    "Grass-Normal","Grass-Rock","Fire-Ground",
-                                                    "Grass-Water","Fighting-Normal",
-                                                    "Electric-Fire","Electric-Ground","Bug-Psychic",
-                                                    "Ghost-Psychic","Ice-Rock","Normal-Water",
-                                                    "Normal-Psychic","Fire-Ice","Flying-Psychic",
-                                                    "Fire-Rock","Bug-Water","Bug-Fighting",
-                                                    "Ground-Ice","Ghost-Ice","Ghost-Water",
-                                                    "Ghost-Ground","Flying-Grass","Electric-Ghost",
+                                                    "Fighting-Grass", "Grass-Ice","Grass-Ground",
+                                                    "Bug-Ghost","Grass-Normal","Grass-Rock",
+                                                    "Fire-Ground","Grass-Water","Electric-Fire",
+                                                    "Ice-Rock","Normal-Water","Normal-Psychic",
+                                                    "Flying-Psychic","Fire-Rock","Bug-Water",
+                                                    "Bug-Fighting","Ground-Ice","Ghost-Ice",
+                                                    "Flying-Grass","Electric-Ghost",
                                                     "Bug-Ground","Flying-Ground","Fighting-Rock",
-                                                    "Ground-Psychic","Flying-Ghost","Fire-Ghost",
-                                                    "Bug-Fire","Psychic-Rock","Electric-Ice"};
+                                                    "Ground-Psychic","Flying-Ghost",
+                                                    "Psychic-Rock","Electric-Ice"};
     const std::string DUAL_TYPE_DELIM = "-";
 
     // Might as well use QStrings if I am parsing with them in the first place.
@@ -137,31 +138,31 @@ namespace {
     }
 
     bool isGenOneType(const std::string& type) {
-        if (ADDED_GEN_9.count(type) || ADDED_GEN_2_TO_5.count(type)
-                || ADDED_GEN_6_TO_8.count(type)) {
+        if (ADDED_GEN_9.count(type) || ADDED_GEN_2_TO_4.count(type)
+                || ADDED_GEN_5_TO_8.count(type)) {
             return false;
         }
         std::size_t typeDelim = type.find_first_of(DUAL_TYPE_DELIM);
         if (typeDelim != std::string::npos) {
             std::string firstType = type.substr(0, typeDelim);
             std::string secondType = type.substr(typeDelim + 1);
-            if (ADDED_GEN_2_TO_5.count(firstType) || ADDED_GEN_6_TO_8.count(firstType)
-                    || ADDED_GEN_2_TO_5.count(secondType) || ADDED_GEN_6_TO_8.count(secondType)) {
+            if (ADDED_GEN_2_TO_4.count(firstType) || ADDED_GEN_5_TO_8.count(firstType)
+                    || ADDED_GEN_2_TO_4.count(secondType) || ADDED_GEN_5_TO_8.count(secondType)) {
                 return false;
             }
         }
         return true;
     }
 
-    bool isGenTwoToFive(std::string& type) {
-        if (ADDED_GEN_6_TO_8.count(type) || ADDED_GEN_9.count(type)) {
+    bool isGenTwoToFour(std::string& type) {
+        if (ADDED_GEN_5_TO_8.count(type) || ADDED_GEN_9.count(type)) {
             return false;
         }
         std::size_t typeDelim = type.find_first_of(DUAL_TYPE_DELIM);
         if (typeDelim != std::string::npos) {
             std::string firstType = type.substr(0, typeDelim);
             std::string secondType = type.substr(typeDelim + 1);
-            if (ADDED_GEN_6_TO_8.count(firstType) || ADDED_GEN_6_TO_8.count(secondType)
+            if (ADDED_GEN_5_TO_8.count(firstType) || ADDED_GEN_5_TO_8.count(secondType)
                     || ADDED_GEN_9.count(firstType) || ADDED_GEN_9.count(secondType)) {
                 return false;
             }
@@ -169,7 +170,7 @@ namespace {
         return true;
     }
 
-    bool isGenSixToEight(std::string& type) {
+    bool isGenFiveToEight(std::string& type) {
         if (ADDED_GEN_9.count(type)) {
             return false;
         }
@@ -226,9 +227,9 @@ namespace {
         } else if (generation == GEN_ONE) {
             return filterPokemonByGeneration(&isGenOneType);
         } else if (generation < GEN_6) {
-            return filterPokemonByGeneration(&isGenTwoToFive);
+            return filterPokemonByGeneration(&isGenTwoToFour);
         } else if (generation <= GEN_8){
-            return filterPokemonByGeneration(&isGenSixToEight);
+            return filterPokemonByGeneration(&isGenFiveToEight);
         } else {
             std::cerr << "Could not pick a Pokemon Generation to load." << std::endl;
             return {};
