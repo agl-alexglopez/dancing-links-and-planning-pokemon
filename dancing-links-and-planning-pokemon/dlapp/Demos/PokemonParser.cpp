@@ -51,7 +51,7 @@ namespace {
 
     const int GEN_ONE = 1;
     const int GEN_2 = 2;
-    const int GEN_6 = 6;
+    const int GEN_5 = 5;
     const int GEN_8 = 8;
     const int GEN_9 = 9;
     const int MAX_GEN_COMMENT_LEN = 4;
@@ -77,7 +77,8 @@ namespace {
                                                     "Bug-Electric","Fire-Psychic","Bug-Psychic",
                                                     "Ghost-Psychic","Fire-Ice","Ghost-Ground",
                                                     "Fighting-Normal","Ghost-Water","Dark-Ground",
-                                                    "Dark-Steel","Ghost-Steel"};
+                                                    "Dark-Steel","Ghost-Steel","Dark-Psychic",
+                                                    "Dark-Electric","Fighting-Rock","Ice-Steel"};
 
     const std::set<std::string> ADDED_GEN_2_TO_4 = {"Dark","Steel","Dragon-Water","Dragon-Ground",
                                                     "Dragon-Psychic","Dragon-Ghost","Dragon-Steel",
@@ -89,7 +90,7 @@ namespace {
                                                     "Flying-Psychic","Fire-Rock","Bug-Water",
                                                     "Bug-Fighting","Ground-Ice","Ghost-Ice",
                                                     "Flying-Grass","Electric-Ghost",
-                                                    "Bug-Ground","Flying-Ground","Fighting-Rock",
+                                                    "Bug-Ground","Flying-Ground",
                                                     "Ground-Psychic","Flying-Ghost",
                                                     "Psychic-Rock","Electric-Ice"};
     const std::string DUAL_TYPE_DELIM = "-";
@@ -226,7 +227,7 @@ namespace {
             return filterPokemonByGeneration(&isGenNine);
         } else if (generation == GEN_ONE) {
             return filterPokemonByGeneration(&isGenOneType);
-        } else if (generation < GEN_6) {
+        } else if (generation < GEN_5) {
             return filterPokemonByGeneration(&isGenTwoToFour);
         } else if (generation <= GEN_8){
             return filterPokemonByGeneration(&isGenFiveToEight);
