@@ -257,15 +257,6 @@ private:
     /* * * * * * * * * * *   Dancing Links Internals and Implementation   * * * * * * * * * * * * */
 
 
-    /* Alter here if you want to change the rules of Pokemon. Normally, there are at most 6 pokemon
-     * in a team and each pokemon can have 4 different attacks for a total of 24 slots to fill with
-     * different attack types. Max output is a limit that will cut off the recursive algorithm if
-     * it runs too long. For example, asking for overlapping defense coverages for all of Gen 9 will
-     * run out of memory, so I cut everything off at 100,000 sets generated.
-     */
-    const std::size_t MAX_OUTPUT_SIZE=100000;
-
-
     /* These data structures contain the core logic of Algorithm X via dancing links. For more
      * detailed information, see the tests in the implementation. These help use acheive in place
      * recursion.
@@ -273,7 +264,7 @@ private:
     std::vector<std::string> optionTable_;  // How we know the name of the option we chose.
     std::vector<typeName> itemTable_;       // How we know the names of our items
     std::vector<pokeLink> links_;           // The links that dance!
-    std::size_t maxOutput_;
+    const std::size_t maxOutput_;           // Cutoff our solution generation for GUI usability.
     int numItems_;
     int numOptions_;
     CoverageType requestedCoverSolution_;
