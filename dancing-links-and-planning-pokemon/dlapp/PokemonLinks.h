@@ -258,17 +258,17 @@ private:
 
 
     /* These data structures contain the core logic of Algorithm X via dancing links. For more
-     * detailed information, see the tests in the implementation. These help use acheive in place
+     * detailed information, see the tests in the implementation. These help acheive in place
      * recursion.
      */
     std::vector<std::string> optionTable_;  // How we know the name of the option we chose.
-    std::vector<typeName> itemTable_;       // How we know the names of our items
+    std::vector<typeName> itemTable_;       // How we know the names of our items.
     std::vector<pokeLink> links_;           // The links that dance!
     const std::size_t maxOutput_;           // Cutoff our solution generation for GUI usability.
-    int numItems_;
-    int numOptions_;
-    CoverageType requestedCoverSolution_;
-    bool hitLimit_;
+    bool hitLimit_;                         // How we report to a user that we cutoff more solutions
+    int numItems_;                          // What needs to be covered.
+    int numOptions_;                        // Options we can choose from to cover items.
+    CoverageType requestedCoverSolution_;   // The user is asking for ATTACK or DEFENSE
 
 
     /**

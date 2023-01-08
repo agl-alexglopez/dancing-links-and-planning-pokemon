@@ -308,10 +308,10 @@ PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typ
       itemTable_(),
       links_(),
       maxOutput_(100000),
+      hitLimit_(false),
       numItems_(0),
       numOptions_(0),
-      requestedCoverSolution_(requestedCoverSolution),
-      hitLimit_(false) {
+      requestedCoverSolution_(requestedCoverSolution) {
 
     if (requestedCoverSolution == DEFENSE) {
         buildDefenseLinks(typeInteractions);
@@ -329,10 +329,10 @@ PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typ
       itemTable_(),
       links_(),
       maxOutput_(100000),
+      hitLimit_(false),
       numItems_(0),
       numOptions_(0),
-      requestedCoverSolution_(DEFENSE),
-      hitLimit_(false) {
+      requestedCoverSolution_(DEFENSE) {
 
     if (attackTypes.empty()) {
         buildDefenseLinks(typeInteractions);
@@ -359,7 +359,6 @@ PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typ
 void PokemonLinks::buildDefenseLinks(const std::map<std::string,std::set<Resistance>>&
                                      typeInteractions) {
     // We always must gather all attack types available in this query
-    requestedCoverSolution_ = DEFENSE;
     std::set<std::string> generationTypes = {};
     for (const Resistance& res : typeInteractions.begin()->second) {
         generationTypes.insert(res.type());
@@ -458,7 +457,6 @@ void PokemonLinks::initializeColumns(const std::map<std::string,std::set<Resista
 
 void PokemonLinks::buildAttackLinks(const std::map<std::string,std::set<Resistance>>&
                                     typeInteractions) {
-    requestedCoverSolution_ = ATTACK;
     optionTable_.push_back("");
     itemTable_.push_back({"", 0, 1});
     links_.push_back({0, 0, 0, Resistance::EMPTY_,0});
