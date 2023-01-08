@@ -117,15 +117,6 @@ class PokemonLinks {
 
 public:
 
-    /* Alter here if you want to change the rules of Pokemon. Normally, there are at most 6 pokemon
-     * in a team and each pokemon can have 4 different attacks for a total of 24 slots to fill with
-     * different attack types. Max output is a limit that will cut off the recursive algorithm if
-     * it runs too long. For example, asking for overlapping defense coverages for all of Gen 9 will
-     * run out of memory, so I cut everything off at 100,000 sets generated.
-     */
-    const std::size_t MAX_OUTPUT_SIZE=100000;
-    const int MAX_TEAM_SIZE=6;
-
     // The user is asking us for the defensive team they should build or attacks they need.
     typedef enum CoverageType {
         DEFENSE,
@@ -223,6 +214,23 @@ public:
      */
     bool reachedOutputLimit();
 
+    /**
+     * @brief numItems  will tell you how many items you must cover in the given cover problem.
+     * @return          an int representing the number of items.
+     */
+    int numItems();
+
+    /**
+     * @brief numOptions  tells you how many choices present to combine in order to cover all items.
+     * @return            an int representing number of options.
+     */
+    int numOptions();
+
+    /**
+     * @brief optionLimit  tells you limiting number of options you can use to cover items.
+     * @return             int int representing the limit to our choices.
+     */
+    int optionLimit();
 
     /* * * * * * * * * * * * *  Overloaded Debugging Operators  * * * * * * * * * * * * * * * * * */
 
@@ -254,6 +262,16 @@ private:
     /* * * * * * * * * * *   Dancing Links Internals and Implementation   * * * * * * * * * * * * */
 
 
+    /* Alter here if you want to change the rules of Pokemon. Normally, there are at most 6 pokemon
+     * in a team and each pokemon can have 4 different attacks for a total of 24 slots to fill with
+     * different attack types. Max output is a limit that will cut off the recursive algorithm if
+     * it runs too long. For example, asking for overlapping defense coverages for all of Gen 9 will
+     * run out of memory, so I cut everything off at 100,000 sets generated.
+     */
+    const std::size_t MAX_OUTPUT_SIZE=100000;
+    const int MAX_TEAM_SIZE=6;
+
+
     /* These data structures contain the core logic of Algorithm X via dancing links. For more
      * detailed information, see the tests in the implementation. These help use acheive in place
      * recursion.
@@ -262,10 +280,12 @@ private:
     std::vector<typeName> itemTable_;       // How we know the names of our items
     std::vector<pokeLink> links_;           // The links that dance!
     int depthLimit_;
+    std::size_t maxOutput_;
     int numItems_;
     int numOptions_;
     CoverageType requestedCoverSolution_;
     bool hitLimit_;
+
 
     /**
      * @brief fillExactCoverages  fills the output parameters with every exact cover that can be

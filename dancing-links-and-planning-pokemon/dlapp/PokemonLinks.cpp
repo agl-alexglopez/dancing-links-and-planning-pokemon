@@ -72,7 +72,7 @@ void PokemonLinks::fillExactCoverages(std::set<RankedSet<std::string>>& exactCov
         /* It is possible for these algorithms to produce many many sets. To make the Pokemon
          * Planner GUI more usable I cut off recursion if we are generating too many sets.
          */
-        if (exactCoverages.size() == MAX_OUTPUT_SIZE) {
+        if (exactCoverages.size() == maxOutput_) {
             hitLimit_ = true;
             uncoverType(cur);
             return;
@@ -232,7 +232,7 @@ void PokemonLinks::fillOverlappingCoverages(std::set<RankedSet<std::string>>& ov
         /* It is possible for these algorithms to produce many many sets. To make the Pokemon
          * Planner GUI more usable I cut off recursion if we are generating too many sets.
          */
-        if (overlappingCoverages.size() == MAX_OUTPUT_SIZE) {
+        if (overlappingCoverages.size() == maxOutput_) {
             hitLimit_ = true;
             overlappingUncoverType(cur);
             return;
@@ -290,6 +290,17 @@ bool PokemonLinks::reachedOutputLimit() {
     return hitLimit_;
 }
 
+int PokemonLinks::numItems() {
+    return numItems_;
+}
+
+int PokemonLinks::numOptions() {
+    return numOptions_;
+}
+
+int PokemonLinks::optionLimit() {
+    return depthLimit_;
+}
 
 /* * * * * * * * * * * * * * * * *   Constructors and Links Build       * * * * * * * * * * * * * */
 
@@ -299,6 +310,8 @@ PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typ
     : optionTable_(),
       itemTable_(),
       links_(),
+      depthLimit_(MAX_TEAM_SIZE),
+      maxOutput_(MAX_OUTPUT_SIZE),
       numItems_(0),
       numOptions_(0),
       requestedCoverSolution_(requestedCoverSolution),
@@ -319,6 +332,8 @@ PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typ
     : optionTable_(),
       itemTable_(),
       links_(),
+      depthLimit_(attackTypes.size()),
+      maxOutput_(MAX_OUTPUT_SIZE),
       numItems_(0),
       numOptions_(0),
       requestedCoverSolution_(DEFENSE),
@@ -349,7 +364,6 @@ PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typ
 void PokemonLinks::buildDefenseLinks(const std::map<std::string,std::set<Resistance>>&
                                      typeInteractions) {
     // We always must gather all attack types available in this query
-    depthLimit_ = MAX_TEAM_SIZE;
     requestedCoverSolution_ = DEFENSE;
     std::set<std::string> generationTypes = {};
     for (const Resistance& res : typeInteractions.begin()->second) {
