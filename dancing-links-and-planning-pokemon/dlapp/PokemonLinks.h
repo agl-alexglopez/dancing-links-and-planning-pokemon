@@ -187,7 +187,7 @@ public:
      *                                   types are for attacking the selected defensive types.
      * @return                       the set of Ranked Sets that form all solutions of exact cover.
      */
-    std::set<RankedSet<std::string>> getExactTypeCoverages();
+    std::set<RankedSet<std::string>> getExactTypeCoverages(int choiceLimit);
 
     /**
      * @brief getOverlappingTypeCoverages  an overlapping coverage is when we cover every "item"
@@ -202,7 +202,7 @@ public:
      *                                     duplicate solutions with the Dancing Links method.
      * @return                             the set of Ranked Sets that form all overlapping covers.
      */
-    std::set<RankedSet<std::string>> getOverlappingTypeCoverages();
+    std::set<RankedSet<std::string>> getOverlappingTypeCoverages(int choiceLimit);
 
     /**
      * @brief reachedOutputLimit  for usability of Pokemon Planning application I cut off output at
@@ -226,11 +226,6 @@ public:
      */
     int numOptions();
 
-    /**
-     * @brief optionLimit  tells you limiting number of options you can use to cover items.
-     * @return             int int representing the limit to our choices.
-     */
-    int optionLimit();
 
     /* * * * * * * * * * * * *  Overloaded Debugging Operators  * * * * * * * * * * * * * * * * * */
 
@@ -269,7 +264,6 @@ private:
      * run out of memory, so I cut everything off at 100,000 sets generated.
      */
     const std::size_t MAX_OUTPUT_SIZE=100000;
-    const int MAX_TEAM_SIZE=6;
 
 
     /* These data structures contain the core logic of Algorithm X via dancing links. For more
@@ -279,7 +273,6 @@ private:
     std::vector<std::string> optionTable_;  // How we know the name of the option we chose.
     std::vector<typeName> itemTable_;       // How we know the names of our items
     std::vector<pokeLink> links_;           // The links that dance!
-    int depthLimit_;
     std::size_t maxOutput_;
     int numItems_;
     int numOptions_;

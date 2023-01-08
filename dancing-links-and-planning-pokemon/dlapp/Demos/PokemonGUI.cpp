@@ -357,6 +357,16 @@ namespace {
     /* * * * * * *     End of Adapted Graph Drawing Algorithm by Keith Schwarz    * * * * * * * * */
 
 
+    /* You could alter the rules of pokemon here. The default team size is 6 Pokemon that you could
+     * choose for defensive types and they can each learn 4 attack moves. However, there is only
+     * 15-18 attack types in this game so there is effectively no limit on attack choices. So if
+     * one day they add more attack types, the second limit for attack may become more relevant.
+     */
+    namespace {
+        const int POKEMON_TEAM_SIZE = 6;
+        const int POKEMON_TEAM_ATTACK_SLOTS = 24;
+    }
+
     class PokemonGUI: public ProblemHandler {
     public:
         PokemonGUI(GWindow& window);
@@ -423,8 +433,9 @@ namespace {
         void solveAttack(const CoverageRequested& exactOrOverlapping);
         void printDefenseSolution(bool hitLimit, const std::set<RankedSet<std::string>>& solution);
         void printAttackSolution(bool hitLimit, const std::set<RankedSet<std::string>>& solution);
-        void printDefenseMessage(const std::set<std::string>& attacksToPrint);
-        void printAttackMessage(const std::map<std::string,std::set<Resistance>>& defenseToPrint);
+        void printDefenseMessage(const std::set<std::string>& attacksToPrint,int numDefenseOptions);
+        void printAttackMessage(const std::map<std::string,std::set<Resistance>>& defenseToPrint,
+                                int numAttackOptions);
     };
 
     PokemonGUI::PokemonGUI(GWindow& window) : ProblemHandler(window) {
@@ -588,10 +599,16 @@ namespace {
         requestRepaint();
     }
 
-    void PokemonGUI::printDefenseMessage(const std::set<std::string>& attacksToPrint) {
-        (*mSolutionsDisplay) << "Defending against " << attacksToPrint.size()
-                             << " attack types:\n\n";
-        (*mSolutionsDisplay) << "| ";
+    void PokemonGUI::printDefenseMessage(const std::set<std::string>& attacksToPrint,
+                                         int numDefenseOptions) {
+        (*mSolutionsDisplay) << "Defending against the following ";
+        if (attacksToPrint.empty()) {
+            (*mSolutionsDisplay) << mAllGenerationAttackTypes.size();
+        } else {
+            (*mSolutionsDisplay) << attacksToPrint.size();
+        }
+        (*mSolutionsDisplay) << " attack types with " << numDefenseOptions
+                             << " defense options:\n\n| ";
         for (const auto& g : attacksToPrint) {
             (*mSolutionsDisplay) << g << " | ";
         }
@@ -619,9 +636,11 @@ namespace {
     }
 
     void PokemonGUI::printAttackMessage(const std::map<std::string,
-                                                       std::set<Resistance>>& defenseToPrint) {
-        (*mSolutionsDisplay) << "Attacking " << defenseToPrint.size() << " defensive types:\n\n";
-        (*mSolutionsDisplay) << "| ";
+                                        std::set<Resistance>>& defenseToPrint,
+                                        int numAttackOptions) {
+        (*mSolutionsDisplay) << "Attacking the following " << defenseToPrint.size()
+                             << " defensive types with " << numAttackOptions
+                             << " attack options:\n\n| ";
         for (const auto& type : defenseToPrint) {
             (*mSolutionsDisplay) << type.first << " | ";
         }
@@ -658,25 +677,27 @@ namespace {
         mProblems->setEnabled(false);
 
 
+        std::set<std::string>* attackTypes = &mAllGenerationAttackTypes;
         std::set<std::string> gymAttackTypes = {};
         if (!mSelected.empty()) {
             mUserSelection = SELECTED_GYMS;
             gymAttackTypes = loadSelectedGymsAttacks(mProblems->getSelectedItem(), mSelected);
-            printDefenseMessage(gymAttackTypes);
+            attackTypes = &gymAttackTypes;
         } else {
             mUserSelection = FULL_GENERATION;
-            printDefenseMessage(mAllGenerationAttackTypes);
         }
 
         // If gymAttackTypes is empty the constructor just builds the full generation of pokemon.
-        PokemonLinks dlx(mGeneration.typeInteractions, gymAttackTypes);
+        PokemonLinks dlx(mGeneration.typeInteractions, *attackTypes);
+
+        printDefenseMessage(*attackTypes, dlx.numOptions());
 
         std::set<RankedSet<std::string>> solution = {};
 
         if (exactOrOverlapping == EXACT) {
-            solution = dlx.getExactTypeCoverages();
+            solution = dlx.getExactTypeCoverages(POKEMON_TEAM_SIZE);
         } else {
-            solution = dlx.getOverlappingTypeCoverages();
+            solution = dlx.getOverlappingTypeCoverages(POKEMON_TEAM_SIZE);
         }
 
         mAllCoverages.reset(new std::set<RankedSet<std::string>>(solution));
@@ -714,17 +735,17 @@ namespace {
                                                          mProblems->getSelectedItem(),
                                                          mSelected);
             genToUse = &modifiedGeneration;
-            printAttackMessage(modifiedGeneration);
         } else {
             mUserSelection = FULL_GENERATION;
-            printAttackMessage(mGeneration.typeInteractions);
         }
 
         std::set<RankedSet<std::string>> solution = {};
         PokemonLinks dlx(*genToUse, PokemonLinks::ATTACK);
 
-        req == EXACT ? solution = dlx.getExactTypeCoverages() :
-                       solution = dlx.getOverlappingTypeCoverages();
+        printAttackMessage(*genToUse, dlx.numOptions());
+
+        req == EXACT ? solution = dlx.getExactTypeCoverages(POKEMON_TEAM_ATTACK_SLOTS) :
+                       solution = dlx.getOverlappingTypeCoverages(POKEMON_TEAM_ATTACK_SLOTS);
 
 
         mAllCoverages.reset(new std::set<RankedSet<std::string>>(solution));
