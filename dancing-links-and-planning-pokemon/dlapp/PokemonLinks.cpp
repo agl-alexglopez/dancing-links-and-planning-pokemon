@@ -34,29 +34,29 @@
 #include "PokemonLinks.h"
 #include <limits.h>
 #include <cmath>
-namespace Dx = DancingLinks;
 
+namespace DancingLinks {
 
 /* * * * * * * * * * * * *       Convenience Callers for Encapsulation      * * * * * * * * * * * */
 
 
-std::set<RankedSet<std::string>> Dx::solveExactCover(PokemonLinks& dlx, int choiceLimit) {
+std::set<RankedSet<std::string>> solveExactCover(PokemonLinks& dlx, int choiceLimit) {
     return dlx.getExactCoverages(choiceLimit);
 }
 
-std::set<RankedSet<std::string>> Dx::solveOverlappingCover(PokemonLinks& dlx, int choiceLimit) {
+std::set<RankedSet<std::string>> solveOverlappingCover(PokemonLinks& dlx, int choiceLimit) {
     return dlx.getOverlappingCoverages(choiceLimit);
 }
 
-bool Dx::hasMaxSolutions(PokemonLinks& dlx) {
+bool hasMaxSolutions(PokemonLinks& dlx) {
     return dlx.reachedOutputLimit();
 }
 
-int Dx::numItems(PokemonLinks& dlx) {
+int numItems(PokemonLinks& dlx) {
     return dlx.getNumItems();
 }
 
-int Dx::numOptions(PokemonLinks& dlx) {
+int numOptions(PokemonLinks& dlx) {
     return dlx.getNumOptions();
 }
 
@@ -64,7 +64,7 @@ int Dx::numOptions(PokemonLinks& dlx) {
 /* * * * * * * * * * * * * * * *    Algorithm X via Dancing Links   * * * * * * * * * * * * * * * */
 
 
-std::set<RankedSet<std::string>> Dx::PokemonLinks::getExactCoverages(int choiceLimit) {
+std::set<RankedSet<std::string>> PokemonLinks::getExactCoverages(int choiceLimit) {
     std::set<RankedSet<std::string>> coverages = {};
     RankedSet<std::string> coverage = {};
     hitLimit_ = false;
@@ -72,7 +72,7 @@ std::set<RankedSet<std::string>> Dx::PokemonLinks::getExactCoverages(int choiceL
     return coverages;
 }
 
-void Dx::PokemonLinks::fillExactCoverages(std::set<RankedSet<std::string>>& coverages,
+void PokemonLinks::fillExactCoverages(std::set<RankedSet<std::string>>& coverages,
                                           RankedSet<std::string>& coverage,
                                           int depthLimit) {
     if (itemTable_[0].right == 0 && depthLimit >= 0) {
@@ -107,7 +107,7 @@ void Dx::PokemonLinks::fillExactCoverages(std::set<RankedSet<std::string>>& cove
     }
 }
 
-std::pair<int,std::string> Dx::PokemonLinks::coverType(int indexInOption) {
+std::pair<int,std::string> PokemonLinks::coverType(int indexInOption) {
     std::pair<int,std::string> result = {};
     int i = indexInOption;
     do {
@@ -135,7 +135,7 @@ std::pair<int,std::string> Dx::PokemonLinks::coverType(int indexInOption) {
     return result;
 }
 
-void Dx::PokemonLinks::uncoverType(int indexInOption) {
+void PokemonLinks::uncoverType(int indexInOption) {
     // Go left first so the in place link restoration of the doubly linked lookup table works.
     int i = --indexInOption;
     do {
@@ -157,7 +157,7 @@ void Dx::PokemonLinks::uncoverType(int indexInOption) {
  * question but also shrinks the problem much more quickly.
  */
 
-void Dx::PokemonLinks::hideOptions(int indexInOption) {
+void PokemonLinks::hideOptions(int indexInOption) {
     for (int row = links_[indexInOption].down; row != indexInOption; row = links_[row].down) {
         if (row == links_[indexInOption].topOrLen) {
             continue;
@@ -176,7 +176,7 @@ void Dx::PokemonLinks::hideOptions(int indexInOption) {
     }
 }
 
-void Dx::PokemonLinks::unhideOptions(int indexInOption) {
+void PokemonLinks::unhideOptions(int indexInOption) {
     for (int row = links_[indexInOption].up; row != indexInOption; row = links_[row].up) {
         if (row == links_[indexInOption].topOrLen) {
             continue;
@@ -200,7 +200,7 @@ void Dx::PokemonLinks::unhideOptions(int indexInOption) {
 /* * * * * * * * * * * *  Shared Choosing Heuristic for Both Techniques * * * * * * * * * * * * * */
 
 
-int Dx::PokemonLinks::chooseItem() const {
+int PokemonLinks::chooseItem() const {
     int min = INT_MAX;
     int chosenIndex = 0;
     int head = 0;
@@ -221,7 +221,7 @@ int Dx::PokemonLinks::chooseItem() const {
 /* * * * * * * * * * * *   Overlapping Coverage via Dancing Links   * * * * * * * * * * * * * * * */
 
 
-std::set<RankedSet<std::string>> Dx::PokemonLinks::getOverlappingCoverages(int choiceLimit) {
+std::set<RankedSet<std::string>> PokemonLinks::getOverlappingCoverages(int choiceLimit) {
     std::set<RankedSet<std::string>> coverages = {};
     RankedSet<std::string> coverage = {};
     hitLimit_ = false;
@@ -229,7 +229,7 @@ std::set<RankedSet<std::string>> Dx::PokemonLinks::getOverlappingCoverages(int c
     return coverages;
 }
 
-void Dx::PokemonLinks::fillOverlappingCoverages(std::set<RankedSet<std::string>>& coverages,
+void PokemonLinks::fillOverlappingCoverages(std::set<RankedSet<std::string>>& coverages,
                                                  RankedSet<std::string>& coverage,
                                                  int depthTag) {
     if (itemTable_[0].right == 0 && depthTag >= 0) {
@@ -267,7 +267,7 @@ void Dx::PokemonLinks::fillOverlappingCoverages(std::set<RankedSet<std::string>>
     }
 }
 
-std::pair<int,std::string>Dx::PokemonLinks::overlappingCoverType(int indexInOption, int depthTag) {
+std::pair<int,std::string>PokemonLinks::overlappingCoverType(int indexInOption, int depthTag) {
     int i = indexInOption;
     std::pair<int, std::string> result = {};
     do {
@@ -294,7 +294,7 @@ std::pair<int,std::string>Dx::PokemonLinks::overlappingCoverType(int indexInOpti
     return result;
 }
 
-void Dx::PokemonLinks::overlappingUncoverType(int indexInOption) {
+void PokemonLinks::overlappingUncoverType(int indexInOption) {
     int i = --indexInOption;
     do {
         int top = links_[i].topOrLen;
@@ -311,15 +311,15 @@ void Dx::PokemonLinks::overlappingUncoverType(int indexInOption) {
     } while (i != indexInOption);
 }
 
-bool Dx::PokemonLinks::reachedOutputLimit() const {
+bool PokemonLinks::reachedOutputLimit() const {
     return hitLimit_;
 }
 
-int Dx::PokemonLinks::getNumItems() const {
+int PokemonLinks::getNumItems() const {
     return numItems_;
 }
 
-int Dx::PokemonLinks::getNumOptions() const {
+int PokemonLinks::getNumOptions() const {
     return numOptions_;
 }
 
@@ -327,7 +327,7 @@ int Dx::PokemonLinks::getNumOptions() const {
 /* * * * * * * * * * * * * * * * *   Constructors and Links Build       * * * * * * * * * * * * * */
 
 
-Dx::PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typeInteractions,
+PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typeInteractions,
                                const CoverageType requestedCoverSolution)
     : optionTable_(),
       itemTable_(),
@@ -348,7 +348,7 @@ Dx::PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>&
     }
 }
 
-Dx::PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typeInteractions,
+PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typeInteractions,
                                const std::set<std::string>& attackTypes)
     : optionTable_(),
       itemTable_(),
@@ -381,7 +381,7 @@ Dx::PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>&
     }
 }
 
-void Dx::PokemonLinks::buildDefenseLinks(const std::map<std::string,std::set<Resistance>>&
+void PokemonLinks::buildDefenseLinks(const std::map<std::string,std::set<Resistance>>&
                                          typeInteractions) {
     // We always must gather all attack types available in this query
     std::set<std::string> generationTypes = {};
@@ -411,7 +411,7 @@ void Dx::PokemonLinks::buildDefenseLinks(const std::map<std::string,std::set<Res
     initializeColumns(typeInteractions, columnBuilder, requestedCoverSolution_);
 }
 
-void Dx::PokemonLinks::initializeColumns(const std::map<std::string,std::set<Resistance>>&
+void PokemonLinks::initializeColumns(const std::map<std::string,std::set<Resistance>>&
                                          typeInteractions,
                                          std::unordered_map<std::string,int>& columnBuilder,
                                          CoverageType requestedCoverage) {
@@ -480,7 +480,7 @@ void Dx::PokemonLinks::initializeColumns(const std::map<std::string,std::set<Res
                       0});
 }
 
-void Dx::PokemonLinks::buildAttackLinks(const std::map<std::string,std::set<Resistance>>&
+void PokemonLinks::buildAttackLinks(const std::map<std::string,std::set<Resistance>>&
                                         typeInteractions) {
     optionTable_.push_back("");
     itemTable_.push_back({"", 0, 1});
@@ -509,15 +509,95 @@ void Dx::PokemonLinks::buildAttackLinks(const std::map<std::string,std::set<Resi
     initializeColumns(invertedMap, columnBuilder, requestedCoverSolution_);
 }
 
+/* Implementation ends here and the following are just the operators for debugging and the tests
+ * that use those operators. The namespace DancingLinks will end after the implementation of these
+ * friend overloaded operators and the tests will begin.
+ */
+
+bool operator==(const PokemonLinks::pokeLink& lhs, const PokemonLinks::pokeLink& rhs) {
+    return lhs.topOrLen == rhs.topOrLen && lhs.up == rhs.up
+            && lhs.down == rhs.down && lhs.multiplier == rhs.multiplier
+             && lhs.depthTag == rhs.depthTag;
+}
+bool operator!=(const PokemonLinks::pokeLink& lhs, const PokemonLinks::pokeLink& rhs) {
+    return !(lhs == rhs);
+}
+std::ostream& operator<<(std::ostream& os, const PokemonLinks::pokeLink& link) {
+    return os << "{" << link.topOrLen
+              << ", " << link.up << ", " << link.down << ", " << link.multiplier << "},";
+}
+bool operator==(const PokemonLinks::typeName& lhs, const PokemonLinks::typeName& rhs) {
+    return lhs.name == rhs.name && lhs.left == rhs.left && lhs.right == rhs.right;
+}
+bool operator!=(const PokemonLinks::typeName& lhs, const PokemonLinks::typeName& rhs) {
+    return !(lhs == rhs);
+}
+std::ostream& operator<<(std::ostream& os, const PokemonLinks::typeName& type) {
+    return os << "{ name: " << type.name
+              << ", left: " << type.left << ", right: " << type.right << " }";
+}
+bool operator==(const std::vector<PokemonLinks::pokeLink>& lhs,
+                const std::vector<PokemonLinks::pokeLink>& rhs) {
+    if (lhs.size() != rhs.size()) {
+        return false;
+    }
+    for (int i = 0; i < lhs.size(); i++) {
+        if (lhs[i] != rhs[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+bool operator!=(const std::vector<PokemonLinks::pokeLink>& lhs,
+                const std::vector<PokemonLinks::pokeLink>& rhs) {
+    return !(lhs == rhs);
+}
+bool operator==(const std::vector<PokemonLinks::typeName>& lhs,
+                const std::vector<PokemonLinks::typeName>& rhs) {
+    if (lhs.size() != rhs.size()) {
+        return false;
+    }
+    for (int i = 0; i < lhs.size(); i++) {
+        if (lhs[i] != rhs[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+bool operator!=(const std::vector<PokemonLinks::typeName>& lhs,
+                const std::vector<PokemonLinks::typeName>& rhs) {
+    return !(lhs == rhs);
+}
+std::ostream& operator<<(std::ostream& os, const std::vector<PokemonLinks::pokeLink>& links) {
+    os << "DLX ARRAY" << std::endl;
+    for (int index = 0; index < links.size(); index++) {
+        PokemonLinks::pokeLink item = links[index];
+        if (item.topOrLen < 0) {
+            os << "\n";
+        }
+        os << "{" << item.topOrLen << ","
+           << item.up << "," << item.down << "," << item.multiplier << "," << item.depthTag << "},";
+    }
+    os << std::endl;
+    return os;
+}
+std::ostream& operator<<(std::ostream&os,
+                                const std::vector<PokemonLinks::typeName>& items) {
+    os << "LOOKUP TABLE" << std::endl;
+    for (const auto& item : items) {
+        os << "{\"" << item.name << "\"," << item.left << "," << item.right << "},\n";
+    }
+    os << std::endl;
+    return os;
+}
+
+} // namespace DancingLinks
+
 
 /* * * * * * * * * * * * * * * *   Test Cases Below this Point    * * * * * * * * * * * * * * * * */
 
 
-/* Overloaded for convenience so I don't have to write loops to examine each element of the vectors
- * when using the Stanford test harness. If tests fail they will use these overloaded operators
- * to output the results. The types in these vectors already have their own overloaded equality
- * operators so I don't need to overload those.
- */
+namespace Dx = DancingLinks;
 
 inline std::ostream& operator<<(std::ostream&os, const std::vector<std::string>& options) {
     for (const auto& opt : options) {
@@ -526,7 +606,6 @@ inline std::ostream& operator<<(std::ostream&os, const std::vector<std::string>&
     os << std::endl;
     return os;
 }
-
 inline std::ostream& operator<<(std::ostream& os,
                                 const std::set<RankedSet<std::string>>& solution) {
     for (const auto& s : solution) {

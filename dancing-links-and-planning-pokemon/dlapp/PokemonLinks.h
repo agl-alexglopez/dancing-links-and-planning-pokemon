@@ -369,82 +369,22 @@ private:
      * useful or used by anything else that uses this class. This algorithm doesn't need to allow
      * users to have access to these internals.
      */
-
-    friend bool operator==(const pokeLink& lhs, const pokeLink& rhs) {
-        return lhs.topOrLen == rhs.topOrLen && lhs.up == rhs.up
-                && lhs.down == rhs.down && lhs.multiplier == rhs.multiplier
-                 && lhs.depthTag == rhs.depthTag;
-    }
-    friend bool operator!=(const pokeLink& lhs, const pokeLink& rhs) {
-        return !(lhs == rhs);
-    }
-    friend std::ostream& operator<<(std::ostream& os, const pokeLink& link) {
-        return os << "{" << link.topOrLen
-                  << ", " << link.up << ", " << link.down << ", " << link.multiplier << "},";
-    }
-    friend bool operator==(const typeName& lhs, const typeName& rhs) {
-        return lhs.name == rhs.name && lhs.left == rhs.left && lhs.right == rhs.right;
-    }
-    friend bool operator!=(const typeName& lhs, const typeName& rhs) {
-        return !(lhs == rhs);
-    }
-    friend std::ostream& operator<<(std::ostream& os, const typeName& type) {
-        return os << "{ name: " << type.name
-                  << ", left: " << type.left << ", right: " << type.right << " }";
-    }
-    friend bool operator==(const std::vector<pokeLink>& lhs, const std::vector<pokeLink>& rhs) {
-        if (lhs.size() != rhs.size()) {
-            return false;
-        }
-        for (int i = 0; i < lhs.size(); i++) {
-            if (lhs[i] != rhs[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-    friend bool operator!=(const std::vector<pokeLink>& lhs, const std::vector<pokeLink>& rhs) {
-        return !(lhs == rhs);
-    }
-    friend bool operator==(const std::vector<typeName>& lhs, const std::vector<typeName>& rhs) {
-        if (lhs.size() != rhs.size()) {
-            return false;
-        }
-        for (int i = 0; i < lhs.size(); i++) {
-            if (lhs[i] != rhs[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-    friend bool operator!=(const std::vector<typeName>& lhs, const std::vector<typeName>& rhs) {
-        return !(lhs == rhs);
-    }
-    friend std::ostream& operator<<(std::ostream& os, const std::vector<pokeLink>& links) {
-        os << "DLX ARRAY" << std::endl;
-        for (int index = 0; index < links.size(); index++) {
-            pokeLink item = links[index];
-            if (item.topOrLen < 0) {
-                os << "\n";
-            }
-            os << "{" << item.topOrLen << ","
-               << item.up << "," << item.down << "," << item.multiplier << "," << item.depthTag << "},";
-        }
-        os << std::endl;
-        return os;
-    }
-    friend std::ostream& operator<<(std::ostream&os,
-                                    const std::vector<typeName>& items) {
-        os << "LOOKUP TABLE" << std::endl;
-        for (const auto& item : items) {
-            os << "{\"" << item.name << "\"," << item.left << "," << item.right << "},\n";
-        }
-        os << std::endl;
-        return os;
-    }
+    friend bool operator==(const pokeLink& lhs, const pokeLink& rhs);
+    friend bool operator!=(const pokeLink& lhs, const pokeLink& rhs);
+    friend std::ostream& operator<<(std::ostream& os, const pokeLink& link);
+    friend bool operator==(const typeName& lhs, const typeName& rhs);
+    friend bool operator!=(const typeName& lhs, const typeName& rhs);
+    friend std::ostream& operator<<(std::ostream& os, const typeName& type);
+    friend bool operator==(const std::vector<pokeLink>& lhs, const std::vector<pokeLink>& rhs);
+    friend bool operator!=(const std::vector<pokeLink>& lhs, const std::vector<pokeLink>& rhs);
+    friend bool operator==(const std::vector<typeName>& lhs, const std::vector<typeName>& rhs);
+    friend bool operator!=(const std::vector<typeName>& lhs, const std::vector<typeName>& rhs);
+    friend std::ostream& operator<<(std::ostream& os, const std::vector<pokeLink>& links);
+    friend std::ostream& operator<<(std::ostream&os, const std::vector<typeName>& items);
     // Dancing links is well suited to internal debugging over just plain unit testing.
     ALLOW_TEST_ACCESS();
 }; // class PokemonLinks
+
 
     /**
      * @brief solveExactCover  an exact type coverage is one in which every "option" we choose
