@@ -113,31 +113,17 @@
 #include "Utilities/RankedSet.h"
 
 
+namespace DancingLinks {
+
 class PokemonLinks {
 
 public:
 
     // The user is asking us for the defensive team they should build or attacks they need.
-    typedef enum CoverageType {
+    enum CoverageType {
         DEFENSE,
         ATTACK
-    }CoverageType;
-
-    // This type is entered into our dancing links array for the in place recursive algorithm.
-    typedef struct pokeLink {
-        int topOrLen;
-        int up;
-        int down;
-        Resistance::Multiplier multiplier; // x0.0, x0.25, x0.5, x1.0, x2, or x4 damage multipliers.
-        int depthTag;                      // We use this to efficiently generate overlapping sets.
-    }pokeLink;
-
-    // This type, in a seperate vector, controls the base case of our recursion.
-    typedef struct typeName {
-        std::string name;
-        int left;
-        int right;
-    }typeName;
+    };
 
     /**
      * @brief PokemonLinks            this constructor builds the necessary internal data structures
@@ -160,49 +146,33 @@ public:
                           const std::set<std::string>& attackTypes);
 
     /**
-     * @brief getExactTypeCoverages  an exact type coverage is one in which every "option" we choose
-     *                               to cover a given set of "items" will cover each item exactly
-     *                               once. For example, if building a team of Pokemon to defend
-     *                               against attack types, no two Pokemon in that team could be
-     *                               resistant to the same attack types. Sets are ranked by the
-     *                               following criteria:
-     *
-     *                                   For forming defensive teams we score types based on their
-     *                                   resistance to each attack type as follows.
-     *
-     *                                       - x0.0 multiplier is 1 point.
-     *                                       - x0.25 multiplier is 2 points.
-     *                                       - x0.50 multiplier is 3 points.
-     *                                       - x1.0 multiplier or higher is not considered.
-     *
-     *                                   The lower the score the stronger that typing is. For
-     *                                   forming our choices of attack types we score based on their
-     *                                   damage to each attack type as follows.
-     *
-     *                                       - x2 multiplier is 4 points.
-     *                                       - x4 multiplier is 5 points.
-     *                                       - x1.0 or lower is not considered.
-     *
-     *                                   The higher the score the stronger those choices of attack
-     *                                   types are for attacking the selected defensive types.
-     * @return                       the set of Ranked Sets that form all solutions of exact cover.
+     * @brief getExactCoverages  solves the exact cover problem on the initialized PokemonLinks
+     *                           object with a specified limit on the number of options we can
+     *                           choose to acheive an exact cover. The returned value is a set of
+     *                           RankedSets because RankedSets have a natural ordering according to
+     *                           their rank value. std::set orders elements in ascending order so if
+     *                           you solve a DEFENSE cover, the best solutions will have the lowest
+     *                           rank in the set. If you solve the ATTACK cover, the best solutions
+     *                           will have the highest rank in the set.
+     * @param dlx                the initialized PokemonLinks object. ATTACK or DEFENSE.
+     * @param choiceLimit        the user defined limit on number of options we can use to solve.
+     * @return                   all exact cover solutions found with the limit.
      */
-    std::set<RankedSet<std::string>> getExactTypeCoverages(int choiceLimit);
+    std::set<RankedSet<std::string>> getExactCoverages(int choiceLimit);
 
     /**
-     * @brief getOverlappingTypeCoverages  an overlapping coverage is when we cover every "item"
-     *                                     with our choices of "options." It is allowable for two
-     *                                     options cover the same item twice, the goal is to cover
-     *                                     the items with any allowable choices. The scoring scheme
-     *                                     for generated sets is the same as described in the
-     *                                     exact cover version of the problem. Currently, this
-     *                                     solution is slow because it generates duplicate
-     *                                     RankedSet solutions. I filter out duplicates by using a
-     *                                     set. I have not yet found a way to prevent generating
-     *                                     duplicate solutions with the Dancing Links method.
-     * @return                             the set of Ranked Sets that form all overlapping covers.
+     * @brief getOverlappingCoverages  solves the overlapping cover problem and returns a solution
+     *                                 that is organized in its set with the same principles as the
+     *                                 exact cover solution. However, we allow options we choose to
+     *                                 cover our items to overlap. This means two options may cover
+     *                                 some of the same items. However, if chosen, an option will
+     *                                 always provide value by covering an option that was not
+     *                                 previously covered, even if there is some overlap with other
+     *                                 options.
+     * @param choiceLimit              the user defined limit on number of options we use to solve.
+     * @return                         all overlapping cover solutions found with the limit.
      */
-    std::set<RankedSet<std::string>> getOverlappingTypeCoverages(int choiceLimit);
+    std::set<RankedSet<std::string>> getOverlappingCoverages(int choiceLimit);
 
     /**
      * @brief reachedOutputLimit  for usability of Pokemon Planning application I cut off output at
@@ -212,50 +182,42 @@ public:
      *                            all possible sets.
      * @return                    true if the last query reached the limit, false if not.
      */
-    bool reachedOutputLimit();
+    bool reachedOutputLimit() const;
 
     /**
-     * @brief numItems  will tell you how many items you must cover in the given cover problem.
-     * @return          an int representing the number of items.
+     * @brief getNumItems  will tell you how many items you must cover in the given cover problem.
+     * @return             an int representing the number of items.
      */
-    int numItems();
+    int getNumItems() const;
 
     /**
-     * @brief numOptions  tells you how many choices present to combine in order to cover all items.
-     * @return            an int representing number of options.
+     * @brief getNumOptions  tells you how many choices present to combine in order to cover all items.
+     * @return               an int representing number of options.
      */
-    int numOptions();
+    int getNumOptions() const;
 
-
-    /* * * * * * * * * * * * *  Overloaded Debugging Operators  * * * * * * * * * * * * * * * * * */
-
-
-    friend bool operator==(const pokeLink& lhs, const pokeLink& rhs);
-
-    friend bool operator!=(const pokeLink& lhs, const pokeLink& rhs);
-
-    friend bool operator==(const typeName& lhs, const typeName& rhs);
-
-    friend bool operator!=(const typeName& lhs, const typeName& rhs);
-
-    friend std::ostream& operator<<(std::ostream& os, const pokeLink& pokeLink);
-
-    friend std::ostream& operator<<(std::ostream& os, const typeName& pokeLink);
-
-    friend std::ostream& operator<<(std::ostream& os, const std::vector<pokeLink>& links);
-
-    friend std::ostream& operator<<(std::ostream& os, const std::vector<typeName>& items);
-
-    friend std::ostream& operator<<(std::ostream& os, const std::vector<std::string>& options);
-
-    friend std::ostream& operator<<(std::ostream& os, const std::set<RankedSet<std::string>>& solution);
-
-    friend std::ostream& operator<<(std::ostream& os, const PokemonLinks& links);
 
 private:
 
+
     /* * * * * * * * * * *   Dancing Links Internals and Implementation   * * * * * * * * * * * * */
 
+
+    // This type is entered into our dancing links array for the in place recursive algorithm.
+    struct pokeLink {
+        int topOrLen;
+        int up;
+        int down;
+        Resistance::Multiplier multiplier; // x0.0, x0.25, x0.5, x1.0, x2, or x4 damage multipliers.
+        int depthTag;                      // We use this to efficiently generate overlapping sets.
+    };
+
+    // This type, in a seperate vector, controls the base case of our recursion.
+    struct typeName {
+        std::string name;
+        int left;
+        int right;
+    };
 
     /* These data structures contain the core logic of Algorithm X via dancing links. For more
      * detailed information, see the tests in the implementation. These help acheive in place
@@ -276,11 +238,11 @@ private:
      *                            determined for defending against attack types or attacking
      *                            defensive types. Exact covers use options to cover every item
      *                            exactly once.
-     * @param exactCoverages      the output parameter that serves as the final solution.
+     * @param coverages           the output parameter that serves as the final solution.
      * @param coverage            the successfully coverages we find while the links dance.
      * @param depthLimit          size of a pokemon team or the number of attacks a team can have.
      */
-    void fillExactCoverages(std::set<RankedSet<std::string>>& exactCoverages,
+    void fillExactCoverages(std::set<RankedSet<std::string>>& coverages,
                             RankedSet<std::string>& coverage,
                             int depthLimit);
 
@@ -292,11 +254,11 @@ private:
      *                                  items. Two options covering some overlapping items is
      *                                  acceptable. This is slower and I have no way to not generate
      *                                  duplicates other than using a set. Better ideas wanted.
-     * @param overlappingCoverages      the output parameter as our final solution if found.
+     * @param coverages                 the output parameter as our final solution if found.
      * @param coverage                  the helper set that fills the output parameter.
      * @param depthTag                  a tag used to signify the recursive depth. Used internally.
      */
-    void fillOverlappingCoverages(std::set<RankedSet<std::string>>& overlappingCoverages,
+    void fillOverlappingCoverages(std::set<RankedSet<std::string>>& coverages,
                                   RankedSet<std::string>& coverage,
                                   int depthTag);
 
@@ -396,8 +358,163 @@ private:
                            std::unordered_map<std::string,int>& columnBuilder,
                            CoverageType requestedCoverage);
 
+
+    /* * * * * * * * * * *    Operators for Test Harness Functionality    * * * * * * * * * * * * */
+
+
+    /* I test dancing links implementations internally rather than with unit tests because the
+     * vectors are easy to examine. To use the Stanford Test Harness I need to provide overloaded
+     * operators for equality testing and printing output on failure. These friend functions
+     * are strictly for the ALLOW_TEST_ACCESS() call at the end of this class and shouldn't be
+     * useful or used by anything else that uses this class. This algorithm doesn't need to allow
+     * users to have access to these internals.
+     */
+
+    friend bool operator==(const pokeLink& lhs, const pokeLink& rhs) {
+        return lhs.topOrLen == rhs.topOrLen && lhs.up == rhs.up
+                && lhs.down == rhs.down && lhs.multiplier == rhs.multiplier
+                 && lhs.depthTag == rhs.depthTag;
+    }
+    friend bool operator!=(const pokeLink& lhs, const pokeLink& rhs) {
+        return !(lhs == rhs);
+    }
+    friend std::ostream& operator<<(std::ostream& os, const pokeLink& link) {
+        return os << "{" << link.topOrLen
+                  << ", " << link.up << ", " << link.down << ", " << link.multiplier << "},";
+    }
+    friend bool operator==(const typeName& lhs, const typeName& rhs) {
+        return lhs.name == rhs.name && lhs.left == rhs.left && lhs.right == rhs.right;
+    }
+    friend bool operator!=(const typeName& lhs, const typeName& rhs) {
+        return !(lhs == rhs);
+    }
+    friend std::ostream& operator<<(std::ostream& os, const typeName& type) {
+        return os << "{ name: " << type.name
+                  << ", left: " << type.left << ", right: " << type.right << " }";
+    }
+    friend bool operator==(const std::vector<pokeLink>& lhs, const std::vector<pokeLink>& rhs) {
+        if (lhs.size() != rhs.size()) {
+            return false;
+        }
+        for (int i = 0; i < lhs.size(); i++) {
+            if (lhs[i] != rhs[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    friend bool operator!=(const std::vector<pokeLink>& lhs, const std::vector<pokeLink>& rhs) {
+        return !(lhs == rhs);
+    }
+    friend bool operator==(const std::vector<typeName>& lhs, const std::vector<typeName>& rhs) {
+        if (lhs.size() != rhs.size()) {
+            return false;
+        }
+        for (int i = 0; i < lhs.size(); i++) {
+            if (lhs[i] != rhs[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    friend bool operator!=(const std::vector<typeName>& lhs, const std::vector<typeName>& rhs) {
+        return !(lhs == rhs);
+    }
+    friend std::ostream& operator<<(std::ostream& os, const std::vector<pokeLink>& links) {
+        os << "DLX ARRAY" << std::endl;
+        for (int index = 0; index < links.size(); index++) {
+            pokeLink item = links[index];
+            if (item.topOrLen < 0) {
+                os << "\n";
+            }
+            os << "{" << item.topOrLen << ","
+               << item.up << "," << item.down << "," << item.multiplier << "," << item.depthTag << "},";
+        }
+        os << std::endl;
+        return os;
+    }
+    friend std::ostream& operator<<(std::ostream&os,
+                                    const std::vector<typeName>& items) {
+        os << "LOOKUP TABLE" << std::endl;
+        for (const auto& item : items) {
+            os << "{\"" << item.name << "\"," << item.left << "," << item.right << "},\n";
+        }
+        os << std::endl;
+        return os;
+    }
     // Dancing links is well suited to internal debugging over just plain unit testing.
     ALLOW_TEST_ACCESS();
-};
+}; // class PokemonLinks
+
+    /**
+     * @brief solveExactCover  an exact type coverage is one in which every "option" we choose
+     *                         to cover a given set of "items" will cover each item exactly
+     *                               once. For example, if building a team of Pokemon to defend
+     *                               against attack types, no two Pokemon in that team could be
+     *                               resistant to the same attack types. Sets are ranked by the
+     *                               following criteria:
+     *
+     *                                   For forming defensive teams we score types based on their
+     *                                   resistance to each attack type as follows.
+     *
+     *                                       - x0.0 multiplier is 1 point.
+     *                                       - x0.25 multiplier is 2 points.
+     *                                       - x0.50 multiplier is 3 points.
+     *                                       - x1.0 multiplier or higher is not considered.
+     *
+     *                                   The lower the score the stronger that typing is. For
+     *                                   forming our choices of attack types we score based on their
+     *                                   damage to each attack type as follows.
+     *
+     *                                       - x2 multiplier is 4 points.
+     *                                       - x4 multiplier is 5 points.
+     *                                       - x1.0 or lower is not considered.
+     *
+     *                                   The higher the score the stronger those choices of attack
+     *                                   types are for attacking the selected defensive types.
+     * @return                       the set of Ranked Sets that form all solutions of exact cover.
+     */
+    std::set<RankedSet<std::string>> solveExactCover(PokemonLinks& dlx, int choiceLimit);
+
+    /**
+     * @brief solveOverlappingCover an overlapping coverage is when we cover every "item"
+     *                              with our choices of "options." It is allowable for two
+     *                              options cover the same item twice, the goal is to cover
+     *                              the items with any allowable choices. The scoring scheme
+     *                              for generated sets is the same as described in the
+     *                              exact cover version of the problem. Currently, this
+     *                              solution is slow because it generates duplicate
+     *                              RankedSet solutions. I filter out duplicates by using a
+     *                              set. I have not yet found a way to prevent generating
+     *                              duplicate solutions with the Dancing Links method.
+     * @return                      the set of Ranked Sets that form all overlapping covers.
+     */
+    std::set<RankedSet<std::string>> solveOverlappingCover(PokemonLinks& dlx, int choiceLimit);
+
+    /**
+     * @brief hasMaxSolutions  exact and overlapping cover solutions are limited at a large number
+     *                         for usability if entered into a GUI application. If we have
+     *                         generated our maximum output the class will report this fact. This
+     *                         means there may have been more solutions but they weren't generated.
+     * @param dlx              the PokemonLinks object used to solve exact cover problems.
+     * @return                 true if we reached the max limit false if not O(1).
+     */
+    bool hasMaxSolutions(PokemonLinks& dlx);
+
+    /**
+     * @brief numItems  the number of items that need cover in the current PokemonLinks object.
+     * @param dlx       the PokemonLinks object that uses options to cover items.
+     * @return          the int number of items to cover.
+     */
+    int numItems(PokemonLinks& dlx);
+
+    /**
+     * @brief numOptions  the number of options we can choose from to cover the total items.
+     * @param dlx         the PokemonLinks object that uses options to cover items.
+     * @return            the int number of options we can choose from.
+     */
+    int numOptions(PokemonLinks& dlx);
+
+} // namespace DancingLinks
 
 #endif // POKEMONLINKS_H

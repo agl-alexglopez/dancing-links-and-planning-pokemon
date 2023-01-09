@@ -688,16 +688,16 @@ namespace {
         }
 
         // If gymAttackTypes is empty the constructor just builds the full generation of pokemon.
-        PokemonLinks dlx(mGeneration.typeInteractions, *attackTypes);
+        DancingLinks::PokemonLinks dlx(mGeneration.typeInteractions, *attackTypes);
 
-        printDefenseMessage(*attackTypes, dlx.numOptions());
+        printDefenseMessage(*attackTypes, dlx.getNumOptions());
 
         std::set<RankedSet<std::string>> solution = {};
 
         if (exactOrOverlapping == EXACT) {
-            solution = dlx.getExactTypeCoverages(POKEMON_TEAM_SIZE);
+            solution = DancingLinks::solveExactCover(dlx, POKEMON_TEAM_SIZE);
         } else {
-            solution = dlx.getOverlappingTypeCoverages(POKEMON_TEAM_SIZE);
+            solution = DancingLinks::solveOverlappingCover(dlx, POKEMON_TEAM_SIZE);
         }
 
         mAllCoverages.reset(new std::set<RankedSet<std::string>>(solution));
@@ -740,12 +740,12 @@ namespace {
         }
 
         std::set<RankedSet<std::string>> solution = {};
-        PokemonLinks dlx(*genToUse, PokemonLinks::ATTACK);
+        DancingLinks::PokemonLinks dlx(*genToUse, DancingLinks::PokemonLinks::ATTACK);
 
-        printAttackMessage(*genToUse, dlx.numOptions());
+        printAttackMessage(*genToUse, dlx.getNumOptions());
 
-        req == EXACT ? solution = dlx.getExactTypeCoverages(POKEMON_TEAM_ATTACK_SLOTS) :
-                       solution = dlx.getOverlappingTypeCoverages(POKEMON_TEAM_ATTACK_SLOTS);
+        req == EXACT ? solution = DancingLinks::solveExactCover(dlx, POKEMON_TEAM_SIZE) :
+                       solution = DancingLinks::solveOverlappingCover(dlx, POKEMON_TEAM_SIZE);
 
 
         mAllCoverages.reset(new std::set<RankedSet<std::string>>(solution));
