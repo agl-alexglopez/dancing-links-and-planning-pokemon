@@ -71,8 +71,8 @@ struct PokemonTest {
      * might be missing. For example, generation one Pokemon did not have types like Fairy, Dark,
      * or Steel.
      */
-    std::map<std::string,std::set<Resistance>> typeInteractions;
-    MapTest pokemonGenerationMap;
+    std::map<std::string,std::set<Resistance>> interactions;
+    MapTest genMap;
 };
 
 /**

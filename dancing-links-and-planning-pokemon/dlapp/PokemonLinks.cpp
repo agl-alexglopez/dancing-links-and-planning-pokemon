@@ -73,7 +73,7 @@ std::set<RankedSet<std::string>> PokemonLinks::getExactCoverages(int choiceLimit
 }
 
 void PokemonLinks::fillExactCoverages(std::set<RankedSet<std::string>>& coverages,
-                                          RankedSet<std::string>& coverage,
+                                      RankedSet<std::string>& coverage,
                                           int depthLimit) {
     if (itemTable_[0].right == 0 && depthLimit >= 0) {
         coverages.insert(coverage);
@@ -230,7 +230,7 @@ std::set<RankedSet<std::string>> PokemonLinks::getOverlappingCoverages(int choic
 }
 
 void PokemonLinks::fillOverlappingCoverages(std::set<RankedSet<std::string>>& coverages,
-                                                 RankedSet<std::string>& coverage,
+                                            RankedSet<std::string>& coverage,
                                                  int depthTag) {
     if (itemTable_[0].right == 0 && depthTag >= 0) {
         coverages.insert(coverage);
@@ -328,7 +328,7 @@ int PokemonLinks::getNumOptions() const {
 
 
 PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typeInteractions,
-                               const CoverageType requestedCoverSolution)
+                           const CoverageType requestedCoverSolution)
     : optionTable_(),
       itemTable_(),
       links_(),
@@ -349,7 +349,7 @@ PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typ
 }
 
 PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typeInteractions,
-                               const std::set<std::string>& attackTypes)
+                           const std::set<std::string>& attackTypes)
     : optionTable_(),
       itemTable_(),
       links_(),
@@ -382,7 +382,7 @@ PokemonLinks::PokemonLinks(const std::map<std::string,std::set<Resistance>>& typ
 }
 
 void PokemonLinks::buildDefenseLinks(const std::map<std::string,std::set<Resistance>>&
-                                         typeInteractions) {
+                                     typeInteractions) {
     // We always must gather all attack types available in this query
     std::set<std::string> generationTypes = {};
     for (const Resistance& res : typeInteractions.begin()->second) {
@@ -412,9 +412,9 @@ void PokemonLinks::buildDefenseLinks(const std::map<std::string,std::set<Resista
 }
 
 void PokemonLinks::initializeColumns(const std::map<std::string,std::set<Resistance>>&
-                                         typeInteractions,
-                                         std::unordered_map<std::string,int>& columnBuilder,
-                                         CoverageType requestedCoverage) {
+                                     typeInteractions,
+                                     std::unordered_map<std::string,int>& columnBuilder,
+                                     CoverageType requestedCoverage) {
     int previousSetSize = links_.size();
     int currentLinksIndex = links_.size();
     int typeLookupIndex = 1;

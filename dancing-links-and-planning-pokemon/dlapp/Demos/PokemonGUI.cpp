@@ -332,14 +332,14 @@ namespace {
          * the window geometry can't be calculated properly. Therefore,
          * we're going skip all this logic if there's nothing to draw.
          */
-        if (!network.pokemonGenerationMap.network.empty()) {
-            Geometry geo = geometryFor(window, network.pokemonGenerationMap);
+        if (!network.genMap.network.empty()) {
+            Geometry geo = geometryFor(window, network.genMap);
 
             /* Draw the roads under the cities to avoid weird graphics
              * artifacts.
              */
-            drawRoads(window, geo, network.pokemonGenerationMap, userSelection);
-            drawCities(window, geo, network.pokemonGenerationMap, selected);
+            drawRoads(window, geo, network.genMap, userSelection);
+            drawCities(window, geo, network.genMap, selected);
         }
     }
 
@@ -356,6 +356,7 @@ namespace {
 
     /* * * * * * *     End of Adapted Graph Drawing Algorithm by Keith Schwarz    * * * * * * * * */
 
+    namespace Dx = DancingLinks;
 
     /* You could alter the rules of pokemon here. The default team size is 6 Pokemon that you could
      * choose for defensive types and they can each learn 4 attack moves. However, there is only
@@ -415,12 +416,19 @@ namespace {
         GButton* clearChoices;
 
         /* Current network and solution. */
-        PokemonTest mGeneration;
+        PokemonTest mGen;
         std::set<std::string> mSelected;
         std::set<std::string> mAllSelected;
-        std::set<std::string> mAllGenerationAttackTypes;
+        std::set<std::string> mAllGenAttackTypes;
         MapDrawSelection mUserSelection;
 
+        /* It can be costly in some generations to build and destroy larger PokemonLinks so we will
+         * leave the full links solver in place for any given generations lifetime in the GUI. If
+         * we are asked to solve for a smaller subset of gyms we will create a local PokemonLinks
+         * object to solve that problem and leave this one intact until we switch maps.
+         */
+        std::unique_ptr<Dx::PokemonLinks> mGenDefenseLinks;
+        std::unique_ptr<Dx::PokemonLinks> mGenAttackLinks;
         std::unique_ptr<std::set<RankedSet<std::string>>> mAllCoverages;
 
         /* Loads the world with the given name. */
@@ -429,6 +437,9 @@ namespace {
         void toggleSelectedGym(GButton*& button);
         void toggleAllGyms(const ButtonToggle& buttonState);
         void clearSelections();
+        void resetAllCoverages(Dx::PokemonLinks& dlxSolver,
+                               const CoverageRequested& req,
+                               int depthLimit);
         void solveDefense(const CoverageRequested& exactOrOverlapping);
         void solveAttack(const CoverageRequested& exactOrOverlapping);
         void printDefenseSolution(bool hitLimit, const std::set<RankedSet<std::string>>& solution);
@@ -569,9 +580,9 @@ namespace {
 
     void PokemonGUI::repaint() {
         if (mUserSelection == FULL_GENERATION) {
-            visualizeNetwork(window(), mGeneration, mAllSelected, FULL_GENERATION);
+            visualizeNetwork(window(), mGen, mAllSelected, FULL_GENERATION);
         } else {
-            visualizeNetwork(window(), mGeneration, mSelected, SELECTED_GYMS);
+            visualizeNetwork(window(), mGen, mSelected, SELECTED_GYMS);
         }
     }
 
@@ -579,14 +590,17 @@ namespace {
         std::ifstream input(kBasePath + filename);
         if (!input) error("Cannot open file.");
 
-        mGeneration = loadPokemonGeneration(input);
-        for (const auto& s : mGeneration.pokemonGenerationMap.network) {
+        mGen = loadPokemonGeneration(input);
+        for (const auto& s : mGen.genMap.network) {
             mAllSelected.insert(s.first);
         }
-        for (const auto& attack : mGeneration.typeInteractions.begin()->second) {
-            mAllGenerationAttackTypes.insert(attack.type());
+        for (const auto& attack : mGen.interactions.begin()->second) {
+            mAllGenAttackTypes.insert(attack.type());
         }
         mUserSelection = SELECTED_GYMS;
+
+        mGenDefenseLinks.reset(new Dx::PokemonLinks(mGen.interactions, Dx::PokemonLinks::DEFENSE));
+        mGenAttackLinks.reset(new Dx::PokemonLinks(mGen.interactions, Dx::PokemonLinks::ATTACK));
 
 
         mAllCoverages.reset();
@@ -603,7 +617,7 @@ namespace {
                                          int numDefenseOptions) {
         (*mSolutionsDisplay) << "Defending against the following ";
         if (attacksToPrint.empty()) {
-            (*mSolutionsDisplay) << mAllGenerationAttackTypes.size();
+            (*mSolutionsDisplay) << mAllGenAttackTypes.size();
         } else {
             (*mSolutionsDisplay) << attacksToPrint.size();
         }
@@ -668,7 +682,14 @@ namespace {
         *mSolutionsDisplay << maximumOutputExceeded << std::endl;
     }
 
-    void PokemonGUI::solveDefense(const CoverageRequested& exactOrOverlapping) {
+    void PokemonGUI::resetAllCoverages(Dx::PokemonLinks& dlxSolver,
+                                       const CoverageRequested& req,
+                                       int depthLimit) {
+        req == EXACT ? mAllCoverages.reset(new std::set<RankedSet<std::string>>(Dx::solveExactCover(dlxSolver, depthLimit)))
+                     : mAllCoverages.reset(new std::set<RankedSet<std::string>>(Dx::solveOverlappingCover(dlxSolver, depthLimit)));
+    }
+
+    void PokemonGUI::solveDefense(const CoverageRequested& req) {
         mAllCoverages.reset();
         mSolutionsDisplay->clearDisplay();
         mSolutionsDisplay->flush();
@@ -677,32 +698,20 @@ namespace {
         mProblems->setEnabled(false);
 
 
-        std::set<std::string>* attackTypes = &mAllGenerationAttackTypes;
-        std::set<std::string> gymAttackTypes = {};
         if (!mSelected.empty()) {
             mUserSelection = SELECTED_GYMS;
+            std::set<std::string>
             gymAttackTypes = loadSelectedGymsAttacks(mProblems->getSelectedItem(), mSelected);
-            attackTypes = &gymAttackTypes;
+            Dx::PokemonLinks localSolver(mGen.interactions, gymAttackTypes);
+            printDefenseMessage(gymAttackTypes, Dx::numOptions(localSolver));
+            resetAllCoverages(localSolver, req, POKEMON_TEAM_SIZE);
+            printDefenseSolution(Dx::hasMaxSolutions(localSolver), *mAllCoverages);
         } else {
             mUserSelection = FULL_GENERATION;
+            printDefenseMessage(mAllGenAttackTypes, Dx::numOptions(*mGenDefenseLinks));
+            resetAllCoverages(*mGenDefenseLinks, req, POKEMON_TEAM_SIZE);
+            printDefenseSolution(Dx::hasMaxSolutions(*mGenDefenseLinks), *mAllCoverages);
         }
-
-        // If gymAttackTypes is empty the constructor just builds the full generation of pokemon.
-        DancingLinks::PokemonLinks dlx(mGeneration.typeInteractions, *attackTypes);
-
-        printDefenseMessage(*attackTypes, dlx.getNumOptions());
-
-        std::set<RankedSet<std::string>> solution = {};
-
-        if (exactOrOverlapping == EXACT) {
-            solution = DancingLinks::solveExactCover(dlx, POKEMON_TEAM_SIZE);
-        } else {
-            solution = DancingLinks::solveOverlappingCover(dlx, POKEMON_TEAM_SIZE);
-        }
-
-        mAllCoverages.reset(new std::set<RankedSet<std::string>>(solution));
-
-        printDefenseSolution(dlx.reachedOutputLimit(), *mAllCoverages);
 
 
         /* Enable controls. */
@@ -723,34 +732,23 @@ namespace {
         gymControls->setEnabled(false);
 
 
-        /* We are not sure if the user wants solution for map or selected gyms yet. We will point
-         * to whatever they have asked for instead of preemptively creating copies of large maps.
-         */
-        std::map<std::string,std::set<Resistance>>* genToUse = &mGeneration.typeInteractions;
-        std::map<std::string,std::set<Resistance>> modifiedGeneration = {};
-
         if (!mSelected.empty()) {
             mUserSelection = SELECTED_GYMS;
-            modifiedGeneration = loadSelectedGymsDefense(mGeneration.typeInteractions,
+            std::map<std::string,std::set<Resistance>>
+            modifiedGeneration = loadSelectedGymsDefense(mGen.interactions,
                                                          mProblems->getSelectedItem(),
                                                          mSelected);
-            genToUse = &modifiedGeneration;
+            Dx::PokemonLinks localSolver(modifiedGeneration, Dx::PokemonLinks::ATTACK);
+            printAttackMessage(modifiedGeneration, Dx::numOptions(localSolver));
+            resetAllCoverages(localSolver, req, POKEMON_TEAM_ATTACK_SLOTS);
+            printAttackSolution(Dx::hasMaxSolutions(localSolver), *mAllCoverages);
+
         } else {
             mUserSelection = FULL_GENERATION;
+            printAttackMessage(mGen.interactions, Dx::numOptions(*mGenAttackLinks));
+            resetAllCoverages(*mGenAttackLinks, req, POKEMON_TEAM_ATTACK_SLOTS);
+            printAttackSolution(Dx::hasMaxSolutions(*mGenAttackLinks), *mAllCoverages);
         }
-
-        std::set<RankedSet<std::string>> solution = {};
-        DancingLinks::PokemonLinks dlx(*genToUse, DancingLinks::PokemonLinks::ATTACK);
-
-        printAttackMessage(*genToUse, dlx.getNumOptions());
-
-        req == EXACT ? solution = DancingLinks::solveExactCover(dlx, POKEMON_TEAM_SIZE) :
-                       solution = DancingLinks::solveOverlappingCover(dlx, POKEMON_TEAM_SIZE);
-
-
-        mAllCoverages.reset(new std::set<RankedSet<std::string>>(solution));
-
-        printAttackSolution(dlx.reachedOutputLimit(), *mAllCoverages);
 
         /* Enable controls. */
         controls->setEnabled(true);

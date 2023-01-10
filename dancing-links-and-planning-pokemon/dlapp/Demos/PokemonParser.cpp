@@ -240,8 +240,8 @@ namespace {
 
 PokemonTest loadPokemonGeneration(std::istream& source) {
     PokemonTest generation;
-    generation.typeInteractions = setTypeInteractions(source);
-    generation.pokemonGenerationMap = loadDisaster(source);
+    generation.interactions = setTypeInteractions(source);
+    generation.genMap = loadDisaster(source);
     return generation;
 }
 
