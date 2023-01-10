@@ -185,16 +185,34 @@ public:
     bool reachedOutputLimit() const;
 
     /**
+     * @brief getItems  gets the items we try to cover in the constructed attack/defense links
+     * @return          a vector of strings representing these items in O(n) time.
+     */
+    std::vector<std::string> getItems() const;
+
+    /**
      * @brief getNumItems  will tell you how many items you must cover in the given cover problem.
      * @return             an int representing the number of items.
      */
     int getNumItems() const;
 
     /**
+     * @brief getOptions  gets the options we use to cover items in the attack/defense links.
+     * @return            a vector of strings representing the options in O(n) time.
+     */
+    std::vector<std::string> getOptions() const;
+
+    /**
      * @brief getNumOptions  tells you how many choices present to combine in order to cover all items.
      * @return               an int representing number of options.
      */
     int getNumOptions() const;
+
+    /**
+     * @brief getLinksType  returns the what the current grid is set to for a cover problem.
+     * @return              ATTACK or DEFENSE depending on the cover request upon construction.
+     */
+    CoverageType getLinksType() const;
 
 
 private:
@@ -385,7 +403,6 @@ private:
 }; // class PokemonLinks
 
 
-
 /* * * * * * * * * * *     Free Functions for Client to Use with Class    * * * * * * * * * * * * */
 
 
@@ -443,21 +460,44 @@ std::set<RankedSet<std::string>> solveOverlappingCover(PokemonLinks& dlx, int ch
  * @param dlx              the PokemonLinks object used to solve exact cover problems.
  * @return                 true if we reached the max limit false if not O(1).
  */
-bool hasMaxSolutions(PokemonLinks& dlx);
+bool hasMaxSolutions(const PokemonLinks& dlx);
+
+/**
+ * @brief items  reports the items in the cover problem as a vector of strings. May be attack types
+ *               or defense types depending on the requested cover solution on constructing class.
+ * @param dlx    the PokemonLinks object that is instantiated with a requested cover solution.
+ * @return       the vector of strings that are our items we must cover in the problem.
+ */
+std::vector<std::string> items(const PokemonLinks& dlx);
 
 /**
  * @brief numItems  the number of items that need cover in the current PokemonLinks object.
  * @param dlx       the PokemonLinks object that uses options to cover items.
  * @return          the int number of items to cover.
  */
-int numItems(PokemonLinks& dlx);
+int numItems(const PokemonLinks& dlx);
+
+/**
+ * @brief options  reports the options available to us to cover our items in the cover problem.
+ * @param dlx      the PokemonLinks object that is instantiated with a requested cover solution.
+ * @return         the vector of strings that are our options we can use to cover the items.
+ */
+std::vector<std::string> options(const PokemonLinks& dlx);
 
 /**
  * @brief numOptions  the number of options we can choose from to cover the total items.
  * @param dlx         the PokemonLinks object that uses options to cover items.
  * @return            the int number of options we can choose from.
  */
-int numOptions(PokemonLinks& dlx);
+int numOptions(const PokemonLinks& dlx);
+
+/**
+ * @brief coverageType  the coverage type the PokemonLinks is set to.
+ * @param dlx           the PokemonLinks we have instantiated.
+ * @return              ATTACK or DEFENSE, depeding on the request when building the class.
+ */
+PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
+
 
 } // namespace DancingLinks
 

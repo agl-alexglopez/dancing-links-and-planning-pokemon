@@ -37,6 +37,7 @@
 
 namespace DancingLinks {
 
+
 /* * * * * * * * * * * * *       Convenience Callers for Encapsulation      * * * * * * * * * * * */
 
 
@@ -58,6 +59,18 @@ int numItems(PokemonLinks& dlx) {
 
 int numOptions(PokemonLinks& dlx) {
     return dlx.getNumOptions();
+}
+
+PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx) {
+    return dlx.getLinksType();
+}
+
+std::vector<std::string> items(const PokemonLinks& dlx) {
+    return dlx.getItems();
+}
+
+std::vector<std::string> options(const PokemonLinks& dlx) {
+    return dlx.getOptions();
 }
 
 
@@ -311,6 +324,10 @@ void PokemonLinks::overlappingUncoverType(int indexInOption) {
     } while (i != indexInOption);
 }
 
+
+/* * * * * * * * * * * * * * * * *       Utility State Functions        * * * * * * * * * * * * * */
+
+
 bool PokemonLinks::reachedOutputLimit() const {
     return hitLimit_;
 }
@@ -321,6 +338,26 @@ int PokemonLinks::getNumItems() const {
 
 int PokemonLinks::getNumOptions() const {
     return numOptions_;
+}
+
+PokemonLinks::CoverageType PokemonLinks::getLinksType() const {
+    return requestedCoverSolution_;
+}
+
+std::vector<std::string> PokemonLinks::getItems() const {
+    std::vector<std::string> result = {};
+    for (int i = 1; i < itemTable_.size(); i++) {
+        result.push_back(itemTable_[i].name);
+    }
+    return result;
+}
+
+std::vector<std::string> PokemonLinks::getOptions() const {
+    std::vector<std::string> result = {};
+    for (int i = 1; i < optionTable_.size(); i++) {
+        result.push_back(optionTable_[i]);
+    }
+    return result;
 }
 
 
