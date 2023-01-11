@@ -131,7 +131,7 @@ PokemonLinks::strNum PokemonLinks::coverType(int indexInOption) {
             i = links_[i].up;
             result.str = optionTable_[std::abs(links_[i - 1].topOrLen)].str;
         } else {
-            if (!links_[i].depthTag) {
+            if (!links_[top].depthTag) {
                 typeName cur = itemTable_[top];
                 itemTable_[cur.left].right = cur.right;
                 itemTable_[cur.right].left = cur.left;
@@ -158,7 +158,7 @@ void PokemonLinks::uncoverType(int indexInOption) {
         if (top <= 0) {
             i = links_[i].down;
         } else {
-            if (!links_[i].depthTag) {
+            if (!links_[top].depthTag) {
                 typeName cur = itemTable_[top];
                 itemTable_[cur.left].right = top;
                 itemTable_[cur.right].left = top;
@@ -300,13 +300,14 @@ PokemonLinks::strNum PokemonLinks::overlappingCoverType(int indexInOption, int d
              * recursive levels because we are more relaxed about leaving options available after
              * items in those options have been covered by other options.
              */
+
             if (!links_[top].depthTag) {
                 links_[top].depthTag = depthTag;
                 itemTable_[itemTable_[top].left].right = itemTable_[top].right;
                 itemTable_[itemTable_[top].right].left = itemTable_[top].left;
                 result.num += links_[i].multiplier;
             }
-            links_[i].depthTag == -1 ? i++ : links_[i++].depthTag = depthTag;
+            links_[top].depthTag == -1 ? i++ : links_[i++].depthTag = depthTag;
         }
     } while (i != indexInOption);
 
@@ -320,7 +321,7 @@ void PokemonLinks::overlappingUncoverType(int indexInOption) {
         if (top < 0) {
             i = links_[i].down;
         } else {
-            if (links_[i].depthTag == -1) {
+            if (links_[top].depthTag == -1) {
                 i--;
             } else {
                 if (links_[top].depthTag == links_[i].depthTag) {
@@ -464,11 +465,7 @@ void PokemonLinks::hideItem(int headerIndex) {
     typeName curItem = itemTable_[headerIndex];
     itemTable_[curItem.left].right = curItem.right;
     itemTable_[curItem.right].left = curItem.left;
-    int i = headerIndex;
-    do {
-        links_[i].depthTag = -1;
-        i = links_[i].down;
-    } while (i != headerIndex);
+    links_[headerIndex].depthTag = -1;
     numItems_--;
 }
 
@@ -476,12 +473,7 @@ void PokemonLinks::unhideItem(int headerIndex) {
     typeName curItem = itemTable_[headerIndex];
     itemTable_[curItem.left].right = headerIndex;
     itemTable_[curItem.right].left = headerIndex;
-    int i = headerIndex;
-    do {
-        links_[i].depthTag = 0;
-        i = links_[i].down;
-    } while (i != headerIndex);
-    numItems_++;
+    links_[headerIndex].depthTag = 0;
 }
 
 void PokemonLinks::hideOption(int rowIndex) {
@@ -1748,17 +1740,17 @@ STUDENT_TEST("Test hiding an item from the world.") {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,21,8,Resistance::EMPTY_,0},{3,24,9,Resistance::EMPTY_,-1}, {1,12,12,Resistance::EMPTY_,0},{1,18,18,Resistance::EMPTY_,0},{1,22,22,Resistance::EMPTY_,0},{4,25,13,Resistance::EMPTY_,0},
         //       7Electric                    8                                9
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,-1},
+        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
         //       10Fire                       11                                                              12                                                                                            13
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,21,Resistance::FRAC12,0},                               {3,3,3,Resistance::FRAC12,0},                                                                 {6,6,16,Resistance::FRAC12,0},
         //       14Grass                                                       15                                                                                                                           16
-        {-3,11,16,Resistance::EMPTY_,0},                              {2,9,24,Resistance::FRAC12,-1},                                                                                               {6,13,19,Resistance::FRAC12,0},
+        {-3,11,16,Resistance::EMPTY_,0},                              {2,9,24,Resistance::FRAC12,0},                                                                                               {6,13,19,Resistance::FRAC12,0},
         //       17Ice                                                                                                                      18                                                              19
         {-4,15,19,Resistance::EMPTY_,0},                                                                                            {4,4,4,Resistance::FRAC12,0},                                  {6,16,25,Resistance::FRAC12,0},
         //       20Normal                     21                                                                                                                             22
         {-5,18,22,Resistance::EMPTY_,0},{1,11,1,Resistance::FRAC12,0},                                                                                             {5,5,5,Resistance::FRAC12,0},
         //       23Water                                                       24                                                                                                                           25
-        {-6,21,25,Resistance::EMPTY_,0},                              {2,15,2,Resistance::FRAC12,-1},                                                                                               {6,19,6,Resistance::FRAC12,0},
+        {-6,21,25,Resistance::EMPTY_,0},                              {2,15,2,Resistance::FRAC12,0},                                                                                               {6,19,6,Resistance::FRAC12,0},
         //       26
         {INT_MIN,24,INT_MIN,Resistance::EMPTY_,0},
     };
@@ -1922,15 +1914,15 @@ STUDENT_TEST("Test hiding an item from the world and then solving both types of 
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,20,8,Resistance::EMPTY_,-1},{3,23,9,Resistance::EMPTY_,0},{1,12,12,Resistance::EMPTY_,0},{1,17,17,Resistance::EMPTY_,0},{1,21,21,Resistance::EMPTY_,0},{3,24,15,Resistance::EMPTY_,0},
         //       7Electric
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,-1},{2,2,14,Resistance::FRAC12,0},
+        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
         //       10Fire
-        {-2,8,12,Resistance::EMPTY_,0}, {1,8,20,Resistance::FRAC12,-1},                              {3,3,3,Resistance::FRAC12,0},
+        {-2,8,12,Resistance::EMPTY_,0}, {1,8,20,Resistance::FRAC12,0},                              {3,3,3,Resistance::FRAC12,0},
         //       13Grass
         {-3,11,15,Resistance::EMPTY_,0},                              {2,9,23,Resistance::FRAC12,0},                                                                                             {6,6,18,Resistance::FRAC12,0},
         //       16Ice
         {-4,14,18,Resistance::EMPTY_,0},                                                                                           {4,4,4,Resistance::FRAC12,0},                                 {6,15,24,Resistance::FRAC12,0},
         //       19Normal
-        {-5,17,21,Resistance::EMPTY_,0},{1,11,1,Resistance::FRAC12,-1},                                                                                            {5,5,5,Resistance::FRAC12,0},
+        {-5,17,21,Resistance::EMPTY_,0},{1,11,1,Resistance::FRAC12,0},                                                                                            {5,5,5,Resistance::FRAC12,0},
         //       22Water
         {-6,20,24,Resistance::EMPTY_,0},                              {2,14,2,Resistance::FRAC12,0},                                                                                             {6,18,6,Resistance::FRAC12,0},
         //       25
@@ -2009,15 +2001,15 @@ STUDENT_TEST("Test hiding two items from the world and then solving both types o
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,20,8,Resistance::EMPTY_,-1},{3,23,9,Resistance::EMPTY_,0},{1,12,12,Resistance::EMPTY_,-1},{1,17,17,Resistance::EMPTY_,0},{1,21,21,Resistance::EMPTY_,0},{3,24,15,Resistance::EMPTY_,0},
         //       7Electric
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,-1},{2,2,14,Resistance::FRAC12,0},
+        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
         //       10Fire
-        {-2,8,12,Resistance::EMPTY_,0}, {1,8,20,Resistance::FRAC12,-1},                              {3,3,3,Resistance::FRAC12,-1},
+        {-2,8,12,Resistance::EMPTY_,0}, {1,8,20,Resistance::FRAC12,0},                              {3,3,3,Resistance::FRAC12,0},
         //       13Grass
         {-3,11,15,Resistance::EMPTY_,0},                              {2,9,23,Resistance::FRAC12,0},                                                                                             {6,6,18,Resistance::FRAC12,0},
         //       16Ice
         {-4,14,18,Resistance::EMPTY_,0},                                                                                           {4,4,4,Resistance::FRAC12,0},                                 {6,15,24,Resistance::FRAC12,0},
         //       19Normal
-        {-5,17,21,Resistance::EMPTY_,0},{1,11,1,Resistance::FRAC12,-1},                                                                                            {5,5,5,Resistance::FRAC12,0},
+        {-5,17,21,Resistance::EMPTY_,0},{1,11,1,Resistance::FRAC12,0},                                                                                            {5,5,5,Resistance::FRAC12,0},
         //       22Water
         {-6,20,24,Resistance::EMPTY_,0},                              {2,14,2,Resistance::FRAC12,0},                                                                                             {6,18,6,Resistance::FRAC12,0},
         //       25
