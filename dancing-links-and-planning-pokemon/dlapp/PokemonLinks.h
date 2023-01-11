@@ -105,6 +105,7 @@
 #include <map>
 #include <string>
 #include <set>
+#include <stack>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -174,6 +175,28 @@ public:
      */
     std::set<RankedSet<std::string>> getOverlappingCoverages(int choiceLimit);
 
+    void hideRequestedItem(const std::vector<std::string>& toHide);
+    void hideRequestedItem(const std::string& toHide);
+
+    std::string peekHiddenItems() const;
+
+    void unhideRequestedItem();
+
+    int numHiddenItems() const;
+
+    void resetItems();
+
+    void hideRequestedOption(const std::vector<std::string>& toHide);
+    void hideRequestedOption(const std::string& toHide);
+
+    std::string peekHiddenOptions() const;
+
+    void unhideRequestedOption();
+
+    int numHiddenOptions() const;
+
+    void resetOptions();
+
     /**
      * @brief reachedOutputLimit  for usability of Pokemon Planning application I cut off output at
      *                            a set limit because sets can exceed the size of available memory
@@ -237,13 +260,24 @@ private:
         int right;
     };
 
+    // Simple, a string and an int! I use it twice when I need two pieces of info at once.
+    struct strNum {
+        std::string str;
+        int num;
+    };
+
     /* These data structures contain the core logic of Algorithm X via dancing links. For more
      * detailed information, see the tests in the implementation. These help acheive in place
-     * recursion.
+     * recursion. We can also play around with more advanced in place techniques like hiding options
+     * and items at the users request and restoring them later in place. Finally, because the option
+     * table and item table are sorted lexographically we can find any option or item in O(lgN). No
+     * auxillary maps are needed.
      */
-    std::vector<std::string> optionTable_;  // How we know the name of the option we chose.
+    std::vector<strNum> optionTable_;       // How we know the name of the option we chose.
     std::vector<typeName> itemTable_;       // How we know the names of our items.
     std::vector<pokeLink> links_;           // The links that dance!
+    std::stack<int> hiddenItems_;
+    std::stack<int> hiddenOptions_;
     std::size_t maxOutput_;                 // Cutoff our solution generation for GUI usability.
     bool hitLimit_;                         // How we report to a user that we cutoff more solutions
     int numItems_;                          // What needs to be covered.
@@ -283,7 +317,7 @@ private:
     /**
      * @brief chooseItem  choose an item to cover that appears the least across all options. If an
      *                    item becomes inaccessible over the course of recursion I signify this by
-     *                    returning -1. That branch should fail at that point.
+     *                    returning 0. That branch should fail at that point.
      * @return            the index in the lookup table and headers of links_ of the item to cover.
      */
     int chooseItem() const;
@@ -297,7 +331,7 @@ private:
      *                       it becomes a part of. Return the strength contribution to the set
      *                       and the name of the option we chose.
      */
-    std::pair<int,std::string> coverType(int indexInOption);
+    strNum coverType(int indexInOption);
 
     /**
      * @brief uncoverType    undoes the work of the exact cover operation returning the option,
@@ -334,7 +368,7 @@ private:
      *                              need coverage.
      * @return                      the score our option contributes to its RankedSet and name.
      */
-    std::pair<int,std::string> overlappingCoverType(int indexInOption, int depthTag);
+    strNum overlappingCoverType(int indexInOption, int depthTag);
 
     /**
      * @brief overlappingUncoverType  undoes the work of the loos cover operation. It uncovers items
@@ -345,6 +379,15 @@ private:
      */
     void overlappingUncoverType(int indexInOption);
 
+    int findItemIndex(const std::string& item) const;
+
+    int findOptionIndex(const std::string& option) const;
+
+    void hideItem(int headerIndex);
+    void unhideItem(int headerIndex);
+
+    void hideOption(int rowIndex);
+    void unhideOption(int rowIndex);
 
     /* * * * * * * * * * *   Dancing Links Instantiation and Building     * * * * * * * * * * * * */
 
@@ -393,6 +436,12 @@ private:
     friend bool operator==(const typeName& lhs, const typeName& rhs);
     friend bool operator!=(const typeName& lhs, const typeName& rhs);
     friend std::ostream& operator<<(std::ostream& os, const typeName& type);
+    friend bool operator==(const strNum& lhs, const strNum& rhs);
+    friend bool operator!=(const strNum& lhs, const strNum& rhs);
+    friend std::ostream& operator<<(std::ostream& os, const strNum& nN);
+    friend std::ostream& operator<<(std::ostream& os, const std::vector<strNum>& nN);
+    friend bool operator==(const std::vector<strNum>& lhs, const std::vector<strNum>& rhs);
+    friend bool operator!=(const std::vector<strNum>& lhs, const std::vector<strNum>& rhs);
     friend bool operator==(const std::vector<pokeLink>& lhs, const std::vector<pokeLink>& rhs);
     friend bool operator!=(const std::vector<pokeLink>& lhs, const std::vector<pokeLink>& rhs);
     friend bool operator==(const std::vector<typeName>& lhs, const std::vector<typeName>& rhs);
@@ -471,11 +520,26 @@ bool hasMaxSolutions(const PokemonLinks& dlx);
 std::vector<std::string> items(const PokemonLinks& dlx);
 
 /**
+ * @brief items  reports the items in the cover problem as a vector of strings. May be attack types
+ *               or defense types depending on the requested cover solution on constructing class.
+ * @param dlx    the PokemonLinks object that is instantiated with a requested cover solution.
+ * @return       the vector of strings that are our items we must cover in the problem.
+ */
+std::vector<std::string> items(const PokemonLinks& dlx);
+
+/**
  * @brief numItems  the number of items that need cover in the current PokemonLinks object.
  * @param dlx       the PokemonLinks object that uses options to cover items.
  * @return          the int number of items to cover.
  */
 int numItems(const PokemonLinks& dlx);
+
+/**
+ * @brief options  reports the options available to us to cover our items in the cover problem.
+ * @param dlx      the PokemonLinks object that is instantiated with a requested cover solution.
+ * @return         the vector of strings that are our options we can use to cover the items.
+ */
+std::vector<std::string> options(const PokemonLinks& dlx);
 
 /**
  * @brief options  reports the options available to us to cover our items in the cover problem.
@@ -498,6 +562,13 @@ int numOptions(const PokemonLinks& dlx);
  */
 PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
 
+
+/**
+ * @brief coverageType  the coverage type the PokemonLinks is set to.
+ * @param dlx           the PokemonLinks we have instantiated.
+ * @return              ATTACK or DEFENSE, depeding on the request when building the class.
+ */
+PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
 
 } // namespace DancingLinks
 
