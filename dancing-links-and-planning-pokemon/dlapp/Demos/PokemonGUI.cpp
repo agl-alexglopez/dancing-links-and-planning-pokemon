@@ -420,7 +420,6 @@ namespace {
         PokemonTest mGen;
         std::set<std::string> mSelected;
         std::set<std::string> mAllSelected;
-        std::set<std::string> mAllGenAttackTypes;
         MapDrawSelection mUserSelection;
 
         /* It can be costly in some generations to build and destroy larger PokemonLinks so we will
@@ -594,9 +593,6 @@ namespace {
         for (const auto& s : mGen.genMap.network) {
             mAllSelected.insert(s.first);
         }
-        for (const auto& attack : mGen.interactions.begin()->second) {
-            mAllGenAttackTypes.insert(attack.type());
-        }
         mUserSelection = SELECTED_GYMS;
 
         mGenDefenseLinks.reset(new Dx::PokemonLinks(mGen.interactions, Dx::PokemonLinks::DEFENSE));
@@ -615,11 +611,7 @@ namespace {
 
     void PokemonGUI::printDefenseMessage() {
         (*mSolutionsDisplay) << "Defending against the following ";
-        if (DancingLinks::numHiddenItems(*mGenDefenseLinks) == 0) {
-            (*mSolutionsDisplay) << mAllGenAttackTypes.size();
-        } else {
-            (*mSolutionsDisplay) << DancingLinks::numItems(*mGenDefenseLinks);
-        }
+        (*mSolutionsDisplay) << DancingLinks::numItems(*mGenDefenseLinks);
         (*mSolutionsDisplay) << " attack types with "
                              << DancingLinks::numOptions(*mGenDefenseLinks)
                              << " defense options:\n\n| ";
