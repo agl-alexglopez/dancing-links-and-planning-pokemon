@@ -38,6 +38,7 @@
 
 namespace DancingLinks {
 
+
 /* * * * * * * * * * * * *       Convenience Callers for Encapsulation      * * * * * * * * * * * */
 
 
@@ -72,6 +73,9 @@ std::vector<std::string> items(const PokemonLinks& dlx) {
 std::vector<std::string> options(const PokemonLinks& dlx) {
     return dlx.getOptions();
 }
+
+
+
 
 /* * * * * * * * * * * * * * * *    Algorithm X via Dancing Links   * * * * * * * * * * * * * * * */
 
@@ -335,7 +339,11 @@ void PokemonLinks::overlappingUncoverType(int indexInOption) {
 }
 
 
+
 /* * * * * * * * * * * * * * * * *        Utility Functions             * * * * * * * * * * * * * */
+
+/* * * * * * * * * * * * * * * * *       Utility State Functions        * * * * * * * * * * * * * */
+
 
 
 bool PokemonLinks::reachedOutputLimit() const {
@@ -356,7 +364,11 @@ PokemonLinks::CoverageType PokemonLinks::getLinksType() const {
 
 std::vector<std::string> PokemonLinks::getItems() const {
     std::vector<std::string> result = {};
+
     for (int i = itemTable_[0].right; i != 0; i = itemTable_[0].right) {
+
+    for (int i = 1; i < itemTable_.size(); i++) {
+
         result.push_back(itemTable_[i].name);
     }
     return result;
@@ -364,14 +376,20 @@ std::vector<std::string> PokemonLinks::getItems() const {
 
 std::vector<std::string> PokemonLinks::getOptions() const {
     std::vector<std::string> result = {};
+
     // We are going to hop from row spacer title to row spacer title, skip hidden options.
     for (int i = itemTable_.size(); i < links_.size(); i = links_[i].down + 1) {
         if (links_[i].depthTag != -1) {
             result.push_back(optionTable_[i].str);
         }
+
+    for (int i = 1; i < optionTable_.size(); i++) {
+        result.push_back(optionTable_[i]);
+
     }
     return result;
 }
+
 
 void PokemonLinks::hideRequestedItem(const std::string& toHide) {
     int lookupIndex = findItemIndex(toHide);
@@ -538,6 +556,7 @@ int PokemonLinks::findOptionIndex(const std::string& option) const {
     return 0;
 }
 
+=
 
 /* * * * * * * * * * * * * * * * *   Constructors and Links Build       * * * * * * * * * * * * * */
 
