@@ -98,9 +98,12 @@ PokemonTest loadPokemonGeneration(std::istream& source);
  * @return                         the map of the defensive types for the selected gyms.
  */
 std::map<std::string,std::set<Resistance>>
-loadSelectedGymsDefense(const std::map<std::string,std::set<Resistance>>& currentGenInteractions,
-                        const std::string& selectedMap,
-                        const std::set<std::string>& selectedGyms);
+loadSelectedGymsInteractions(const std::map<std::string,std::set<Resistance>>& currentGenInteractions,
+                             const std::string& selectedMap,
+                             const std::set<std::string>& selectedGyms);
+
+std::set<std::string> loadSelectedGymsDefenses(const std::string& selectedMap,
+                                               const std::set<std::string>& selectedGyms);
 
 /**
  * @brief loadSelectedGymsAttacks  the user interacting with the GUI may want to defend themselves

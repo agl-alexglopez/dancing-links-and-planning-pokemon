@@ -105,8 +105,6 @@
 #include <map>
 #include <string>
 #include <set>
-#include <stack>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 #include "GUI/SimpleTest.h"
@@ -177,25 +175,33 @@ public:
 
     void hideRequestedItem(const std::vector<std::string>& toHide);
     void hideRequestedItem(const std::string& toHide);
+    void hideAllItemsExcept(const std::set<std::string>& toKeep);
 
-    std::string peekHiddenItems() const;
+    std::string peekHiddenItem() const;
 
-    void unhideRequestedItem();
+    void popHiddenItem();
 
-    int numHiddenItems() const;
+    std::vector<std::string> getHiddenItems() const;
+
+    int getNumHiddenItems() const;
 
     void resetItems();
 
     void hideRequestedOption(const std::vector<std::string>& toHide);
     void hideRequestedOption(const std::string& toHide);
+    void hideAllOptionsExcept(const std::set<std::string>& toKeep);
 
-    std::string peekHiddenOptions() const;
+    std::string peekHiddenOption() const;
 
-    void unhideRequestedOption();
+    void popHiddenOption();
 
-    int numHiddenOptions() const;
+    std::vector<std::string> getHiddenOptions() const;
+
+    int getNumHiddenOptions() const;
 
     void resetOptions();
+
+    void resetItemsOptions();
 
     /**
      * @brief reachedOutputLimit  for usability of Pokemon Planning application I cut off output at
@@ -276,8 +282,8 @@ private:
     std::vector<strNum> optionTable_;       // How we know the name of the option we chose.
     std::vector<typeName> itemTable_;       // How we know the names of our items.
     std::vector<pokeLink> links_;           // The links that dance!
-    std::stack<int> hiddenItems_;
-    std::stack<int> hiddenOptions_;
+    std::vector<int> hiddenItems_;          // Treat as stack with user hidden Items.
+    std::vector<int> hiddenOptions_;        // Treat as stack with user hidden Options.
     std::size_t maxOutput_;                 // Cutoff our solution generation for GUI usability.
     bool hitLimit_;                         // How we report to a user that we cutoff more solutions
     int numItems_;                          // What needs to be covered.
@@ -547,6 +553,39 @@ int numOptions(PokemonLinks& dlx);
  * @return              ATTACK or DEFENSE, depeding on the request when building the class.
  */
 PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
+
+void hideItem(PokemonLinks& dlx, const std::string& toHide);
+
+void hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide);
+
+void hideItemsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
+
+int numHiddenItems(const PokemonLinks& dlx);
+
+std::string peekHiddenItem(const PokemonLinks& dlx);
+
+void popHiddenItem(PokemonLinks& dlx);
+
+std::vector<std::string> hiddenItems(const PokemonLinks& dlx);
+
+void resetItems(PokemonLinks& dlx);
+
+void hideOption(PokemonLinks& dlx, const std::string& toHide);
+
+void hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide);
+
+void hideOptionsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
+
+int numHiddenOptions(const PokemonLinks& dlx);
+
+std::string peekHiddenOption(const PokemonLinks& dlx);
+
+void popHiddenOption(PokemonLinks& dlx);
+
+std::vector<std::string> hiddenOptions(const PokemonLinks& dlx);
+
+void resetOptions(PokemonLinks& dlx);
+
 
 } // namespace DancingLinks
 

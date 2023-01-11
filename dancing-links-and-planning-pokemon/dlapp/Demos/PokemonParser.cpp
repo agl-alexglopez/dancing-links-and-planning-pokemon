@@ -246,9 +246,9 @@ PokemonTest loadPokemonGeneration(std::istream& source) {
 }
 
 std::map<std::string,std::set<Resistance>>
-loadSelectedGymsDefense(const std::map<std::string,std::set<Resistance>>& currentGenInteractions,
-                        const std::string& selectedMap,
-                        const std::set<std::string>& selectedGyms) {
+loadSelectedGymsInteractions(const std::map<std::string,std::set<Resistance>>& currentGenInteractions,
+                             const std::string& selectedMap,
+                             const std::set<std::string>& selectedGyms) {
     QJsonObject mapData;
     getQJsonObject(mapData, JSON_ALL_MAPS_FILE);
     std::map<std::string,std::set<Resistance>> result = {};
@@ -263,6 +263,30 @@ loadSelectedGymsDefense(const std::map<std::string,std::set<Resistance>>& curren
             for (const QJsonValueConstRef& type : gymDefenseTypes) {
                 std::string stdVersion = QString(type.toString()).toStdString();
                 result[stdVersion] = currentGenInteractions.at(stdVersion);
+            }
+        }
+    }
+    // This will be a much smaller map.
+    return result;
+}
+
+std::set<std::string>
+loadSelectedGymsDefenses(const std::string& selectedMap,
+                         const std::set<std::string>& selectedGyms) {
+    QJsonObject mapData;
+    getQJsonObject(mapData, JSON_ALL_MAPS_FILE);
+    std::set<std::string> result = {};
+
+    QString map = QString::fromStdString(selectedMap);
+    QJsonObject gymKeys = mapData[map].toObject();
+
+    for (const QString& gym : gymKeys.keys()) {
+        if (selectedGyms.count(gym.toStdString())) {
+            QJsonArray gymDefenseTypes = gymKeys[gym][GYM_DEFENSE_KEY].toArray();
+
+            for (const QJsonValueConstRef& type : gymDefenseTypes) {
+                std::string stdVersion = QString(type.toString()).toStdString();
+                result.insert(stdVersion);
             }
         }
     }

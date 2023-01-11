@@ -52,6 +52,7 @@
 #include "filelib.h"
 #include "strlib.h"
 
+namespace Dx = DancingLinks;
 namespace {
 
 
@@ -356,7 +357,7 @@ namespace {
 
     /* * * * * * *     End of Adapted Graph Drawing Algorithm by Keith Schwarz    * * * * * * * * */
 
-    namespace Dx = DancingLinks;
+
 
     /* You could alter the rules of pokemon here. The default team size is 6 Pokemon that you could
      * choose for defensive types and they can each learn 4 attack moves. However, there is only
@@ -442,11 +443,10 @@ namespace {
                                int depthLimit);
         void solveDefense(const CoverageRequested& exactOrOverlapping);
         void solveAttack(const CoverageRequested& exactOrOverlapping);
-        void printDefenseSolution(bool hitLimit, const std::set<RankedSet<std::string>>& solution);
-        void printAttackSolution(bool hitLimit, const std::set<RankedSet<std::string>>& solution);
-        void printDefenseMessage(const std::set<std::string>& attacksToPrint,int numDefenseOptions);
-        void printAttackMessage(const std::map<std::string,std::set<Resistance>>& defenseToPrint,
-                                int numAttackOptions);
+        void printDefenseSolution(const std::set<RankedSet<std::string>>& solution);
+        void printAttackSolution(const std::set<RankedSet<std::string>>& solution);
+        void printDefenseMessage();
+        void printAttackMessage();
     };
 
     PokemonGUI::PokemonGUI(GWindow& window) : ProblemHandler(window) {
@@ -613,28 +613,27 @@ namespace {
         requestRepaint();
     }
 
-    void PokemonGUI::printDefenseMessage(const std::set<std::string>& attacksToPrint,
-                                         int numDefenseOptions) {
+    void PokemonGUI::printDefenseMessage() {
         (*mSolutionsDisplay) << "Defending against the following ";
-        if (attacksToPrint.empty()) {
+        if (DancingLinks::numHiddenItems(*mGenDefenseLinks) == 0) {
             (*mSolutionsDisplay) << mAllGenAttackTypes.size();
         } else {
-            (*mSolutionsDisplay) << attacksToPrint.size();
+            (*mSolutionsDisplay) << DancingLinks::numItems(*mGenDefenseLinks);
         }
-        (*mSolutionsDisplay) << " attack types with " << numDefenseOptions
+        (*mSolutionsDisplay) << " attack types with "
+                             << DancingLinks::numOptions(*mGenDefenseLinks)
                              << " defense options:\n\n| ";
-        for (const auto& g : attacksToPrint) {
+        for (const auto& g : DancingLinks::items(*mGenDefenseLinks)) {
             (*mSolutionsDisplay) << g << " | ";
         }
         (*mSolutionsDisplay) << "\n" << std::endl;
     }
 
-    void PokemonGUI::printAttackSolution(bool hitLimit,
-                                         const std::set<RankedSet<std::string>>& solution) {
+    void PokemonGUI::printAttackSolution(const std::set<RankedSet<std::string>>& solution) {
         *mSolutionsDisplay << "Found " << solution.size()
                            << " attack configurations SCORE | TYPES |. Higher score is better.\n";
         std::string maximumOutputExceeded = "\n";
-        if (hitLimit) {
+        if (DancingLinks::hasMaxSolutions(*mGenAttackLinks)) {
             maximumOutputExceeded = "...exceeded maximum output, stopping at "
                                     + std::to_string(solution.size()) + ".\n\n";
         }
@@ -649,25 +648,24 @@ namespace {
         *mSolutionsDisplay << maximumOutputExceeded << std::endl;
     }
 
-    void PokemonGUI::printAttackMessage(const std::map<std::string,
-                                        std::set<Resistance>>& defenseToPrint,
-                                        int numAttackOptions) {
-        (*mSolutionsDisplay) << "Attacking the following " << defenseToPrint.size()
-                             << " defensive types with " << numAttackOptions
+    void PokemonGUI::printAttackMessage() {
+        (*mSolutionsDisplay) << "Attacking the following "
+                             << DancingLinks::numItems(*mGenAttackLinks)
+                             << " defensive types with "
+                             << DancingLinks::numOptions(*mGenAttackLinks)
                              << " attack options:\n\n| ";
-        for (const auto& type : defenseToPrint) {
-            (*mSolutionsDisplay) << type.first << " | ";
+        for (const auto& type : DancingLinks::items(*mGenAttackLinks)) {
+            (*mSolutionsDisplay) << type << " | ";
         }
         (*mSolutionsDisplay) << "\n" << std::endl;
     }
 
-    void PokemonGUI::printDefenseSolution(bool hitLimit,
-                                          const std::set<RankedSet<std::string>>& solution) {
+    void PokemonGUI::printDefenseSolution(const std::set<RankedSet<std::string>>& solution) {
         *mSolutionsDisplay << "Found " << solution.size()
                            << " Pokemon teams SCORE | TEAM |. Lower score is better.\n";
 
         std::string maximumOutputExceeded = "\n";
-        if (hitLimit) {
+        if (DancingLinks::hasMaxSolutions(*mGenDefenseLinks)) {
             maximumOutputExceeded = "...exceeded maximum output, stopping at "
                                     + std::to_string(solution.size()) + ".\n\n";
         }
@@ -700,17 +698,19 @@ namespace {
 
         if (!mSelected.empty()) {
             mUserSelection = SELECTED_GYMS;
+
             std::set<std::string>
             gymAttackTypes = loadSelectedGymsAttacks(mProblems->getSelectedItem(), mSelected);
-            Dx::PokemonLinks localSolver(mGen.interactions, gymAttackTypes);
-            printDefenseMessage(gymAttackTypes, Dx::numOptions(localSolver));
-            resetAllCoverages(localSolver, req, POKEMON_TEAM_SIZE);
-            printDefenseSolution(Dx::hasMaxSolutions(localSolver), *mAllCoverages);
+            DancingLinks::hideItemsExcept(*mGenDefenseLinks, gymAttackTypes);
+
+            printDefenseMessage();
+            resetAllCoverages(*mGenDefenseLinks, req, POKEMON_TEAM_SIZE);
+            printDefenseSolution(*mAllCoverages);
         } else {
             mUserSelection = FULL_GENERATION;
-            printDefenseMessage(mAllGenAttackTypes, Dx::numOptions(*mGenDefenseLinks));
+            printDefenseMessage();
             resetAllCoverages(*mGenDefenseLinks, req, POKEMON_TEAM_SIZE);
-            printDefenseSolution(Dx::hasMaxSolutions(*mGenDefenseLinks), *mAllCoverages);
+            printDefenseSolution(*mAllCoverages);
         }
 
 
@@ -719,6 +719,7 @@ namespace {
         mProblems->setEnabled(true);
         gymControls->setEnabled(true);
         mSolutionsDisplay->scrollToTop();
+        DancingLinks::resetItems(*mGenDefenseLinks);
 
         requestRepaint();
     }
@@ -734,20 +735,19 @@ namespace {
 
         if (!mSelected.empty()) {
             mUserSelection = SELECTED_GYMS;
-            std::map<std::string,std::set<Resistance>>
-            modifiedGeneration = loadSelectedGymsDefense(mGen.interactions,
-                                                         mProblems->getSelectedItem(),
-                                                         mSelected);
-            Dx::PokemonLinks localSolver(modifiedGeneration, Dx::PokemonLinks::ATTACK);
-            printAttackMessage(modifiedGeneration, Dx::numOptions(localSolver));
-            resetAllCoverages(localSolver, req, POKEMON_TEAM_ATTACK_SLOTS);
-            printAttackSolution(Dx::hasMaxSolutions(localSolver), *mAllCoverages);
+            std::set<std::string>
+            gymDefenseTypes = loadSelectedGymsDefenses(mProblems->getSelectedItem(),
+                                                       mSelected);
+            DancingLinks::hideItemsExcept(*mGenAttackLinks, gymDefenseTypes);
+            printAttackMessage();
+            resetAllCoverages(*mGenAttackLinks, req, POKEMON_TEAM_ATTACK_SLOTS);
+            printAttackSolution(*mAllCoverages);
 
         } else {
             mUserSelection = FULL_GENERATION;
-            printAttackMessage(mGen.interactions, Dx::numOptions(*mGenAttackLinks));
+            printAttackMessage();
             resetAllCoverages(*mGenAttackLinks, req, POKEMON_TEAM_ATTACK_SLOTS);
-            printAttackSolution(Dx::hasMaxSolutions(*mGenAttackLinks), *mAllCoverages);
+            printAttackSolution(*mAllCoverages);
         }
 
         /* Enable controls. */
@@ -755,6 +755,7 @@ namespace {
         mProblems->setEnabled(true);
         gymControls->setEnabled(true);
         mSolutionsDisplay->scrollToTop();
+        DancingLinks::resetItems(*mGenAttackLinks);
 
         requestRepaint();
     }
