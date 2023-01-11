@@ -364,11 +364,7 @@ PokemonLinks::CoverageType PokemonLinks::getLinksType() const {
 
 std::vector<std::string> PokemonLinks::getItems() const {
     std::vector<std::string> result = {};
-
     for (int i = itemTable_[0].right; i != 0; i = itemTable_[0].right) {
-
-    for (int i = 1; i < itemTable_.size(); i++) {
-
         result.push_back(itemTable_[i].name);
     }
     return result;
@@ -382,10 +378,6 @@ std::vector<std::string> PokemonLinks::getOptions() const {
         if (links_[i].depthTag != -1) {
             result.push_back(optionTable_[i].str);
         }
-
-    for (int i = 1; i < optionTable_.size(); i++) {
-        result.push_back(optionTable_[i]);
-
     }
     return result;
 }
@@ -556,7 +548,6 @@ int PokemonLinks::findOptionIndex(const std::string& option) const {
     return 0;
 }
 
-=
 
 /* * * * * * * * * * * * * * * * *   Constructors and Links Build       * * * * * * * * * * * * * */
 
