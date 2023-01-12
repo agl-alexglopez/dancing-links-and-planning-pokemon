@@ -176,6 +176,7 @@ public:
     void hideRequestedItem(const std::vector<std::string>& toHide);
     void hideRequestedItem(const std::string& toHide);
     void hideAllItemsExcept(const std::set<std::string>& toKeep);
+    bool hasItem(const std::string& item) const;
 
     std::string peekHiddenItem() const;
 
@@ -190,6 +191,7 @@ public:
     void hideRequestedOption(const std::vector<std::string>& toHide);
     void hideRequestedOption(const std::string& toHide);
     void hideAllOptionsExcept(const std::set<std::string>& toKeep);
+    bool hasOption(const std::string& item) const;
 
     std::string peekHiddenOption() const;
 
@@ -516,7 +518,7 @@ std::set<RankedSet<std::string>> solveOverlappingCover(PokemonLinks& dlx, int ch
  * @param dlx              the PokemonLinks object used to solve exact cover problems.
  * @return                 true if we reached the max limit false if not O(1).
  */
-bool hasMaxSolutions(PokemonLinks& dlx);
+bool hasMaxSolutions(const PokemonLinks& dlx);
 
 /**
  * @brief items  reports the items in the cover problem as a vector of strings. May be attack types
@@ -531,7 +533,16 @@ std::vector<std::string> items(const PokemonLinks& dlx);
  * @param dlx       the PokemonLinks object that uses options to cover items.
  * @return          the int number of items to cover.
  */
-int numItems(PokemonLinks& dlx);
+int numItems(const PokemonLinks& dlx);
+
+/**
+ * @brief hasItem  returns true if an item is contained the object. An item that is hidden CANNOT
+ *                 be found by a membership test, it is hidden. O(lgN) where N is items.
+ * @param dlx      the PokemonLinks object we examine.
+ * @param item     the item we are trying to find.
+ * @return         true if the item is present and not hidden false if not.
+ */
+bool hasItem(const PokemonLinks& dlx, const std::string& item);
 
 /**
  * @brief options  reports the options available to us to cover our items in the cover problem.
@@ -545,7 +556,16 @@ std::vector<std::string> options(const PokemonLinks& dlx);
  * @param dlx         the PokemonLinks object that uses options to cover items.
  * @return            the int number of options we can choose from.
  */
-int numOptions(PokemonLinks& dlx);
+int numOptions(const PokemonLinks& dlx);
+
+/**
+ * @brief hasOption  returns true if an option is contained in the object. An option that is hidden
+ *                   CANNOT be found by a membership test. O(lgN) where N is options.
+ * @param dlx        the PokemonLinks object we examine.
+ * @param option     the option we are searching for.
+ * @return           true if found and not hidden false if not.
+ */
+bool hasOption(const PokemonLinks& dlx, const std::string& option);
 
 /**
  * @brief coverageType  the coverage type the PokemonLinks is set to.
@@ -554,37 +574,141 @@ int numOptions(PokemonLinks& dlx);
  */
 PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
 
+/**
+ * @brief hideItem  removes an item from the dancing links so that it no longer exists in any cover
+ *                  problem. This is different than covering an item in Algorithm X. Here, the user
+ *                  is requesting that only this item disappear. All other options that contain this
+ *                  item retain their other items and remain in the world. We can restore this item
+ *                  into the world later if desired. Interact with hidden items as you would a
+ *                  stack. We must unhide the top of the stack of hidden items first. In place,
+ *                  O(lgN) guarantee.
+ * @param dlx       the PokemonLinks object we alter in place.
+ * @param toHide    the string item representing the item to hide depending on ATTACK or DEFENSE.
+ */
 void hideItem(PokemonLinks& dlx, const std::string& toHide);
 
+/**
+ * @brief hideItem  hides all items specified from the vector as above. In place, O(NlgN) guarantee.
+ * @param dlx       the PokemonLinks object we alter in place.
+ * @param toHide    the string item representing the item to hide depending on ATTACK or DEFENSE.
+ */
 void hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide);
 
+/**
+ * @brief hideItemsExcept  hides all items NOT included in the specified set. In place, O(NlgK)
+ *                         N is the number of Items and K is the number of items to keep.
+ * @param dlx              the PokemonLinks object we alter in place.
+ * @param toKeep           the items that remain the world as items we must cover.
+ */
 void hideItemsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
 
+/**
+ * @brief numHiddenItems  returns the number of items we are currently hiding from the world. O(1).
+ * @param dlx             the PokemonLinks object we examine.
+ * @return                the int number of hidden items.
+ */
 int numHiddenItems(const PokemonLinks& dlx);
 
+/**
+ * @brief peekHiddenItem  hidden items act like a stack that must be unhidden Last-in-First-out.
+ *                        check the most recently hid item without altering the stack. O(1).
+ * @param dlx             the PokemonLinks object we examine.
+ * @return                the most recently hidden item.
+ */
 std::string peekHiddenItem(const PokemonLinks& dlx);
 
+/**
+ * @brief popHiddenItem  pop the most recently hidden item from the stack altering the stack. O(1).
+ * @param dlx            the PokemonLinks object we alter.
+ */
 void popHiddenItem(PokemonLinks& dlx);
 
+/**
+ * @brief hiddenItems  view the currently hidden stack as a vector. The last item is the first out.
+ * @param dlx          the PokemonLinks object we alter.
+ * @return             the vector of items in the order we hid them. Last is first out if popped.
+ */
 std::vector<std::string> hiddenItems(const PokemonLinks& dlx);
 
+/**
+ * @brief resetItems  restores the items in the world to their original state. O(H), H hidden items.
+ * @param dlx         the PokemonLinks object we alter.
+ */
 void resetItems(PokemonLinks& dlx);
 
+/**
+ * @brief hideOption  hides an option from the dancing links so that it no longer available to
+ *                    cover items. This is a different type of hiding than in Algorithm X. Here,
+ *                    the number of options available to every item covered by this option is
+ *                    reduced by one and all items in this option remain in the world. They must
+ *                    still be covered through other options to solve the problem. Hide options
+ *                    behaves as a stack and they must be unhidden in Last-in-First-out order to
+ *                    restore the world to its original state. In place, O(lgN + I) where N is the
+ *                    number of options and I is the number of Items in an option.
+ * @param dlx         the PokemonLinks object we alter.
+ * @param toHide      the option we must hide from the world.
+ */
 void hideOption(PokemonLinks& dlx, const std::string& toHide);
 
+/**
+ * @brief hideOption  hides all options specified in the vector from the world. Uses the same
+ *                    process as hideOption() for each option making an O(HlgN + I) where H is the
+ *                    number of options to hide, N is the number of options and I is the number of
+ *                    items in an option.
+ * @param dlx         the PokemonLinks object we alter.
+ * @param toHide      the options we must hide from the world.
+ */
 void hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide);
 
+/**
+ * @brief hideOptionsExcept  hides all options NOT specified in the given set. In place O(NlgK)
+ *                           where N is the number of options and K, the number of options to keep.
+ * @param dlx                the PokemonLinks object we alter.
+ * @param toKeep             the options we will keep available to choose from for the problem.
+ */
 void hideOptionsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
 
+/**
+ * @brief numHiddenOptions  num options currently hidden in the stack. The last is first out. O(1).
+ * @param dlx               the PokemonLinks object we examine.
+ * @return                  the int representing number of hidden options in the stack.
+ */
 int numHiddenOptions(const PokemonLinks& dlx);
 
+/**
+ * @brief peekHiddenOption  hidden items act like a stack that must be unhidden Last-in-First-out.
+ *                          check the most recently hid item without altering the stack. O(1).
+ * @param dlx               the PokemonLinks object we examine.
+ * @return                  the most recently hidden option.
+ */
 std::string peekHiddenOption(const PokemonLinks& dlx);
 
+/**
+ * @brief popHiddenOption  pop the most recently hidden item from stack altering the stack. O(1).
+ * @param dlx              the PokemonLinks object we alter.
+ */
 void popHiddenOption(PokemonLinks& dlx);
 
+/**
+ * @brief hiddenOptions  view the currently hidden stack as a vector. The last item is first-out.
+ * @param dlx            the PokemonLinks object we alter.
+ * @return               the vector of options in order we hid them. Last is first out if popped.
+ */
 std::vector<std::string> hiddenOptions(const PokemonLinks& dlx);
 
+/**
+ * @brief resetOptions  restore the options in the world to original state. O(H), H hidden items.
+ * @param dlx           the PokemonLinks object we alter.
+ */
 void resetOptions(PokemonLinks& dlx);
+
+/**
+ * @brief resetAll  completely restore the items and options to original state. O(I + (P + C)) where
+ *                  I is the number of hidden items, P is the number of hidden options and C is the
+ *                  number of items covered by each option.
+ * @param dlx       the PokemonLinks object we alter.
+ */
+void resetAll(PokemonLinks& dlx);
 
 
 } // namespace DancingLinks

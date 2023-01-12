@@ -38,6 +38,7 @@
 
 namespace DancingLinks {
 
+
 /* * * * * * * * * * * * *       Convenience Callers for Encapsulation      * * * * * * * * * * * */
 
 
@@ -49,16 +50,24 @@ std::set<RankedSet<std::string>> solveOverlappingCover(PokemonLinks& dlx, int ch
     return dlx.getOverlappingCoverages(choiceLimit);
 }
 
-bool hasMaxSolutions(PokemonLinks& dlx) {
+bool hasMaxSolutions(const PokemonLinks& dlx) {
     return dlx.reachedOutputLimit();
 }
 
-int numItems(PokemonLinks& dlx) {
+int numItems(const PokemonLinks& dlx) {
     return dlx.getNumItems();
 }
 
-int numOptions(PokemonLinks& dlx) {
+bool hasItem(const PokemonLinks& dlx, const std::string& item) {
+    return dlx.hasItem(item);
+}
+
+int numOptions(const PokemonLinks& dlx) {
     return dlx.getNumOptions();
+}
+
+bool hasOption(const PokemonLinks& dlx, const std::string& option) {
+    return dlx.hasOption(option);
 }
 
 PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx) {
@@ -135,6 +144,10 @@ std::vector<std::string> hiddenOptions(const PokemonLinks& dlx) {
 
 void resetOptions(PokemonLinks& dlx) {
     dlx.resetOptions();
+}
+
+void resetAll(PokemonLinks& dlx) {
+    dlx.resetItemsOptions();
 }
 
 
@@ -476,6 +489,11 @@ void PokemonLinks::hideAllItemsExcept(const std::set<std::string>& toKeep) {
 
 }
 
+bool PokemonLinks::hasItem(const std::string& item) const {
+    int found = findItemIndex(item);
+    return found && links_[found].depthTag != -1;
+}
+
 void PokemonLinks::popHiddenItem() {
     if (!hiddenItems_.empty()) {
         unhideItem(hiddenItems_.back());
@@ -527,6 +545,11 @@ void PokemonLinks::hideAllOptionsExcept(const std::set<std::string>& toKeep) {
             hideOption(i);
         }
     }
+}
+
+bool PokemonLinks::hasOption(const std::string& option) const {
+    int found = findOptionIndex(option);
+    return found && links_[found].depthTag != -1;
 }
 
 void PokemonLinks::popHiddenOption() {
@@ -1923,7 +1946,6 @@ STUDENT_TEST("Test hiding Grass and Ice and then reset the links.") {
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
     links.hideRequestedOption({{"Grass"},{"Ice"}});
-    std::cout << links.links_ << std::endl;
     const std::vector<Dx::PokemonLinks::pokeLink> dlxHideOptionIceGrass = {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,21,8,Resistance::EMPTY_,0},{2,24,9,Resistance::EMPTY_,0}, {1,12,12,Resistance::EMPTY_,0},{0,4,4,Resistance::EMPTY_,0},{1,22,22,Resistance::EMPTY_,0},{2,25,13,Resistance::EMPTY_,0},
@@ -2341,6 +2363,18 @@ STUDENT_TEST("Test hiding all options and items except one each. One exact/overl
     links.hideAllOptionsExcept({"Grass"});
     EXPECT_EQUAL(links.getNumHiddenItems(), 5);
     EXPECT_EQUAL(links.getNumHiddenOptions(), 5);
+    EXPECT(links.hasItem("Water"));
+    EXPECT(links.hasOption("Grass"));
+    EXPECT(!links.hasItem("Grass"));
+    EXPECT(!links.hasItem("Electric"));
+    EXPECT(!links.hasOption("Electric"));
+    EXPECT(!links.hasItem("Fire"));
+    EXPECT(!links.hasOption("Fire"));
+    EXPECT(!links.hasItem("Ice"));
+    EXPECT(!links.hasOption("Ice"));
+    EXPECT(!links.hasItem("Normal"));
+    EXPECT(!links.hasOption("Normal"));
+    EXPECT(!links.hasOption("Water"));
     const std::vector<Dx::PokemonLinks::typeName> headersHideExceptWater {
         {"",6,6},
         {"Electric",0,2},
@@ -2376,6 +2410,13 @@ STUDENT_TEST("Test hiding all options and items except one each. One exact/overl
     EXPECT_EQUAL(links.getOverlappingCoverages(6), {{3, {"Grass"}}});
     links.resetItems();
     links.resetOptions();
+    EXPECT_EQUAL(links.links_, dlx);
+    EXPECT_EQUAL(links.itemTable_, headers);
+    EXPECT_EQUAL(links.getNumHiddenItems(), 0);
+    EXPECT_EQUAL(links.getNumHiddenOptions(), 0);
+    links.hideAllItemsExcept({"Water"});
+    links.hideAllOptionsExcept({"Grass"});
+    links.resetItemsOptions();
     EXPECT_EQUAL(links.links_, dlx);
     EXPECT_EQUAL(links.itemTable_, headers);
     EXPECT_EQUAL(links.getNumHiddenItems(), 0);
