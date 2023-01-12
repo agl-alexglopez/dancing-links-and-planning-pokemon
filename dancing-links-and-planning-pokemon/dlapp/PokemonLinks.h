@@ -173,36 +173,158 @@ public:
      */
     std::set<RankedSet<std::string>> getOverlappingCoverages(int choiceLimit);
 
+    /**
+     * @brief hideRequestedItem  hiding a requested item can occur in place and be undone later.
+     *                           These items will no longer need coverage in a cover problem. If an
+     *                           item in the list is not in the PokemonLinks object we proceed to
+     *                           the next item. O(NlgN).
+     * @param toHide             the items we wish to hide and exclude from the cover problem.
+     */
     void hideRequestedItem(const std::vector<std::string>& toHide);
+
+    /**
+     * @brief hideRequestedItem  hiding a requested item can occur in place and be undone later.
+     *                           This item will no longer need coverage in a cover problem. If the
+     *                           item is not in the PokemonLinks object, it is unchanged. O(lgN)
+     * @param toHide             the item we wish to cover.
+     */
     void hideRequestedItem(const std::string& toHide);
+
+    /**
+     * @brief hideAllItemsExcept  hides all items EXCEPT those specified in the toKeep set. These
+     *                            can all be unhidden later. Warning, if an item cannot be found in
+     *                            the toKeep set, it will be hidden. O(NlgK) where N is the number
+     *                            of items and K is the number of items to keep.
+     * @param toKeep              the set of items we wish to keep for future cover problems.
+     */
     void hideAllItemsExcept(const std::set<std::string>& toKeep);
+
+    /**
+     * @brief hasItem  searches for the requested item in the PokemonLinks items. A hidden item
+     *                 cannot be found by this membership test. O(lgN) N is all items.
+     * @param item     the string item we search for.
+     * @return         true if we found it false if it is hidden or absent.
+     */
     bool hasItem(const std::string& item) const;
 
+    /**
+     * @brief peekHiddenItem  peek the most recently hidden item from the stack. Throws an exception
+     *                        if the stack is empty and there are no hidden items.
+     * @return                the string copy of the most recent hidden item.
+     */
     std::string peekHiddenItem() const;
 
+    /**
+     * @brief popHiddenItem  pops the most recently hidden item from the stack restoring it as an
+     *                       item in the dancing links array. Throws an exception if the stack is
+     *                       empty and there are no hidden items.
+     */
     void popHiddenItem();
 
+    /**
+     * @brief hiddenItemsEmpty  reports whether there are currently hidden items.
+     * @return                  true if the stack of hidden items is emtpy false if not.
+     */
+    bool hiddenItemsEmpty() const;
+
+    /**
+     * @brief getHiddenItems  reports a vector representation of the stack of hidden items. The end
+     *                        of the vector is the top of the stack.
+     * @return                the vector of all hidden items.
+     */
     std::vector<std::string> getHiddenItems() const;
 
+    /**
+     * @brief getNumHiddenItems  reports the number of hidden items in O(1).
+     * @return                   the int num of hidden items.
+     */
     int getNumHiddenItems() const;
 
+    /**
+     * @brief resetItems  unhides all items as they were upon object construction. O(H) Hidden.
+     */
     void resetItems();
 
-    void hideRequestedOption(const std::vector<std::string>& toHide);
+    /**
+     * @brief hideRequestedOption  hides the option so it cannot be used to cover items. If the
+     *                             option is not present or option has already been covered the
+     *                             options remain unchanged. O(lgN + C) where N is the number of
+     *                             options and C is the items covered by this option.
+     * @param toHide               the option to hide.
+     */
     void hideRequestedOption(const std::string& toHide);
-    void hideAllOptionsExcept(const std::set<std::string>& toKeep);
-    bool hasOption(const std::string& item) const;
 
+    /**
+     * @brief hideRequestedOption  hides all requested options from the links. If an option is not
+     *                             found or already hidden we move to the next requested option.
+     *                             O(HlgNC) where H is the number of items to hide, N is the
+     *                             number of options, and C is the number of items covered by each
+     *                             option. In practice C is small because links are sparse.
+     * @param toHide               the vector of options we must hide.
+     */
+    void hideRequestedOption(const std::vector<std::string>& toHide);
+
+    /**
+     * @brief hideAllOptionsExcept  hides all options EXCEPT those specified in the keep set. By
+     *                              default options that are not found are hidden so take care when
+     *                              forming the set.
+     * @param toKeep                the options we wish to keep for future cover problems.
+     */
+    void hideAllOptionsExcept(const std::set<std::string>& toKeep);
+
+    /**
+     * @brief hasOption  determines if an option is present and not hidden. Hidden options cannot
+     *                   be found by this membership test. O(lgN) where N is all options.
+     * @param option     the string option we search for.
+     * @return           true if the item is present and not hidden, false if not.
+     */
+    bool hasOption(const std::string& option) const;
+
+    /**
+     * @brief peekHiddenOption  peeks the most recently hidden option. Throws if no hidden items.
+     * @return                  the string of the most recently hidden option.
+     */
     std::string peekHiddenOption() const;
 
+    /**
+     * @brief popHiddenOption  pops the most recently hidden option from the stack restoring it into
+     *                         the dancing links array as an option for cover problems. O(I) where
+     *                         I is the number of items covered by this option.
+     */
     void popHiddenOption();
 
+    /**
+     * @brief hiddenOptionsEmpty  reports if we are currently hiding any options. O(1).
+     * @return                    true if there are no hidden options false if not.
+     */
+    bool hiddenOptionsEmpty() const;
+
+    /**
+     * @brief getHiddenOptions  view a vector representation of the hidden option stack.
+     * @return                  the vector of hidden options. End of the vector is the top of stack.
+     */
     std::vector<std::string> getHiddenOptions() const;
 
+    /**
+     * @brief getNumHiddenOptions  reports the number of currently hidden options in the stack. O(1)
+     * @return                     the int representation of the stack size.
+     */
     int getNumHiddenOptions() const;
 
+    /**
+     * @brief resetOptions  returns all options into the dancing links grid to be available as
+     *                      options for a cover problem. O(HI) where H is the number of hidden
+     *                      options and I is the number of items covered by each option.
+     */
     void resetOptions();
 
+    /**
+     * @brief resetItemsOptions  returns all options and items to their original state and the
+     *                           PokemonLinks object returns to the state it was in when
+     *                           constructed. O(I) + O(PC) where I is the number of Items, P is the
+     *                           number of oPtions and C is the number of items covered by each
+     *                           option.
+     */
     void resetItemsOptions();
 
     /**
@@ -258,7 +380,7 @@ private:
         int up;
         int down;
         Resistance::Multiplier multiplier; // x0.0, x0.25, x0.5, x1.0, x2, or x4 damage multipliers.
-        int depthTag;                      // We use this to efficiently generate overlapping sets.
+        int tag;                           // We use this to efficiently generate overlapping sets.
     };
 
     // This type, in a seperate vector, controls the base case of our recursion.
@@ -387,15 +509,50 @@ private:
      */
     void overlappingUncoverType(int indexInOption);
 
+    /**
+     * @brief findItemIndex  performs binary search on the sorted item array to find its index in
+     *                       the links array as the column header.
+     * @param item           the string item we search for depending on ATTACK or DEFENSE.
+     * @return               the index in the item lookup table. This is same as header in links.
+     */
     int findItemIndex(const std::string& item) const;
 
+    /**
+     * @brief findItemIndex  performs binary search on the sorted option array to find its index in
+     *                       the links array as the row spacer.
+     * @param item           the string item we search for depending on ATTACK or DEFENSE.
+     * @return               the index in the item option table. This is same as spacer in links.
+     */
     int findOptionIndex(const std::string& option) const;
 
+    /**
+     * @brief hideItem     hiding an item in the links means we simply tag its column header with a
+     *                     special value that tells our algorithms to ignore items. O(1).
+     * @param headerIndex  the index in the column header of the links that dance.
+     */
     void hideItem(int headerIndex);
+
+    /**
+     * @brief unhideItem   unhiding items means we reset tag to indicate is back in the world. O(1).
+     * @param headerIndex  the index of the column header for the dancing links array.
+     */
     void unhideItem(int headerIndex);
 
+    /**
+     * @brief hideOption  hiding an option involves splicing it out of the up-down linked list. We
+     *                    remove all items in this option from the world so the option is hidden.
+     * @param rowIndex    the spacer row index in the row within the dancing links array.
+     */
     void hideOption(int rowIndex);
+
+    /**
+     * @brief unhideOption  unhiding an option undoes the splicing operation. Undoing an option
+     *                      must be done in last in first out order. User is expected to manage
+     *                      hidden options in a stack.
+     * @param rowIndex      the spacer row index in the row within the dancing links array.
+     */
     void unhideOption(int rowIndex);
+
 
     /* * * * * * * * * * *   Dancing Links Instantiation and Building     * * * * * * * * * * * * */
 
@@ -611,17 +768,26 @@ int numHiddenItems(const PokemonLinks& dlx);
 
 /**
  * @brief peekHiddenItem  hidden items act like a stack that must be unhidden Last-in-First-out.
- *                        check the most recently hid item without altering the stack. O(1).
+ *                        check the most recently hid item without altering the stack. Throws an
+ *                        exception is the stack is empty. O(1).
  * @param dlx             the PokemonLinks object we examine.
  * @return                the most recently hidden item.
  */
 std::string peekHiddenItem(const PokemonLinks& dlx);
 
 /**
- * @brief popHiddenItem  pop the most recently hidden item from the stack altering the stack. O(1).
+ * @brief popHiddenItem  pop the most recently hidden item from the stack altering the stack. Throws
+ *                       an exception if attempt is made to pop from empty stack. O(1).
  * @param dlx            the PokemonLinks object we alter.
  */
 void popHiddenItem(PokemonLinks& dlx);
+
+/**
+ * @brief hidItemsEmpty  reports if the stack of hidden items is empty.
+ * @param dlx            the PokemonLinks object we examine.
+ * @return               true if empty false if not.
+ */
+bool hidItemsEmpty(const PokemonLinks& dlx);
 
 /**
  * @brief hiddenItems  view the currently hidden stack as a vector. The last item is the first out.
@@ -652,17 +818,19 @@ void hideOption(PokemonLinks& dlx, const std::string& toHide);
 
 /**
  * @brief hideOption  hides all options specified in the vector from the world. Uses the same
- *                    process as hideOption() for each option making an O(HlgN + I) where H is the
+ *                    process as hideOption() for each option making an O(HlgNI) where H is the
  *                    number of options to hide, N is the number of options and I is the number of
- *                    items in an option.
+ *                    items in an option. In practice, I is often small in sparse links.
  * @param dlx         the PokemonLinks object we alter.
  * @param toHide      the options we must hide from the world.
  */
 void hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide);
 
 /**
- * @brief hideOptionsExcept  hides all options NOT specified in the given set. In place O(NlgK)
- *                           where N is the number of options and K, the number of options to keep.
+ * @brief hideOptionsExcept  hides all options NOT specified in the given set. In place O(NlgKI)
+ *                           where N is the number of options, K the number of options to keep, and
+ *                           I the number of Items covered by each option. In practice I is small in
+ *                           sparse PokemonLinks grids.
  * @param dlx                the PokemonLinks object we alter.
  * @param toKeep             the options we will keep available to choose from for the problem.
  */
@@ -688,6 +856,13 @@ std::string peekHiddenOption(const PokemonLinks& dlx);
  * @param dlx              the PokemonLinks object we alter.
  */
 void popHiddenOption(PokemonLinks& dlx);
+
+/**
+ * @brief hidOptionsEmpty  reports if the stack of hidden options is empty.
+ * @param dlx              the PokemonLinks object we examine.
+ * @return                 true if empty false if not.
+ */
+bool hidOptionsEmpty(const PokemonLinks& dlx);
 
 /**
  * @brief hiddenOptions  view the currently hidden stack as a vector. The last item is first-out.

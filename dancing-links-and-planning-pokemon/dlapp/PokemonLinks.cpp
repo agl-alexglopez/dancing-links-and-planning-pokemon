@@ -106,6 +106,10 @@ void popHiddenItem(PokemonLinks& dlx) {
     dlx.popHiddenItem();
 }
 
+bool hidItemsEmpty(const PokemonLinks& dlx) {
+    return dlx.hiddenItemsEmpty();
+}
+
 std::vector<std::string> hiddenItems(const PokemonLinks& dlx) {
     return dlx.getHiddenItems();
 }
@@ -136,6 +140,10 @@ std::string peekHiddenOption(const PokemonLinks& dlx) {
 
 void popHiddenOption(PokemonLinks& dlx) {
     dlx.popHiddenOption();
+}
+
+bool hidOptionsEmpty(const PokemonLinks& dlx) {
+    return dlx.hiddenOptionsEmpty();
 }
 
 std::vector<std::string> hiddenOptions(const PokemonLinks& dlx) {
@@ -209,7 +217,7 @@ PokemonLinks::strNum PokemonLinks::coverType(int indexInOption) {
             i = links_[i].up;
             result.str = optionTable_[std::abs(links_[i - 1].topOrLen)].str;
         } else {
-            if (!links_[top].depthTag) {
+            if (!links_[top].tag) {
                 typeName cur = itemTable_[top];
                 itemTable_[cur.left].right = cur.right;
                 itemTable_[cur.right].left = cur.left;
@@ -236,7 +244,7 @@ void PokemonLinks::uncoverType(int indexInOption) {
         if (top <= 0) {
             i = links_[i].down;
         } else {
-            if (!links_[top].depthTag) {
+            if (!links_[top].tag) {
                 typeName cur = itemTable_[top];
                 itemTable_[cur.left].right = top;
                 itemTable_[cur.right].left = top;
@@ -379,13 +387,13 @@ PokemonLinks::strNum PokemonLinks::overlappingCoverType(int indexInOption, int d
              * items in those options have been covered by other options.
              */
 
-            if (!links_[top].depthTag) {
-                links_[top].depthTag = depthTag;
+            if (!links_[top].tag) {
+                links_[top].tag = depthTag;
                 itemTable_[itemTable_[top].left].right = itemTable_[top].right;
                 itemTable_[itemTable_[top].right].left = itemTable_[top].left;
                 result.num += links_[i].multiplier;
             }
-            links_[top].depthTag == -1 ? i++ : links_[i++].depthTag = depthTag;
+            links_[top].tag == -1 ? i++ : links_[i++].tag = depthTag;
         }
     } while (i != indexInOption);
 
@@ -399,12 +407,12 @@ void PokemonLinks::overlappingUncoverType(int indexInOption) {
         if (top < 0) {
             i = links_[i].down;
         } else {
-            if (links_[top].depthTag == links_[i].depthTag) {
-                links_[top].depthTag = 0;
+            if (links_[top].tag == links_[i].tag) {
+                links_[top].tag = 0;
                 itemTable_[itemTable_[top].left].right = top;
                 itemTable_[itemTable_[top].right].left = top;
             }
-            links_[top].depthTag == -1 ? i-- : links_[i--].depthTag = 0;
+            links_[top].tag == -1 ? i-- : links_[i--].tag = 0;
         }
     } while (i != indexInOption);
 }
@@ -449,7 +457,7 @@ std::vector<std::string> PokemonLinks::getOptions() const {
     std::vector<std::string> result = {};
     // We are going to hop from row spacer title to row spacer title, skip hidden options.
     for (int i = itemTable_.size(); links_[i].topOrLen != INT_MIN; i = links_[i].down + 1) {
-        if (links_[i].depthTag != -1) {
+        if (links_[i].tag != -1) {
             result.push_back(optionTable_[i].str);
         }
     }
@@ -467,7 +475,7 @@ std::vector<std::string> PokemonLinks::getHiddenOptions() const {
 void PokemonLinks::hideRequestedItem(const std::string& toHide) {
     int lookupIndex = findItemIndex(toHide);
     // Can't find or this item has already been hidden.
-    if (lookupIndex && links_[lookupIndex].depthTag != -1) {
+    if (lookupIndex && links_[lookupIndex].tag != -1) {
         hiddenItems_.push_back(lookupIndex);
         hideItem(lookupIndex);
     }
@@ -491,7 +499,7 @@ void PokemonLinks::hideAllItemsExcept(const std::set<std::string>& toKeep) {
 
 bool PokemonLinks::hasItem(const std::string& item) const {
     int found = findItemIndex(item);
-    return found && links_[found].depthTag != -1;
+    return found && links_[found].tag != -1;
 }
 
 void PokemonLinks::popHiddenItem() {
@@ -508,7 +516,12 @@ std::string PokemonLinks::peekHiddenItem() const {
     if (hiddenItems_.size()) {
         return itemTable_[hiddenItems_.back()].name;
     }
-    return "";
+    std::cout << "No hidden items. Stack is empty." << std::endl;
+    throw;
+}
+
+bool PokemonLinks::hiddenItemsEmpty() const {
+    return hiddenItems_.empty();
 }
 
 int PokemonLinks::getNumHiddenItems() const {
@@ -525,7 +538,7 @@ void PokemonLinks::resetItems() {
 void PokemonLinks::hideRequestedOption(const std::string& toHide) {
     int lookupIndex = findOptionIndex(toHide);
     // Couldn't find or this option has already been hidden.
-    if (lookupIndex && links_[lookupIndex].depthTag != -1) {
+    if (lookupIndex && links_[lookupIndex].tag != -1) {
         hiddenOptions_.push_back(lookupIndex);
         hideOption(lookupIndex);
     }
@@ -539,7 +552,7 @@ void PokemonLinks::hideRequestedOption(const std::vector<std::string>& toHide) {
 
 void PokemonLinks::hideAllOptionsExcept(const std::set<std::string>& toKeep) {
     for (int i = itemTable_.size(); links_[i].topOrLen != INT_MIN; i = links_[i].down + 1) {
-        if (links_[i].depthTag != -1
+        if (links_[i].tag != -1
                 && !toKeep.count(optionTable_[std::abs(links_[i].topOrLen)].str)) {
             hiddenOptions_.push_back(i);
             hideOption(i);
@@ -549,7 +562,7 @@ void PokemonLinks::hideAllOptionsExcept(const std::set<std::string>& toKeep) {
 
 bool PokemonLinks::hasOption(const std::string& option) const {
     int found = findOptionIndex(option);
-    return found && links_[found].depthTag != -1;
+    return found && links_[found].tag != -1;
 }
 
 void PokemonLinks::popHiddenOption() {
@@ -568,6 +581,10 @@ std::string PokemonLinks::peekHiddenOption() const {
         return optionTable_[std::abs(links_[hiddenOptions_.back()].topOrLen)].str;
     }
     return "";
+}
+
+bool PokemonLinks::hiddenOptionsEmpty() const {
+    return hiddenOptions_.empty();
 }
 
 int PokemonLinks::getNumHiddenOptions() const {
@@ -590,7 +607,7 @@ void PokemonLinks::hideItem(int headerIndex) {
     typeName curItem = itemTable_[headerIndex];
     itemTable_[curItem.left].right = curItem.right;
     itemTable_[curItem.right].left = curItem.left;
-    links_[headerIndex].depthTag = -1;
+    links_[headerIndex].tag = -1;
     numItems_--;
 }
 
@@ -598,12 +615,12 @@ void PokemonLinks::unhideItem(int headerIndex) {
     typeName curItem = itemTable_[headerIndex];
     itemTable_[curItem.left].right = headerIndex;
     itemTable_[curItem.right].left = headerIndex;
-    links_[headerIndex].depthTag = 0;
+    links_[headerIndex].tag = 0;
     numItems_++;
 }
 
 void PokemonLinks::hideOption(int rowIndex) {
-    links_[rowIndex].depthTag = -1;
+    links_[rowIndex].tag = -1;
     for (int i = rowIndex + 1; links_[i].topOrLen > 0; i++) {
         pokeLink cur = links_[i];
         links_[cur.up].down = cur.down;
@@ -614,7 +631,7 @@ void PokemonLinks::hideOption(int rowIndex) {
 }
 
 void PokemonLinks::unhideOption(int rowIndex) {
-    links_[rowIndex].depthTag = 0;
+    links_[rowIndex].tag = 0;
     for (int i = rowIndex + 1; links_[i].topOrLen > 0; i++) {
         pokeLink cur = links_[i];
         links_[cur.up].down = i;
@@ -854,7 +871,7 @@ void PokemonLinks::buildAttackLinks(const std::map<std::string,std::set<Resistan
 bool operator==(const PokemonLinks::pokeLink& lhs, const PokemonLinks::pokeLink& rhs) {
     return lhs.topOrLen == rhs.topOrLen && lhs.up == rhs.up
             && lhs.down == rhs.down && lhs.multiplier == rhs.multiplier
-             && lhs.depthTag == rhs.depthTag;
+             && lhs.tag == rhs.tag;
 }
 bool operator!=(const PokemonLinks::pokeLink& lhs, const PokemonLinks::pokeLink& rhs) {
     return !(lhs == rhs);
@@ -913,7 +930,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<PokemonLinks::pokeL
             os << "\n";
         }
         os << "{" << item.topOrLen << ","
-           << item.up << "," << item.down << "," << item.multiplier << "," << item.depthTag << "},";
+           << item.up << "," << item.down << "," << item.multiplier << "," << item.tag << "},";
     }
     os << std::endl;
     return os;
@@ -1895,13 +1912,13 @@ STUDENT_TEST("Test hiding an item from the world.") {
     links.popHiddenItem();
     EXPECT_EQUAL(links.links_, dlx);
     EXPECT_EQUAL(links.itemTable_, headers);
-    EXPECT_EQUAL(links.peekHiddenItem(), "");
+    EXPECT(links.hiddenItemsEmpty());
     EXPECT_EQUAL(links.getNumHiddenItems(), 0);
     links.hideRequestedItem("Fire");
     links.resetItems();
     EXPECT_EQUAL(links.links_, dlx);
     EXPECT_EQUAL(links.itemTable_, headers);
-    EXPECT_EQUAL(links.peekHiddenItem(), "");
+    EXPECT(links.hiddenItemsEmpty());
     EXPECT_EQUAL(links.getNumHiddenItems(), 0);
 }
 
@@ -1967,7 +1984,7 @@ STUDENT_TEST("Test hiding Grass and Ice and then reset the links.") {
     EXPECT_EQUAL(links.links_, dlxHideOptionIceGrass);
     links.resetOptions();
     EXPECT_EQUAL(links.links_, dlx);
-    EXPECT_EQUAL(links.peekHiddenOption(), "");
+    EXPECT(links.hiddenItemsEmpty());
     EXPECT_EQUAL(links.getNumHiddenOptions(), 0);
 }
 
@@ -2038,12 +2055,12 @@ STUDENT_TEST("Test hiding an option from the world.") {
 
     links.popHiddenOption();
     EXPECT_EQUAL(links.links_, dlx);
-    EXPECT_EQUAL(links.peekHiddenOption(), "");
+    EXPECT(links.hiddenItemsEmpty());
     EXPECT_EQUAL(links.getNumHiddenOptions(), 0);
     links.hideRequestedOption("Fire");
     links.resetOptions();
     EXPECT_EQUAL(links.links_, dlx);
-    EXPECT_EQUAL(links.peekHiddenOption(), "");
+    EXPECT(links.hiddenItemsEmpty());
     EXPECT_EQUAL(links.getNumHiddenOptions(), 0);
 }
 
