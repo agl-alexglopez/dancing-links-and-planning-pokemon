@@ -114,6 +114,8 @@
 
 namespace DancingLinks {
 
+/* See bottom of file for the free functions that accompany this class in DancingLinks namespace. */
+
 class PokemonLinks {
 
 public:
@@ -175,20 +177,20 @@ public:
 
     /**
      * @brief hideRequestedItem  hiding a requested item can occur in place and be undone later.
+     *                           This item will no longer need coverage in a cover problem. If the
+     *                           item is not in the PokemonLinks object, it is unchanged. O(lgN)
+     * @param toHide             the item we wish to cover.
+     */
+    void hideRequestedItem(const std::string& toHide);
+
+    /**
+     * @brief hideRequestedItem  hiding a requested item can occur in place and be undone later.
      *                           These items will no longer need coverage in a cover problem. If an
      *                           item in the list is not in the PokemonLinks object we proceed to
      *                           the next item. O(NlgN).
      * @param toHide             the items we wish to hide and exclude from the cover problem.
      */
     void hideRequestedItem(const std::vector<std::string>& toHide);
-
-    /**
-     * @brief hideRequestedItem  hiding a requested item can occur in place and be undone later.
-     *                           This item will no longer need coverage in a cover problem. If the
-     *                           item is not in the PokemonLinks object, it is unchanged. O(lgN)
-     * @param toHide             the item we wish to cover.
-     */
-    void hideRequestedItem(const std::string& toHide);
 
     /**
      * @brief hideAllItemsExcept  hides all items EXCEPT those specified in the toKeep set. These
