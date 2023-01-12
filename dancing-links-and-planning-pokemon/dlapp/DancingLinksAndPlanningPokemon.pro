@@ -70,15 +70,15 @@ DEFINES     +=  main=qMain qMain=studentMain
 # Afterward we glob-add files to SOURCES ourselves. Operator *= will unique
 # entries, so no worries about duplicates
 SOURCES         *=  "" \
+    PokemonLinks.cpp \
     Demos/MapParser.cpp \
     Demos/PokemonGUI.cpp \
     Demos/PokemonParser.cpp \
-    PokemonLinks.cpp \
     Utilities/Resistance.cpp
 HEADERS         *=  "" \
+    PokemonLinks.h \
     Demos/MapParser.h \
     Demos/PokemonParser.h \
-    PokemonLinks.h \
     Utilities/RankedSet.h \
     Utilities/Resistance.h
 
@@ -92,6 +92,7 @@ OTHER_FILES     *=  $$files(res/*, true)
 OTHER_FILES     *=  $$files(Utilities/*,true)
 # Gather text files from root dir or anywhere recursively
 OTHER_FILES     *=  $$files(*.txt, true)
+OTHER_FILES     *=  $$files(*.md, true)
 
 ###############################################################################
 #       Configure compiler, compile flags                                     #
