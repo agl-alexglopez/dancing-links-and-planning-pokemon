@@ -344,10 +344,7 @@ void PokemonLinks::fillOverlappingCoverages(std::set<RankedSet<std::string>>& co
     if (depthTag <= 0) {
         return;
     }
-    /* In certain generations certain types have no weaknesses so we might return -1 here. For
-     * example, in gen 1 there is no effective defense against Dragon attacks. So even though we
-     * never decrease length of a column, we could still have no way to cover an item.
-     */
+    // In certain generations certain types have no weaknesses so we might return 0 here.
     int itemToCover = chooseItem();
     if (!itemToCover) {
         return;
@@ -393,7 +390,7 @@ PokemonLinks::strNum PokemonLinks::overlappingCoverType(int indexInOption, int d
                 itemTable_[itemTable_[top].right].left = itemTable_[top].left;
                 result.num += links_[i].multiplier;
             }
-            links_[top].tag == -1 ? i++ : links_[i++].tag = depthTag;
+            links_[top].tag == HIDDEN ? i++ : links_[i++].tag = depthTag;
         }
     } while (i != indexInOption);
 
@@ -412,7 +409,7 @@ void PokemonLinks::overlappingUncoverType(int indexInOption) {
                 itemTable_[itemTable_[top].left].right = top;
                 itemTable_[itemTable_[top].right].left = top;
             }
-            links_[top].tag == -1 ? i-- : links_[i--].tag = 0;
+            links_[top].tag == HIDDEN ? i-- : links_[i--].tag = 0;
         }
     } while (i != indexInOption);
 }
@@ -457,7 +454,7 @@ std::vector<std::string> PokemonLinks::getOptions() const {
     std::vector<std::string> result = {};
     // We are going to hop from row spacer title to row spacer title, skip hidden options.
     for (int i = itemTable_.size(); links_[i].topOrLen != INT_MIN; i = links_[i].down + 1) {
-        if (links_[i].tag != -1) {
+        if (links_[i].tag != HIDDEN) {
             result.push_back(optionTable_[i].str);
         }
     }
@@ -475,7 +472,7 @@ std::vector<std::string> PokemonLinks::getHiddenOptions() const {
 void PokemonLinks::hideRequestedItem(const std::string& toHide) {
     int lookupIndex = findItemIndex(toHide);
     // Can't find or this item has already been hidden.
-    if (lookupIndex && links_[lookupIndex].tag != -1) {
+    if (lookupIndex && links_[lookupIndex].tag != HIDDEN) {
         hiddenItems_.push_back(lookupIndex);
         hideItem(lookupIndex);
     }
@@ -499,7 +496,7 @@ void PokemonLinks::hideAllItemsExcept(const std::set<std::string>& toKeep) {
 
 bool PokemonLinks::hasItem(const std::string& item) const {
     int found = findItemIndex(item);
-    return found && links_[found].tag != -1;
+    return found && links_[found].tag != HIDDEN;
 }
 
 void PokemonLinks::popHiddenItem() {
@@ -538,7 +535,7 @@ void PokemonLinks::resetItems() {
 void PokemonLinks::hideRequestedOption(const std::string& toHide) {
     int lookupIndex = findOptionIndex(toHide);
     // Couldn't find or this option has already been hidden.
-    if (lookupIndex && links_[lookupIndex].tag != -1) {
+    if (lookupIndex && links_[lookupIndex].tag != HIDDEN) {
         hiddenOptions_.push_back(lookupIndex);
         hideOption(lookupIndex);
     }
@@ -552,7 +549,7 @@ void PokemonLinks::hideRequestedOption(const std::vector<std::string>& toHide) {
 
 void PokemonLinks::hideAllOptionsExcept(const std::set<std::string>& toKeep) {
     for (int i = itemTable_.size(); links_[i].topOrLen != INT_MIN; i = links_[i].down + 1) {
-        if (links_[i].tag != -1
+        if (links_[i].tag != HIDDEN
                 && !toKeep.count(optionTable_[std::abs(links_[i].topOrLen)].str)) {
             hiddenOptions_.push_back(i);
             hideOption(i);
@@ -562,7 +559,7 @@ void PokemonLinks::hideAllOptionsExcept(const std::set<std::string>& toKeep) {
 
 bool PokemonLinks::hasOption(const std::string& option) const {
     int found = findOptionIndex(option);
-    return found && links_[found].tag != -1;
+    return found && links_[found].tag != HIDDEN;
 }
 
 void PokemonLinks::popHiddenOption() {
@@ -607,7 +604,7 @@ void PokemonLinks::hideItem(int headerIndex) {
     typeName curItem = itemTable_[headerIndex];
     itemTable_[curItem.left].right = curItem.right;
     itemTable_[curItem.right].left = curItem.left;
-    links_[headerIndex].tag = -1;
+    links_[headerIndex].tag = HIDDEN;
     numItems_--;
 }
 
@@ -620,7 +617,7 @@ void PokemonLinks::unhideItem(int headerIndex) {
 }
 
 void PokemonLinks::hideOption(int rowIndex) {
-    links_[rowIndex].tag = -1;
+    links_[rowIndex].tag = HIDDEN;
     for (int i = rowIndex + 1; links_[i].topOrLen > 0; i++) {
         pokeLink cur = links_[i];
         links_[cur.up].down = cur.down;
@@ -1021,7 +1018,7 @@ STUDENT_TEST("Initialize small defensive links") {
         //     0                          1Fire                       2Normal                   3Water
         {0,0,0,Resistance::EMPTY_,0}, {1,7,7,Resistance::EMPTY_,0},{1,5,5,Resistance::EMPTY_,0},{1,8,8,Resistance::EMPTY_,0},
         //     4Ghost                                                 5Zero
-        {-1,0,5,Resistance::EMPTY_,0},                             {2,2,2,Resistance::IMMUNE,0},
+        {HIDDEN,0,5,Resistance::EMPTY_,0},                             {2,2,2,Resistance::IMMUNE,0},
         //     6Water                     7Half                                                 8Half
         {-2,5,8,Resistance::EMPTY_,0},{1,1,1,Resistance::FRAC12,0},                            {3,3,3,Resistance::FRAC12,0},
         //     9
@@ -1070,7 +1067,7 @@ STUDENT_TEST("Initialize a world where there are only single types.") {
         //       0                             1Electric                  2Fire                     3Grass                        4Ice                          5Normal                      6Water
         {0,0,0,Resistance::EMPTY_,0},   {2,13,8,Resistance::EMPTY_,0},{1,9,9,Resistance::EMPTY_,0},{1,10,10,Resistance::EMPTY_,0},{1,17,17,Resistance::EMPTY_,0},{1,15,15,Resistance::EMPTY_,0},{1,11,11,Resistance::EMPTY_,0},
         //       7Dragon                       8half                      9half                     10half                                                                                   11half
-        {-1,0,11,Resistance::EMPTY_,0}, {1,1,13,Resistance::FRAC12,0},{2,2,2,Resistance::FRAC12,0},{3,3,3,Resistance::FRAC12,0},                                                            {6,6,6,Resistance::FRAC12,0},
+        {HIDDEN,0,11,Resistance::EMPTY_,0}, {1,1,13,Resistance::FRAC12,0},{2,2,2,Resistance::FRAC12,0},{3,3,3,Resistance::FRAC12,0},                                                            {6,6,6,Resistance::FRAC12,0},
         //       12Electric                    13half
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,1,Resistance::FRAC12,0},
         //       14Ghost                                                                                                                                        15immune
@@ -1127,7 +1124,7 @@ STUDENT_TEST("Cover Electric with Dragon eliminates Electric Option. Uncover res
         //       0                             1Electric                  2Fire                     3Grass                        4Ice                          5Normal                      6Water
         {0,0,0,Resistance::EMPTY_,0},   {2,13,8,Resistance::EMPTY_,0},{1,9,9,Resistance::EMPTY_,0},{1,10,10,Resistance::EMPTY_,0},{1,17,17,Resistance::EMPTY_,0},{1,15,15,Resistance::EMPTY_,0},{1,11,11,Resistance::EMPTY_,0},
         //       7Dragon                       8half                      9half                     10half                                                                                   11half
-        {-1,0,11,Resistance::EMPTY_,0}, {1,1,13,Resistance::FRAC12,0},{2,2,2,Resistance::FRAC12,0},{3,3,3,Resistance::FRAC12,0},                                                            {6,6,6,Resistance::FRAC12,0},
+        {HIDDEN,0,11,Resistance::EMPTY_,0}, {1,1,13,Resistance::FRAC12,0},{2,2,2,Resistance::FRAC12,0},{3,3,3,Resistance::FRAC12,0},                                                            {6,6,6,Resistance::FRAC12,0},
         //       12Electric                    13half
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,1,Resistance::FRAC12,0},
         //       14Ghost                                                                                                                                        15immune
@@ -1161,7 +1158,7 @@ STUDENT_TEST("Cover Electric with Dragon eliminates Electric Option. Uncover res
         //       0                             1Electric                  2Fire                     3Grass                        4Ice                          5Normal                      6Water
         {0,0,0,Resistance::EMPTY_,0},   {2,13,8,Resistance::EMPTY_,0},{1,9,9,Resistance::EMPTY_,0},{1,10,10,Resistance::EMPTY_,0},{1,17,17,Resistance::EMPTY_,0},{1,15,15,Resistance::EMPTY_,0},{1,11,11,Resistance::EMPTY_,0},
         //       7Dragon                       8half                      9half                     10half                                                                                   11half
-        {-1,0,11,Resistance::EMPTY_,0}, {1,1,13,Resistance::FRAC12,0},{2,2,2,Resistance::FRAC12,0},{3,3,3,Resistance::FRAC12,0},                                                            {6,6,6,Resistance::FRAC12,0},
+        {HIDDEN,0,11,Resistance::EMPTY_,0}, {1,1,13,Resistance::FRAC12,0},{2,2,2,Resistance::FRAC12,0},{3,3,3,Resistance::FRAC12,0},                                                            {6,6,6,Resistance::FRAC12,0},
         //       12Electric                    13half
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,1,Resistance::FRAC12,0},
         //       14Ghost                                                                                                                                        15immune
@@ -1218,7 +1215,7 @@ STUDENT_TEST("Cover Electric with Electric to cause hiding of many options.") {
         //         0                           1Electric                       2Fire                        3Grass                      4Ice                          5Normal                      6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,21,8,Resistance::EMPTY_,0},{3,24,9,Resistance::EMPTY_,0}, {1,12,12,Resistance::EMPTY_,0},{1,18,18,Resistance::EMPTY_,0},{1,22,22,Resistance::EMPTY_,0},{4,25,13,Resistance::EMPTY_,0},
         //         7Electric                   8                          9
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
         //         10Fire                      11                                                       12                                                                                           13
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,21,Resistance::FRAC12,0},                               {3,3,3,Resistance::FRAC12,0},                                                              {6,6,16,Resistance::FRAC12,0},
         //         14Grass                                                15                                                                                                                         16
@@ -1254,7 +1251,7 @@ STUDENT_TEST("Cover Electric with Electric to cause hiding of many options.") {
         //         0                           1Electric                      2Fire                        3Grass                      4Ice                          5Normal                          6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,21,8,Resistance::EMPTY_,0},{3,24,9,Resistance::EMPTY_,0}, {0,3,3,Resistance::EMPTY_,0},{1,18,18,Resistance::EMPTY_,0},{0,5,5,Resistance::EMPTY_,0},  {1,19,19,Resistance::EMPTY_,0},
         //         7Electric                   8                          9
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
         //         10Fire                      11                                                       12                                                                                             13
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,21,Resistance::FRAC12,0},                             {3,3,3,Resistance::FRAC12,0},                                                                {6,6,16,Resistance::FRAC12,0},
         //         14Grass                                                15                                                                                                                           16
@@ -1361,7 +1358,7 @@ STUDENT_TEST("There is one exact and a few overlapping covers here. Exact cover 
         //        0                            1Electric                       2Fire                            3Grass                            4Ice                        5Normal                      6Water
         {0,0,0,Resistance::EMPTY_,0},   {2,18,11,Resistance::EMPTY_,0},{2,19,15,Resistance::EMPTY_,0},{3,16,8,Resistance::EMPTY_,0},{2,23,21,Resistance::EMPTY_,0},{1,9,9,Resistance::EMPTY_,0},{2,24,13,Resistance::EMPTY_,0},
         //        7Bug-Ghost                                                                                    8                                                             9
-        {-1,0,9,Resistance::EMPTY_,0},                                                                {3,3,12,Resistance::FRAC12,0},                               {5,5,5,Resistance::IMMUNE,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},                                                                {3,3,12,Resistance::FRAC12,0},                               {5,5,5,Resistance::IMMUNE,0},
         //        10Electric-Grass             11                                                               12                                                                                         13
         {-2,8,13,Resistance::EMPTY_,0}, {1,1,18,Resistance::FRAC14,0},                                {3,8,16,Resistance::FRAC12,0},                                                            {6,6,24,Resistance::FRAC12,0},
         //        14Fire-Flying                                                15                               16
@@ -1422,7 +1419,7 @@ STUDENT_TEST("Initialization of ATTACK dancing links.") {
         //       0                       1Fire-Flying                 2Ground-Grass              3Ground-Rock
         {0,0,0,Resistance::EMPTY_,0},  {2,9,5,Resistance::EMPTY_,0},{1,7,7,Resistance::EMPTY_,0},{1,10,10,Resistance::EMPTY_,0},
         //       4Electric               5Double
-        {-1,0,5,Resistance::EMPTY_,0}, {1,1,9,Resistance::DOUBLE,0},
+        {HIDDEN,0,5,Resistance::EMPTY_,0}, {1,1,9,Resistance::DOUBLE,0},
         //       6Fire                                                7Double
         {-2,5,7,Resistance::EMPTY_,0},                                {2,2,2,Resistance::DOUBLE,0},
         //       8Water                  9Double                                                 10Quadru
@@ -1535,7 +1532,7 @@ STUDENT_TEST("Test the depth tag approach to overlapping coverage.") {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,21,8,Resistance::EMPTY_,0},{3,24,9,Resistance::EMPTY_,0}, {1,12,12,Resistance::EMPTY_,0},{1,18,18,Resistance::EMPTY_,0},{1,22,22,Resistance::EMPTY_,0},{4,25,13,Resistance::EMPTY_,0},
         //       7Electric                    8                                9
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
         //       10Fire                       11                                                              12                                                                                            13
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,21,Resistance::FRAC12,0},                               {3,3,3,Resistance::FRAC12,0},                                                                 {6,6,16,Resistance::FRAC12,0},
         //       14Grass                                                       15                                                                                                                           16
@@ -1579,7 +1576,7 @@ STUDENT_TEST("Test the depth tag approach to overlapping coverage.") {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,21,8,Resistance::EMPTY_,6},{3,24,9,Resistance::EMPTY_,6}, {1,12,12,Resistance::EMPTY_,0},{1,18,18,Resistance::EMPTY_,0},{1,22,22,Resistance::EMPTY_,0},{4,25,13,Resistance::EMPTY_,0},
         //       7Electric                    8                                9
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,6},{2,2,15,Resistance::FRAC12,6},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,6},{2,2,15,Resistance::FRAC12,6},
         //       10Fire                       11                                                              12                                                                                            13
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,21,Resistance::FRAC12,0},                               {3,3,3,Resistance::FRAC12,0},                                                                 {6,6,16,Resistance::FRAC12,0},
         //       14Grass                                                       15                                                                                                                           16
@@ -1621,7 +1618,7 @@ STUDENT_TEST("Test the depth tag approach to overlapping coverage.") {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,21,8,Resistance::EMPTY_,6},{3,24,9,Resistance::EMPTY_,6}, {1,12,12,Resistance::EMPTY_,5},{1,18,18,Resistance::EMPTY_,0},{1,22,22,Resistance::EMPTY_,0},{4,25,13,Resistance::EMPTY_,5},
         //       7Electric                    8                                9
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,6},{2,2,15,Resistance::FRAC12,6},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,6},{2,2,15,Resistance::FRAC12,6},
         //       10Fire                       11                                                              12                                                                                            13
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,21,Resistance::FRAC12,5},                               {3,3,3,Resistance::FRAC12,5},                                                                 {6,6,16,Resistance::FRAC12,5},
         //       14Grass                                                       15                                                                                                                           16
@@ -1796,7 +1793,7 @@ STUDENT_TEST("Test binary search on the option table.") {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,21,8,Resistance::EMPTY_,0},{3,24,9,Resistance::EMPTY_,0}, {1,12,12,Resistance::EMPTY_,0},{1,18,18,Resistance::EMPTY_,0},{1,22,22,Resistance::EMPTY_,0},{4,25,13,Resistance::EMPTY_,0},
         //       7Electric                    8                                9
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
         //       10Fire                       11                                                              12                                                                                            13
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,21,Resistance::FRAC12,0},                               {3,3,3,Resistance::FRAC12,0},                                                                 {6,6,16,Resistance::FRAC12,0},
         //       14Grass                                                       15                                                                                                                           16
@@ -1858,7 +1855,7 @@ STUDENT_TEST("Test hiding an item from the world.") {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,21,8,Resistance::EMPTY_,0},{3,24,9,Resistance::EMPTY_,0}, {1,12,12,Resistance::EMPTY_,0},{1,18,18,Resistance::EMPTY_,0},{1,22,22,Resistance::EMPTY_,0},{4,25,13,Resistance::EMPTY_,0},
         //       7Electric                    8                                9
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
         //       10Fire                       11                                                              12                                                                                            13
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,21,Resistance::FRAC12,0},                               {3,3,3,Resistance::FRAC12,0},                                                                 {6,6,16,Resistance::FRAC12,0},
         //       14Grass                                                       15                                                                                                                           16
@@ -1885,9 +1882,9 @@ STUDENT_TEST("Test hiding an item from the world.") {
     };
     const std::vector<Dx::PokemonLinks::pokeLink> dlxHideFire = {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
-        {0,0,0,Resistance::EMPTY_,0},   {3,21,8,Resistance::EMPTY_,0},{3,24,9,Resistance::EMPTY_,-1}, {1,12,12,Resistance::EMPTY_,0},{1,18,18,Resistance::EMPTY_,0},{1,22,22,Resistance::EMPTY_,0},{4,25,13,Resistance::EMPTY_,0},
+        {0,0,0,Resistance::EMPTY_,0},   {3,21,8,Resistance::EMPTY_,0},{3,24,9,Resistance::EMPTY_,HIDDEN}, {1,12,12,Resistance::EMPTY_,0},{1,18,18,Resistance::EMPTY_,0},{1,22,22,Resistance::EMPTY_,0},{4,25,13,Resistance::EMPTY_,0},
         //       7Electric                    8                                9
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
         //       10Fire                       11                                                              12                                                                                            13
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,21,Resistance::FRAC12,0},                               {3,3,3,Resistance::FRAC12,0},                                                                 {6,6,16,Resistance::FRAC12,0},
         //       14Grass                                                       15                                                                                                                           16
@@ -1947,7 +1944,7 @@ STUDENT_TEST("Test hiding Grass and Ice and then reset the links.") {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,21,8,Resistance::EMPTY_,0},{3,24,9,Resistance::EMPTY_,0}, {1,12,12,Resistance::EMPTY_,0},{1,18,18,Resistance::EMPTY_,0},{1,22,22,Resistance::EMPTY_,0},{4,25,13,Resistance::EMPTY_,0},
         //       7Electric                    8                                9
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
         //       10Fire                       11                                                              12                                                                                            13
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,21,Resistance::FRAC12,0},                               {3,3,3,Resistance::FRAC12,0},                                                                 {6,6,16,Resistance::FRAC12,0},
         //       14Grass                                                       15                                                                                                                           16
@@ -1967,13 +1964,13 @@ STUDENT_TEST("Test hiding Grass and Ice and then reset the links.") {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,21,8,Resistance::EMPTY_,0},{2,24,9,Resistance::EMPTY_,0}, {1,12,12,Resistance::EMPTY_,0},{0,4,4,Resistance::EMPTY_,0},{1,22,22,Resistance::EMPTY_,0},{2,25,13,Resistance::EMPTY_,0},
         //       7Electric                    8                                9
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,24,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,24,Resistance::FRAC12,0},
         //       10Fire                       11                                                              12                                                                                            13
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,21,Resistance::FRAC12,0},                               {3,3,3,Resistance::FRAC12,0},                                                               {6,6,25,Resistance::FRAC12,0},
         //       14Grass                                                       15                                                                                                                           16
-        {-3,11,16,Resistance::EMPTY_,-1},                              {2,9,24,Resistance::FRAC12,0},                                                                                            {6,13,19,Resistance::FRAC12,0},
+        {-3,11,16,Resistance::EMPTY_,HIDDEN},                              {2,9,24,Resistance::FRAC12,0},                                                                                            {6,13,19,Resistance::FRAC12,0},
         //       17Ice                                                                                                                      18                                                              19
-        {-4,15,19,Resistance::EMPTY_,-1},                                                                                            {4,4,4,Resistance::FRAC12,0},                               {6,13,25,Resistance::FRAC12,0},
+        {-4,15,19,Resistance::EMPTY_,HIDDEN},                                                                                            {4,4,4,Resistance::FRAC12,0},                               {6,13,25,Resistance::FRAC12,0},
         //       20Normal                     21                                                                                                                             22
         {-5,18,22,Resistance::EMPTY_,0},{1,11,1,Resistance::FRAC12,0},                                                                                             {5,5,5,Resistance::FRAC12,0},
         //       23Water                                                       24                                                                                                                           25
@@ -2013,7 +2010,7 @@ STUDENT_TEST("Test hiding an option from the world.") {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,21,8,Resistance::EMPTY_,0},{3,24,9,Resistance::EMPTY_,0}, {1,12,12,Resistance::EMPTY_,0},{1,18,18,Resistance::EMPTY_,0},{1,22,22,Resistance::EMPTY_,0},{4,25,13,Resistance::EMPTY_,0},
         //       7Electric                    8                                9
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
         //       10Fire                       11                                                              12                                                                                            13
         {-2,8,13,Resistance::EMPTY_,0}, {1,8,21,Resistance::FRAC12,0},                               {3,3,3,Resistance::FRAC12,0},                                                                 {6,6,16,Resistance::FRAC12,0},
         //       14Grass                                                       15                                                                                                                           16
@@ -2033,9 +2030,9 @@ STUDENT_TEST("Test hiding an option from the world.") {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {2,21,8,Resistance::EMPTY_,0},{3,24,9,Resistance::EMPTY_,0}, {0,3,3,Resistance::EMPTY_,0},{1,18,18,Resistance::EMPTY_,0},{1,22,22,Resistance::EMPTY_,0},{3,25,16,Resistance::EMPTY_,0},
         //       7Electric                    8                                9
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,21,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,21,Resistance::FRAC12,0},{2,2,15,Resistance::FRAC12,0},
         //       10Fire                       11                                                              12                                                                                            13
-        {-2,8,13,Resistance::EMPTY_,-1}, {1,8,21,Resistance::FRAC12,0},                               {3,3,3,Resistance::FRAC12,0},                                                                 {6,6,16,Resistance::FRAC12,0},
+        {-2,8,13,Resistance::EMPTY_,HIDDEN}, {1,8,21,Resistance::FRAC12,0},                               {3,3,3,Resistance::FRAC12,0},                                                                 {6,6,16,Resistance::FRAC12,0},
         //       14Grass                                                       15                                                                                                                           16
         {-3,11,16,Resistance::EMPTY_,0},                              {2,9,24,Resistance::FRAC12,0},                                                                                               {6,6,19,Resistance::FRAC12,0},
         //       17Ice                                                                                                                      18                                                              19
@@ -2098,7 +2095,7 @@ STUDENT_TEST("Test hiding an item from the world and then solving both types of 
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,20,8,Resistance::EMPTY_,0},{3,23,9,Resistance::EMPTY_,0},{1,12,12,Resistance::EMPTY_,0},{1,17,17,Resistance::EMPTY_,0},{1,21,21,Resistance::EMPTY_,0},{3,24,15,Resistance::EMPTY_,0},
         //       7Electric
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
         //       10Fire
         {-2,8,12,Resistance::EMPTY_,0}, {1,8,20,Resistance::FRAC12,0},                              {3,3,3,Resistance::FRAC12,0},
         //       13Grass
@@ -2125,9 +2122,9 @@ STUDENT_TEST("Test hiding an item from the world and then solving both types of 
     };
     const std::vector<Dx::PokemonLinks::pokeLink> dlxHideElectric = {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
-        {0,0,0,Resistance::EMPTY_,0},   {3,20,8,Resistance::EMPTY_,-1},{3,23,9,Resistance::EMPTY_,0},{1,12,12,Resistance::EMPTY_,0},{1,17,17,Resistance::EMPTY_,0},{1,21,21,Resistance::EMPTY_,0},{3,24,15,Resistance::EMPTY_,0},
+        {0,0,0,Resistance::EMPTY_,0},   {3,20,8,Resistance::EMPTY_,HIDDEN},{3,23,9,Resistance::EMPTY_,0},{1,12,12,Resistance::EMPTY_,0},{1,17,17,Resistance::EMPTY_,0},{1,21,21,Resistance::EMPTY_,0},{3,24,15,Resistance::EMPTY_,0},
         //       7Electric
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
         //       10Fire
         {-2,8,12,Resistance::EMPTY_,0}, {1,8,20,Resistance::FRAC12,0},                              {3,3,3,Resistance::FRAC12,0},
         //       13Grass
@@ -2184,7 +2181,7 @@ STUDENT_TEST("Test hiding two items from the world and then solving both types o
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,20,8,Resistance::EMPTY_,0},{3,23,9,Resistance::EMPTY_,0},{1,12,12,Resistance::EMPTY_,0},{1,17,17,Resistance::EMPTY_,0},{1,21,21,Resistance::EMPTY_,0},{3,24,15,Resistance::EMPTY_,0},
         //       7Electric
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
         //       10Fire
         {-2,8,12,Resistance::EMPTY_,0}, {1,8,20,Resistance::FRAC12,0},                              {3,3,3,Resistance::FRAC12,0},
         //       13Grass
@@ -2212,9 +2209,9 @@ STUDENT_TEST("Test hiding two items from the world and then solving both types o
     };
     const std::vector<Dx::PokemonLinks::pokeLink> dlxHideElectricAndGrass = {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
-        {0,0,0,Resistance::EMPTY_,0},   {3,20,8,Resistance::EMPTY_,-1},{3,23,9,Resistance::EMPTY_,0},{1,12,12,Resistance::EMPTY_,-1},{1,17,17,Resistance::EMPTY_,0},{1,21,21,Resistance::EMPTY_,0},{3,24,15,Resistance::EMPTY_,0},
+        {0,0,0,Resistance::EMPTY_,0},   {3,20,8,Resistance::EMPTY_,HIDDEN},{3,23,9,Resistance::EMPTY_,0},{1,12,12,Resistance::EMPTY_,HIDDEN},{1,17,17,Resistance::EMPTY_,0},{1,21,21,Resistance::EMPTY_,0},{3,24,15,Resistance::EMPTY_,0},
         //       7Electric
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
         //       10Fire
         {-2,8,12,Resistance::EMPTY_,0}, {1,8,20,Resistance::FRAC12,0},                              {3,3,3,Resistance::FRAC12,0},
         //       13Grass
@@ -2273,7 +2270,7 @@ STUDENT_TEST("Test the hiding all the items except for the ones the user wants t
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,20,8,Resistance::EMPTY_,0},{3,23,9,Resistance::EMPTY_,0},{1,12,12,Resistance::EMPTY_,0},{1,17,17,Resistance::EMPTY_,0},{1,21,21,Resistance::EMPTY_,0},{3,24,15,Resistance::EMPTY_,0},
         //       7Electric
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
         //       10Fire
         {-2,8,12,Resistance::EMPTY_,0}, {1,8,20,Resistance::FRAC12,0},                              {3,3,3,Resistance::FRAC12,0},
         //       13Grass
@@ -2300,9 +2297,9 @@ STUDENT_TEST("Test the hiding all the items except for the ones the user wants t
     };
     const std::vector<Dx::PokemonLinks::pokeLink> dlxHideExceptWater = {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
-        {0,0,0,Resistance::EMPTY_,0},   {3,20,8,Resistance::EMPTY_,-1},{3,23,9,Resistance::EMPTY_,-1},{1,12,12,Resistance::EMPTY_,-1},{1,17,17,Resistance::EMPTY_,-1},{1,21,21,Resistance::EMPTY_,-1},{3,24,15,Resistance::EMPTY_,0},
+        {0,0,0,Resistance::EMPTY_,0},   {3,20,8,Resistance::EMPTY_,HIDDEN},{3,23,9,Resistance::EMPTY_,HIDDEN},{1,12,12,Resistance::EMPTY_,HIDDEN},{1,17,17,Resistance::EMPTY_,HIDDEN},{1,21,21,Resistance::EMPTY_,HIDDEN},{3,24,15,Resistance::EMPTY_,0},
         //       7Electric
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
         //       10Fire
         {-2,8,12,Resistance::EMPTY_,0}, {1,8,20,Resistance::FRAC12,0},                              {3,3,3,Resistance::FRAC12,0},
         //       13Grass
@@ -2361,7 +2358,7 @@ STUDENT_TEST("Test hiding all options and items except one each. One exact/overl
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
         {0,0,0,Resistance::EMPTY_,0},   {3,20,8,Resistance::EMPTY_,0},{3,23,9,Resistance::EMPTY_,0},{1,12,12,Resistance::EMPTY_,0},{1,17,17,Resistance::EMPTY_,0},{1,21,21,Resistance::EMPTY_,0},{3,24,15,Resistance::EMPTY_,0},
         //       7Electric
-        {-1,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,0},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
         //       10Fire
         {-2,8,12,Resistance::EMPTY_,0}, {1,8,20,Resistance::FRAC12,0},                              {3,3,3,Resistance::FRAC12,0},
         //       13Grass
@@ -2403,19 +2400,19 @@ STUDENT_TEST("Test hiding all options and items except one each. One exact/overl
     };
     const std::vector<Dx::PokemonLinks::pokeLink> dlxHideExceptWater = {
         //       0                            1Electric                        2Fire                         3Grass                        4Ice                             5Normal                        6Water
-        {0,0,0,Resistance::EMPTY_,0},    {0,1,1,Resistance::EMPTY_,-1},{1,14,14,Resistance::EMPTY_,-1},{0,3,3,Resistance::EMPTY_,-1},{0,4,4,Resistance::EMPTY_,-1},{0,5,5,Resistance::EMPTY_,-1},{1,15,15,Resistance::EMPTY_,0},
+        {0,0,0,Resistance::EMPTY_,0},    {0,1,1,Resistance::EMPTY_,HIDDEN},{1,14,14,Resistance::EMPTY_,HIDDEN},{0,3,3,Resistance::EMPTY_,HIDDEN},{0,4,4,Resistance::EMPTY_,HIDDEN},{0,5,5,Resistance::EMPTY_,HIDDEN},{1,15,15,Resistance::EMPTY_,0},
         //       7Electric
-        {-1,0,9,Resistance::EMPTY_,-1},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
+        {HIDDEN,0,9,Resistance::EMPTY_,HIDDEN},  {1,1,11,Resistance::FRAC12,0},{2,2,14,Resistance::FRAC12,0},
         //       10Fire
-        {-2,8,12,Resistance::EMPTY_,-1}, {1,1,20,Resistance::FRAC12,0},                             {3,3,3,Resistance::FRAC12,0},
+        {-2,8,12,Resistance::EMPTY_,HIDDEN}, {1,1,20,Resistance::FRAC12,0},                             {3,3,3,Resistance::FRAC12,0},
         //       13Grass
         {-3,11,15,Resistance::EMPTY_,0},                               {2,2,2,Resistance::FRAC12,0},                                                                                             {6,6,6,Resistance::FRAC12,0},
         //       16Ice
-        {-4,14,18,Resistance::EMPTY_,-1},                                                                                            {4,4,4,Resistance::FRAC12,0},                               {6,15,24,Resistance::FRAC12,0},
+        {-4,14,18,Resistance::EMPTY_,HIDDEN},                                                                                            {4,4,4,Resistance::FRAC12,0},                               {6,15,24,Resistance::FRAC12,0},
         //       19Normal
-        {-5,17,21,Resistance::EMPTY_,-1},{1,1,1,Resistance::FRAC12,0},                                                                                             {5,5,5,Resistance::FRAC12,0},
+        {-5,17,21,Resistance::EMPTY_,HIDDEN},{1,1,1,Resistance::FRAC12,0},                                                                                             {5,5,5,Resistance::FRAC12,0},
         //       22Water
-        {-6,20,24,Resistance::EMPTY_,-1},                              {2,14,2,Resistance::FRAC12,0},                                                                                            {6,15,6,Resistance::FRAC12,0},
+        {-6,20,24,Resistance::EMPTY_,HIDDEN},                              {2,14,2,Resistance::FRAC12,0},                                                                                            {6,15,6,Resistance::FRAC12,0},
         //       25
         {INT_MIN,23,INT_MIN,Resistance::EMPTY_,0},
     };
