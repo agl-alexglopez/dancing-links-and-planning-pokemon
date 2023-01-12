@@ -4,7 +4,7 @@
  * -----------------
  * This file was written by Keith Schwarz and Stanford Course Staff to parse maps written in
  * logical coordinates in files with the .dst extension. It is a helpful way to load the
- * information into C++ std formats and use in a GUI.
+ * information into C++ std formats and use in a GUI. I modified it to use the STL containers.
  */
 #ifndef MapParser_Included
 #define MapParser_Included

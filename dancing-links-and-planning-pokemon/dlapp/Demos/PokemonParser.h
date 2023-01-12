@@ -102,6 +102,16 @@ loadSelectedGymsInteractions(const std::map<std::string,std::set<Resistance>>& c
                              const std::string& selectedMap,
                              const std::set<std::string>& selectedGyms);
 
+/**
+ * @brief loadSelectedGymsDefenses  when interacting with the GUI, the user can choose subsets of
+ *                                  gyms on the current map they are viewing. If they make these
+ *                                  selections we can load in the defensive types that are present
+ *                                  at those gyms. These are intended to be fed to a PokemonLinks
+ *                                  solver as the items we must defend against.
+ * @param selectedMap               the current .dst file we are viewing.
+ * @param selectedGyms              the gyms G1-E4 that we are considering attacking.
+ * @return                          the set of all defensive types present in the selection of gyms.
+ */
 std::set<std::string> loadSelectedGymsDefenses(const std::string& selectedMap,
                                                const std::set<std::string>& selectedGyms);
 
