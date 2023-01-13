@@ -297,7 +297,7 @@ void hideOptionsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
 
 Here are the runtime guarantees these operations offer.
 
-- `hideOption` - It costs O(lgN) to find an option and O(I) to hide it, where I is the number of items in an option. The vector version is O(HlgN) where H is the number of options to hide and N is all options.
+- `hideOption` - It costs O(lgN) to find an option and O(I) to hide it, where I is the number of items in an option. The vector version is O(HIlgN) where H is the number of options to hide, I is the number of items for each option, and N is all options.
 - `hideOptionsExcept` - This operation will cost O(NlgKI) where N is the number of options, K is the size of the set of items to keep, and I is the number of items in an option.
 
 ### Unhiding Options
