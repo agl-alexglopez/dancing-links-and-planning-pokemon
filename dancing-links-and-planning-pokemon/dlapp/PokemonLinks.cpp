@@ -979,7 +979,6 @@ std::ostream& operator<<(std::ostream& os, const std::vector<PokemonLinks::strNu
 /* * * * * * * * * * * * * * * *   Test Cases Below this Point    * * * * * * * * * * * * * * * * */
 
 
-
 inline std::ostream& operator<<(std::ostream& os,
                                 const std::set<RankedSet<std::string>>& solution) {
     for (const auto& s : solution) {
@@ -1008,6 +1007,7 @@ constexpr Resistance::Multiplier DB = Resistance::DOUBLE;
 constexpr Resistance::Multiplier QD = Resistance::QUADRU;
 
 } // namespace
+
 
 /* * * * * * * * * * * * * * * * * *   Defense Links Init   * * * * * * * * * * * * * * * * * * * */
 
