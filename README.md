@@ -216,7 +216,7 @@ The spacer nodes in the dancing links array have a negative `topOrLen` field tha
 
 ## Bonus: Justifying a PokemonLinks Class
 
-I wrote this implementation as a class from the begging. However, early on, I had doubts that this algorithm had any state or attributes that would help justify a class. I could have just as easily wrote a procedural algorithm in a functional style where I take input and provide solutions in my output. However, building the dancing links data structure is non-trivial, so building this structure on every inquiry seemed slow. With a few adjustments, invariants, and runtime guarantees I think there is a case to be made for the PokemonLinks class, and more generally Dancing Links classes for more general algorithms. With minor changes, all the techniques I discuss could be applied to any Dancing Links solver.
+I wrote this implementation as a class from the beginning. However, early on, I had doubts that this algorithm had any state or attributes that would help justify a class. I could have just as easily wrote a procedural algorithm in a functional style where I take input and provide solutions in my output. However, building the dancing links data structure is non-trivial, so building this structure on every inquiry seemed slow. With a few adjustments, invariants, and runtime guarantees I think there is a case to be made for the PokemonLinks class, and more generally Dancing Links classes for more general algorithms. With minor changes, all the techniques I discuss could be applied to any Dancing Links solver.
 
 ### Invariants
 
