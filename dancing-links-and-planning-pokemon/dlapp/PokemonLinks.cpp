@@ -453,7 +453,7 @@ std::vector<std::string> PokemonLinks::getHiddenItems() const {
 std::vector<std::string> PokemonLinks::getOptions() const {
     std::vector<std::string> result = {};
     // We are going to hop from row spacer title to row spacer title, skip hidden options.
-    for (int i = itemTable_.size(); links_[i].topOrLen != INT_MIN; i = links_[i].down + 1) {
+    for (int i = itemTable_.size(); i < links_.size() - 1; i = links_[i].down + 1) {
         if (links_[i].tag != HIDDEN) {
             result.push_back(optionTable_[i].str);
         }
@@ -548,7 +548,8 @@ void PokemonLinks::hideRequestedOption(const std::vector<std::string>& toHide) {
 }
 
 void PokemonLinks::hideAllOptionsExcept(const std::set<std::string>& toKeep) {
-    for (int i = itemTable_.size(); links_[i].topOrLen != INT_MIN; i = links_[i].down + 1) {
+    // We are not interested in the last node in the vector.
+    for (int i = itemTable_.size(); i < links_.size() - 1; i = links_[i].down + 1) {
         if (links_[i].tag != HIDDEN
                 && !toKeep.count(optionTable_[std::abs(links_[i].topOrLen)].str)) {
             hiddenOptions_.push_back(i);
