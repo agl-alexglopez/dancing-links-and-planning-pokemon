@@ -231,9 +231,10 @@ In order for the following techniques to work we must maintain some invariants i
 If a user wants to membership test an item or option we can make some guarantees because we maintain that all items and options are in sorted vectors.
 
 ```c++
+namespace DancingLinks{
 bool hasItem(const PokemonLinks& dlx, const std::string& item);
-
 bool hasOption(const PokemonLinks& dlx, const std::string& option);
+}
 ```
 
 - `hasItem` - Finding an item is O(lgN) where N is the number of all items. You cannot find a hidden item.
@@ -244,11 +245,11 @@ bool hasOption(const PokemonLinks& dlx, const std::string& option);
 As a part of Algorithm X via Dancing Links, covering items is central to the process. However, with a slightly different technique for hiding items we can give the user the power to temporarily make an item disappear from the world for upcoming inquiries. Here are the hide options we can support.
 
 ```c++
+namespace DancingLinks {
 void hideItem(PokemonLinks& dlx, const std::string& toHide);
-
 void hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide);
-
 void hideItemsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
+}
 ```
 
 For the why behind these runtime guarantees, please see the code, but here is what these operations offer.
@@ -263,17 +264,14 @@ The only space complexity cost we incur from hiding an item is that we must reme
 To track the order, I use a stack and offer the user stack-like operations that limit how they interact with hidden items.
 
 ```c++
+namespace DancingLinks {
 int numHiddenItems(const PokemonLinks& dlx);
-
 std::string peekHiddenItem(const PokemonLinks& dlx);
-
 void popHiddenItem(PokemonLinks& dlx);
-
 bool hidItemsEmpty(const PokemonLinks& dlx);
-
 std::vector<std::string> hiddenItems(const PokemonLinks& dlx);
-
 void resetItems(PokemonLinks& dlx);
+}
 ```
 
 Here are the guarantees I can offer for these operations.
@@ -288,11 +286,11 @@ Here are the guarantees I can offer for these operations.
 We will also use a stack to manage hidden options. Here, however, the stack is required regardless of the implementation technique. We will be splicing options out of the links entirely, requiring that we undo the operation in the reverse order.
 
 ```c++
+namespace DancingLinks {
 void hideOption(PokemonLinks& dlx, const std::string& toHide);
-
 void hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide);
-
 void hideOptionsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
+}
 ```
 
 Here are the runtime guarantees these operations offer.
@@ -305,17 +303,14 @@ Here are the runtime guarantees these operations offer.
 Here are the same stack utilities we offer for the item version of these operations.
 
 ```c++
+namespace DancingLinks {
 int numHiddenOptions(const PokemonLinks& dlx);
-
 std::string peekHiddenOption(const PokemonLinks& dlx);
-
 void popHiddenOption(PokemonLinks& dlx);
-
 bool hidOptionsEmpty(const PokemonLinks& dlx);
-
 std::vector<std::string> hiddenOptions(const PokemonLinks& dlx);
-
 void resetOptions(PokemonLinks& dlx);
+}
 ```
 
 - `numHiddenOptions`/`peekHiddenOption`/`hidOptionsEmpty` - standard O(1) stack operations.
@@ -327,19 +322,15 @@ void resetOptions(PokemonLinks& dlx);
 With the hiding and unhiding logic in place you now have a complete set of operations you can use on an in-place data structure that can alter its state and restore the original state when required. Here are the other operations we can use.
 
 ```c++
+namespace DancingLinks {
 std::set<RankedSet<std::string>> solveExactCover(PokemonLinks& dlx, int choiceLimit);
-
 std::set<RankedSet<std::string>> solveOverlappingCover(PokemonLinks& dlx, int choiceLimit);
-
 std::vector<std::string> items(const PokemonLinks& dlx);
-
 int numItems(const PokemonLinks& dlx);
-
 std::vector<std::string> options(const PokemonLinks& dlx);
-
 int numOptions(const PokemonLinks& dlx);
-
 PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
+}
 ```
 
 We are now able to solve cover problems on a PokemonLinks object that is in a user-defined, altered state. The user can modify the structure as much as they would like and restore it to its original state with minimal internal maintenance of the object required. With the decent runtime guarantees we can offer with this data structure, the memory efficiency, lack of copies, and flexible state, I think there is a strong case to be made for a class implementation of Dancing Links.
