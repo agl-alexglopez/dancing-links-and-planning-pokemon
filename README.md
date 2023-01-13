@@ -214,21 +214,6 @@ const std::vector<std::string> optionTable_ = {
 
 The spacer nodes in the dancing links array have a negative `topOrLen` field that correspond to the index in this options array. There are other subtleties to the implementation that I must consider, especially how to use the depth tag to produce Overlapping Type Coverages, but that can all be gleaned from the code itself.
 
-### Pokémon Planning Usage Instructions
-
-I have created a small testing ground for the Pokémon Cover Problem. I adapted a graph drawing application written by Keith Schwarz and Stanford course staff to allow you to explore various Pokémon maps. The maps are divided by Pokémon Generation. For example, the Kanto map is based around the attack and defense types available in Generation I of Pokémon. I included a Generation V and Generation IX map as well with more types available as you progress through generations.
-
-You can solve the maps entirely for exact and overlapping cover problems or you can select specific gyms. In Pokémon, you progress through the game by defeating 8 gym leaders and then a final group called the Elite 4 (along with one last champion of that league). You can select any combination of gyms to defend against or attack and the cover problem will be adapted to the types in those locations. Interesting results can arise as you plan out your type advantages!
-
-1. Open the project in Qt Creator with the correct Stanford C++ library installed. (See the [Build Note](#build-note)).
-2. Build and run the project.
-3. Select the `Pokémon Planning` option from the top menu.
-4. Solve for every possible type you can encounter on a map with the cover buttons.
-5. Select only specific gyms that you would like to cover with the `G1`-`E4` buttons.
-6. Clear all selections at any time with the `CL` button.
-
-I find it interesting that only Generation IX, the `Paldea.dst` map, has an exact cover for all possible types you will encounter in that generation. I am no expert on game design, but perhaps that communicates the variety and balance that Game Freak has achieved in their later games. However, looking at smaller subsets of gyms in the other maps can still be plenty of fun!
-
 ## Bonus: Justifying a PokemonLinks Class
 
 I wrote this implementation as a class from the begging. However, early on, I had doubts that this algorithm had any state or attributes that would help justify a class. I could have just as easily wrote a procedural algorithm in a functional style where I take input and provide solutions in my output. However, building the dancing links data structure is non-trivial, so building this structure on every inquiry seemed slow. With a few adjustments, invariants, and runtime guarantees I think there is a case to be made for the PokemonLinks class, and more generally Dancing Links classes for more general algorithms. With minor changes, all the techniques I discuss could be applied to any Dancing Links solver.
@@ -360,6 +345,21 @@ PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
 We are now able to solve cover problems on a PokemonLinks object that is in a user-defined, altered state. The user can modify the structure as much as they would like and restore it to its original state with minimal internal maintenance of the object required. With the decent runtime guarantees we can offer with this data structure, the memory efficiency, lack of copies, and flexible state, I think there is a strong case to be made for a class implementation of Dancing Links.
 
 Treating the PokemonLinks as an alterable object with a prolonged lifetime was useful in the GUI program you can use in this repository. For each Pokemon map I load in, I only load two PokemonLinks objects, one for ATTACK and one for DEFENSE. As the user asks for solutions to only certain sets of gyms, we simply hide the items the user is not interested in and restore them after every query. I have not yet found a use case for hiding options but this project could continue to grow as I try out different techniques.
+
+### Pokémon Planning Usage Instructions
+
+I have created a small testing ground for the Pokémon Cover Problem. I adapted a graph drawing application written by Keith Schwarz and Stanford course staff to allow you to explore various Pokémon maps. The maps are divided by Pokémon Generation. For example, the Kanto map is based around the attack and defense types available in Generation I of Pokémon. I included a Generation V and Generation IX map as well with more types available as you progress through generations.
+
+You can solve the maps entirely for exact and overlapping cover problems or you can select specific gyms. In Pokémon, you progress through the game by defeating 8 gym leaders and then a final group called the Elite 4 (along with one last champion of that league). You can select any combination of gyms to defend against or attack and the cover problem will be adapted to the types in those locations. Interesting results can arise as you plan out your type advantages!
+
+1. Open the project in Qt Creator with the correct Stanford C++ library installed. (See the [Build Note](#build-note)).
+2. Build and run the project.
+3. Select the `Pokémon Planning` option from the top menu.
+4. Solve for every possible type you can encounter on a map with the cover buttons.
+5. Select only specific gyms that you would like to cover with the `G1`-`E4` buttons.
+6. Clear all selections at any time with the `CL` button.
+
+I find it interesting that only Generation IX, the `Paldea.dst` map, has an exact cover for all possible types you will encounter in that generation. I am no expert on game design, but perhaps that communicates the variety and balance that Game Freak has achieved in their later games. However, looking at smaller subsets of gyms in the other maps can still be plenty of fun!
 
 ## Citations
 
