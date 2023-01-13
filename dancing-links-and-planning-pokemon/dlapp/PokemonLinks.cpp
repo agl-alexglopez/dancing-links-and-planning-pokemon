@@ -452,7 +452,7 @@ std::vector<std::string> PokemonLinks::getHiddenItems() const {
 
 std::vector<std::string> PokemonLinks::getOptions() const {
     std::vector<std::string> result = {};
-    // We are going to hop from row spacer title to row spacer title, skip hidden options.
+    // Hop from row title to row title, skip hidden options. Skip bookend node that is placeholder.
     for (int i = itemTable_.size(); i < links_.size() - 1; i = links_[i].down + 1) {
         if (links_[i].tag != HIDDEN) {
             result.push_back(optionTable_[i].str);
