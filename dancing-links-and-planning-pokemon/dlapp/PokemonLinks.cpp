@@ -808,9 +808,9 @@ void PokemonLinks::initializeColumns(const std::map<std::string,std::set<Resista
                                   singleType.multiplier(),
                                   0});
 
-                // This is the necessary adjustment to the column header's up field for a given item.
+                // This is the adjustment to the column header's up field for a given item.
                 links_[links_[columnBuilder[sType]].down].up = currentLinksIndex;
-                // The current node is now the new tail in a vertical circular linked list for an item.
+                // The current node is the new tail in a vertical circular linked list for an item.
                 links_[currentLinksIndex].up = columnBuilder[sType];
                 links_[currentLinksIndex].down = links_[columnBuilder[sType]].down;
                 // Update the old tail to reflect the new addition of an item in its option.
@@ -859,6 +859,10 @@ void PokemonLinks::buildAttackLinks(const std::map<std::string,std::set<Resistan
     itemTable_[itemTable_.size() - 1].right = 0;
     initializeColumns(invertedMap, columnBuilder, requestedCoverSolution_);
 }
+
+
+/* * * * * * * * * * * * * * * *   Test Cases Below this Point    * * * * * * * * * * * * * * * * */
+
 
 /* Implementation ends here and the following are just the operators for debugging and the tests
  * that use those operators. The namespace DancingLinks will end after the implementation of these
@@ -973,10 +977,8 @@ std::ostream& operator<<(std::ostream& os, const std::vector<PokemonLinks::strNu
     return os;
 }
 
+
 } // namespace DancingLinks
-
-
-/* * * * * * * * * * * * * * * *   Test Cases Below this Point    * * * * * * * * * * * * * * * * */
 
 
 // Saves lines to enter a solution in its full form to test case. Overload for output on failure.
