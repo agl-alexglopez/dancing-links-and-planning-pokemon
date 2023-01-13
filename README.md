@@ -229,6 +229,138 @@ You can solve the maps entirely for exact and overlapping cover problems or you 
 
 I find it interesting that only Generation IX, the `Paldea.dst` map, has an exact cover for all possible types you will encounter in that generation. I am no expert on game design, but perhaps that communicates the variety and balance that Game Freak has achieved in their later games. However, looking at smaller subsets of gyms in the other maps can still be plenty of fun!
 
+## Bonus: Justifying a PokemonLinks Class
+
+I wrote this implementation as a class from the begging. However, early on, I had doubts that this algorithm had any state or attributes that would help justify a class. I could have just as easily wrote a procedural algorithm in a functional style where I take input and provide solutions in my output. However, building the dancing links data structure is non-trivial, so building this structure on every inquiry seemed slow. With a few adjustments, invariants, and runtime guarantees I think there is a case to be made for the PokemonLinks class, and more generally Dancing Links classes for more general algorithms. With minor changes, all the techniques I discuss could be applied to any Dancing Links solver.
+
+### Invariants
+
+In order for the following techniques to work we must maintain some invariants in the Dancing Links internals.
+
+1. Maintain the identifiers for items--for me this is the `string` name of the item--in a sorted vector. This is required by Knuth's algorithms already but I am adding that the items must be sorted for some later techniques.
+2. Maintain the identifiers for the options--for me this is the string name of the option--in a sorted vector. This is not required by Knuth's algorithm, but my options have meaningful names that may be different than the item names so I must make this vector. This will also help with later techniques.
+3. Do not support insertion or deletion of items or options from any data structure. Inserting an item or option may be possible but it would require substantial modification to the dancing links array that would either be slow or require more space to store the required information. We can support hiding items and options but not deleting them completely. All operations will be in-place.
+
+### Searching
+
+If a user wants to membership test an item or option we can make some guarantees because we maintain that all items and options are in sorted vectors.
+
+```c++
+bool hasItem(const PokemonLinks& dlx, const std::string& item);
+
+bool hasOption(const PokemonLinks& dlx, const std::string& option);
+```
+
+- `hasItem` - Finding an item is O(lgN) where N is the number of all items. You cannot find a hidden item.
+- `hasOption` - Finding an option is O(lgN) where N is the number of all options. You cannot find a hidden option.
+
+### Hiding Items
+
+As a part of Algorithm X via Dancing Links, covering items is central to the process. However, with a slightly different technique for hiding items we can give the user the power to temporarily make an item disappear from the world for upcoming inquiries. Here are the hide options we can support.
+
+```c++
+void hideItem(PokemonLinks& dlx, const std::string& toHide);
+
+void hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide);
+
+void hideItemsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
+```
+
+For the why behind these runtime guarantees, please see the code, but here is what these operations offer.
+
+- `hideItem` - It costs O(lgN) to find one item and a simple O(1) operation to hide it.
+- `hideItemsExcept` - We must look at all items, however thanks to Knuth's algorithm the number of items we must examine shrinks if some items are already hidden. It costs O(NlgK) where N is not-hidden items and K is the size of the set of items to keep.  
+
+### Unhiding Items
+
+The only space complexity cost we incur from hiding an item is that we must remember the order in which items were hidden. If you want to undo the hiding you must do so in precisely the reverse order. While the order does not matter for my implementation, if you had appearances of items across options as nodes with `left` and `right` pointers, the order that you spliced them out of options would be important.
+
+To track the order, I use a stack and offer the user stack-like operations that limit how they interact with hidden items.
+
+```c++
+int numHiddenItems(const PokemonLinks& dlx);
+
+std::string peekHiddenItem(const PokemonLinks& dlx);
+
+void popHiddenItem(PokemonLinks& dlx);
+
+bool hidItemsEmpty(const PokemonLinks& dlx);
+
+std::vector<std::string> hiddenItems(const PokemonLinks& dlx);
+
+void resetItems(PokemonLinks& dlx);
+```
+
+Here are the guarantees I can offer for these operations.
+
+- `numHiddenItems`/`hidItemsEmpty`/`peekHiddenItems` - These are your standard top of the stack operations offering O(1) runtime. Just as with a normal stack you should not try to peek or pop an empty stack.
+- `hiddenItems` - I do provide the additional functionality of viewing the hidden stack for clarity. O(N). 
+- `popHiddenItem` - Luckily, because of some internal implementation choices, unhiding an item is an O(1) operation. If you were using `left/right` fields for appearances of items in the options you would need to restore every appearance of those items. But with the tagging technique I use, this is not required in my implementation. This does incur a slight time cost when running a query on the PokemonLinks object if the user has hidden items, but due to the simple nature of traversing an array with indices, and the sparse nature of most matrices, this is a small cost.
+- `resetItems` - This is an O(H) operation where H is hidden items.
+
+### Hiding Options
+
+We will also use a stack to manage hidden options. Here, however, the stack is required regardless of the implementation technique. We will be splicing options out of the links entirely, requiring that we undo the operation in the reverse order.
+
+```c++
+void hideOption(PokemonLinks& dlx, const std::string& toHide);
+
+void hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide);
+
+void hideOptionsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
+```
+
+Here are the runtime guarantees these operations offer.
+
+- `hideOption` - It costs O(lgN) to find an option and O(I) to hide it, where I is the number of items in an option. The vector version is O(HlgN) where H is the number of options to hide and N is all options.
+- `hideOptionsExcept` - This operation will cost O(NlgKI) where N is the number of options, K is the size of the set of items to keep, and I is the number of items in an option.
+
+### Unhiding Options
+
+Here are the same stack utilities we offer for the item version of these operations.
+
+```c++
+int numHiddenOptions(const PokemonLinks& dlx);
+
+std::string peekHiddenOption(const PokemonLinks& dlx);
+
+void popHiddenOption(PokemonLinks& dlx);
+
+bool hidOptionsEmpty(const PokemonLinks& dlx);
+
+std::vector<std::string> hiddenOptions(const PokemonLinks& dlx);
+
+void resetOptions(PokemonLinks& dlx);
+```
+
+- `numHiddenOptions`/`peekHiddenOption`/`hidOptionsEmpty` - standard O(1) stack operations.
+- `popHiddenOption` - O(I) where I is the number of items in an option.
+- `resetOptions` - O(HI) where H is the number of hidden items, and I is the number of items in an option. Usually, we are dealing with sparse matrices, so I hopefully remains low.
+
+### Other Operations
+
+With the hiding and unhiding logic in place you now have a complete set of operations you can use on an in-place data structure that can alter its state and restore the original state when required. Here are the other operations we can use.
+
+```c++
+std::set<RankedSet<std::string>> solveExactCover(PokemonLinks& dlx, int choiceLimit);
+
+std::set<RankedSet<std::string>> solveOverlappingCover(PokemonLinks& dlx, int choiceLimit);
+
+std::vector<std::string> items(const PokemonLinks& dlx);
+
+int numItems(const PokemonLinks& dlx);
+
+std::vector<std::string> options(const PokemonLinks& dlx);
+
+int numOptions(const PokemonLinks& dlx);
+
+PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
+```
+
+We are now able to solve cover problems on a PokemonLinks object that is in a user-defined, altered state. The user can modify the structure as much as they would like and restore it to its original state with minimal internal maintenance of the object required. With the decent runtime guarantees we can offer with this data structure, the memory efficiency, lack of copies, and flexible state, I think there is a strong case to be made for a class implementation of Dancing Links.
+
+Treating the PokemonLinks as an alterable object with a prolonged lifetime was useful in the GUI program you can use in this repository. For each Pokemon map I load in, I only load two PokemonLinks objects, one for ATTACK and one for DEFENSE. As the user asks for solutions to only certain sets of gyms, we simply hide the items the user is not interested in and restore them after every query. I have not yet found a use case for hiding options but this project could continue to grow as I try out different techniques.
+
 ## Citations
 
 This project grew more than I thought it would. I was able to bring in some great tools to help me explore these algorithms. So, it is important to note what I am responsible for in this repository and what I am not. The code that I wrote is contained in the following files.
