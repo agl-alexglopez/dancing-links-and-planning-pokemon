@@ -979,6 +979,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<PokemonLinks::strNu
 /* * * * * * * * * * * * * * * *   Test Cases Below this Point    * * * * * * * * * * * * * * * * */
 
 
+// Saves lines to enter a solution in its full form to test case. Overload for output on failure.
 inline std::ostream& operator<<(std::ostream& os,
                                 const std::set<RankedSet<std::string>>& solution) {
     for (const auto& s : solution) {
