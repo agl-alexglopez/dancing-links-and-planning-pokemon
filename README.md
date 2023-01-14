@@ -267,9 +267,9 @@ To track the order, I use a stack and offer the user stack-like operations that 
 
 ```c++
 namespace DancingLinks {
-int numHiddenItems(const PokemonLinks& dlx);
-std::string peekHiddenItem(const PokemonLinks& dlx);
-void popHiddenItem(PokemonLinks& dlx);
+int numHidItems(const PokemonLinks& dlx);
+std::string peekHidItem(const PokemonLinks& dlx);
+void popHidItem(PokemonLinks& dlx);
 bool hidItemsEmpty(const PokemonLinks& dlx);
 std::vector<std::string> hiddenItems(const PokemonLinks& dlx);
 void resetItems(PokemonLinks& dlx);
@@ -278,9 +278,9 @@ void resetItems(PokemonLinks& dlx);
 
 Here are the guarantees I can offer for these operations.
 
-- `numHiddenItems`/`hidItemsEmpty`/`peekHiddenItems` - These are your standard top of the stack operations offering O(1) runtime. Just as with a normal stack you should not try to peek or pop an empty stack.
-- `hiddenItems` - I do provide the additional functionality of viewing the hidden stack for clarity. O(N). 
-- `popHiddenItem` - Luckily, because of some internal implementation choices, unhiding an item is an O(1) operation. If you were using `left/right` fields for appearances of items in the options you would need to restore every appearance of those items. But with the tagging technique I use, this is not required in my implementation. This does incur a slight time cost when running a query on the PokemonLinks object if the user has hidden items, but due to the simple nature of traversing an array with indices, and the sparse nature of most matrices, this is a small cost.
+- `numHidItems`/`hidItemsEmpty`/`peekHidItems` - These are your standard top of the stack operations offering O(1) runtime. Just as with a normal stack you should not try to peek or pop an empty stack.
+- `hidItems` - I do provide the additional functionality of viewing the hidden stack for clarity. O(N). 
+- `popHidItem` - Luckily, because of some internal implementation choices, unhiding an item is an O(1) operation. If you were using `left/right` fields for appearances of items in the options you would need to restore every appearance of those items. But with the tagging technique I use, this is not required in my implementation. This does incur a slight time cost when running a query on the PokemonLinks object if the user has hidden items, but due to the simple nature of traversing an array with indices, and the sparse nature of most matrices, this is a small cost.
 - `resetItems` - This is an O(H) operation where H is hidden items.
 
 ### Hiding Options
@@ -308,17 +308,17 @@ Here are the same stack utilities we offer for the option version of these opera
 
 ```c++
 namespace DancingLinks {
-int numHiddenOptions(const PokemonLinks& dlx);
-std::string peekHiddenOption(const PokemonLinks& dlx);
-void popHiddenOption(PokemonLinks& dlx);
+int numHidOptions(const PokemonLinks& dlx);
+std::string peekHidOption(const PokemonLinks& dlx);
+void popHidOption(PokemonLinks& dlx);
 bool hidOptionsEmpty(const PokemonLinks& dlx);
-std::vector<std::string> hiddenOptions(const PokemonLinks& dlx);
+std::vector<std::string> hidOptions(const PokemonLinks& dlx);
 void resetOptions(PokemonLinks& dlx);
 }
 ```
 
-- `numHiddenOptions`/`peekHiddenOption`/`hidOptionsEmpty` - standard O(1) stack operations.
-- `popHiddenOption` - O(I) where I is the number of items in an option.
+- `numHidOptions`/`peekHidOption`/`hidOptionsEmpty` - standard O(1) stack operations.
+- `popHidOption` - O(I) where I is the number of items in an option.
 - `resetOptions` - O(HI) where H is the number of hidden items, and I is the number of items in an option. Usually, we are dealing with sparse matrices, so I hopefully remains low.
 
 ### Other Operations
