@@ -183,10 +183,23 @@ public:
      */
     bool hideRequestedItem(const std::string& toHide);
 
+    /**
+     * @brief hideRequestedItem  hides all items in the vector if successful. You cannot find an
+     *                           item if it is hidden or does not exist.
+     * @param toHide             the vector of items to hide.
+     * @return                   true if all items are hidden false if at least one fails.
+     */
     bool hideRequestedItem(const std::vector<std::string>& toHide);
 
+    /**
+     * @brief hideRequestedItem  hides all items in the vector if successful. You cannot find an
+     *                           item if it is hidden or does not exist.
+     * @param toHide             the vector of items to hide.
+     * @param failedToHide       output of the items we failed to hide.
+     * @return                   true if all items are hidden false if at least one fails.
+     */
     bool hideRequestedItem(const std::vector<std::string>& toHide,
-                           std::vector<std::string>& failedToCover);
+                           std::vector<std::string>& failedToHide);
 
     /**
      * @brief hideAllItemsExcept  hides all items EXCEPT those specified in the toKeep set. These
@@ -206,37 +219,37 @@ public:
     bool hasItem(const std::string& item) const;
 
     /**
-     * @brief peekHiddenItem  peek the most recently hidden item from the stack. Throws an exception
-     *                        if the stack is empty and there are no hidden items.
-     * @return                the string copy of the most recent hidden item.
+     * @brief peekHidItem  peek the most recently hidden item from the stack. Throws an exception
+     *                     if the stack is empty and there are no hidden items.
+     * @return             the string copy of the most recent hidden item.
      */
-    std::string peekHiddenItem() const;
+    std::string peekHidItem() const;
 
     /**
-     * @brief popHiddenItem  pops the most recently hidden item from the stack restoring it as an
-     *                       item in the dancing links array. Throws an exception if the stack is
-     *                       empty and there are no hidden items.
+     * @brief popHidItem  pops the most recently hidden item from the stack restoring it as an
+     *                    item in the dancing links array. Throws an exception if the stack is
+     *                    empty and there are no hidden items.
      */
-    void popHiddenItem();
+    void popHidItem();
 
     /**
-     * @brief hiddenItemsEmpty  reports whether there are currently hidden items.
-     * @return                  true if the stack of hidden items is emtpy false if not.
+     * @brief hidItemsEmpty  reports whether there are currently hidden items.
+     * @return               true if the stack of hidden items is emtpy false if not.
      */
-    bool hiddenItemsEmpty() const;
+    bool hidItemsEmpty() const;
 
     /**
-     * @brief getHiddenItems  reports a vector representation of the stack of hidden items. The end
-     *                        of the vector is the top of the stack.
-     * @return                the vector of all hidden items.
+     * @brief getHidItems  reports a vector representation of the stack of hidden items. The end
+     *                     of the vector is the top of the stack.
+     * @return             the vector of all hidden items.
      */
-    std::vector<std::string> getHiddenItems() const;
+    std::vector<std::string> getHidItems() const;
 
     /**
-     * @brief getNumHiddenItems  reports the number of hidden items in O(1).
-     * @return                   the int num of hidden items.
+     * @brief getNumHidItems  reports the number of hidden items in O(1).
+     * @return                the int num of hidden items.
      */
-    int getNumHiddenItems() const;
+    int getNumHidItems() const;
 
     /**
      * @brief resetItems  unhides all items as they were upon object construction. O(H) Hidden.
@@ -259,9 +272,17 @@ public:
      *                             number of options, and C is the number of items covered by each
      *                             option. In practice C is small because links are sparse.
      * @param toHide               the vector of options we must hide.
+     * @return                     true if all items are hidden false if at least one fails.
      */
     bool hideRequestedOption(const std::vector<std::string>& toHide);
 
+    /**
+     * @brief hideRequestedOption  hides all requested options. If any hide operations fail the
+     *                             function continues and can report failures in the output param.
+     * @param toHide               options requested to be hidden.
+     * @param failedToCover        any options we failed to hide.
+     * @return                     true if all options were hidden false if at least one failed.
+     */
     bool hideRequestedOption(const std::vector<std::string>& toHide,
                              std::vector<std::string>& failedToCover);
 
@@ -282,35 +303,35 @@ public:
     bool hasOption(const std::string& option) const;
 
     /**
-     * @brief peekHiddenOption  peeks the most recently hidden option. Throws if no hidden items.
-     * @return                  the string of the most recently hidden option.
+     * @brief peekHidOption  peeks the most recently hidden option. Throws if no hidden items.
+     * @return               the string of the most recently hidden option.
      */
-    std::string peekHiddenOption() const;
+    std::string peekHidOption() const;
 
     /**
-     * @brief popHiddenOption  pops the most recently hidden option from the stack restoring it into
-     *                         the dancing links array as an option for cover problems. O(I) where
-     *                         I is the number of items covered by this option.
+     * @brief popHidOption  pops the most recently hidden option from the stack restoring it into
+     *                      the dancing links array as an option for cover problems. O(I) where
+     *                      I is the number of items covered by this option.
      */
-    void popHiddenOption();
+    void popHidOption();
 
     /**
-     * @brief hiddenOptionsEmpty  reports if we are currently hiding any options. O(1).
-     * @return                    true if there are no hidden options false if not.
+     * @brief hidOptionsEmpty  reports if we are currently hiding any options. O(1).
+     * @return                 true if there are no hidden options false if not.
      */
-    bool hiddenOptionsEmpty() const;
+    bool hidOptionsEmpty() const;
 
     /**
-     * @brief getHiddenOptions  view a vector representation of the hidden option stack.
-     * @return                  the vector of hidden options. End of the vector is the top of stack.
+     * @brief getHidOptions  view a vector representation of the hidden option stack.
+     * @return               the vector of hidden options. End of the vector is the top of stack.
      */
-    std::vector<std::string> getHiddenOptions() const;
+    std::vector<std::string> getHidOptions() const;
 
     /**
-     * @brief getNumHiddenOptions  reports the number of currently hidden options in the stack. O(1)
+     * @brief getNumHidOptions  reports the number of currently hidden options in the stack. O(1)
      * @return                     the int representation of the stack size.
      */
-    int getNumHiddenOptions() const;
+    int getNumHidOptions() const;
 
     /**
      * @brief resetOptions  returns all options into the dancing links grid to be available as
@@ -774,27 +795,27 @@ bool hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide,
 void hideItemsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
 
 /**
- * @brief numHiddenItems  returns the number of items we are currently hiding from the world. O(1).
- * @param dlx             the PokemonLinks object we examine.
- * @return                the int number of hidden items.
+ * @brief numHidItems  returns the number of items we are currently hiding from the world. O(1).
+ * @param dlx          the PokemonLinks object we examine.
+ * @return             the int number of hidden items.
  */
-int numHiddenItems(const PokemonLinks& dlx);
+int numHidItems(const PokemonLinks& dlx);
 
 /**
- * @brief peekHiddenItem  hidden items act like a stack that must be unhidden Last-in-First-out.
- *                        check the most recently hid item without altering the stack. Throws an
- *                        exception is the stack is empty. O(1).
- * @param dlx             the PokemonLinks object we examine.
- * @return                the most recently hidden item.
+ * @brief peekHidItem  hidden items act like a stack that must be unhidden Last-in-First-out.
+ *                     check the most recently hid item without altering the stack. Throws an
+ *                     exception is the stack is empty. O(1).
+ * @param dlx          the PokemonLinks object we examine.
+ * @return             the most recently hidden item.
  */
-std::string peekHiddenItem(const PokemonLinks& dlx);
+std::string peekHidItem(const PokemonLinks& dlx);
 
 /**
- * @brief popHiddenItem  pop the most recently hidden item from the stack altering the stack. Throws
- *                       an exception if attempt is made to pop from empty stack. O(1).
- * @param dlx            the PokemonLinks object we alter.
+ * @brief popHidItem  pop the most recently hidden item from the stack altering the stack. Throws
+ *                    an exception if attempt is made to pop from empty stack. O(1).
+ * @param dlx         the PokemonLinks object we alter.
  */
-void popHiddenItem(PokemonLinks& dlx);
+void popHidItem(PokemonLinks& dlx);
 
 /**
  * @brief hidItemsEmpty  reports if the stack of hidden items is empty.
@@ -804,11 +825,11 @@ void popHiddenItem(PokemonLinks& dlx);
 bool hidItemsEmpty(const PokemonLinks& dlx);
 
 /**
- * @brief hiddenItems  view the currently hidden stack as a vector. The last item is the first out.
- * @param dlx          the PokemonLinks object we alter.
- * @return             the vector of items in the order we hid them. Last is first out if popped.
+ * @brief hidItems  view the currently hidden stack as a vector. The last item is the first out.
+ * @param dlx       the PokemonLinks object we alter.
+ * @return          the vector of items in the order we hid them. Last is first out if popped.
  */
-std::vector<std::string> hiddenItems(const PokemonLinks& dlx);
+std::vector<std::string> hidItems(const PokemonLinks& dlx);
 
 /**
  * @brief resetItems  restores the items in the world to their original state. O(H), H hidden items.
@@ -866,25 +887,25 @@ bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide,
 void hideOptionsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
 
 /**
- * @brief numHiddenOptions  num options currently hidden in the stack. The last is first out. O(1).
- * @param dlx               the PokemonLinks object we examine.
- * @return                  the int representing number of hidden options in the stack.
+ * @brief numHidOptions  num options currently hidden in the stack. The last is first out. O(1).
+ * @param dlx            the PokemonLinks object we examine.
+ * @return               the int representing number of hidden options in the stack.
  */
-int numHiddenOptions(const PokemonLinks& dlx);
+int numHidOptions(const PokemonLinks& dlx);
 
 /**
- * @brief peekHiddenOption  hidden items act like a stack that must be unhidden Last-in-First-out.
- *                          check the most recently hid item without altering the stack. O(1).
- * @param dlx               the PokemonLinks object we examine.
- * @return                  the most recently hidden option.
+ * @brief peekHidOption  hidden items act like a stack that must be unhidden Last-in-First-out.
+ *                       check the most recently hid item without altering the stack. O(1).
+ * @param dlx            the PokemonLinks object we examine.
+ * @return               the most recently hidden option.
  */
-std::string peekHiddenOption(const PokemonLinks& dlx);
+std::string peekHidOption(const PokemonLinks& dlx);
 
 /**
- * @brief popHiddenOption  pop the most recently hidden item from stack altering the stack. O(1).
- * @param dlx              the PokemonLinks object we alter.
+ * @brief popHidOption  pop the most recently hidden item from stack altering the stack. O(1).
+ * @param dlx           the PokemonLinks object we alter.
  */
-void popHiddenOption(PokemonLinks& dlx);
+void popHidOption(PokemonLinks& dlx);
 
 /**
  * @brief hidOptionsEmpty  reports if the stack of hidden options is empty.
@@ -894,11 +915,11 @@ void popHiddenOption(PokemonLinks& dlx);
 bool hidOptionsEmpty(const PokemonLinks& dlx);
 
 /**
- * @brief hiddenOptions  view the currently hidden stack as a vector. The last item is first-out.
- * @param dlx            the PokemonLinks object we alter.
- * @return               the vector of options in order we hid them. Last is first out if popped.
+ * @brief hidOptions  view the currently hidden stack as a vector. The last item is first-out.
+ * @param dlx         the PokemonLinks object we alter.
+ * @return            the vector of options in order we hid them. Last is first out if popped.
  */
-std::vector<std::string> hiddenOptions(const PokemonLinks& dlx);
+std::vector<std::string> hidOptions(const PokemonLinks& dlx);
 
 /**
  * @brief resetOptions  restore the options in the world to original state. O(H), H hidden items.

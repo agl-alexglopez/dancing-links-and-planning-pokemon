@@ -99,24 +99,24 @@ void hideItemsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep) {
     dlx.hideAllItemsExcept(toKeep);
 }
 
-int numHiddenItems(const PokemonLinks& dlx) {
-    return dlx.getNumHiddenItems();
+int numHidItems(const PokemonLinks& dlx) {
+    return dlx.getNumHidItems();
 }
 
-std::string peekHiddenItem(const PokemonLinks& dlx) {
-    return dlx.peekHiddenItem();
+std::string peekHidItem(const PokemonLinks& dlx) {
+    return dlx.peekHidItem();
 }
 
-void popHiddenItem(PokemonLinks& dlx) {
-    dlx.popHiddenItem();
+void popHidItem(PokemonLinks& dlx) {
+    dlx.popHidItem();
 }
 
 bool hidItemsEmpty(const PokemonLinks& dlx) {
-    return dlx.hiddenItemsEmpty();
+    return dlx.hidItemsEmpty();
 }
 
-std::vector<std::string> hiddenItems(const PokemonLinks& dlx) {
-    return dlx.getHiddenItems();
+std::vector<std::string> hidItems(const PokemonLinks& dlx) {
+    return dlx.getHidItems();
 }
 
 void resetItems(PokemonLinks& dlx) {
@@ -140,24 +140,24 @@ void hideOptionsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep) {
     dlx.hideAllOptionsExcept(toKeep);
 }
 
-int numHiddenOptions(const PokemonLinks& dlx) {
-    return dlx.getNumHiddenOptions();
+int numHidOptions(const PokemonLinks& dlx) {
+    return dlx.getNumHidOptions();
 }
 
-std::string peekHiddenOption(const PokemonLinks& dlx) {
-    return dlx.peekHiddenOption();
+std::string peekHidOption(const PokemonLinks& dlx) {
+    return dlx.peekHidOption();
 }
 
-void popHiddenOption(PokemonLinks& dlx) {
-    dlx.popHiddenOption();
+void popHidOption(PokemonLinks& dlx) {
+    dlx.popHidOption();
 }
 
 bool hidOptionsEmpty(const PokemonLinks& dlx) {
-    return dlx.hiddenOptionsEmpty();
+    return dlx.hidOptionsEmpty();
 }
 
-std::vector<std::string> hiddenOptions(const PokemonLinks& dlx) {
-    return dlx.getHiddenOptions();
+std::vector<std::string> hidOptions(const PokemonLinks& dlx) {
+    return dlx.getHidOptions();
 }
 
 void resetOptions(PokemonLinks& dlx) {
@@ -452,7 +452,7 @@ std::vector<std::string> PokemonLinks::getItems() const {
     return result;
 }
 
-std::vector<std::string> PokemonLinks::getHiddenItems() const {
+std::vector<std::string> PokemonLinks::getHidItems() const {
     std::vector<std::string>result = {};
     for (const auto& i : hiddenItems_) {
         result.push_back(itemTable_[i].name);
@@ -471,7 +471,7 @@ std::vector<std::string> PokemonLinks::getOptions() const {
     return result;
 }
 
-std::vector<std::string> PokemonLinks::getHiddenOptions() const {
+std::vector<std::string> PokemonLinks::getHidOptions() const {
     std::vector<std::string> result = {};
     for (const auto& i : hiddenOptions_) {
         result.push_back(optionTable_[std::abs(links_[i].topOrLen)].str);
@@ -527,7 +527,7 @@ bool PokemonLinks::hasItem(const std::string& item) const {
     return found && links_[found].tag != HIDDEN;
 }
 
-void PokemonLinks::popHiddenItem() {
+void PokemonLinks::popHidItem() {
     if (!hiddenItems_.empty()) {
         unhideItem(hiddenItems_.back());
         hiddenItems_.pop_back();
@@ -537,7 +537,7 @@ void PokemonLinks::popHiddenItem() {
     }
 }
 
-std::string PokemonLinks::peekHiddenItem() const {
+std::string PokemonLinks::peekHidItem() const {
     if (hiddenItems_.size()) {
         return itemTable_[hiddenItems_.back()].name;
     }
@@ -545,11 +545,11 @@ std::string PokemonLinks::peekHiddenItem() const {
     throw;
 }
 
-bool PokemonLinks::hiddenItemsEmpty() const {
+bool PokemonLinks::hidItemsEmpty() const {
     return hiddenItems_.empty();
 }
 
-int PokemonLinks::getNumHiddenItems() const {
+int PokemonLinks::getNumHidItems() const {
     return hiddenItems_.size();
 }
 
@@ -609,7 +609,7 @@ bool PokemonLinks::hasOption(const std::string& option) const {
     return found && links_[found].tag != HIDDEN;
 }
 
-void PokemonLinks::popHiddenOption() {
+void PokemonLinks::popHidOption() {
     if (!hiddenOptions_.empty()) {
         unhideOption(hiddenOptions_.back());
         hiddenOptions_.pop_back();
@@ -619,7 +619,7 @@ void PokemonLinks::popHiddenOption() {
     }
 }
 
-std::string PokemonLinks::peekHiddenOption() const {
+std::string PokemonLinks::peekHidOption() const {
     if (!hiddenOptions_.empty()) {
         // Row spacer tiles in the links hold their name as a negative index in the optionTable_
         return optionTable_[std::abs(links_[hiddenOptions_.back()].topOrLen)].str;
@@ -627,11 +627,11 @@ std::string PokemonLinks::peekHiddenOption() const {
     return "";
 }
 
-bool PokemonLinks::hiddenOptionsEmpty() const {
+bool PokemonLinks::hidOptionsEmpty() const {
     return hiddenOptions_.empty();
 }
 
-int PokemonLinks::getNumHiddenOptions() const {
+int PokemonLinks::getNumHidOptions() const {
     return hiddenOptions_.size();
 }
 
@@ -1980,21 +1980,21 @@ STUDENT_TEST("Test hiding an item from the world.") {
     EXPECT_EQUAL(links.itemTable_, headersHideFire);
     EXPECT(!links.hideRequestedItem("Fire"));
     EXPECT_EQUAL(links.links_, dlxHideFire);
-    EXPECT_EQUAL(links.peekHiddenItem(), "Fire");
-    EXPECT_EQUAL(links.getNumHiddenItems(), 1);
+    EXPECT_EQUAL(links.peekHidItem(), "Fire");
+    EXPECT_EQUAL(links.getNumHidItems(), 1);
 
     // Test our unhide and reset functions.
-    links.popHiddenItem();
+    links.popHidItem();
     EXPECT_EQUAL(links.links_, dlx);
     EXPECT_EQUAL(links.itemTable_, headers);
-    EXPECT(links.hiddenItemsEmpty());
-    EXPECT_EQUAL(links.getNumHiddenItems(), 0);
+    EXPECT(links.hidItemsEmpty());
+    EXPECT_EQUAL(links.getNumHidItems(), 0);
     EXPECT(links.hideRequestedItem("Fire"));
     links.resetItems();
     EXPECT_EQUAL(links.links_, dlx);
     EXPECT_EQUAL(links.itemTable_, headers);
-    EXPECT(links.hiddenItemsEmpty());
-    EXPECT_EQUAL(links.getNumHiddenItems(), 0);
+    EXPECT(links.hidItemsEmpty());
+    EXPECT_EQUAL(links.getNumHidItems(), 0);
 }
 
 STUDENT_TEST("Test hiding Grass and Ice and then reset the links.") {
@@ -2060,8 +2060,8 @@ STUDENT_TEST("Test hiding Grass and Ice and then reset the links.") {
     EXPECT_EQUAL(links.links_, dlxHideOptionIceGrass);
     links.resetOptions();
     EXPECT_EQUAL(links.links_, dlx);
-    EXPECT(links.hiddenItemsEmpty());
-    EXPECT_EQUAL(links.getNumHiddenOptions(), 0);
+    EXPECT(links.hidItemsEmpty());
+    EXPECT_EQUAL(links.getNumHidOptions(), 0);
 }
 
 STUDENT_TEST("Test hiding an option from the world.") {
@@ -2133,18 +2133,18 @@ STUDENT_TEST("Test hiding an option from the world.") {
     EXPECT_EQUAL(links.links_, dlxHideOptionFire);
     EXPECT(!links.hideRequestedOption("Fire"));
     EXPECT_EQUAL(links.links_, dlxHideOptionFire);
-    EXPECT_EQUAL(links.peekHiddenOption(), "Fire");
-    EXPECT_EQUAL(links.getNumHiddenOptions(), 1);
+    EXPECT_EQUAL(links.peekHidOption(), "Fire");
+    EXPECT_EQUAL(links.getNumHidOptions(), 1);
 
-    links.popHiddenOption();
+    links.popHidOption();
     EXPECT_EQUAL(links.links_, dlx);
-    EXPECT(links.hiddenItemsEmpty());
-    EXPECT_EQUAL(links.getNumHiddenOptions(), 0);
+    EXPECT(links.hidItemsEmpty());
+    EXPECT_EQUAL(links.getNumHidOptions(), 0);
     EXPECT(links.hideRequestedOption("Fire"));
     links.resetOptions();
     EXPECT_EQUAL(links.links_, dlx);
-    EXPECT(links.hiddenItemsEmpty());
-    EXPECT_EQUAL(links.getNumHiddenOptions(), 0);
+    EXPECT(links.hidItemsEmpty());
+    EXPECT_EQUAL(links.getNumHidOptions(), 0);
 }
 
 STUDENT_TEST("Test hiding an item from the world and then solving both types of cover.") {
@@ -2414,7 +2414,7 @@ STUDENT_TEST("Test the hiding all the items except for the ones the user wants t
     links.resetItems();
     EXPECT_EQUAL(links.links_, dlx);
     EXPECT_EQUAL(links.itemTable_, headers);
-    EXPECT_EQUAL(links.getNumHiddenItems(), 0);
+    EXPECT_EQUAL(links.getNumHidItems(), 0);
 }
 
 STUDENT_TEST("Test hiding all options and items except one each. One exact/overlapping solution.") {
@@ -2468,8 +2468,8 @@ STUDENT_TEST("Test hiding all options and items except one each. One exact/overl
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
     links.hideAllItemsExcept({"Water"});
     links.hideAllOptionsExcept({"Grass"});
-    EXPECT_EQUAL(links.getNumHiddenItems(), 5);
-    EXPECT_EQUAL(links.getNumHiddenOptions(), 5);
+    EXPECT_EQUAL(links.getNumHidItems(), 5);
+    EXPECT_EQUAL(links.getNumHidOptions(), 5);
     EXPECT(links.hasItem("Water"));
     EXPECT(links.hasOption("Grass"));
     EXPECT(!links.hasItem("Grass"));
@@ -2520,13 +2520,13 @@ STUDENT_TEST("Test hiding all options and items except one each. One exact/overl
     links.resetOptions();
     EXPECT_EQUAL(links.links_, dlx);
     EXPECT_EQUAL(links.itemTable_, headers);
-    EXPECT_EQUAL(links.getNumHiddenItems(), 0);
-    EXPECT_EQUAL(links.getNumHiddenOptions(), 0);
+    EXPECT_EQUAL(links.getNumHidItems(), 0);
+    EXPECT_EQUAL(links.getNumHidOptions(), 0);
     links.hideAllItemsExcept({"Water"});
     links.hideAllOptionsExcept({"Grass"});
     links.resetItemsOptions();
     EXPECT_EQUAL(links.links_, dlx);
     EXPECT_EQUAL(links.itemTable_, headers);
-    EXPECT_EQUAL(links.getNumHiddenItems(), 0);
-    EXPECT_EQUAL(links.getNumHiddenOptions(), 0);
+    EXPECT_EQUAL(links.getNumHidItems(), 0);
+    EXPECT_EQUAL(links.getNumHidOptions(), 0);
 }
