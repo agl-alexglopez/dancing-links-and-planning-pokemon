@@ -82,12 +82,17 @@ std::vector<std::string> options(const PokemonLinks& dlx) {
     return dlx.getOptions();
 }
 
-void hideItem(PokemonLinks& dlx, const std::string& toHide) {
-    dlx.hideRequestedItem(toHide);
+bool hideItem(PokemonLinks& dlx, const std::string& toHide) {
+    return dlx.hideRequestedItem(toHide);
 }
 
-void hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide) {
-    dlx.hideRequestedItem(toHide);
+bool hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide) {
+    return dlx.hideRequestedItem(toHide);
+}
+
+bool hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide,
+                                 std::vector<std::string>& failedToHide) {
+    return dlx.hideRequestedItem(toHide, failedToHide);
 }
 
 void hideItemsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep) {
@@ -118,12 +123,17 @@ void resetItems(PokemonLinks& dlx) {
     dlx.resetItems();
 }
 
-void hideOption(PokemonLinks& dlx, const std::string& toHide) {
-    dlx.hideRequestedOption(toHide);
+bool hideOption(PokemonLinks& dlx, const std::string& toHide) {
+    return dlx.hideRequestedOption(toHide);
 }
 
-void hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide) {
-    dlx.hideRequestedOption(toHide);
+bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide) {
+    return dlx.hideRequestedOption(toHide);
+}
+
+bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide,
+                                   std::vector<std::string>& failedToHide) {
+    return dlx.hideRequestedOption(toHide, failedToHide);
 }
 
 void hideOptionsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep) {
@@ -469,19 +479,37 @@ std::vector<std::string> PokemonLinks::getHiddenOptions() const {
     return result;
 }
 
-void PokemonLinks::hideRequestedItem(const std::string& toHide) {
+bool PokemonLinks::hideRequestedItem(const std::string& toHide) {
     int lookupIndex = findItemIndex(toHide);
     // Can't find or this item has already been hidden.
     if (lookupIndex && links_[lookupIndex].tag != HIDDEN) {
         hiddenItems_.push_back(lookupIndex);
         hideItem(lookupIndex);
+        return true;
     }
+    return false;
 }
 
-void PokemonLinks::hideRequestedItem(const std::vector<std::string>& toHide) {
+bool PokemonLinks::hideRequestedItem(const std::vector<std::string>& toHide) {
+    bool result = true;
     for (const auto& t : toHide) {
-        hideRequestedItem(t);
+        if (!hideRequestedItem(t)) {
+            result = false;
+        }
     }
+    return result;
+}
+
+bool PokemonLinks::hideRequestedItem(const std::vector<std::string>& toHide,
+                                     std::vector<std::string>& failedToHide) {
+    bool result = true;
+    for (const auto& t : toHide) {
+        if (!hideRequestedItem(t)) {
+            result = false;
+            failedToHide.push_back(t);
+        }
+    }
+    return result;
 }
 
 void PokemonLinks::hideAllItemsExcept(const std::set<std::string>& toKeep) {
@@ -532,19 +560,37 @@ void PokemonLinks::resetItems() {
     }
 }
 
-void PokemonLinks::hideRequestedOption(const std::string& toHide) {
+bool PokemonLinks::hideRequestedOption(const std::string& toHide) {
     int lookupIndex = findOptionIndex(toHide);
     // Couldn't find or this option has already been hidden.
     if (lookupIndex && links_[lookupIndex].tag != HIDDEN) {
         hiddenOptions_.push_back(lookupIndex);
         hideOption(lookupIndex);
+        return true;
     }
+    return false;
 }
 
-void PokemonLinks::hideRequestedOption(const std::vector<std::string>& toHide) {
+bool PokemonLinks::hideRequestedOption(const std::vector<std::string>& toHide) {
+    bool result = true;
     for (const auto& h : toHide) {
-        hideRequestedOption(h);
+        if (!hideRequestedOption(h)) {
+            result = false;
+        }
     }
+    return result;
+}
+
+bool PokemonLinks::hideRequestedOption(const std::vector<std::string>& toHide,
+                                       std::vector<std::string>& failedToHide) {
+    bool result = true;
+    for (const auto& h : toHide) {
+        if (!hideRequestedOption(h)) {
+            failedToHide.push_back(h);
+            result = false;
+        }
+    }
+    return result;
 }
 
 void PokemonLinks::hideAllOptionsExcept(const std::set<std::string>& toKeep) {
@@ -986,6 +1032,14 @@ std::ostream& operator<<(std::ostream& os, const std::vector<PokemonLinks::strNu
 inline std::ostream& operator<<(std::ostream& os,
                                 const std::set<RankedSet<std::string>>& solution) {
     for (const auto& s : solution) {
+        os << s;
+    }
+    os << std::endl;
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os,
+                                const std::vector<std::string>& vec) {
+    for (const auto& s : vec) {
         os << s;
     }
     os << std::endl;
@@ -1893,7 +1947,7 @@ STUDENT_TEST("Test hiding an item from the world.") {
         {INT_MIN,24,INT_MIN,EM,0},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    links.hideRequestedItem("Fire");
+    EXPECT(links.hideRequestedItem("Fire"));
     const std::vector<Dx::PokemonLinks::typeName> headersHideFire {
         {"",6,1},
         {"Electric",0,3},
@@ -1924,7 +1978,7 @@ STUDENT_TEST("Test hiding an item from the world.") {
     };
     EXPECT_EQUAL(links.links_, dlxHideFire);
     EXPECT_EQUAL(links.itemTable_, headersHideFire);
-    links.hideRequestedItem("Fire");
+    EXPECT(!links.hideRequestedItem("Fire"));
     EXPECT_EQUAL(links.links_, dlxHideFire);
     EXPECT_EQUAL(links.peekHiddenItem(), "Fire");
     EXPECT_EQUAL(links.getNumHiddenItems(), 1);
@@ -1935,7 +1989,7 @@ STUDENT_TEST("Test hiding an item from the world.") {
     EXPECT_EQUAL(links.itemTable_, headers);
     EXPECT(links.hiddenItemsEmpty());
     EXPECT_EQUAL(links.getNumHiddenItems(), 0);
-    links.hideRequestedItem("Fire");
+    EXPECT(links.hideRequestedItem("Fire"));
     links.resetItems();
     EXPECT_EQUAL(links.links_, dlx);
     EXPECT_EQUAL(links.itemTable_, headers);
@@ -1983,7 +2037,7 @@ STUDENT_TEST("Test hiding Grass and Ice and then reset the links.") {
         {INT_MIN,24,INT_MIN,EM,0},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    links.hideRequestedOption({{"Grass"},{"Ice"}});
+    EXPECT(links.hideRequestedOption({{"Grass"},{"Ice"}}));
     const int HD = Dx::PokemonLinks::HIDDEN;
     const std::vector<Dx::PokemonLinks::pokeLink> dlxHideOptionIceGrass = {
         // 0               1Electric     2Fire           3Grass        4Ice         5Normal        6Water
@@ -2050,7 +2104,13 @@ STUDENT_TEST("Test hiding an option from the world.") {
         {INT_MIN,24,INT_MIN,EM,0},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    links.hideRequestedOption("Fire");
+
+    EXPECT(links.hideRequestedOption("Fire"));
+    std::vector<std::string> failedToHide = {};
+    EXPECT(!links.hideRequestedOption({{"Fire"},{"Flipper"}}));
+    EXPECT(!links.hideRequestedOption({"Fire","Flipper"}, failedToHide));
+    EXPECT_EQUAL(failedToHide, {"Fire", "Flipper"});
+
     const int HD = Dx::PokemonLinks::HIDDEN;
     const std::vector<Dx::PokemonLinks::pokeLink> dlxHideOptionFire = {
         // 0              1Electric     2Fire         3Grass          4Ice          5Normal        6Water
@@ -2071,7 +2131,7 @@ STUDENT_TEST("Test hiding an option from the world.") {
         {INT_MIN,24,INT_MIN,EM,0},
     };
     EXPECT_EQUAL(links.links_, dlxHideOptionFire);
-    links.hideRequestedOption("Fire");
+    EXPECT(!links.hideRequestedOption("Fire"));
     EXPECT_EQUAL(links.links_, dlxHideOptionFire);
     EXPECT_EQUAL(links.peekHiddenOption(), "Fire");
     EXPECT_EQUAL(links.getNumHiddenOptions(), 1);
@@ -2080,7 +2140,7 @@ STUDENT_TEST("Test hiding an option from the world.") {
     EXPECT_EQUAL(links.links_, dlx);
     EXPECT(links.hiddenItemsEmpty());
     EXPECT_EQUAL(links.getNumHiddenOptions(), 0);
-    links.hideRequestedOption("Fire");
+    EXPECT(links.hideRequestedOption("Fire"));
     links.resetOptions();
     EXPECT_EQUAL(links.links_, dlx);
     EXPECT(links.hiddenItemsEmpty());
@@ -2136,7 +2196,7 @@ STUDENT_TEST("Test hiding an item from the world and then solving both types of 
         {INT_MIN,23,INT_MIN,EM,0},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    links.hideRequestedItem("Electric");
+    EXPECT(links.hideRequestedItem("Electric"));
     const std::vector<Dx::PokemonLinks::typeName> headersHideElectric {
         {"",6,2},
         {"Electric",0,2},
@@ -2223,8 +2283,12 @@ STUDENT_TEST("Test hiding two items from the world and then solving both types o
         {INT_MIN,23,INT_MIN,EM,0},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    links.hideRequestedItem("Electric");
-    links.hideRequestedItem("Grass");
+
+    EXPECT(links.hideRequestedItem("Electric"));
+    std::vector<std::string> failOutput = {};
+    EXPECT(!links.hideRequestedItem({"Grass", "Electric", "Grassy", "Cloudy", "Rainy"}, failOutput));
+    EXPECT_EQUAL(failOutput, {"Electric","Grassy","Cloudy","Rainy"});
+
     const std::vector<Dx::PokemonLinks::typeName> headersHideElectricAndGrass {
         {"",6,2},
         {"Electric",0,2},

@@ -246,15 +246,17 @@ As a part of Algorithm X via Dancing Links, covering items is central to the pro
 
 ```c++
 namespace DancingLinks {
-void hideItem(PokemonLinks& dlx, const std::string& toHide);
-void hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide);
+bool hideItem(PokemonLinks& dlx, const std::string& toHide);
+bool hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide);
+bool hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide,
+                                 std::vector<std::string>& failedToHide);
 void hideItemsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
 }
 ```
 
 For the why behind these runtime guarantees, please see the code, but here is what these operations offer.
 
-- `hideItem` - It costs O(lgN) to find one item and a simple O(1) operation to hide it.
+- `hideItem` - It costs O(lgN) to find one item and a simple O(1) operation to hide it. The other two options add an O(N) operation to iterate through all requested items. The last overload can report any items that could not be hidden because they were hidden or did not exist in the links. 
 - `hideItemsExcept` - We must look at all items, however thanks to Knuth's algorithm the number of items we must examine shrinks if some items are already hidden. It costs O(NlgK) where N is not-hidden items and K is the size of the set of items to keep.  
 
 ### Unhiding Items
@@ -287,15 +289,17 @@ We will also use a stack to manage hidden options. Here, however, the stack is r
 
 ```c++
 namespace DancingLinks {
-void hideOption(PokemonLinks& dlx, const std::string& toHide);
-void hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide);
+bool hideOption(PokemonLinks& dlx, const std::string& toHide);
+bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide);
+bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide,
+                                   std::vector<std::string>& failedToHide);
 void hideOptionsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
 }
 ```
 
 Here are the runtime guarantees these operations offer.
 
-- `hideOption` - It costs O(lgN) to find an option and O(I) to hide it, where I is the number of items in an option. The vector version is O(HIlgN) where H is the number of options to hide, I is the number of items for each option, and N is all options.
+- `hideOption` - It costs O(lgN) to find an option and O(I) to hide it, where I is the number of items in an option. The vector version is O(HIlgN) where H is the number of options to hide, I is the number of items for each option, and N is all options. We can also report back options we could not hide with the last overload. We cannot hide hidden options or options that don't exist.
 - `hideOptionsExcept` - This operation will cost O(NlgKI) where N is the number of options, K is the size of the set of items to keep, and I is the number of items in an option.
 
 ### Unhiding Options

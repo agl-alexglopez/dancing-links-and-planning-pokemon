@@ -181,16 +181,12 @@ public:
      *                           item is not in the PokemonLinks object, it is unchanged. O(lgN)
      * @param toHide             the item we wish to cover.
      */
-    void hideRequestedItem(const std::string& toHide);
+    bool hideRequestedItem(const std::string& toHide);
 
-    /**
-     * @brief hideRequestedItem  hiding a requested item can occur in place and be undone later.
-     *                           These items will no longer need coverage in a cover problem. If an
-     *                           item in the list is not in the PokemonLinks object we proceed to
-     *                           the next item. O(NlgN).
-     * @param toHide             the items we wish to hide and exclude from the cover problem.
-     */
-    void hideRequestedItem(const std::vector<std::string>& toHide);
+    bool hideRequestedItem(const std::vector<std::string>& toHide);
+
+    bool hideRequestedItem(const std::vector<std::string>& toHide,
+                           std::vector<std::string>& failedToCover);
 
     /**
      * @brief hideAllItemsExcept  hides all items EXCEPT those specified in the toKeep set. These
@@ -254,7 +250,7 @@ public:
      *                             options and C is the items covered by this option.
      * @param toHide               the option to hide.
      */
-    void hideRequestedOption(const std::string& toHide);
+    bool hideRequestedOption(const std::string& toHide);
 
     /**
      * @brief hideRequestedOption  hides all requested options from the links. If an option is not
@@ -264,7 +260,10 @@ public:
      *                             option. In practice C is small because links are sparse.
      * @param toHide               the vector of options we must hide.
      */
-    void hideRequestedOption(const std::vector<std::string>& toHide);
+    bool hideRequestedOption(const std::vector<std::string>& toHide);
+
+    bool hideRequestedOption(const std::vector<std::string>& toHide,
+                             std::vector<std::string>& failedToCover);
 
     /**
      * @brief hideAllOptionsExcept  hides all options EXCEPT those specified in the keep set. By
@@ -744,15 +743,27 @@ PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
  *                  O(lgN) guarantee.
  * @param dlx       the PokemonLinks object we alter in place.
  * @param toHide    the string item representing the item to hide depending on ATTACK or DEFENSE.
+ * @return          true if the item was hidden false if it was already hidden or not found.
  */
-void hideItem(PokemonLinks& dlx, const std::string& toHide);
+bool hideItem(PokemonLinks& dlx, const std::string& toHide);
 
 /**
  * @brief hideItem  hides all items specified from the vector as above. In place, O(NlgN) guarantee.
  * @param dlx       the PokemonLinks object we alter in place.
  * @param toHide    the string item representing the item to hide depending on ATTACK or DEFENSE.
+ * @return          true if all items were hidden false if at least one was not.
  */
-void hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide);
+bool hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide);
+
+/**
+ * @brief hideItem      hides items specified from the vector as above. In place, O(NlgN) guarantee.
+ * @param dlx           the PokemonLinks object we alter in place.
+ * @param toHide        the string representing the item to hide depending on ATTACK or DEFENSE.
+ * @param failedToHide  an additional output parameter if user wants to see failures.
+ * @return              true if all items were hidden false if at least one was not found.
+ */
+bool hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide,
+                                 std::vector<std::string>& failedToHide);
 
 /**
  * @brief hideItemsExcept  hides all items NOT included in the specified set. In place, O(NlgK)
@@ -816,8 +827,9 @@ void resetItems(PokemonLinks& dlx);
  *                    number of options and I is the number of Items in an option.
  * @param dlx         the PokemonLinks object we alter.
  * @param toHide      the option we must hide from the world.
+ * @return            true if option was hidden false if it was hidden or could not be found.
  */
-void hideOption(PokemonLinks& dlx, const std::string& toHide);
+bool hideOption(PokemonLinks& dlx, const std::string& toHide);
 
 /**
  * @brief hideOption  hides all options specified in the vector from the world. Uses the same
@@ -826,8 +838,22 @@ void hideOption(PokemonLinks& dlx, const std::string& toHide);
  *                    items in an option. In practice, I is often small in sparse links.
  * @param dlx         the PokemonLinks object we alter.
  * @param toHide      the options we must hide from the world.
+ * @return            true if all options were hidden false if at least one was not.
  */
-void hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide);
+bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide);
+
+/**
+ * @brief hideOption    hides all options specified in the vector from the world. Uses the same
+ *                      process as hideOption() for each option making an O(HlgNI) where H is the
+ *                      number of options to hide, N is the number of options and I is the number of
+ *                      items in an option. In practice, I is often small in sparse links.
+ * @param dlx           the PokemonLinks object we alter.
+ * @param toHide        the options we must hide from the world.
+ * @param failedToHide  an additional output showing the options that could not be found.
+ * @return              true if all options were hidden false if at least one failed.
+ */
+bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide,
+                                   std::vector<std::string>& failedToHide);
 
 /**
  * @brief hideOptionsExcept  hides all options NOT specified in the given set. In place O(NlgKI)
