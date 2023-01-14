@@ -300,7 +300,7 @@ Here are the runtime guarantees these operations offer.
 
 ### Unhiding Options
 
-Here are the same stack utilities we offer for the item version of these operations.
+Here are the same stack utilities we offer for the option version of these operations.
 
 ```c++
 namespace DancingLinks {
