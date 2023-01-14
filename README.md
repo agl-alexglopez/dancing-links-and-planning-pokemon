@@ -339,7 +339,7 @@ PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
 
 We are now able to solve cover problems on a PokemonLinks object that is in a user-defined, altered state. The user can modify the structure as much as they would like and restore it to its original state with minimal internal maintenance of the object required. With the decent runtime guarantees we can offer with this data structure, the memory efficiency, lack of copies, and flexible state, I think there is a strong case to be made for a class implementation of Dancing Links.
 
-Treating the PokemonLinks as an alterable object with a prolonged lifetime was useful in the GUI program you can use in this repository. For each Pokemon map I load in, I only load two PokemonLinks objects, one for ATTACK and one for DEFENSE. As the user asks for solutions to only certain sets of gyms, we simply hide the items the user is not interested in and restore them after every query. I have not yet found a use case for hiding options but this project could continue to grow as I try out different techniques.
+Treating the PokemonLinks as an alterable object with a prolonged lifetime was useful in the GUI program you can use in this repository. For each Pokémon map I load in, I only load two PokemonLinks objects, one for ATTACK and one for DEFENSE. As the user asks for solutions to only certain sets of gyms, we simply hide the items the user is not interested in and restore them after every query. I have not yet found a use case for hiding options but this project could continue to grow as I try out different techniques.
 
 ### Pokémon Planning Usage Instructions
 
