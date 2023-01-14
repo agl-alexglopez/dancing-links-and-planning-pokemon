@@ -176,7 +176,7 @@ typedef struct pokeLink {
     // x0.0, x0.25, x0.5, x1.0, x2, or x4 damage multipliers.
     Multiplier multiplier;
     // Use this to efficiently find Overlapping covers.
-    int depthTag;
+    int tag;
 }pokeLink;
 ```
 
