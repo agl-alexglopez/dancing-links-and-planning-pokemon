@@ -149,11 +149,11 @@ In order to accomplish the in-place, no-copy recursion that comes with Knuth's D
 Here is the type that I use to manage the recursion and know when every item is covered. The name corresponds to the item.
 
 ```c++
-typedef struct typeName {
+struct typeName {
     std::string name;
     int left;
     int right;
-}typeName;
+};
 
 std::vector<typeName> itemTable_ = {
     {"",6,1},
@@ -169,7 +169,7 @@ std::vector<typeName> itemTable_ = {
 Here is the type that I use within the dancing links array.
 
 ```c++
-typedef struct pokeLink {
+struct pokeLink {
     int topOrLen;
     int up;
     int down;
@@ -177,13 +177,13 @@ typedef struct pokeLink {
     Multiplier multiplier;
     // Use this to efficiently find Overlapping covers.
     int tag;
-}pokeLink;
+};
 ```
 
 The Multiplier is a simple `enum`.
 
 ```c++
-typedef enum Multiplier {
+enum Multiplier {
     EMPTY_=0,
     IMMUNE,  // x0.00
     FRAC14,  // x0.25
@@ -191,7 +191,7 @@ typedef enum Multiplier {
     NORMAL,  // x1.00
     DOUBLE,  // x2.00
     QUADRU   // x4.00
-}Multiplier;
+};
 ```
 
 We then place all of this in one array. Here is a illustration of these links as they exist in memory.
