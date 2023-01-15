@@ -68,9 +68,15 @@ public:
 
     Resistance(const std::string& type, const Multiplier& multiplier);
 
+    Resistance(const Resistance& other);
+
+    Resistance(Resistance&& other) noexcept;
+
     std::string type() const;
+
     Multiplier multiplier() const;
 
+    Resistance& operator=(const Resistance& rhs);
 
     bool operator< (const Resistance& rhs) const {
         return this->type() < rhs.type();

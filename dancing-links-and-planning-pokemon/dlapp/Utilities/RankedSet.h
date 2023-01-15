@@ -45,6 +45,7 @@
 #include <ostream>
 #include <set>
 #include <string>
+#include <utility>
 
 template<class valueType>
 class RankedSet {
@@ -54,6 +55,24 @@ public:
     RankedSet(int rank, const std::set<valueType>& set)
         : rank_(rank),
           set_(set) {
+    }
+
+    RankedSet(const RankedSet& other)
+        : rank_(other.rank_),
+          set_(other.set_) {
+    }
+
+    RankedSet(RankedSet&& other)
+        : rank_(std::move(other.rank_)),
+          set_(std::move(other.set_)){
+    }
+
+    RankedSet& operator=(const RankedSet& rhs) {
+        if (this != rhs) {
+            this->rank_ = rhs.rank_;
+            this->set_ = rhs.set_;
+        }
+        return *this;
     }
 
     std::size_t size() const {

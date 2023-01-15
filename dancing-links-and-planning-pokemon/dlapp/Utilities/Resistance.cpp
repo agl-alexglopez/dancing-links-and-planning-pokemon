@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 #include "Resistance.h"
+#include <utility>
 
 
 /* * * * * * * * * * * * *     Resistance Helper Class      * * * * * * * * * * * * * * * * * * * */
@@ -31,12 +32,30 @@ Resistance::Resistance(const std::string& type, const Multiplier& multiplier)
       multiplier_(multiplier) {
 }
 
+Resistance::Resistance(const Resistance& other)
+    : type_(other.type_),
+      multiplier_(other.multiplier_) {
+}
+
+Resistance::Resistance(Resistance&& other) noexcept
+    : type_(std::move(other.type_)),
+      multiplier_(std::move(other.multiplier_)) {
+}
+
 std::string Resistance::type() const {
     return type_;
 }
 
 Resistance::Multiplier Resistance::multiplier() const {
     return multiplier_;
+}
+
+Resistance& Resistance::operator=(const Resistance& rhs) {
+    if (this != &rhs) {
+        this->type_ = rhs.type_;
+        this->multiplier_ = rhs.multiplier_;
+    }
+    return *this;
 }
 
 std::ostream& operator<<(std::ostream& out, const Resistance& res) {
