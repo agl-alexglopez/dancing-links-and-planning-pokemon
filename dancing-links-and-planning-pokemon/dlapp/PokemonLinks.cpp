@@ -1027,6 +1027,10 @@ std::ostream& operator<<(std::ostream& os, const std::vector<PokemonLinks::strNu
 
 } // namespace DancingLinks
 
+
+/* * * * * * * * * * * * * * *      Tests Below This Point      * * * * * * * * * * * * * * * * * */
+
+
 // Clang needs to know that these operators match the namespace of their arguments. Can't be global.
 namespace std {
 // Saves lines to enter a solution in its full form to test case. Overload for output on failure.
@@ -1044,7 +1048,8 @@ inline ostream& operator<<(ostream& os, const vector<string>& vec) {
     os << endl;
     return os;
 }
-}
+} // namespace std
+
 
 /* These type names completely crowd out our test cases when I construct the dlx grids in the test
  * making them hard to read. They stretch too far horizontally so I am creating these name codes
