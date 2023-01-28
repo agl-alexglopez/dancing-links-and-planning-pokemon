@@ -1027,23 +1027,23 @@ std::ostream& operator<<(std::ostream& os, const std::vector<PokemonLinks::strNu
 
 } // namespace DancingLinks
 
-
+// Clang needs to know that these operators match the namespace of their arguments. Can't be global.
+namespace std {
 // Saves lines to enter a solution in its full form to test case. Overload for output on failure.
-inline std::ostream& operator<<(std::ostream& os,
-                                const std::set<RankedSet<std::string>>& solution) {
+inline ostream& operator<<(ostream& os, const set<RankedSet<string>>& solution) {
     for (const auto& s : solution) {
         os << s;
     }
-    os << std::endl;
+    os << endl;
     return os;
 }
-inline std::ostream& operator<<(std::ostream& os,
-                                const std::vector<std::string>& vec) {
+inline ostream& operator<<(ostream& os, const vector<string>& vec) {
     for (const auto& s : vec) {
         os << s;
     }
-    os << std::endl;
+    os << endl;
     return os;
+}
 }
 
 /* These type names completely crowd out our test cases when I construct the dlx grids in the test

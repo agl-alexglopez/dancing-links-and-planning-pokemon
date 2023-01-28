@@ -102,7 +102,9 @@
  */
 #ifndef POKEMONLINKS_H
 #define POKEMONLINKS_H
+#include <iostream>
 #include <map>
+#include <unordered_map>
 #include <string>
 #include <set>
 #include <utility>
