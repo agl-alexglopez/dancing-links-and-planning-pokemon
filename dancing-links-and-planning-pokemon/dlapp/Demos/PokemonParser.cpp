@@ -49,194 +49,198 @@
 
 namespace {
 
-    const int GEN_ONE = 1;
-    const int GEN_2 = 2;
-    const int GEN_5 = 5;
-    const int GEN_8 = 8;
-    const int GEN_9 = 9;
-    const int MAX_GEN_COMMENT_LEN = 4;
-    const QString JSON_ALL_TYPES_FILE = "res/json/all-types.json";
-    const QString JSON_ALL_MAPS_FILE = "res/json/all-maps.json";
-    const QString GYM_ATTACKS_KEY = "attack";
-    const QString GYM_DEFENSE_KEY = "defense";
+const int GEN_ONE = 1;
+const int GEN_2 = 2;
+const int GEN_5 = 5;
+const int GEN_8 = 8;
+const int GEN_9 = 9;
+const int MAX_GEN_COMMENT_LEN = 4;
+const QString JSON_DIR = "res/json/";
+const QString JSON_ALL_TYPES_FILE = "res/json/all-types.json";
+const QString JSON_ALL_MAPS_FILE = "res/json/all-maps.json";
+const QString GYM_ATTACKS_KEY = "attack";
+const QString GYM_DEFENSE_KEY = "defense";
 
-    const std::set<std::string> ADDED_GEN_9 = {"Bug-Dark","Fire-Grass","Poison-Steel",
-                                               "Electric-Fighting","Normal-Poison","Fighting-Ground",
-                                               "Fairy-Fighting","Ghost-Normal","Electric-Rock",
-                                               "Electric-Grass","Electric-Psychic"};
+const std::set<std::string> ADDED_GEN_9 = {"Bug-Dark","Fire-Grass","Poison-Steel",
+                                           "Electric-Fighting","Normal-Poison","Fighting-Ground",
+                                           "Fairy-Fighting","Ghost-Normal","Electric-Rock",
+                                           "Electric-Grass","Electric-Psychic"};
 
-    const std::set<std::string> ADDED_GEN_5_TO_8 = {"Fairy","Fighting-Ghost","Electric-Normal",
-                                                    "Fire-Normal","Fire-Water","Fighting-Ice",
-                                                    "Bug-Ice","Poison-Rock","Ghost-Grass",
-                                                    "Fire-Poison","Poison-Psychic","Fire-Ghost"
-                                                    "Electric-Poison","Dragon-Grass","Dark-Normal",
-                                                    "Fighting-Flying","Dark-Fighting","Bug-Fire",
-                                                    "Dragon-Normal","Dragon-Fire","Dragon-Fighting",
-                                                    "Dragon-Poison","Dragon-Ice","Dragon-Electric",
-                                                    "Dragon-Rock","Dark-Dragon","Electric-Ground",
-                                                    "Bug-Electric","Fire-Psychic","Bug-Psychic",
-                                                    "Ghost-Psychic","Fire-Ice","Ghost-Ground",
-                                                    "Fighting-Normal","Ghost-Water","Dark-Ground",
-                                                    "Dark-Steel","Ghost-Steel","Dark-Psychic",
-                                                    "Dark-Electric","Fighting-Rock","Ice-Steel"};
+const std::set<std::string> ADDED_GEN_5_TO_8 = {"Fairy","Fighting-Ghost","Electric-Normal",
+                                                "Fire-Normal","Fire-Water","Fighting-Ice",
+                                                "Bug-Ice","Poison-Rock","Ghost-Grass",
+                                                "Fire-Poison","Poison-Psychic","Fire-Ghost"
+                                                "Electric-Poison","Dragon-Grass","Dark-Normal",
+                                                "Fighting-Flying","Dark-Fighting","Bug-Fire",
+                                                "Dragon-Normal","Dragon-Fire","Dragon-Fighting",
+                                                "Dragon-Poison","Dragon-Ice","Dragon-Electric",
+                                                "Dragon-Rock","Dark-Dragon","Electric-Ground",
+                                                "Bug-Electric","Fire-Psychic","Bug-Psychic",
+                                                "Ghost-Psychic","Fire-Ice","Ghost-Ground",
+                                                "Fighting-Normal","Ghost-Water","Dark-Ground",
+                                                "Dark-Steel","Ghost-Steel","Dark-Psychic",
+                                                "Dark-Electric","Fighting-Rock","Ice-Steel"};
 
-    const std::set<std::string> ADDED_GEN_2_TO_4 = {"Dark","Steel","Dragon-Water","Dragon-Ground",
-                                                    "Dragon-Psychic","Dragon-Ghost","Dragon-Steel",
-                                                    "Bug-Rock","Electric-Water","Fighting-Fire",
-                                                    "Fighting-Grass", "Grass-Ice","Grass-Ground",
-                                                    "Bug-Ghost","Grass-Normal","Grass-Rock",
-                                                    "Fire-Ground","Grass-Water","Electric-Fire",
-                                                    "Ice-Rock","Normal-Water","Normal-Psychic",
-                                                    "Flying-Psychic","Fire-Rock","Bug-Water",
-                                                    "Bug-Fighting","Ground-Ice","Ghost-Ice",
-                                                    "Flying-Grass","Electric-Ghost",
-                                                    "Bug-Ground","Flying-Ground",
-                                                    "Ground-Psychic","Flying-Ghost",
-                                                    "Psychic-Rock","Electric-Ice"};
-    const std::string DUAL_TYPE_DELIM = "-";
+const std::set<std::string> ADDED_GEN_2_TO_4 = {"Dark","Steel","Dragon-Water","Dragon-Ground",
+                                                "Dragon-Psychic","Dragon-Ghost","Dragon-Steel",
+                                                "Bug-Rock","Electric-Water","Fighting-Fire",
+                                                "Fighting-Grass", "Grass-Ice","Grass-Ground",
+                                                "Bug-Ghost","Grass-Normal","Grass-Rock",
+                                                "Fire-Ground","Grass-Water","Electric-Fire",
+                                                "Ice-Rock","Normal-Water","Normal-Psychic",
+                                                "Flying-Psychic","Fire-Rock","Bug-Water",
+                                                "Bug-Fighting","Ground-Ice","Ghost-Ice",
+                                                "Flying-Grass","Electric-Ghost",
+                                                "Bug-Ground","Flying-Ground",
+                                                "Ground-Psychic","Flying-Ghost",
+                                                "Psychic-Rock","Electric-Ice","Ice"};
+const std::string DUAL_TYPE_DELIM = "-";
 
-    // Might as well use QStrings if I am parsing with them in the first place.
-    const std::map<QString, Resistance::Multiplier> DAMAGE_MULTIPLIERS = {
-        {"immune", Resistance::IMMUNE},
-        {"quarter", Resistance::FRAC14},
-        {"half", Resistance::FRAC12},
-        {"normal", Resistance::NORMAL},
-        {"double", Resistance::DOUBLE},
-        {"quad", Resistance::QUADRU},
-    };
+// Might as well use QStrings if I am parsing with them in the first place.
+const std::map<QString, Resistance::Multiplier> DAMAGE_MULTIPLIERS = {
+    {"immune", Resistance::IMMUNE},
+    {"quarter", Resistance::FRAC14},
+    {"half", Resistance::FRAC12},
+    {"normal", Resistance::NORMAL},
+    {"double", Resistance::DOUBLE},
+    {"quad", Resistance::QUADRU},
+};
 
 
-    void getQJsonObject(QJsonObject& jsonObj, const QString& pathToJson) {
-        QFile jsonFile(pathToJson);
-        if (!jsonFile.open(QIODevice::ReadOnly)) {
-            std::cerr << "Could not open json file." << std::endl;
-            jsonFile.close();
-            std::abort();
-        }
-        QByteArray bytes = jsonFile.readAll();
+void getQJsonObject(QJsonObject& jsonObj, const QString& pathToJson) {
+    QFile jsonFile(pathToJson);
+    if (!jsonFile.open(QIODevice::ReadOnly)) {
+        std::cerr << "Could not open json file." << std::endl;
         jsonFile.close();
-        QJsonParseError jsonError;
-        QJsonDocument qtJsonDoc = QJsonDocument::fromJson(bytes, &jsonError);
-        if (jsonError.error != QJsonParseError::NoError) {
-            std::cerr << "Error parsing JSON to QDocument." << std::endl;
-            std::abort();
-        }
-        if (!qtJsonDoc.isObject()) {
-            std::cerr << "Error identifying JSON as object at highest level." << std::endl;
-            std::abort();
-        }
-        jsonObj = qtJsonDoc.object();
-        if (jsonObj.empty()) {
-            std::cerr << "No Data in QJsonObject." << std::endl;
-            std::abort();
-        }
+        std::abort();
     }
-
-    // Add more filtering if you ever come back to this after Gen 9. For now this is most recent.
-    bool isGenNine(std::string& type) {
-        (void) type;
-        return true;
+    QByteArray bytes = jsonFile.readAll();
+    jsonFile.close();
+    QJsonParseError jsonError;
+    QJsonDocument qtJsonDoc = QJsonDocument::fromJson(bytes, &jsonError);
+    if (jsonError.error != QJsonParseError::NoError) {
+        std::cerr << "Error parsing JSON to QDocument." << std::endl;
+        std::abort();
     }
+    if (!qtJsonDoc.isObject()) {
+        std::cerr << "Error identifying JSON as object at highest level." << std::endl;
+        std::abort();
+    }
+    jsonObj = qtJsonDoc.object();
+    if (jsonObj.empty()) {
+        std::cerr << "No Data in QJsonObject." << std::endl;
+        std::abort();
+    }
+}
 
-    bool isGenOneType(const std::string& type) {
-        if (ADDED_GEN_9.count(type) || ADDED_GEN_2_TO_4.count(type)
-                || ADDED_GEN_5_TO_8.count(type)) {
+// Add more filtering if you ever come back to this after Gen 9. For now this is most recent.
+bool isGenNine(std::string& type) {
+    (void) type;
+    return true;
+}
+
+bool isGenOneType(const std::string& type) {
+    if (ADDED_GEN_9.count(type) || ADDED_GEN_2_TO_4.count(type)
+            || ADDED_GEN_5_TO_8.count(type)) {
+        return false;
+    }
+    std::size_t typeDelim = type.find_first_of(DUAL_TYPE_DELIM);
+    if (typeDelim != std::string::npos) {
+        std::string firstType = type.substr(0, typeDelim);
+        std::string secondType = type.substr(typeDelim + 1);
+        if (ADDED_GEN_2_TO_4.count(firstType) || ADDED_GEN_5_TO_8.count(firstType)
+                || ADDED_GEN_2_TO_4.count(secondType) || ADDED_GEN_5_TO_8.count(secondType)) {
             return false;
         }
-        std::size_t typeDelim = type.find_first_of(DUAL_TYPE_DELIM);
-        if (typeDelim != std::string::npos) {
-            std::string firstType = type.substr(0, typeDelim);
-            std::string secondType = type.substr(typeDelim + 1);
-            if (ADDED_GEN_2_TO_4.count(firstType) || ADDED_GEN_5_TO_8.count(firstType)
-                    || ADDED_GEN_2_TO_4.count(secondType) || ADDED_GEN_5_TO_8.count(secondType)) {
-                return false;
-            }
-        }
-        return true;
     }
+    return true;
+}
 
-    bool isGenTwoToFour(std::string& type) {
-        if (ADDED_GEN_5_TO_8.count(type) || ADDED_GEN_9.count(type)) {
+bool isGenTwoToFour(std::string& type) {
+    if (ADDED_GEN_5_TO_8.count(type) || ADDED_GEN_9.count(type)) {
+        return false;
+    }
+    std::size_t typeDelim = type.find_first_of(DUAL_TYPE_DELIM);
+    if (typeDelim != std::string::npos) {
+        std::string firstType = type.substr(0, typeDelim);
+        std::string secondType = type.substr(typeDelim + 1);
+        if (ADDED_GEN_5_TO_8.count(firstType) || ADDED_GEN_5_TO_8.count(secondType)
+                || ADDED_GEN_9.count(firstType) || ADDED_GEN_9.count(secondType)) {
             return false;
         }
-        std::size_t typeDelim = type.find_first_of(DUAL_TYPE_DELIM);
-        if (typeDelim != std::string::npos) {
-            std::string firstType = type.substr(0, typeDelim);
-            std::string secondType = type.substr(typeDelim + 1);
-            if (ADDED_GEN_5_TO_8.count(firstType) || ADDED_GEN_5_TO_8.count(secondType)
-                    || ADDED_GEN_9.count(firstType) || ADDED_GEN_9.count(secondType)) {
-                return false;
-            }
-        }
-        return true;
     }
+    return true;
+}
 
-    bool isGenFiveToEight(std::string& type) {
-        if (ADDED_GEN_9.count(type)) {
+bool isGenFiveToEight(std::string& type) {
+    if (ADDED_GEN_9.count(type)) {
+        return false;
+    }
+    std::size_t typeDelim = type.find_first_of(DUAL_TYPE_DELIM);
+    if (typeDelim != std::string::npos) {
+        std::string firstType = type.substr(0, typeDelim);
+        std::string secondType = type.substr(typeDelim + 1);
+        if (ADDED_GEN_9.count(firstType) || ADDED_GEN_9.count(secondType)) {
             return false;
         }
-        std::size_t typeDelim = type.find_first_of(DUAL_TYPE_DELIM);
-        if (typeDelim != std::string::npos) {
-            std::string firstType = type.substr(0, typeDelim);
-            std::string secondType = type.substr(typeDelim + 1);
-            if (ADDED_GEN_9.count(firstType) || ADDED_GEN_9.count(secondType)) {
-                return false;
-            }
-        }
-        return true;
     }
+    return true;
+}
 
-    void addResistancesForType(std::map<std::string,std::set<Resistance>>& result,
-                               const std::string& newType,
-                               const QJsonObject& damageMultipliers,
-                               const std::function<bool(std::string&)>& filterFunc) {
-        for (const QString& mult : damageMultipliers.keys()) {
-            Resistance::Multiplier multiplierTag = DAMAGE_MULTIPLIERS.at(mult);
-            QJsonArray typesInMultipliers = damageMultipliers[mult].toArray();
-            for (const QJsonValueConstRef& t : typesInMultipliers) {
-                std::string type = QString(t.toString()).toStdString();
-                if (filterFunc(type)) {
-                    result[newType].insert({type, multiplierTag});
-                }
+void addResistancesForType(std::map<std::string,std::set<Resistance>>& result,
+                           const std::string& newType,
+                           const QJsonObject& damageMultipliers,
+                           const std::function<bool(std::string&)>& filterFunc) {
+    for (const QString& mult : damageMultipliers.keys()) {
+        Resistance::Multiplier multiplierTag = DAMAGE_MULTIPLIERS.at(mult);
+        QJsonArray typesInMultipliers = damageMultipliers[mult].toArray();
+        for (const QJsonValueConstRef& t : typesInMultipliers) {
+            std::string type = QString(t.toString()).toStdString();
+            if (filterFunc(type)) {
+                result[newType].insert({type, multiplierTag});
             }
-        }
-    }
-
-    std::map<std::string,std::set<Resistance>>
-    filterPokemonByGeneration(const std::function<bool(std::string&)>& filterFunc) {
-        QJsonObject pokemonData;
-        getQJsonObject(pokemonData, JSON_ALL_TYPES_FILE);
-        std::map<std::string,std::set<Resistance>> result = {};
-        for (const QString& type : pokemonData.keys()) {
-            std::string newType = type.toStdString();
-            if (filterFunc(newType)) {
-                result.insert({newType, {}});
-                addResistancesForType(result, newType, pokemonData[type].toObject(), filterFunc);
-            }
-        }
-        return result;
-    }
-
-    std::map<std::string,std::set<Resistance>> setTypeInteractions(std::istream& source) {
-        // We need to check the first line of the pokemon map file for the generation info.
-        std::string line;
-        std::getline(source, line);
-        std::string afterHashtag = line.substr(1, line.length() - 1);
-        int generation = std::stoi(afterHashtag);
-        if (line.length() > MAX_GEN_COMMENT_LEN || generation >= GEN_9) {
-            return filterPokemonByGeneration(&isGenNine);
-        } else if (generation == GEN_ONE) {
-            return filterPokemonByGeneration(&isGenOneType);
-        } else if (generation < GEN_5) {
-            return filterPokemonByGeneration(&isGenTwoToFour);
-        } else if (generation <= GEN_8){
-            return filterPokemonByGeneration(&isGenFiveToEight);
-        } else {
-            std::cerr << "Could not pick a Pokemon Generation to load." << std::endl;
-            return {};
         }
     }
 }
+
+std::map<std::string,std::set<Resistance>>
+filterPokemonByGeneration(const std::function<bool(std::string&)>& filterFunc) {
+    QJsonObject pokemonData;
+    getQJsonObject(pokemonData, JSON_ALL_TYPES_FILE);
+    std::map<std::string,std::set<Resistance>> result = {};
+    for (const QString& type : pokemonData.keys()) {
+        std::string newType = type.toStdString();
+        if (filterFunc(newType)) {
+            result.insert({newType, {}});
+            addResistancesForType(result, newType, pokemonData[type].toObject(), filterFunc);
+        }
+    }
+    return result;
+}
+
+std::map<std::string,std::set<Resistance>> setTypeInteractions(std::istream& source) {
+    // We need to check the first line of the pokemon map file for the generation info.
+    std::string line;
+    std::getline(source, line);
+    std::string afterHashtag = line.substr(1, line.length() - 1);
+    int generation = std::stoi(afterHashtag);
+    if (line.length() > MAX_GEN_COMMENT_LEN || generation >= GEN_9) {
+        return filterPokemonByGeneration(&isGenNine);
+    } else if (generation == GEN_ONE) {
+        return filterPokemonByGeneration(&isGenOneType);
+    } else if (generation < GEN_5) {
+        return filterPokemonByGeneration(&isGenTwoToFour);
+    } else if (generation <= GEN_8){
+        return filterPokemonByGeneration(&isGenFiveToEight);
+    } else {
+        std::cerr << "Could not pick a Pokemon Generation to load." << std::endl;
+        return {};
+    }
+}
+
+
+} // namespace
+
 
 PokemonTest loadPokemonGeneration(std::istream& source) {
     PokemonTest generation;
