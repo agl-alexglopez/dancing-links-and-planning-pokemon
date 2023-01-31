@@ -930,7 +930,7 @@ std::vector<std::string> hidOptions(const PokemonLinks& dlx);
 void resetOptions(PokemonLinks& dlx);
 
 /**
- * @brief resetAll  completely restore the items and options to original state. O(I + (P + C)) where
+ * @brief resetAll  completely restore the items and options to original state. O(I + (PC)) where
  *                  I is the number of hidden items, P is the number of hidden options and C is the
  *                  number of items covered by each option.
  * @param dlx       the PokemonLinks object we alter.
