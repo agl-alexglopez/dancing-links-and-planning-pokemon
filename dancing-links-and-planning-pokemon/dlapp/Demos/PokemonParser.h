@@ -58,8 +58,7 @@
  * # 9
  *
  * This also means you should start every file with some sort of comment labelling it with
- * identifying info, even if there is not generation specification. Otherwise, the behavior of this
- * parsing is undefined.
+ * identifying info, even if there is not generation specification.
  */
 
 struct PokemonTest {
@@ -82,25 +81,6 @@ struct PokemonTest {
  * @return                       the completed pokemon test with map drawing and Pokemon info.
  */
 PokemonTest loadPokemonGeneration(std::istream& source);
-
-/**
- * @brief loadSelectedGymsDefense  the user in the GUI may want cover problems solved for selected
- *                                 gyms. We can take back the generation info map we created and
- *                                 alter it to give back only the types requested and their attack
- *                                 weaknesses. I have stored the info for every gym for every map
- *                                 in the all-maps.json file. I can use this to know defense and
- *                                 attack types for every gym. If you want to add a map to the
- *                                 collection, be sure to also input its gym leaders and elite four
- *                                 in this file in the format already present.
- * @param currentGenInteractions   the map we have generated for the user with original type info.
- * @param selectedMap              the current .dst map the user is interacting with.
- * @param selectedGyms             the selection of gyms they would like to attack.
- * @return                         the map of the defensive types for the selected gyms.
- */
-std::map<std::string,std::set<Resistance>>
-loadSelectedGymsInteractions(const std::map<std::string,std::set<Resistance>>& currentGenInteractions,
-                             const std::string& selectedMap,
-                             const std::set<std::string>& selectedGyms);
 
 /**
  * @brief loadSelectedGymsDefenses  when interacting with the GUI, the user can choose subsets of

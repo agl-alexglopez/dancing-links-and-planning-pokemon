@@ -1,0 +1,4674 @@
+{
+    "Bug": {
+        "double": [
+            "Fire",
+            "Flying",
+            "Rock"
+        ],
+        "half": [
+            "Grass",
+            "Fighting",
+            "Ground"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Electric",
+            "Ice",
+            "Poison",
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Bug-Electric": {
+        "double": [
+            "Fire",
+            "Rock"
+        ],
+        "half": [
+            "Electric",
+            "Grass",
+            "Fighting",
+            "Steel"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Ice",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Bug-Fairy": {
+        "double": [
+            "Fire",
+            "Poison",
+            "Flying",
+            "Rock",
+            "Steel"
+        ],
+        "half": [
+            "Grass",
+            "Ground",
+            "Bug",
+            "Dark"
+        ],
+        "immune": [
+            "Dragon"
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Electric",
+            "Ice",
+            "Psychic",
+            "Ghost",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Fighting"
+        ]
+    },
+    "Bug-Fighting": {
+        "double": [
+            "Fire",
+            "Psychic",
+            "Fairy"
+        ],
+        "half": [
+            "Grass",
+            "Fighting",
+            "Ground",
+            "Bug",
+            "Dark"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Electric",
+            "Ice",
+            "Poison",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Steel"
+        ],
+        "quad": [
+            "Flying"
+        ],
+        "quarter": [
+        ]
+    },
+    "Bug-Fire": {
+        "double": [
+            "Water",
+            "Flying"
+        ],
+        "half": [
+            "Ice",
+            "Fighting",
+            "Bug",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Electric",
+            "Poison",
+            "Ground",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark"
+        ],
+        "quad": [
+            "Rock"
+        ],
+        "quarter": [
+            "Grass"
+        ]
+    },
+    "Bug-Flying": {
+        "double": [
+            "Fire",
+            "Electric",
+            "Ice",
+            "Flying"
+        ],
+        "half": [
+            "Bug"
+        ],
+        "immune": [
+            "Ground"
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Poison",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+            "Rock"
+        ],
+        "quarter": [
+            "Grass",
+            "Fighting"
+        ]
+    },
+    "Bug-Ghost": {
+        "double": [
+            "Fire",
+            "Flying",
+            "Rock",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Grass",
+            "Poison",
+            "Ground",
+            "Bug"
+        ],
+        "immune": [
+            "Normal",
+            "Fighting"
+        ],
+        "normal": [
+            "Water",
+            "Electric",
+            "Ice",
+            "Psychic",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Bug-Grass": {
+        "double": [
+            "Ice",
+            "Poison",
+            "Bug",
+            "Rock"
+        ],
+        "half": [
+            "Water",
+            "Electric",
+            "Fighting"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+            "Fire",
+            "Flying"
+        ],
+        "quarter": [
+            "Grass",
+            "Ground"
+        ]
+    },
+    "Bug-Ground": {
+        "double": [
+            "Fire",
+            "Water",
+            "Ice",
+            "Flying"
+        ],
+        "half": [
+            "Fighting",
+            "Poison",
+            "Ground"
+        ],
+        "immune": [
+            "Electric"
+        ],
+        "normal": [
+            "Normal",
+            "Grass",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Bug-Poison": {
+        "double": [
+            "Fire",
+            "Flying",
+            "Psychic",
+            "Rock"
+        ],
+        "half": [
+            "Poison",
+            "Bug",
+            "Fairy"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Electric",
+            "Ice",
+            "Ground",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Grass",
+            "Fighting"
+        ]
+    },
+    "Bug-Rock": {
+        "double": [
+            "Water",
+            "Rock",
+            "Steel"
+        ],
+        "half": [
+            "Normal",
+            "Poison"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Fire",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Fighting",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Bug-Steel": {
+        "double": [
+        ],
+        "half": [
+            "Normal",
+            "Ice",
+            "Psychic",
+            "Bug",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+            "Poison"
+        ],
+        "normal": [
+            "Water",
+            "Electric",
+            "Fighting",
+            "Ground",
+            "Flying",
+            "Rock",
+            "Ghost",
+            "Dark"
+        ],
+        "quad": [
+            "Fire"
+        ],
+        "quarter": [
+            "Grass"
+        ]
+    },
+    "Bug-Water": {
+        "double": [
+            "Electric",
+            "Flying",
+            "Rock"
+        ],
+        "half": [
+            "Water",
+            "Ice",
+            "Fighting",
+            "Ground",
+            "Steel"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Grass",
+            "Poison",
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Dark": {
+        "double": [
+            "Fighting",
+            "Bug",
+            "Fairy"
+        ],
+        "half": [
+            "Ghost",
+            "Dark"
+        ],
+        "immune": [
+            "Psychic"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Rock",
+            "Dragon",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Dark-Dragon": {
+        "double": [
+            "Ice",
+            "Fighting",
+            "Bug",
+            "Dragon"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ghost",
+            "Dark"
+        ],
+        "immune": [
+            "Psychic"
+        ],
+        "normal": [
+            "Normal",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Rock",
+            "Steel"
+        ],
+        "quad": [
+            "Fairy"
+        ],
+        "quarter": [
+        ]
+    },
+    "Dark-Fighting": {
+        "double": [
+            "Fighting",
+            "Flying"
+        ],
+        "half": [
+            "Rock",
+            "Ghost"
+        ],
+        "immune": [
+            "Psychic"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Poison",
+            "Ground",
+            "Bug",
+            "Dragon",
+            "Steel"
+        ],
+        "quad": [
+            "Fairy"
+        ],
+        "quarter": [
+            "Dark"
+        ]
+    },
+    "Dark-Fire": {
+        "double": [
+            "Water",
+            "Fighting",
+            "Ground",
+            "Rock"
+        ],
+        "half": [
+            "Fire",
+            "Grass",
+            "Ice",
+            "Ghost",
+            "Dark",
+            "Steel"
+        ],
+        "immune": [
+            "Psychic"
+        ],
+        "normal": [
+            "Normal",
+            "Electric",
+            "Poison",
+            "Flying",
+            "Bug",
+            "Dragon",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Dark-Flying": {
+        "double": [
+            "Electric",
+            "Ice",
+            "Rock",
+            "Fairy"
+        ],
+        "half": [
+            "Grass",
+            "Ghost",
+            "Dark"
+        ],
+        "immune": [
+            "Ground",
+            "Psychic"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Fighting",
+            "Poison",
+            "Flying",
+            "Bug",
+            "Dragon",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Dark-Ghost": {
+        "double": [
+            "Fairy"
+        ],
+        "half": [
+            "Poison"
+        ],
+        "immune": [
+            "Normal",
+            "Fighting",
+            "Psychic"
+        ],
+        "normal": [
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Ground",
+            "Flying",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Dark-Grass": {
+        "double": [
+            "Fire",
+            "Ice",
+            "Fighting",
+            "Poison",
+            "Flying",
+            "Fairy"
+        ],
+        "half": [
+            "Water",
+            "Electric",
+            "Grass",
+            "Ground",
+            "Ghost",
+            "Dark"
+        ],
+        "immune": [
+            "Psychic"
+        ],
+        "normal": [
+            "Normal",
+            "Rock",
+            "Dragon",
+            "Steel"
+        ],
+        "quad": [
+            "Bug"
+        ],
+        "quarter": [
+        ]
+    },
+    "Dark-Ground": {
+        "double": [
+            "Water",
+            "Grass",
+            "Ice",
+            "Fighting",
+            "Bug",
+            "Fairy"
+        ],
+        "half": [
+            "Poison",
+            "Rock",
+            "Ghost",
+            "Dark"
+        ],
+        "immune": [
+            "Electric",
+            "Psychic"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Ground",
+            "Flying",
+            "Dragon",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Dark-Ice": {
+        "double": [
+            "Fire",
+            "Bug",
+            "Rock",
+            "Steel",
+            "Fairy"
+        ],
+        "half": [
+            "Ice",
+            "Ghost",
+            "Dark"
+        ],
+        "immune": [
+            "Psychic"
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Electric",
+            "Grass",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Dragon"
+        ],
+        "quad": [
+            "Fighting"
+        ],
+        "quarter": [
+        ]
+    },
+    "Dark-Normal": {
+        "double": [
+            "Bug",
+            "Fairy"
+        ],
+        "half": [
+            "Dark"
+        ],
+        "immune": [
+            "Psychic",
+            "Ghost"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Rock",
+            "Dragon",
+            "Steel"
+        ],
+        "quad": [
+            "Fighting"
+        ],
+        "quarter": [
+        ]
+    },
+    "Dark-Poison": {
+        "double": [
+            "Ground"
+        ],
+        "half": [
+            "Grass",
+            "Poison",
+            "Ghost",
+            "Dark"
+        ],
+        "immune": [
+            "Psychic"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Ice",
+            "Fighting",
+            "Flying",
+            "Bug",
+            "Rock",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Dark-Psychic": {
+        "double": [
+            "Fairy"
+        ],
+        "half": [
+        ],
+        "immune": [
+            "Psychic"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Fighting",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+            "Bug"
+        ],
+        "quarter": [
+        ]
+    },
+    "Dark-Rock": {
+        "double": [
+            "Water",
+            "Grass",
+            "Ground",
+            "Bug",
+            "Steel",
+            "Fairy"
+        ],
+        "half": [
+            "Normal",
+            "Fire",
+            "Poison",
+            "Flying",
+            "Ghost",
+            "Dark"
+        ],
+        "immune": [
+            "Psychic"
+        ],
+        "normal": [
+            "Electric",
+            "Ice",
+            "Rock",
+            "Dragon"
+        ],
+        "quad": [
+            "Fighting"
+        ],
+        "quarter": [
+        ]
+    },
+    "Dark-Steel": {
+        "double": [
+            "Fire",
+            "Ground"
+        ],
+        "half": [
+            "Normal",
+            "Grass",
+            "Ice",
+            "Flying",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel"
+        ],
+        "immune": [
+            "Poison",
+            "Psychic"
+        ],
+        "normal": [
+            "Water",
+            "Electric",
+            "Bug",
+            "Fairy"
+        ],
+        "quad": [
+            "Fighting"
+        ],
+        "quarter": [
+        ]
+    },
+    "Dark-Water": {
+        "double": [
+            "Electric",
+            "Grass",
+            "Fighting",
+            "Bug",
+            "Fairy"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Ice",
+            "Ghost",
+            "Dark",
+            "Steel"
+        ],
+        "immune": [
+            "Psychic"
+        ],
+        "normal": [
+            "Normal",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Rock",
+            "Dragon"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Dragon": {
+        "double": [
+            "Ice",
+            "Dragon",
+            "Fairy"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fighting",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Dragon-Electric": {
+        "double": [
+            "Ice",
+            "Ground",
+            "Dragon",
+            "Fairy"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Grass",
+            "Flying",
+            "Steel"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fighting",
+            "Poison",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dark"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Electric"
+        ]
+    },
+    "Dragon-Fairy": {
+        "double": [
+            "Ice",
+            "Poison",
+            "Steel",
+            "Fairy"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Fighting",
+            "Bug",
+            "Dark"
+        ],
+        "immune": [
+            "Dragon"
+        ],
+        "normal": [
+            "Normal",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Rock",
+            "Ghost"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Dragon-Fighting": {
+        "double": [
+            "Ice",
+            "Flying",
+            "Psychic",
+            "Dragon"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Bug",
+            "Rock",
+            "Dark"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fighting",
+            "Poison",
+            "Ground",
+            "Ghost",
+            "Steel"
+        ],
+        "quad": [
+            "Fairy"
+        ],
+        "quarter": [
+        ]
+    },
+    "Dragon-Fire": {
+        "double": [
+            "Ground",
+            "Rock",
+            "Dragon"
+        ],
+        "half": [
+            "Electric",
+            "Bug",
+            "Steel"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Ice",
+            "Fighting",
+            "Poison",
+            "Flying",
+            "Psychic",
+            "Ghost",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Fire",
+            "Grass"
+        ]
+    },
+    "Dragon-Flying": {
+        "double": [
+            "Rock",
+            "Dragon",
+            "Fairy"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Fighting",
+            "Bug"
+        ],
+        "immune": [
+            "Ground"
+        ],
+        "normal": [
+            "Normal",
+            "Electric",
+            "Poison",
+            "Flying",
+            "Psychic",
+            "Ghost",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+            "Ice"
+        ],
+        "quarter": [
+            "Grass"
+        ]
+    },
+    "Dragon-Ghost": {
+        "double": [
+            "Ice",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Poison",
+            "Bug"
+        ],
+        "immune": [
+            "Normal",
+            "Fighting"
+        ],
+        "normal": [
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Rock",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Dragon-Grass": {
+        "double": [
+            "Poison",
+            "Flying",
+            "Bug",
+            "Dragon",
+            "Fairy"
+        ],
+        "half": [
+            "Ground"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Fighting",
+            "Psychic",
+            "Rock",
+            "Ghost",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+            "Ice"
+        ],
+        "quarter": [
+            "Water",
+            "Electric",
+            "Grass"
+        ]
+    },
+    "Dragon-Ground": {
+        "double": [
+            "Dragon",
+            "Fairy"
+        ],
+        "half": [
+            "Fire",
+            "Poison",
+            "Rock"
+        ],
+        "immune": [
+            "Electric"
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Grass",
+            "Fighting",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+            "Ice"
+        ],
+        "quarter": [
+        ]
+    },
+    "Dragon-Ice": {
+        "double": [
+            "Fighting",
+            "Rock",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "half": [
+            "Water",
+            "Electric",
+            "Grass"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Ice",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dark"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Dragon-Normal": {
+        "double": [
+            "Ice",
+            "Fighting",
+            "Dragon",
+            "Fairy"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass"
+        ],
+        "immune": [
+            "Ghost"
+        ],
+        "normal": [
+            "Normal",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Dragon-Poison": {
+        "double": [
+            "Ice",
+            "Ground",
+            "Psychic",
+            "Dragon"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Electric",
+            "Fighting",
+            "Poison",
+            "Bug"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Flying",
+            "Rock",
+            "Ghost",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Grass"
+        ]
+    },
+    "Dragon-Psychic": {
+        "double": [
+            "Ice",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Fighting",
+            "Psychic"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Rock",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Dragon-Rock": {
+        "double": [
+            "Ice",
+            "Fighting",
+            "Ground",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "half": [
+            "Normal",
+            "Electric",
+            "Poison",
+            "Flying"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Water",
+            "Grass",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dark"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Fire"
+        ]
+    },
+    "Dragon-Steel": {
+        "double": [
+            "Fighting",
+            "Ground"
+        ],
+        "half": [
+            "Normal",
+            "Water",
+            "Electric",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Steel"
+        ],
+        "immune": [
+            "Poison"
+        ],
+        "normal": [
+            "Fire",
+            "Ice",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Grass"
+        ]
+    },
+    "Dragon-Water": {
+        "double": [
+            "Dragon",
+            "Fairy"
+        ],
+        "half": [
+            "Steel"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Fighting",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dark"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Fire",
+            "Water"
+        ]
+    },
+    "Electric": {
+        "double": [
+            "Ground"
+        ],
+        "half": [
+            "Electric",
+            "Flying",
+            "Steel"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Grass",
+            "Ice",
+            "Fighting",
+            "Poison",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Electric-Fairy": {
+        "double": [
+            "Poison",
+            "Ground"
+        ],
+        "half": [
+            "Electric",
+            "Fighting",
+            "Flying",
+            "Bug",
+            "Dark"
+        ],
+        "immune": [
+            "Dragon"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Grass",
+            "Ice",
+            "Psychic",
+            "Rock",
+            "Ghost",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Electric-Fire": {
+        "double": [
+            "Water",
+            "Rock"
+        ],
+        "half": [
+            "Fire",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Flying",
+            "Bug",
+            "Fairy"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fighting",
+            "Poison",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark"
+        ],
+        "quad": [
+            "Ground"
+        ],
+        "quarter": [
+            "Steel"
+        ]
+    },
+    "Electric-Flying": {
+        "double": [
+            "Ice",
+            "Rock"
+        ],
+        "half": [
+            "Grass",
+            "Fighting",
+            "Flying",
+            "Bug",
+            "Steel"
+        ],
+        "immune": [
+            "Ground"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Poison",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Electric-Ghost": {
+        "double": [
+            "Ground",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Electric",
+            "Poison",
+            "Flying",
+            "Bug",
+            "Steel"
+        ],
+        "immune": [
+            "Normal",
+            "Fighting"
+        ],
+        "normal": [
+            "Fire",
+            "Water",
+            "Grass",
+            "Ice",
+            "Psychic",
+            "Rock",
+            "Dragon",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Electric-Grass": {
+        "double": [
+            "Fire",
+            "Ice",
+            "Poison",
+            "Bug"
+        ],
+        "half": [
+            "Water",
+            "Grass",
+            "Steel"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fighting",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Electric"
+        ]
+    },
+    "Electric-Ground": {
+        "double": [
+            "Water",
+            "Grass",
+            "Ice",
+            "Ground"
+        ],
+        "half": [
+            "Poison",
+            "Flying",
+            "Rock",
+            "Steel"
+        ],
+        "immune": [
+            "Electric"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Fighting",
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Electric-Ice": {
+        "double": [
+            "Fire",
+            "Fighting",
+            "Ground",
+            "Rock"
+        ],
+        "half": [
+            "Electric",
+            "Ice",
+            "Flying"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Grass",
+            "Poison",
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Electric-Normal": {
+        "double": [
+            "Fighting",
+            "Ground"
+        ],
+        "half": [
+            "Electric",
+            "Flying",
+            "Steel"
+        ],
+        "immune": [
+            "Ghost"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Grass",
+            "Ice",
+            "Poison",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Electric-Psychic": {
+        "double": [
+            "Ground",
+            "Bug",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Electric",
+            "Fighting",
+            "Flying",
+            "Psychic",
+            "Steel"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Grass",
+            "Ice",
+            "Poison",
+            "Rock",
+            "Dragon",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Electric-Rock": {
+        "double": [
+            "Water",
+            "Grass",
+            "Fighting"
+        ],
+        "half": [
+            "Normal",
+            "Fire",
+            "Electric",
+            "Poison"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Ice",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+            "Ground"
+        ],
+        "quarter": [
+            "Flying"
+        ]
+    },
+    "Electric-Steel": {
+        "double": [
+            "Fire",
+            "Fighting"
+        ],
+        "half": [
+            "Normal",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Dragon",
+            "Fairy"
+        ],
+        "immune": [
+            "Poison"
+        ],
+        "normal": [
+            "Water",
+            "Ghost",
+            "Dark"
+        ],
+        "quad": [
+            "Ground"
+        ],
+        "quarter": [
+            "Flying",
+            "Steel"
+        ]
+    },
+    "Electric-Water": {
+        "double": [
+            "Grass",
+            "Ground"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Ice",
+            "Flying"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Electric",
+            "Fighting",
+            "Poison",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Steel"
+        ]
+    },
+    "Fairy": {
+        "double": [
+            "Poison",
+            "Steel"
+        ],
+        "half": [
+            "Fighting",
+            "Bug",
+            "Dark"
+        ],
+        "immune": [
+            "Dragon"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Rock",
+            "Ghost",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Fairy-Flying": {
+        "double": [
+            "Electric",
+            "Ice",
+            "Poison",
+            "Rock",
+            "Steel"
+        ],
+        "half": [
+            "Grass",
+            "Dark"
+        ],
+        "immune": [
+            "Ground",
+            "Dragon"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Flying",
+            "Psychic",
+            "Ghost",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Fighting",
+            "Bug"
+        ]
+    },
+    "Fairy-Ghost": {
+        "double": [
+            "Ghost",
+            "Steel"
+        ],
+        "half": [
+        ],
+        "immune": [
+            "Normal",
+            "Fighting",
+            "Dragon"
+        ],
+        "normal": [
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Rock",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Bug"
+        ]
+    },
+    "Fairy-Grass": {
+        "double": [
+            "Fire",
+            "Ice",
+            "Flying",
+            "Steel"
+        ],
+        "half": [
+            "Water",
+            "Electric",
+            "Grass",
+            "Fighting",
+            "Ground",
+            "Dark"
+        ],
+        "immune": [
+            "Dragon"
+        ],
+        "normal": [
+            "Normal",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Fairy"
+        ],
+        "quad": [
+            "Poison"
+        ],
+        "quarter": [
+        ]
+    },
+    "Fairy-Ice": {
+        "double": [
+            "Fire",
+            "Poison",
+            "Rock"
+        ],
+        "half": [
+            "Ice",
+            "Bug",
+            "Dark"
+        ],
+        "immune": [
+            "Dragon"
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Electric",
+            "Grass",
+            "Fighting",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Ghost",
+            "Fairy"
+        ],
+        "quad": [
+            "Steel"
+        ],
+        "quarter": [
+        ]
+    },
+    "Fairy-Normal": {
+        "double": [
+            "Poison",
+            "Steel"
+        ],
+        "half": [
+            "Bug",
+            "Dark"
+        ],
+        "immune": [
+            "Ghost",
+            "Dragon"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Fighting",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Rock",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Fairy-Psychic": {
+        "double": [
+            "Poison",
+            "Ghost",
+            "Steel"
+        ],
+        "half": [
+            "Psychic"
+        ],
+        "immune": [
+            "Dragon"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Ground",
+            "Flying",
+            "Bug",
+            "Rock",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Fighting"
+        ]
+    },
+    "Fairy-Rock": {
+        "double": [
+            "Water",
+            "Grass",
+            "Ground"
+        ],
+        "half": [
+            "Normal",
+            "Fire",
+            "Flying",
+            "Bug",
+            "Dark"
+        ],
+        "immune": [
+            "Dragon"
+        ],
+        "normal": [
+            "Electric",
+            "Ice",
+            "Fighting",
+            "Poison",
+            "Psychic",
+            "Rock",
+            "Ghost",
+            "Fairy"
+        ],
+        "quad": [
+            "Steel"
+        ],
+        "quarter": [
+        ]
+    },
+    "Fairy-Steel": {
+        "double": [
+            "Fire",
+            "Ground"
+        ],
+        "half": [
+            "Normal",
+            "Grass",
+            "Ice",
+            "Flying",
+            "Psychic",
+            "Rock",
+            "Dark",
+            "Fairy"
+        ],
+        "immune": [
+            "Poison",
+            "Dragon"
+        ],
+        "normal": [
+            "Water",
+            "Electric",
+            "Fighting",
+            "Ghost",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Bug"
+        ]
+    },
+    "Fairy-Water": {
+        "double": [
+            "Electric",
+            "Grass",
+            "Poison"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Ice",
+            "Fighting",
+            "Bug",
+            "Dark"
+        ],
+        "immune": [
+            "Dragon"
+        ],
+        "normal": [
+            "Normal",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Rock",
+            "Ghost",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Fighting": {
+        "double": [
+            "Flying",
+            "Psychic",
+            "Fairy"
+        ],
+        "half": [
+            "Bug",
+            "Rock",
+            "Dark"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Fighting",
+            "Poison",
+            "Ground",
+            "Ghost",
+            "Dragon",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Fighting-Fire": {
+        "double": [
+            "Water",
+            "Ground",
+            "Flying",
+            "Psychic"
+        ],
+        "half": [
+            "Fire",
+            "Grass",
+            "Ice",
+            "Dark",
+            "Steel"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Electric",
+            "Fighting",
+            "Poison",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Bug"
+        ]
+    },
+    "Fighting-Flying": {
+        "double": [
+            "Electric",
+            "Ice",
+            "Flying",
+            "Psychic",
+            "Fairy"
+        ],
+        "half": [
+            "Grass",
+            "Fighting",
+            "Dark"
+        ],
+        "immune": [
+            "Ground"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Poison",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Bug"
+        ]
+    },
+    "Fighting-Ghost": {
+        "double": [
+            "Flying",
+            "Psychic",
+            "Ghost",
+            "Fairy"
+        ],
+        "half": [
+            "Poison",
+            "Rock"
+        ],
+        "immune": [
+            "Normal",
+            "Fighting"
+        ],
+        "normal": [
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Ground",
+            "Dragon",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Bug"
+        ]
+    },
+    "Fighting-Grass": {
+        "double": [
+            "Fire",
+            "Ice",
+            "Poison",
+            "Psychic",
+            "Fairy"
+        ],
+        "half": [
+            "Water",
+            "Electric",
+            "Grass",
+            "Ground",
+            "Rock",
+            "Dark"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fighting",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Steel"
+        ],
+        "quad": [
+            "Flying"
+        ],
+        "quarter": [
+        ]
+    },
+    "Fighting-Ice": {
+        "double": [
+            "Fire",
+            "Fighting",
+            "Flying",
+            "Psychic",
+            "Steel",
+            "Fairy"
+        ],
+        "half": [
+            "Ice",
+            "Bug",
+            "Dark"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Electric",
+            "Grass",
+            "Poison",
+            "Ground",
+            "Rock",
+            "Ghost",
+            "Dragon"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Fighting-Normal": {
+        "double": [
+            "Fighting",
+            "Flying",
+            "Psychic",
+            "Fairy"
+        ],
+        "half": [
+            "Bug",
+            "Rock",
+            "Dark"
+        ],
+        "immune": [
+            "Ghost"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Poison",
+            "Ground",
+            "Dragon",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Fighting-Poison": {
+        "double": [
+            "Ground",
+            "Flying"
+        ],
+        "half": [
+            "Grass",
+            "Fighting",
+            "Poison",
+            "Rock",
+            "Dark"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Ice",
+            "Ghost",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+            "Psychic"
+        ],
+        "quarter": [
+            "Bug"
+        ]
+    },
+    "Fighting-Psychic": {
+        "double": [
+            "Flying",
+            "Ghost",
+            "Fairy"
+        ],
+        "half": [
+            "Fighting",
+            "Rock"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Poison",
+            "Ground",
+            "Psychic",
+            "Bug",
+            "Dragon",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Fighting-Rock": {
+        "double": [
+            "Water",
+            "Grass",
+            "Fighting",
+            "Ground",
+            "Psychic",
+            "Steel",
+            "Fairy"
+        ],
+        "half": [
+            "Normal",
+            "Fire",
+            "Poison",
+            "Bug",
+            "Rock",
+            "Dark"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Electric",
+            "Ice",
+            "Flying",
+            "Ghost",
+            "Dragon"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Fighting-Steel": {
+        "double": [
+            "Fire",
+            "Fighting",
+            "Ground"
+        ],
+        "half": [
+            "Normal",
+            "Grass",
+            "Ice",
+            "Dragon",
+            "Dark",
+            "Steel"
+        ],
+        "immune": [
+            "Poison"
+        ],
+        "normal": [
+            "Water",
+            "Electric",
+            "Flying",
+            "Psychic",
+            "Ghost",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Bug",
+            "Rock"
+        ]
+    },
+    "Fighting-Water": {
+        "double": [
+            "Electric",
+            "Grass",
+            "Flying",
+            "Psychic",
+            "Fairy"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Ice",
+            "Bug",
+            "Rock",
+            "Dark",
+            "Steel"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fighting",
+            "Poison",
+            "Ground",
+            "Ghost",
+            "Dragon"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Fire": {
+        "double": [
+            "Water",
+            "Ground",
+            "Rock"
+        ],
+        "half": [
+            "Fire",
+            "Grass",
+            "Ice",
+            "Bug",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Electric",
+            "Fighting",
+            "Poison",
+            "Flying",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Fire-Flying": {
+        "double": [
+            "Water",
+            "Electric"
+        ],
+        "half": [
+            "Fire",
+            "Fighting",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+            "Ground"
+        ],
+        "normal": [
+            "Normal",
+            "Ice",
+            "Poison",
+            "Flying",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark"
+        ],
+        "quad": [
+            "Rock"
+        ],
+        "quarter": [
+            "Grass",
+            "Bug"
+        ]
+    },
+    "Fire-Ghost": {
+        "double": [
+            "Water",
+            "Ground",
+            "Rock",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Fire",
+            "Grass",
+            "Ice",
+            "Poison",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+            "Normal",
+            "Fighting"
+        ],
+        "normal": [
+            "Electric",
+            "Flying",
+            "Psychic",
+            "Dragon"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Bug"
+        ]
+    },
+    "Fire-Ground": {
+        "double": [
+            "Ground"
+        ],
+        "half": [
+            "Fire",
+            "Poison",
+            "Bug",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+            "Electric"
+        ],
+        "normal": [
+            "Normal",
+            "Grass",
+            "Ice",
+            "Fighting",
+            "Flying",
+            "Psychic",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark"
+        ],
+        "quad": [
+            "Water"
+        ],
+        "quarter": [
+        ]
+    },
+    "Fire-Normal": {
+        "double": [
+            "Water",
+            "Fighting",
+            "Ground",
+            "Rock"
+        ],
+        "half": [
+            "Fire",
+            "Grass",
+            "Ice",
+            "Bug",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+            "Ghost"
+        ],
+        "normal": [
+            "Normal",
+            "Electric",
+            "Poison",
+            "Flying",
+            "Psychic",
+            "Dragon",
+            "Dark"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Fire-Poison": {
+        "double": [
+            "Water",
+            "Psychic",
+            "Rock"
+        ],
+        "half": [
+            "Fire",
+            "Ice",
+            "Fighting",
+            "Poison",
+            "Steel"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Electric",
+            "Flying",
+            "Ghost",
+            "Dragon",
+            "Dark"
+        ],
+        "quad": [
+            "Ground"
+        ],
+        "quarter": [
+            "Grass",
+            "Bug",
+            "Fairy"
+        ]
+    },
+    "Fire-Psychic": {
+        "double": [
+            "Water",
+            "Ground",
+            "Rock",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Fire",
+            "Grass",
+            "Ice",
+            "Fighting",
+            "Psychic",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Electric",
+            "Poison",
+            "Flying",
+            "Bug",
+            "Dragon"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Fire-Rock": {
+        "double": [
+            "Fighting",
+            "Rock"
+        ],
+        "half": [
+            "Normal",
+            "Ice",
+            "Poison",
+            "Flying",
+            "Bug",
+            "Fairy"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Electric",
+            "Grass",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+            "Water",
+            "Ground"
+        ],
+        "quarter": [
+            "Fire"
+        ]
+    },
+    "Fire-Steel": {
+        "double": [
+            "Water",
+            "Fighting"
+        ],
+        "half": [
+            "Normal",
+            "Flying",
+            "Psychic",
+            "Dragon"
+        ],
+        "immune": [
+            "Poison"
+        ],
+        "normal": [
+            "Fire",
+            "Electric",
+            "Rock",
+            "Ghost",
+            "Dark"
+        ],
+        "quad": [
+            "Ground"
+        ],
+        "quarter": [
+            "Grass",
+            "Ice",
+            "Bug",
+            "Steel",
+            "Fairy"
+        ]
+    },
+    "Fire-Water": {
+        "double": [
+            "Electric",
+            "Ground",
+            "Rock"
+        ],
+        "half": [
+            "Bug",
+            "Fairy"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Grass",
+            "Fighting",
+            "Poison",
+            "Flying",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Fire",
+            "Ice",
+            "Steel"
+        ]
+    },
+    "Flying": {
+        "double": [
+            "Electric",
+            "Ice",
+            "Rock"
+        ],
+        "half": [
+            "Grass",
+            "Fighting",
+            "Bug"
+        ],
+        "immune": [
+            "Ground"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Poison",
+            "Flying",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Flying-Ghost": {
+        "double": [
+            "Electric",
+            "Ice",
+            "Rock",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Grass",
+            "Poison"
+        ],
+        "immune": [
+            "Normal",
+            "Fighting",
+            "Ground"
+        ],
+        "normal": [
+            "Fire",
+            "Water",
+            "Flying",
+            "Psychic",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Bug"
+        ]
+    },
+    "Flying-Grass": {
+        "double": [
+            "Fire",
+            "Poison",
+            "Flying",
+            "Rock"
+        ],
+        "half": [
+            "Water",
+            "Fighting"
+        ],
+        "immune": [
+            "Ground"
+        ],
+        "normal": [
+            "Normal",
+            "Electric",
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+            "Ice"
+        ],
+        "quarter": [
+            "Grass"
+        ]
+    },
+    "Flying-Ground": {
+        "double": [
+            "Water"
+        ],
+        "half": [
+            "Fighting",
+            "Poison",
+            "Bug"
+        ],
+        "immune": [
+            "Electric",
+            "Ground"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Grass",
+            "Flying",
+            "Psychic",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+            "Ice"
+        ],
+        "quarter": [
+        ]
+    },
+    "Flying-Ice": {
+        "double": [
+            "Fire",
+            "Electric",
+            "Steel"
+        ],
+        "half": [
+            "Grass",
+            "Bug"
+        ],
+        "immune": [
+            "Ground"
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Ice",
+            "Fighting",
+            "Poison",
+            "Flying",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+            "Rock"
+        ],
+        "quarter": [
+        ]
+    },
+    "Flying-Normal": {
+        "double": [
+            "Electric",
+            "Ice",
+            "Rock"
+        ],
+        "half": [
+            "Grass",
+            "Bug"
+        ],
+        "immune": [
+            "Ground",
+            "Ghost"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Fighting",
+            "Poison",
+            "Flying",
+            "Psychic",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Flying-Poison": {
+        "double": [
+            "Electric",
+            "Ice",
+            "Psychic",
+            "Rock"
+        ],
+        "half": [
+            "Poison",
+            "Fairy"
+        ],
+        "immune": [
+            "Ground"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Flying",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Grass",
+            "Fighting",
+            "Bug"
+        ]
+    },
+    "Flying-Psychic": {
+        "double": [
+            "Electric",
+            "Ice",
+            "Rock",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Grass",
+            "Psychic"
+        ],
+        "immune": [
+            "Ground"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Poison",
+            "Flying",
+            "Bug",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Fighting"
+        ]
+    },
+    "Flying-Rock": {
+        "double": [
+            "Water",
+            "Electric",
+            "Ice",
+            "Rock",
+            "Steel"
+        ],
+        "half": [
+            "Normal",
+            "Fire",
+            "Poison",
+            "Flying",
+            "Bug"
+        ],
+        "immune": [
+            "Ground"
+        ],
+        "normal": [
+            "Grass",
+            "Fighting",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Flying-Steel": {
+        "double": [
+            "Fire",
+            "Electric"
+        ],
+        "half": [
+            "Normal",
+            "Flying",
+            "Psychic",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+            "Poison",
+            "Ground"
+        ],
+        "normal": [
+            "Water",
+            "Ice",
+            "Fighting",
+            "Rock",
+            "Ghost",
+            "Dark"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Grass",
+            "Bug"
+        ]
+    },
+    "Flying-Water": {
+        "double": [
+            "Rock"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Fighting",
+            "Bug",
+            "Steel"
+        ],
+        "immune": [
+            "Ground"
+        ],
+        "normal": [
+            "Normal",
+            "Grass",
+            "Ice",
+            "Poison",
+            "Flying",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+            "Electric"
+        ],
+        "quarter": [
+        ]
+    },
+    "Ghost": {
+        "double": [
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Poison",
+            "Bug"
+        ],
+        "immune": [
+            "Normal",
+            "Fighting"
+        ],
+        "normal": [
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Rock",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Ghost-Grass": {
+        "double": [
+            "Fire",
+            "Ice",
+            "Flying",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Water",
+            "Electric",
+            "Grass",
+            "Ground"
+        ],
+        "immune": [
+            "Normal",
+            "Fighting"
+        ],
+        "normal": [
+            "Poison",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Ghost-Ground": {
+        "double": [
+            "Water",
+            "Grass",
+            "Ice",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Bug",
+            "Rock"
+        ],
+        "immune": [
+            "Normal",
+            "Electric",
+            "Fighting"
+        ],
+        "normal": [
+            "Fire",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Poison"
+        ]
+    },
+    "Ghost-Ice": {
+        "double": [
+            "Fire",
+            "Rock",
+            "Ghost",
+            "Dark",
+            "Steel"
+        ],
+        "half": [
+            "Ice",
+            "Poison",
+            "Bug"
+        ],
+        "immune": [
+            "Normal",
+            "Fighting"
+        ],
+        "normal": [
+            "Water",
+            "Electric",
+            "Grass",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Dragon",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Ghost-Poison": {
+        "double": [
+            "Ground",
+            "Psychic",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Grass",
+            "Fairy"
+        ],
+        "immune": [
+            "Normal",
+            "Fighting"
+        ],
+        "normal": [
+            "Fire",
+            "Water",
+            "Electric",
+            "Ice",
+            "Flying",
+            "Rock",
+            "Dragon",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Poison",
+            "Bug"
+        ]
+    },
+    "Ghost-Psychic": {
+        "double": [
+        ],
+        "half": [
+            "Poison",
+            "Psychic"
+        ],
+        "immune": [
+            "Normal",
+            "Fighting"
+        ],
+        "normal": [
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Ground",
+            "Flying",
+            "Bug",
+            "Rock",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+            "Ghost",
+            "Dark"
+        ],
+        "quarter": [
+        ]
+    },
+    "Ghost-Steel": {
+        "double": [
+            "Fire",
+            "Ground",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Grass",
+            "Ice",
+            "Flying",
+            "Psychic",
+            "Rock",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+            "Normal",
+            "Fighting",
+            "Poison"
+        ],
+        "normal": [
+            "Water",
+            "Electric"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Bug"
+        ]
+    },
+    "Ghost-Water": {
+        "double": [
+            "Electric",
+            "Grass",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Ice",
+            "Poison",
+            "Bug",
+            "Steel"
+        ],
+        "immune": [
+            "Normal",
+            "Fighting"
+        ],
+        "normal": [
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Rock",
+            "Dragon",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Grass": {
+        "double": [
+            "Fire",
+            "Ice",
+            "Poison",
+            "Flying",
+            "Bug"
+        ],
+        "half": [
+            "Water",
+            "Electric",
+            "Grass",
+            "Ground"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fighting",
+            "Psychic",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Grass-Ground": {
+        "double": [
+            "Fire",
+            "Flying",
+            "Bug"
+        ],
+        "half": [
+            "Ground",
+            "Rock"
+        ],
+        "immune": [
+            "Electric"
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Grass",
+            "Fighting",
+            "Poison",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+            "Ice"
+        ],
+        "quarter": [
+        ]
+    },
+    "Grass-Ice": {
+        "double": [
+            "Fighting",
+            "Poison",
+            "Flying",
+            "Bug",
+            "Rock",
+            "Steel"
+        ],
+        "half": [
+            "Water",
+            "Electric",
+            "Grass",
+            "Ground"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Ice",
+            "Psychic",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+            "Fire"
+        ],
+        "quarter": [
+        ]
+    },
+    "Grass-Normal": {
+        "double": [
+            "Fire",
+            "Ice",
+            "Fighting",
+            "Poison",
+            "Flying",
+            "Bug"
+        ],
+        "half": [
+            "Water",
+            "Electric",
+            "Grass",
+            "Ground"
+        ],
+        "immune": [
+            "Ghost"
+        ],
+        "normal": [
+            "Normal",
+            "Psychic",
+            "Rock",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Grass-Poison": {
+        "double": [
+            "Fire",
+            "Ice",
+            "Flying",
+            "Psychic"
+        ],
+        "half": [
+            "Water",
+            "Electric",
+            "Fighting",
+            "Fairy"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Poison",
+            "Ground",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Grass"
+        ]
+    },
+    "Grass-Psychic": {
+        "double": [
+            "Fire",
+            "Ice",
+            "Poison",
+            "Flying",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Water",
+            "Electric",
+            "Grass",
+            "Fighting",
+            "Ground",
+            "Psychic"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Rock",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+            "Bug"
+        ],
+        "quarter": [
+        ]
+    },
+    "Grass-Rock": {
+        "double": [
+            "Ice",
+            "Fighting",
+            "Bug",
+            "Steel"
+        ],
+        "half": [
+            "Normal",
+            "Electric"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Fire",
+            "Water",
+            "Grass",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Grass-Steel": {
+        "double": [
+            "Fighting"
+        ],
+        "half": [
+            "Normal",
+            "Water",
+            "Electric",
+            "Psychic",
+            "Rock",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+            "Poison"
+        ],
+        "normal": [
+            "Ice",
+            "Ground",
+            "Flying",
+            "Bug",
+            "Ghost",
+            "Dark"
+        ],
+        "quad": [
+            "Fire"
+        ],
+        "quarter": [
+            "Grass"
+        ]
+    },
+    "Grass-Water": {
+        "double": [
+            "Poison",
+            "Flying",
+            "Bug"
+        ],
+        "half": [
+            "Ground",
+            "Steel"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Fighting",
+            "Psychic",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Water"
+        ]
+    },
+    "Ground": {
+        "double": [
+            "Water",
+            "Grass",
+            "Ice"
+        ],
+        "half": [
+            "Poison",
+            "Rock"
+        ],
+        "immune": [
+            "Electric"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Fighting",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Ground-Ice": {
+        "double": [
+            "Fire",
+            "Water",
+            "Grass",
+            "Fighting",
+            "Steel"
+        ],
+        "half": [
+            "Poison"
+        ],
+        "immune": [
+            "Electric"
+        ],
+        "normal": [
+            "Normal",
+            "Ice",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Ground-Normal": {
+        "double": [
+            "Water",
+            "Grass",
+            "Ice",
+            "Fighting"
+        ],
+        "half": [
+            "Poison",
+            "Rock"
+        ],
+        "immune": [
+            "Electric",
+            "Ghost"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Ground-Poison": {
+        "double": [
+            "Water",
+            "Ice",
+            "Ground",
+            "Psychic"
+        ],
+        "half": [
+            "Fighting",
+            "Bug",
+            "Rock",
+            "Fairy"
+        ],
+        "immune": [
+            "Electric"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Grass",
+            "Flying",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Poison"
+        ]
+    },
+    "Ground-Psychic": {
+        "double": [
+            "Water",
+            "Grass",
+            "Ice",
+            "Bug",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Fighting",
+            "Poison",
+            "Psychic",
+            "Rock"
+        ],
+        "immune": [
+            "Electric"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Ground",
+            "Flying",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Ground-Rock": {
+        "double": [
+            "Ice",
+            "Fighting",
+            "Ground",
+            "Steel"
+        ],
+        "half": [
+            "Normal",
+            "Fire",
+            "Flying",
+            "Rock"
+        ],
+        "immune": [
+            "Electric"
+        ],
+        "normal": [
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+            "Water",
+            "Grass"
+        ],
+        "quarter": [
+            "Poison"
+        ]
+    },
+    "Ground-Steel": {
+        "double": [
+            "Fire",
+            "Water",
+            "Fighting",
+            "Ground"
+        ],
+        "half": [
+            "Normal",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+            "Electric",
+            "Poison"
+        ],
+        "normal": [
+            "Grass",
+            "Ice",
+            "Ghost",
+            "Dark"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Rock"
+        ]
+    },
+    "Ground-Water": {
+        "double": [
+        ],
+        "half": [
+            "Fire",
+            "Poison",
+            "Rock",
+            "Steel"
+        ],
+        "immune": [
+            "Electric"
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Ice",
+            "Fighting",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+            "Grass"
+        ],
+        "quarter": [
+        ]
+    },
+    "Ice": {
+        "double": [
+            "Fire",
+            "Fighting",
+            "Rock",
+            "Steel"
+        ],
+        "half": [
+            "Ice"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Electric",
+            "Grass",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Ice-Psychic": {
+        "double": [
+            "Fire",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dark",
+            "Steel"
+        ],
+        "half": [
+            "Ice",
+            "Psychic"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Water",
+            "Electric",
+            "Grass",
+            "Fighting",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Dragon",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Ice-Rock": {
+        "double": [
+            "Water",
+            "Grass",
+            "Ground",
+            "Rock"
+        ],
+        "half": [
+            "Normal",
+            "Ice",
+            "Poison",
+            "Flying"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Fire",
+            "Electric",
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+            "Fighting",
+            "Steel"
+        ],
+        "quarter": [
+        ]
+    },
+    "Ice-Steel": {
+        "double": [
+            "Ground"
+        ],
+        "half": [
+            "Normal",
+            "Grass",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Dragon",
+            "Fairy"
+        ],
+        "immune": [
+            "Poison"
+        ],
+        "normal": [
+            "Water",
+            "Electric",
+            "Rock",
+            "Ghost",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+            "Fire",
+            "Fighting"
+        ],
+        "quarter": [
+            "Ice"
+        ]
+    },
+    "Ice-Water": {
+        "double": [
+            "Electric",
+            "Grass",
+            "Fighting",
+            "Rock"
+        ],
+        "half": [
+            "Water"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Ice"
+        ]
+    },
+    "Normal": {
+        "double": [
+            "Fighting"
+        ],
+        "half": [
+        ],
+        "immune": [
+            "Ghost"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Normal-Psychic": {
+        "double": [
+            "Bug",
+            "Dark"
+        ],
+        "half": [
+            "Psychic"
+        ],
+        "immune": [
+            "Ghost"
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Fighting",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Rock",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Normal-Water": {
+        "double": [
+            "Electric",
+            "Grass",
+            "Fighting"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Ice",
+            "Steel"
+        ],
+        "immune": [
+            "Ghost"
+        ],
+        "normal": [
+            "Normal",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Poison": {
+        "double": [
+            "Ground",
+            "Psychic"
+        ],
+        "half": [
+            "Grass",
+            "Fighting",
+            "Poison",
+            "Bug",
+            "Fairy"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Ice",
+            "Flying",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Poison-Rock": {
+        "double": [
+            "Water",
+            "Psychic",
+            "Steel"
+        ],
+        "half": [
+            "Normal",
+            "Fire",
+            "Flying",
+            "Bug",
+            "Fairy"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Electric",
+            "Grass",
+            "Ice",
+            "Fighting",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark"
+        ],
+        "quad": [
+            "Ground"
+        ],
+        "quarter": [
+            "Poison"
+        ]
+    },
+    "Poison-Water": {
+        "double": [
+            "Electric",
+            "Ground",
+            "Psychic"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Ice",
+            "Fighting",
+            "Poison",
+            "Bug",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Grass",
+            "Flying",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Psychic": {
+        "double": [
+            "Bug",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Fighting",
+            "Psychic"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fire",
+            "Water",
+            "Electric",
+            "Grass",
+            "Ice",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Rock",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Psychic-Rock": {
+        "double": [
+            "Water",
+            "Grass",
+            "Ground",
+            "Bug",
+            "Ghost",
+            "Dark",
+            "Steel"
+        ],
+        "half": [
+            "Normal",
+            "Fire",
+            "Poison",
+            "Flying",
+            "Psychic"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Electric",
+            "Ice",
+            "Fighting",
+            "Rock",
+            "Dragon",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Psychic-Steel": {
+        "double": [
+            "Fire",
+            "Ground",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Normal",
+            "Grass",
+            "Ice",
+            "Flying",
+            "Rock",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+            "Poison"
+        ],
+        "normal": [
+            "Water",
+            "Electric",
+            "Fighting",
+            "Bug"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Psychic"
+        ]
+    },
+    "Psychic-Water": {
+        "double": [
+            "Electric",
+            "Grass",
+            "Bug",
+            "Ghost",
+            "Dark"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Ice",
+            "Fighting",
+            "Psychic",
+            "Steel"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Rock",
+            "Dragon",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Rock": {
+        "double": [
+            "Water",
+            "Grass",
+            "Fighting",
+            "Ground",
+            "Steel"
+        ],
+        "half": [
+            "Normal",
+            "Fire",
+            "Poison",
+            "Flying"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Electric",
+            "Ice",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Rock-Steel": {
+        "double": [
+            "Water"
+        ],
+        "half": [
+            "Ice",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Dragon",
+            "Fairy"
+        ],
+        "immune": [
+            "Poison"
+        ],
+        "normal": [
+            "Fire",
+            "Electric",
+            "Grass",
+            "Ghost",
+            "Dark",
+            "Steel"
+        ],
+        "quad": [
+            "Fighting",
+            "Ground"
+        ],
+        "quarter": [
+            "Normal",
+            "Flying"
+        ]
+    },
+    "Rock-Water": {
+        "double": [
+            "Electric",
+            "Fighting",
+            "Ground"
+        ],
+        "half": [
+            "Normal",
+            "Ice",
+            "Poison",
+            "Flying"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Water",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Steel",
+            "Fairy"
+        ],
+        "quad": [
+            "Grass"
+        ],
+        "quarter": [
+            "Fire"
+        ]
+    },
+    "Steel": {
+        "double": [
+            "Fire",
+            "Fighting",
+            "Ground"
+        ],
+        "half": [
+            "Normal",
+            "Grass",
+            "Ice",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Dragon",
+            "Steel",
+            "Fairy"
+        ],
+        "immune": [
+            "Poison"
+        ],
+        "normal": [
+            "Water",
+            "Electric",
+            "Ghost",
+            "Dark"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    },
+    "Steel-Water": {
+        "double": [
+            "Electric",
+            "Fighting",
+            "Ground"
+        ],
+        "half": [
+            "Normal",
+            "Water",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Dragon",
+            "Fairy"
+        ],
+        "immune": [
+            "Poison"
+        ],
+        "normal": [
+            "Fire",
+            "Grass",
+            "Ghost",
+            "Dark"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+            "Ice",
+            "Steel"
+        ]
+    },
+    "Water": {
+        "double": [
+            "Electric",
+            "Grass"
+        ],
+        "half": [
+            "Fire",
+            "Water",
+            "Ice",
+            "Steel"
+        ],
+        "immune": [
+        ],
+        "normal": [
+            "Normal",
+            "Fighting",
+            "Poison",
+            "Ground",
+            "Flying",
+            "Psychic",
+            "Bug",
+            "Rock",
+            "Ghost",
+            "Dragon",
+            "Dark",
+            "Fairy"
+        ],
+        "quad": [
+        ],
+        "quarter": [
+        ]
+    }
+}

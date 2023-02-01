@@ -1,5 +1,5 @@
 {
-    "Kanto.dst": {
+    "Gen-1-Kanto.dst": {
         "G1": {
             "attack": [
                 "Normal"
@@ -117,7 +117,7 @@
             ]
         }
     },
-    "Paldea.dst": {
+    "Gen-9-Paldea.dst": {
         "G1": {
             "attack": [
                 "Bug",
@@ -272,7 +272,7 @@
             ]
         }
     },
-    "Sinnoh.dst": {
+    "Gen-4-Sinnoh.dst": {
         "G1": {
             "attack": [
                 "Rock",

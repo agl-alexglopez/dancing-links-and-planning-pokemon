@@ -223,9 +223,9 @@ GPoint logicalToPhysical(const GPoint& pt, const Geometry& geo) {
  * are adjacent to lit cities.
  */
 void drawRoads(GWindow& window,
-               const Geometry& geo,
-               const MapTest& network,
-               const MapDrawSelection userSelection) {
+                const Geometry& geo,
+                const MapTest& network,
+                const MapDrawSelection userSelection) {
     /* For efficiency's sake, just create one line. */
     GLine toDraw;
     toDraw.setLineWidth(kRoadWidth);
@@ -281,9 +281,9 @@ std::string shorthandFor(const std::string& name) {
  * selected set.
  */
 void drawCities(GWindow& window,
-                const Geometry& geo,
-                const MapTest& network,
-                const std::set<std::string>& selected) {
+                 const Geometry& geo,
+                 const MapTest& network,
+                 const std::set<std::string>& selected) {
 
     /* For simplicity, just make a single oval. */
     GOval oval(0, 0, 2 * kCityRadius, 2 * kCityRadius);
