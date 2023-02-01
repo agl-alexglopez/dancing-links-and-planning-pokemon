@@ -388,7 +388,4 @@ For the `all-maps.json` file, I got the information on gyms and the attack and d
 
 ## Next Steps
 
-I had to check different Pokémon types against the generation in which they were introduced, especially for generation 1. This was very slow work. Ideally, I would create a `json` file for each generation--the one I use now is based on all types up to gen 9 and I just filter out types I don't need for a lower generation--but I haven't yet found a resource that breaks down Pokémon types by generation introduced. Beyond just the major introductions of new types like Steel, Dark, and Fairy, there were many new mixes on types that have been present since gen 1 scattered throughout the franchise timeline. I will try to find a way, and the time, to do this generation breakdown so I can keep the most accurate information for the cover problem. Apologies if some earlier generation maps have a few inaccuracies.
-
 I would like to visualize the cover problems in greater detail on a website and will try to put together a graph cover visualizer soon. Thanks for reading!
-
