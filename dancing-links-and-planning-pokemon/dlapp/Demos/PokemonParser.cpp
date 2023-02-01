@@ -64,6 +64,7 @@ const QString JSON_ALL_MAPS_FILE = "res/json/all-maps.json";
 const QString GYM_ATTACKS_KEY = "attack";
 const QString GYM_DEFENSE_KEY = "defense";
 
+// There is no 0th generation so we will make it easier to select the right file by leaving 0 "".
 const std::vector<QString> GENERATION_JSON_FILES = {
     "",
     "res/json/gen-1-types.json",
