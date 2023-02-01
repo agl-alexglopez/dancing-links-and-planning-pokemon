@@ -1,0 +1,14 @@
+# 2
+# This file contains that Generation 2 map for the Johto region from Pokemon Gold and Silver. We
+# use the most modern type interaction rules but only make the types available that existed at the
+# time of the gen 2 games.
+
+G1 (7, 5): G4, G8, G3, E4
+G2 (6, 8): G3, G1
+G3 (5, 6): G2, G1, G4
+G4 (6, 4): G8, G1, G6, G7
+G5 (2, 6):
+G6 (4, 5): G4
+G7 (8, 4): G4, G8
+G8 (10, 4): G7, E4
+E4 (14, 5): G8, G1

@@ -1,0 +1,12 @@
+# 3
+# This file contains the Hoenn map from generation 3 of Pokemon Ruby, Saphire, and Emerald.
+
+G1 (1, 3): G3, G4
+G2 (2, 5):
+G3 (4, 3): G1, G4, G6
+G4 (3, 2): G3, G1
+G5 (2, 4): G3
+G6 (5, 1): G3
+G7 (9, 3):
+G8 (8, 4):
+E4 (10, 5):
