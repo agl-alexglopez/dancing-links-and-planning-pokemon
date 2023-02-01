@@ -33,10 +33,14 @@ See the examples in the .dst files for more details.
 
 ## Citations
 
-For the `all-types.json` file, I got the information on type interactions from the following website.
+For the `gen-X-types.json` file, I got the information on type interactions from the following website.
 
-- https://pokemondb.net
+- [pokemondb.net](https://pokemondb.net)
+
+For the `types-introduced-by-gen.json` file, I got the information on when every type was introduced from the following website. Please note I decided against their approach to counting types retroactively based on changes made in later generations by GameFreak.
+
+- [bullpapedia.com](https://bulbapedia.bulbagarden.net/wiki/Type)
 
 For the `all-maps.json` file, I got the information on gyms and the attack and defensive types present from the following website.
 
-- https://serebii.net
+- [serebii.net](https://serebii.net)
