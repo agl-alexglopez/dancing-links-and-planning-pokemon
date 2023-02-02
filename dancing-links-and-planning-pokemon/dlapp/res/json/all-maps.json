@@ -560,6 +560,179 @@
             ]
         }
     },
+    "Gen-5-Unova2.dst": {
+        "G1": {
+            "attack": [
+                "Normal",
+                "Dark"
+            ],
+            "defense": [
+                "Normal",
+                "Flying-Normal"
+            ]
+        },
+        "G2": {
+            "attack": [
+                "Poison",
+                "Normal",
+                "Ground",
+                "Rock"
+            ],
+            "defense": [
+                "Poison",
+                "Bug-Poison"
+            ]
+        },
+        "G3": {
+            "attack": [
+                "Bug",
+                "Rock",
+                "Dark",
+                "Grass",
+                "Poison",
+                "Ghost",
+                "Flying"
+            ],
+            "defense": [
+                "Bug-Rock",
+                "Bug",
+                "Bug-Grass"
+            ]
+        },
+        "G4": {
+            "attack": [
+                "Electric",
+                "Flying",
+                "Normal",
+                "Dark",
+                "Bug",
+                "Grass",
+                "Fire",
+                "Ghost"
+            ],
+            "defense": [
+                "Electric-Flying",
+                "Electric",
+                "Bug-Electric"
+            ]
+        },
+        "G5": {
+            "attack": [
+                "Rock",
+                "Ground",
+                "Dark",
+                "Rock",
+                "Normal",
+                "Steel"
+            ],
+            "defense": [
+                "Dark-Ground",
+                "Ground",
+                "Ground-Rock",
+                "Ground-Steel"
+            ]
+        },
+        "G6": {
+            "attack": [
+                "Psychic",
+                "Flying",
+                "Grass",
+                "Bug",
+                "Steel",
+                "Water"
+            ],
+            "defense": [
+                "Flying-Psychic",
+                "Flying-Steel",
+                "Flying-Water"
+            ]
+        },
+        "G7": {
+            "attack": [
+                "Dragon",
+                "Fighting",
+                "Rock",
+                "Dark",
+                "Ground",
+                "Normal",
+                "Fire",
+                "Bug"
+            ],
+            "defense": [
+                "Dragon",
+                "Dragon-Ground",
+                "Dragon-Flying"
+            ]
+        },
+        "G8": {
+            "attack": [
+                "Water",
+                "Ice",
+                "Ground",
+                "Dark",
+                "Rock",
+                "Normal",
+                "Flying",
+                "Ghost",
+                "Grass"
+            ],
+            "defense": [
+                "Rock-Water",
+                "Water",
+                "Flying-Water",
+                "Ghost-Water"
+            ]
+        },
+        "E4": {
+            "attack": [
+                "Fire",
+                "Grass",
+                "Psychic",
+                "Ghost",
+                "Electric",
+                "Flying",
+                "Steel",
+                "Ground",
+                "Fighting",
+                "Dark",
+                "Grass",
+                "Normal",
+                "Poison",
+                "Rock",
+                "Dragon",
+                "Bug",
+                "Ice",
+                "Water"
+            ],
+            "defense": [
+                "Ghost",
+                "Flying-Ghost",
+                "Ghost-Ground",
+                "Fire-Ghost",
+                "Dark",
+                "Dark-Fighting",
+                "Dark-Ground",
+                "Dark-Steel",
+                "Psychic",
+                "Flying-Psychic",
+                "Psychic-Steel",
+                "Fighting",
+                "Fighting-Steel",
+                "Dark-Dragon",
+                "Dragon",
+                "Flying-Rock",
+                "Rock-Steel",
+                "Ice-Water",
+                "Ghost-Poison",
+                "Ghost-Ice",
+                "Dark-Flying",
+                "Dark-Fire",
+                "Dark-Rock",
+                "Fighting-Psychic",
+                "Dragon-Flying"
+            ]
+        }
+    },
     "Gen-6-Kalos.dst": {
         "G1": {
             "attack": [
