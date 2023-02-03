@@ -1,0 +1,15 @@
+# 8
+# This file contains the map of Galar from Generation 8's Pokemon Sword and Sheild. If any alternate
+# Gym typings are present based on the game version or starter you pick, they are just lumped
+# together into the types and attacks present at a gym or the final tournament. The "Elite 4" in
+# this game is actually a tournament called the Champion's Cup (CC).
+
+G1 (2, 13): G2, G3
+G2 (6, 13): G1, G3, G8, G7
+G3 (4, 15): G1, G2
+G4 (2, 10): G5, G8
+G5 (2, 8): G4
+G6 (7, 9): G7, G8
+G7 (8, 11): G6, G8, G2
+G8 (4, 11): G4, G7, G6, CC
+CC (4, 5): G8

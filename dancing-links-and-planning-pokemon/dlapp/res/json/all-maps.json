@@ -1034,6 +1034,189 @@
             ]
         }
     },
+    "Gen-8-Galar.dst": {
+        "G1": {
+            "attack": [
+                "Grass",
+                "Normal"
+            ],
+            "defense": [
+                "Grass"
+            ]
+        },
+        "G2": {
+            "attack": [
+                "Water",
+                "Normal",
+                "Dark"
+            ],
+            "defense": [
+                "Water",
+                "Rock-Water"
+            ]
+        },
+        "G3": {
+            "attack": [
+                "Fire",
+                "Normal",
+                "Dark",
+                "Poison",
+                "Bug"
+            ],
+            "defense": [
+                "Fire",
+                "Bug-Fire"
+            ]
+        },
+        "G4": {
+            "attack": [
+                "Fighting",
+                "Normal",
+                "Steel",
+                "Dark",
+                "Ghost",
+                "Normal",
+                "Fairy",
+                "Rock",
+                "Psychic",
+                "Poison"
+            ],
+            "defense": [
+                "Fighting",
+                "Dark-Fighting",
+                "Ghost-Ground",
+                "Fairy-Ghost",
+                "Ghost",
+                "Ghost-Poison"
+            ]
+        },
+        "G5": {
+            "attack": [
+                "Poison",
+                "Fairy",
+                "Normal",
+                "Fairy",
+                "Dark",
+                "Ghost",
+                "Flying",
+                "Rock"
+            ],
+            "defense": [
+                "Fairy-Poison",
+                "Fairy-Steel",
+                "Fairy-Flying",
+                "Fairy"
+            ]
+        },
+        "G6": {
+            "attack": [
+                "Normal",
+                "Rock",
+                "Water",
+                "Bug",
+                "Fire",
+                "Ice",
+                "Water"
+            ],
+            "defense": [
+                "Rock-Water",
+                "Bug-Rock",
+                "Rock",
+                "Fire-Rock",
+                "Bug-Ice",
+                "Ice",
+                "Ice-Water"
+            ]
+        },
+        "G7": {
+            "attack": [
+                "Dark",
+                "Ground",
+                "Fighting",
+                "Psychic",
+                "Poison",
+                "Ghost"
+            ],
+            "defense": [
+                "Dark-Fighting",
+                "Dark-Psychic",
+                "Dark-Poison",
+                "Dark-Normal"
+            ]
+        },
+        "G8": {
+            "attack": [
+                "Rock",
+                "Ground",
+                "Fighting",
+                "Electric",
+                "Dark",
+                "Steel",
+                "Dragon",
+                "Fire"
+            ],
+            "defense": [
+                "Rock",
+                "Dragon-Ground",
+                "Ground",
+                "Dragon-Steel"
+            ]
+        },
+        "CC": {
+            "attack": [
+                "Dark",
+                "Poison",
+                "Fighting",
+                "Grass",
+                "Electric",
+                "Fairy",
+                "Normal",
+                "Psychic",
+                "Steel",
+                "Flying",
+                "Ghost",
+                "Ground",
+                "Water",
+                "Ice",
+                "Fire",
+                "Bug",
+                "Rock",
+                "Dragon"
+            ],
+            "defense": [
+                "Dark",
+                "Fighting-Poison",
+                "Dark-Fighting",
+                "Dark-Electric",
+                "Dark-Fairy",
+                "Normal",
+                "Flying-Steel",
+                "Electric",
+                "Water",
+                "Grass",
+                "Fire",
+                "Fairy-Psychic",
+                "Bug-Water",
+                "Flying-Water",
+                "Rock-Water",
+                "Fighting-Flying",
+                "Fighting",
+                "Ghost",
+                "Fire-Ghost",
+                "Ghost-Poison",
+                "Dragon",
+                "Dragon-Fire",
+                "Dragon-Ground",
+                "Dragon-Steel",
+                "Ghost-Steel",
+                "Dragon-Ghost",
+                "Ground-Water",
+                "Fire-Flying",
+                "Ice-Psychic",
+                "Ground-Rock"
+            ]
+        }
+    },
     "Gen-9-Paldea.dst": {
         "G1": {
             "attack": [
