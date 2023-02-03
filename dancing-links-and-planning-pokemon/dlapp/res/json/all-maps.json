@@ -881,6 +881,159 @@
             ]
         }
     },
+    "Gen-7-AlolaUltra.dst": {
+        "C1": {
+            "attack": [
+                "Normal",
+                "Fire",
+                "Water",
+                "Dark",
+                "Grass",
+                "Psychic"
+            ],
+            "defense": [
+                "Normal"
+            ]
+        },
+        "C2": {
+            "attack": [
+                "Water",
+                "Electric",
+                "Ice",
+                "Ground",
+                "Normal",
+                "Bug",
+                "Dark"
+            ],
+            "defense": [
+                "Electric-Water",
+                "Ice-Water",
+                "Bug-Water"
+            ]
+        },
+        "C3": {
+            "attack": [
+                "Dark",
+                "Fire",
+                "Normal",
+                "Flying",
+                "Ghost",
+                "Ground"
+            ],
+            "defense": [
+                "Fire",
+                "Fire-Flying",
+                "Fire-Ghost"
+            ]
+        },
+        "C4": {
+            "attack": [
+                "Grass",
+                "Ghost",
+                "Fairy",
+                "Psychic",
+                "Fighting",
+                "Bug"
+            ],
+            "defense": [
+                "Ghost-Grass",
+                "Fairy-Grass",
+                "Grass"
+            ]
+        },
+        "C5": {
+            "attack": [
+                "Electric",
+                "Grass",
+                "Bug",
+                "Steel",
+                "Normal",
+                "Fire",
+                "Flying",
+                "Rock"
+            ],
+            "defense": [
+                "Electric-Steel",
+                "Electric",
+                "Bug-Electric",
+                "Electric-Rock"
+            ]
+        },
+        "C6": {
+            "attack": [
+                "Ghost",
+                "Dark",
+                "Bug",
+                "Electric",
+                "Fire",
+                "Psychic",
+                "Normal",
+                "Steel",
+                "Ground",
+                "Ice",
+                "Poison",
+                "Grass"
+            ],
+            "defense": [
+                "Ghost",
+                "Flying-Ghost",
+                "Ghost-Grass",
+                "Ghost-Ice",
+                "Ghost-Ground"
+            ]
+        },
+        "E4": {
+            "attack": [
+                "Ground",
+                "Electric",
+                "Steel",
+                "Dark",
+                "Bug",
+                "Normal",
+                "Psychic",
+                "Ground",
+                "Rock",
+                "Grass",
+                "Ghost",
+                "Ice",
+                "Flying",
+                "Poison",
+                "Fighting",
+                "Fairy",
+                "Dragon",
+                "Water"
+            ],
+            "defense": [
+                "Fairy-Steel",
+                "Dark-Steel",
+                "Electric-Steel",
+                "Psychic-Steel",
+                "Ground-Steel",
+                "Bug-Rock",
+                "Grass-Rock",
+                "Rock",
+                "Rock-Steel",
+                "Ghost",
+                "Flying-Ghost",
+                "Ghost-Grass",
+                "Ghost-Ice",
+                "Ghost-Ground",
+                "Flying-Normal",
+                "Fighting-Flying",
+                "Fire-Flying",
+                "Dark-Flying",
+                "Electric-Psychic",
+                "Normal",
+                "Dragon-Flying",
+                "Fighting-Ice",
+                "Fairy-Water",
+                "Fire",
+                "Water",
+                "Grass",
+                "Dark-Fire"
+            ]
+        }
+    },
     "Gen-9-Paldea.dst": {
         "G1": {
             "attack": [

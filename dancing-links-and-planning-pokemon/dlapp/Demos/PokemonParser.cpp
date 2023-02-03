@@ -175,7 +175,7 @@ PokemonTest loadPokemonGeneration(std::istream& source) {
 }
 
 std::set<std::string> loadSelectedGymsDefenses(const std::string& selectedMap,
-                                                 const std::set<std::string>& selectedGyms) {
+                                               const std::set<std::string>& selectedGyms) {
     QJsonObject mapData;
     getQJsonObject(mapData, JSON_ALL_MAPS_FILE);
     std::set<std::string> result = {};

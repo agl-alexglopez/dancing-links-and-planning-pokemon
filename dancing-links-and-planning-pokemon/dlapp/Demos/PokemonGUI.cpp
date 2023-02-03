@@ -88,16 +88,6 @@ const std::vector<CityColors> kColorOptions = {
     { "#806030", "#FFB000", MiniGUI::Font(MiniGUI::FontFamily::MONOSPACE, MiniGUI::FontStyle::BOLD, 12, "#000000") },   // Directly covered
 };
 
-const std::string GYM_1_STR = "G1";
-const std::string GYM_2_STR = "G2";
-const std::string GYM_3_STR = "G3";
-const std::string GYM_4_STR = "G4";
-const std::string GYM_5_STR = "G5";
-const std::string GYM_6_STR = "G6";
-const std::string GYM_7_STR = "G7";
-const std::string GYM_8_STR = "G8";
-const std::string ELT_4_STR = "E4";
-
 const std::vector<std::string> BUTTON_TOGGLE_COLORS = {
     // NOT_SELECTED
     "#000000",
@@ -366,6 +356,10 @@ std::vector<std::string> sampleProblems(const std::string& basePath) {
  */
 const int POKEMON_TEAM_SIZE = 6;
 const int POKEMON_TEAM_ATTACK_SLOTS = 24;
+const int GYM_BUTTON_ROW_START = 6;
+const int GYM_BUTTON_COL_START = 0;
+const std::string CLEAR_SELECTIONS = "CL";
+const std::string GBUTTON_STR = "GButton";
 
 class PokemonGUI: public ProblemHandler {
 public:
@@ -379,7 +373,7 @@ protected:
 
 private:
 
-    enum CoverageRequested {
+    enum DlxRequest {
         EXACT,
         OVERLAPPING
     };
@@ -390,56 +384,44 @@ private:
     };
 
     /* Dropdown of all the problems to choose from. */
-    Temporary<GComboBox> mProblems;
-    Temporary<GColorConsole> mSolutionsDisplay;
+    Temporary<GComboBox> mapDropdown;
+    Temporary<GColorConsole> solutionsDisplay;
     const double DISPLAY_WIDTH = 900.0;
 
     /* Button to trigger the solver. */
-    Temporary<GContainer> controls;
+    Temporary<GContainer> solutionControls;
     GButton* exactDefenseButton;
     GButton* exactAttackButton;
     GButton* overlappingDefenseButton;
     GButton* overlappingAttackButton;
 
     Temporary<GContainer> gymControls;
-    /* I would rather use checkboxes but am having trouble hooking them to event listeners. */
-    GButton* gym1;
-    GButton* gym2;
-    GButton* gym3;
-    GButton* gym4;
-    GButton* gym5;
-    GButton* gym6;
-    GButton* gym7;
-    GButton* gym8;
-    GButton* elite4;
-    GButton* clearChoices;
+    std::unique_ptr<std::map<std::string,std::unique_ptr<GButton>>> gymButtons;
 
     /* Current network and solution. */
-    PokemonTest mGen;
-    std::set<std::string> mSelected;
-    std::set<std::string> mAllSelected;
-    MapDrawSelection mUserSelection;
+    PokemonTest generation;
+    std::set<std::string> selectedGyms;
+    std::set<std::string> allGyms;
+    MapDrawSelection selectionDrawStyle;
 
     /* It can be costly in some generations to build and destroy larger PokemonLinks so we will
      * leave the full links solver in place for any given generations lifetime in the GUI. If
      * we are asked to solve for a smaller subset of gyms we will create a local PokemonLinks
      * object to solve that problem and leave this one intact until we switch maps.
      */
-    std::unique_ptr<Dx::PokemonLinks> mGenDefenseLinks;
-    std::unique_ptr<Dx::PokemonLinks> mGenAttackLinks;
-    std::unique_ptr<std::set<RankedSet<std::string>>> mAllCoverages;
+    std::unique_ptr<Dx::PokemonLinks> defenseDLX;
+    std::unique_ptr<Dx::PokemonLinks> attackDLX;
+    std::unique_ptr<std::set<RankedSet<std::string>>> allSolutions;
 
     /* Loads the world with the given name. */
     void loadWorld(const std::string& filename);
 
-    void toggleSelectedGym(GButton*& button);
+    void toggleSelectedGym(GButton& button);
     void toggleAllGyms(const ButtonToggle& buttonState);
     void clearSelections();
-    void resetAllCoverages(Dx::PokemonLinks& dlxSolver,
-                           const CoverageRequested& req,
-                           int depthLimit);
-    void solveDefense(const CoverageRequested& exactOrOverlapping);
-    void solveAttack(const CoverageRequested& exactOrOverlapping);
+    void resetAllCoverages(Dx::PokemonLinks& dlxSolver, const DlxRequest& req, int depthLimit);
+    void solveDefense(const DlxRequest& exactOrOverlapping);
+    void solveAttack(const DlxRequest& exactOrOverlapping);
     void printDefenseSolution(const std::set<RankedSet<std::string>>& solution);
     void printAttackSolution(const std::set<RankedSet<std::string>>& solution);
     void printDefenseMessage();
@@ -447,7 +429,6 @@ private:
 };
 
 PokemonGUI::PokemonGUI(GWindow& window) : ProblemHandler(window) {
-
     exactDefenseButton  = new GButton("Exact Defense Coverage");
     exactDefenseButton->setTooltip("Which teams resist all attack types exactly once?");
     exactAttackButton  = new GButton("Exact Attack Coverage");
@@ -457,89 +438,59 @@ PokemonGUI::PokemonGUI(GWindow& window) : ProblemHandler(window) {
     overlappingAttackButton  = new GButton("Loose Attack Coverage");
     overlappingAttackButton->setTooltip("Which attack types are effective against every defensive type?");
 
-    gym1 = new GButton(GYM_1_STR);
-    gym2 = new GButton(GYM_2_STR);
-    gym3 = new GButton(GYM_3_STR);
-    gym4 = new GButton(GYM_4_STR);
-    gym5 = new GButton(GYM_5_STR);
-    gym6 = new GButton(GYM_6_STR);
-    gym7 = new GButton(GYM_7_STR);
-    gym8 = new GButton(GYM_8_STR);
-    elite4 = new GButton(ELT_4_STR);
-    clearChoices = new GButton("CL");
     gymControls = make_temporary<GContainer>(window, "WEST", GContainer::LAYOUT_GRID);
-    gymControls->setTooltip("Leave gym selections blank to solve for all types in a generation.");
-    gymControls->addToGrid(gym1, 6, 0);
-    gymControls->addToGrid(gym2, 6, 1);
-    gymControls->addToGrid(gym3, 7, 0);
-    gymControls->addToGrid(gym4, 7, 1);
-    gymControls->addToGrid(gym5, 8, 0);
-    gymControls->addToGrid(gym6, 8, 1);
-    gymControls->addToGrid(gym7, 9, 0);
-    gymControls->addToGrid(gym8, 9, 1);
-    gymControls->addToGrid(elite4, 10, 0);
-    gymControls->addToGrid(clearChoices, 10, 1);
+    gymButtons.reset(new std::map<std::string, std::unique_ptr<GButton>>);
 
-    gymControls->setEnabled(false);
-
-    controls = make_temporary<GContainer>(window, "WEST", GContainer::LAYOUT_GRID);
-    controls->addToGrid(exactDefenseButton, 0, 0);
-    controls->addToGrid(exactAttackButton, 1, 0);
-    controls->addToGrid(overlappingDefenseButton, 2, 0);
-    controls->addToGrid(overlappingAttackButton, 3, 0);
-    controls->setEnabled(false);
+    solutionControls = make_temporary<GContainer>(window, "WEST", GContainer::LAYOUT_GRID);
+    solutionControls->addToGrid(exactDefenseButton, 0, 0);
+    solutionControls->addToGrid(exactAttackButton, 1, 0);
+    solutionControls->addToGrid(overlappingDefenseButton, 2, 0);
+    solutionControls->addToGrid(overlappingAttackButton, 3, 0);
+    solutionControls->setEnabled(false);
     GComboBox* choices = new GComboBox();
     for (const std::string& file: sampleProblems(kBasePath)) {
         choices->addItem(file);
     }
     choices->setEditable(false);
-    mProblems = Temporary<GComboBox>(choices, window, "WEST");
-
-    mSolutionsDisplay = Temporary<GColorConsole>(new GColorConsole(), window, "SOUTH");
-    mSolutionsDisplay->setWidth(DISPLAY_WIDTH);
-    mSolutionsDisplay->setStyle("black", GColorConsole::BOLD, FontSize{11});
-
+    mapDropdown = Temporary<GComboBox>(choices, window, "WEST");
+    solutionsDisplay = Temporary<GColorConsole>(new GColorConsole(), window, "SOUTH");
+    solutionsDisplay->setWidth(DISPLAY_WIDTH);
+    solutionsDisplay->setStyle("black", GColorConsole::BOLD, FontSize{11});
     loadWorld(choices->getSelectedItem());
 }
 
 void PokemonGUI::changeOccurredIn(GObservable* source) {
-    if (source == mProblems) {
-        loadWorld(mProblems->getSelectedItem());
+    if (source == mapDropdown) {
+        loadWorld(mapDropdown->getSelectedItem());
     }
 }
 
-void PokemonGUI::toggleSelectedGym(GButton*& button) {
-    std::string gymName = button->getText();
-    if (mSelected.count(gymName)) {
-        mSelected.erase(gymName);
-        button->setForeground(BUTTON_TOGGLE_COLORS[NOT_SELECTED]);
+void PokemonGUI::toggleSelectedGym(GButton& button) {
+    std::string gymName = button.getText();
+    if (selectedGyms.count(gymName)) {
+        selectedGyms.erase(gymName);
+        button.setForeground(BUTTON_TOGGLE_COLORS[NOT_SELECTED]);
     } else {
-        mSelected.insert(gymName);
-        button->setForeground(BUTTON_TOGGLE_COLORS[SELECTED]);
+        selectedGyms.insert(gymName);
+        button.setForeground(BUTTON_TOGGLE_COLORS[SELECTED]);
     }
-    mUserSelection = SELECTED_GYMS;
+    selectionDrawStyle = SELECTED_GYMS;
     requestRepaint();
 }
 
 void PokemonGUI::toggleAllGyms(const ButtonToggle& buttonState) {
-    gym1->setForeground(BUTTON_TOGGLE_COLORS[buttonState]);
-    gym2->setForeground(BUTTON_TOGGLE_COLORS[buttonState]);
-    gym3->setForeground(BUTTON_TOGGLE_COLORS[buttonState]);
-    gym4->setForeground(BUTTON_TOGGLE_COLORS[buttonState]);
-    gym5->setForeground(BUTTON_TOGGLE_COLORS[buttonState]);
-    gym6->setForeground(BUTTON_TOGGLE_COLORS[buttonState]);
-    gym7->setForeground(BUTTON_TOGGLE_COLORS[buttonState]);
-    gym8->setForeground(BUTTON_TOGGLE_COLORS[buttonState]);
-    elite4->setForeground(BUTTON_TOGGLE_COLORS[buttonState]);
+    for (const auto& button : *gymButtons) {
+        button.second->setForeground(BUTTON_TOGGLE_COLORS[buttonState]);
+    }
 }
 
 void PokemonGUI::clearSelections() {
-    mSelected.clear();
-    mAllCoverages.reset();
-    mSolutionsDisplay->clearDisplay();
-    mSolutionsDisplay->flush();
+    selectedGyms.clear();
+    allSolutions.reset();
+    solutionsDisplay->clearDisplay();
+    solutionsDisplay->flush();
     toggleAllGyms(NOT_SELECTED);
-    mUserSelection = SELECTED_GYMS;
+    selectionDrawStyle = SELECTED_GYMS;
     requestRepaint();
 }
 
@@ -552,201 +503,218 @@ void PokemonGUI::actionPerformed(GObservable* source) {
         solveDefense(OVERLAPPING);
     } else if (source == overlappingAttackButton) {
         solveAttack(OVERLAPPING);
-    } else if (source == gym1) {
-        toggleSelectedGym(gym1);
-    } else if (source == gym2) {
-        toggleSelectedGym(gym2);
-    } else if (source == gym3) {
-        toggleSelectedGym(gym3);
-    } else if (source == gym4) {
-        toggleSelectedGym(gym4);
-    } else if (source == gym5) {
-        toggleSelectedGym(gym5);
-    } else if (source == gym6) {
-        toggleSelectedGym(gym6);
-    } else if (source == gym7) {
-        toggleSelectedGym(gym7);
-    } else if (source == gym8) {
-        toggleSelectedGym(gym8);
-    } else if (source == elite4) {
-        toggleSelectedGym(elite4);
-    } else if (source == clearChoices) {
-        clearSelections();
+    } else if (source->getType() == GBUTTON_STR){
+        std::string gymName = dynamic_cast<GButton*>(source)->getText();
+        if (gymName == CLEAR_SELECTIONS) {
+            clearSelections();
+        } else {
+            toggleSelectedGym(*((*gymButtons)[gymName]));
+        }
     }
 }
 
 void PokemonGUI::repaint() {
-    if (mUserSelection == FULL_GENERATION) {
-        visualizeNetwork(window(), mGen, mAllSelected, FULL_GENERATION);
+    if (selectionDrawStyle == FULL_GENERATION) {
+        visualizeNetwork(window(), generation, allGyms, FULL_GENERATION);
     } else {
-        visualizeNetwork(window(), mGen, mSelected, SELECTED_GYMS);
+        visualizeNetwork(window(), generation, selectedGyms, SELECTED_GYMS);
     }
 }
 
 void PokemonGUI::loadWorld(const std::string& filename) {
     std::ifstream input(kBasePath + filename);
     if (!input) error("Cannot open file.");
+    generation = loadPokemonGeneration(input);
 
-    mGen = loadPokemonGeneration(input);
-    for (const auto& s : mGen.genMap.network) {
-        mAllSelected.insert(s.first);
+    // The clear() method doesn't seem to clear the grid _/(*_*)\_. Need to remove each button.
+    for (const auto& b : *gymButtons) {
+        gymControls->remove(*b.second);
     }
-    mUserSelection = SELECTED_GYMS;
 
-    mGenDefenseLinks.reset(new Dx::PokemonLinks(mGen.interactions, Dx::PokemonLinks::DEFENSE));
-    mGenAttackLinks.reset(new Dx::PokemonLinks(mGen.interactions, Dx::PokemonLinks::ATTACK));
+    gymButtons.reset(new std::map<std::string, std::unique_ptr<GButton>>);
 
+    for (const auto& s : generation.genMap.network) {
+        allGyms.insert(s.first);
+        gymButtons->insert({s.first, std::unique_ptr<GButton>(new GButton(s.first))});
+    }
+    gymButtons->insert({CLEAR_SELECTIONS, std::unique_ptr<GButton>(new GButton(CLEAR_SELECTIONS))});
 
-    mAllCoverages.reset();
-    mSelected.clear();
-    mSolutionsDisplay->clearDisplay();
-    mSolutionsDisplay->flush();
-    controls->setEnabled(true);
+    /* Create buttons for the gyms in a 2 by N grid where N is determined by how many gyms exist.
+     * Different games have different numbers of gyms so we don't know until we build.
+     *
+     *      CL G1
+     *      G2 G3
+     *      G4 G5
+     *      G6 G7
+     *      G8 E4
+     */
+    int row = GYM_BUTTON_ROW_START;
+    int col = GYM_BUTTON_COL_START;
+    for (const auto& button : *gymButtons) {
+        gymControls->addToGrid(*button.second, row, col);
+        if ((++col %= 2) == 0) {
+            row++;
+        }
+    }
+
+    selectionDrawStyle = SELECTED_GYMS;
+
+    defenseDLX.reset(new Dx::PokemonLinks(generation.interactions, Dx::PokemonLinks::DEFENSE));
+    attackDLX.reset(new Dx::PokemonLinks(generation.interactions, Dx::PokemonLinks::ATTACK));
+    allSolutions.reset();
+    selectedGyms.clear();
+    solutionsDisplay->clearDisplay();
+    solutionsDisplay->flush();
+    solutionControls->setEnabled(true);
     gymControls->setEnabled(true);
     toggleAllGyms(NOT_SELECTED);
     requestRepaint();
 }
 
 void PokemonGUI::printDefenseMessage() {
-    (*mSolutionsDisplay) << "Defending against the following ";
-    (*mSolutionsDisplay) << Dx::numItems(*mGenDefenseLinks);
-    (*mSolutionsDisplay) << " attack types with "
-                         << Dx::numOptions(*mGenDefenseLinks)
+    (*solutionsDisplay) << "Defending against the following ";
+    (*solutionsDisplay) << Dx::numItems(*defenseDLX);
+    (*solutionsDisplay) << " attack types with "
+                         << Dx::numOptions(*defenseDLX)
                          << " defense options:\n\n| ";
-    for (const auto& g : Dx::items(*mGenDefenseLinks)) {
-        (*mSolutionsDisplay) << g << " | ";
+    for (const auto& g : Dx::items(*defenseDLX)) {
+        (*solutionsDisplay) << g << " | ";
     }
-    (*mSolutionsDisplay) << "\n" << std::endl;
+    (*solutionsDisplay) << "\n" << std::endl;
 }
 
 void PokemonGUI::printAttackSolution(const std::set<RankedSet<std::string>>& solution) {
-    *mSolutionsDisplay << "Found " << solution.size()
+    *solutionsDisplay << "Found " << solution.size()
                        << " attack configurations SCORE | TYPES |. Higher score is better.\n";
     std::string maximumOutputExceeded = "\n";
-    if (Dx::hasMaxSolutions(*mGenAttackLinks)) {
+    if (Dx::hasMaxSolutions(*attackDLX)) {
         maximumOutputExceeded = "...exceeded maximum output, stopping at "
                                 + std::to_string(solution.size()) + ".\n\n";
     }
-    *mSolutionsDisplay << maximumOutputExceeded;
+    *solutionsDisplay << maximumOutputExceeded;
     for (auto it = solution.rbegin(); it != solution.rend(); it++) {
-        *mSolutionsDisplay << it->rank() << " | ";
+        *solutionsDisplay << it->rank() << " | ";
         for (const std::string& type : *it) {
-            *mSolutionsDisplay << type << " | ";
+            *solutionsDisplay << type << " | ";
         }
-        *mSolutionsDisplay << "\n";
+        *solutionsDisplay << "\n";
     }
-    *mSolutionsDisplay << maximumOutputExceeded << std::endl;
+    *solutionsDisplay << maximumOutputExceeded << std::endl;
 }
 
 void PokemonGUI::printAttackMessage() {
-    (*mSolutionsDisplay) << "Attacking the following "
-                         << Dx::numItems(*mGenAttackLinks)
+    (*solutionsDisplay) << "Attacking the following "
+                         << Dx::numItems(*attackDLX)
                          << " defensive types with "
-                         << Dx::numOptions(*mGenAttackLinks)
+                         << Dx::numOptions(*attackDLX)
                          << " attack options:\n\n| ";
-    for (const auto& type : Dx::items(*mGenAttackLinks)) {
-        (*mSolutionsDisplay) << type << " | ";
+    for (const auto& type : Dx::items(*attackDLX)) {
+        (*solutionsDisplay) << type << " | ";
     }
-    (*mSolutionsDisplay) << "\n" << std::endl;
+    (*solutionsDisplay) << "\n" << std::endl;
 }
 
 void PokemonGUI::printDefenseSolution(const std::set<RankedSet<std::string>>& solution) {
-    *mSolutionsDisplay << "Found " << solution.size()
+    *solutionsDisplay << "Found " << solution.size()
                        << " Pokemon teams SCORE | TEAM |. Lower score is better.\n";
 
     std::string maximumOutputExceeded = "\n";
-    if (Dx::hasMaxSolutions(*mGenDefenseLinks)) {
+    if (Dx::hasMaxSolutions(*defenseDLX)) {
         maximumOutputExceeded = "...exceeded maximum output, stopping at "
                                 + std::to_string(solution.size()) + ".\n\n";
     }
-    *mSolutionsDisplay << maximumOutputExceeded;
+    *solutionsDisplay << maximumOutputExceeded;
     for (const RankedSet<std::string>& cov : solution) {
-        *mSolutionsDisplay << cov.rank() << " | ";
+        *solutionsDisplay << cov.rank() << " | ";
         for (const std::string& type : cov) {
-            *mSolutionsDisplay << type << " | ";
+            *solutionsDisplay << type << " | ";
         }
-        *mSolutionsDisplay << "\n";
+        *solutionsDisplay << "\n";
     }
-    *mSolutionsDisplay << maximumOutputExceeded << std::endl;
+    *solutionsDisplay << maximumOutputExceeded << std::endl;
 }
 
 void PokemonGUI::resetAllCoverages(Dx::PokemonLinks& dlxSolver,
-                                   const CoverageRequested& req,
+                                   const DlxRequest& req,
                                    int depthLimit) {
-    req == EXACT ? mAllCoverages.reset(new std::set<RankedSet<std::string>>(Dx::solveExactCover(dlxSolver, depthLimit)))
-                 : mAllCoverages.reset(new std::set<RankedSet<std::string>>(Dx::solveOverlappingCover(dlxSolver, depthLimit)));
+    if (req == EXACT) {
+        allSolutions.reset(
+            new std::set<RankedSet<std::string>>(Dx::solveExactCover(dlxSolver, depthLimit))
+        );
+    } else {
+        allSolutions.reset(
+            new std::set<RankedSet<std::string>>(Dx::solveOverlappingCover(dlxSolver, depthLimit))
+        );
+    }
 }
 
-void PokemonGUI::solveDefense(const CoverageRequested& req) {
-    mAllCoverages.reset();
-    mSolutionsDisplay->clearDisplay();
-    mSolutionsDisplay->flush();
-    controls->setEnabled(false);
+void PokemonGUI::solveDefense(const DlxRequest& req) {
+    allSolutions.reset();
+    solutionsDisplay->clearDisplay();
+    solutionsDisplay->flush();
+    solutionControls->setEnabled(false);
     gymControls->setEnabled(false);
-    mProblems->setEnabled(false);
+    mapDropdown->setEnabled(false);
 
-
-    if (!mSelected.empty()) {
-        mUserSelection = SELECTED_GYMS;
+    if (!selectedGyms.empty()) {
+        selectionDrawStyle = SELECTED_GYMS;
 
         std::set<std::string>
-        gymAttackTypes = loadSelectedGymsAttacks(mProblems->getSelectedItem(), mSelected);
-        DancingLinks::hideItemsExcept(*mGenDefenseLinks, gymAttackTypes);
+        gymAttackTypes = loadSelectedGymsAttacks(mapDropdown->getSelectedItem(), selectedGyms);
+        DancingLinks::hideItemsExcept(*defenseDLX, gymAttackTypes);
 
         printDefenseMessage();
-        resetAllCoverages(*mGenDefenseLinks, req, POKEMON_TEAM_SIZE);
-        printDefenseSolution(*mAllCoverages);
+        resetAllCoverages(*defenseDLX, req, POKEMON_TEAM_SIZE);
+        printDefenseSolution(*allSolutions);
     } else {
-        mUserSelection = FULL_GENERATION;
+        selectionDrawStyle = FULL_GENERATION;
         printDefenseMessage();
-        resetAllCoverages(*mGenDefenseLinks, req, POKEMON_TEAM_SIZE);
-        printDefenseSolution(*mAllCoverages);
+        resetAllCoverages(*defenseDLX, req, POKEMON_TEAM_SIZE);
+        printDefenseSolution(*allSolutions);
     }
 
-
     /* Enable controls. */
-    controls->setEnabled(true);
-    mProblems->setEnabled(true);
+    solutionControls->setEnabled(true);
+    mapDropdown->setEnabled(true);
     gymControls->setEnabled(true);
-    mSolutionsDisplay->scrollToTop();
+    solutionsDisplay->scrollToTop();
     /* The PokemonLinks data structure can restore itself in place, unhiding items. */
-    Dx::resetItems(*mGenDefenseLinks);
+    Dx::resetItems(*defenseDLX);
 
     requestRepaint();
 }
 
-void PokemonGUI::solveAttack(const CoverageRequested& req) {
-    mAllCoverages.reset();
-    mSolutionsDisplay->clearDisplay();
-    mSolutionsDisplay->flush();
-    controls->setEnabled(false);
-    mProblems->setEnabled(false);
+void PokemonGUI::solveAttack(const DlxRequest& req) {
+    allSolutions.reset();
+    solutionsDisplay->clearDisplay();
+    solutionsDisplay->flush();
+    solutionControls->setEnabled(false);
+    mapDropdown->setEnabled(false);
     gymControls->setEnabled(false);
 
-
-    if (!mSelected.empty()) {
-        mUserSelection = SELECTED_GYMS;
+    if (!selectedGyms.empty()) {
+        selectionDrawStyle = SELECTED_GYMS;
         std::set<std::string>
-        gymDefenseTypes = loadSelectedGymsDefenses(mProblems->getSelectedItem(),
-                                                   mSelected);
-        Dx::hideItemsExcept(*mGenAttackLinks, gymDefenseTypes);
+        gymDefenseTypes = loadSelectedGymsDefenses(mapDropdown->getSelectedItem(),
+                                                   selectedGyms);
+        Dx::hideItemsExcept(*attackDLX, gymDefenseTypes);
         printAttackMessage();
-        resetAllCoverages(*mGenAttackLinks, req, POKEMON_TEAM_ATTACK_SLOTS);
-        printAttackSolution(*mAllCoverages);
+        resetAllCoverages(*attackDLX, req, POKEMON_TEAM_ATTACK_SLOTS);
+        printAttackSolution(*allSolutions);
 
     } else {
-        mUserSelection = FULL_GENERATION;
+        selectionDrawStyle = FULL_GENERATION;
         printAttackMessage();
-        resetAllCoverages(*mGenAttackLinks, req, POKEMON_TEAM_ATTACK_SLOTS);
-        printAttackSolution(*mAllCoverages);
+        resetAllCoverages(*attackDLX, req, POKEMON_TEAM_ATTACK_SLOTS);
+        printAttackSolution(*allSolutions);
     }
 
     /* Enable controls. */
-    controls->setEnabled(true);
-    mProblems->setEnabled(true);
+    solutionControls->setEnabled(true);
+    mapDropdown->setEnabled(true);
     gymControls->setEnabled(true);
-    mSolutionsDisplay->scrollToTop();
-    Dx::resetItems(*mGenAttackLinks);
+    solutionsDisplay->scrollToTop();
+    Dx::resetItems(*attackDLX);
 
     requestRepaint();
 }
