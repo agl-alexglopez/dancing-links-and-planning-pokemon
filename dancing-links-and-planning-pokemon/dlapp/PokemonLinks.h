@@ -104,8 +104,8 @@
 #define POKEMONLINKS_H
 #include <iostream>
 #include <map>
-#include <unordered_map>
 #include <string>
+#include <string_view>
 #include <set>
 #include <utility>
 #include <vector>
@@ -114,7 +114,9 @@
 #include "Utilities/RankedSet.h"
 
 
+
 namespace DancingLinks {
+
 
 /* See bottom of file for the free functions that accompany this class in DancingLinks namespace. */
 
@@ -128,6 +130,56 @@ public:
         ATTACK
     };
 
+    /* These algorithms may generate many solutions. Instead of storing strings with the type names
+     * in our internal data structures and solution sets we will encode the types we are working
+     * with into bits. From the 0th index bit, zero being the least significant bit position, we
+     * have the following types.
+     *
+     *  17,   16,   15,   14,     13,    12,  11,  10,     9,    8,    7,    6,     5,     4,      3,     2,     1,   0
+     * Water,Steel,Rock,Psychic,Poison,Normal,Ice,Ground,Grass,Ghost,Flying,Fire,Fighting,Fairy,Electric,Dragon,Dark,Bug
+     *
+     * Notice as well that the bits are organized in lexographical order according to their string
+     * representations. This means that we can be consistent when decoding the bits back to a string
+     * with the lexographical ordering I have decided on for the entire project. As an example the
+     * Dragon-Flying type would be the following hex and binary value.
+     *
+     *      Dragon-Flying = 0x84 = 0b10000100
+     *
+     * Storing these types masked in a simple integer makes searching for them in our links, adding
+     * or removing them to sets, or copying them if we wish to incorporate multiprocessing much
+     * easier and faster. We then simply provide a method to convert the encoding back to a string
+     * and we only have to use that method when output is desired at the last moment, like when we
+     * want to print the type names to a GUI in an ostream. We create a copy of the string on
+     * demand rather than store it.
+     */
+    struct TypeEncoding {
+        uint32_t encoding_;
+        TypeEncoding() = default;
+        TypeEncoding(std::string_view type);
+        std::string to_string() const;
+        bool operator==(TypeEncoding rhs) const {
+            return this->encoding_ == rhs.encoding_;
+        }
+        bool operator!=(TypeEncoding rhs) const {
+            return !(*this == rhs);
+        }
+        bool operator<(TypeEncoding rhs) const {
+            return this->encoding_ < rhs.encoding_;
+        }
+        bool operator>(TypeEncoding rhs) const {
+            return rhs < *this;
+        }
+        bool operator<=(TypeEncoding rhs) const {
+            return !(*this > rhs);
+        }
+        bool operator>=(TypeEncoding rhs) const {
+            return !(*this < rhs);
+        }
+        operator bool() const {
+            return encoding_;
+        }
+    };
+
     /**
      * @brief PokemonLinks            this constructor builds the necessary internal data structures
      *                                to run the exact cover via dancing links algorithm. We need
@@ -136,7 +188,7 @@ public:
      * @param requestedCoverSolution  ATTACK or DEFENSE. Build a team or choose attack types.
      */
     explicit PokemonLinks(const std::map<std::string,std::set<Resistance>>& typeInteractions,
-                          const CoverageType requestedCoverSolution);
+                           const CoverageType requestedCoverSolution);
 
     /**
      * @brief PokemonLinks      this alternative constructor is helpful when choosing a defensive
@@ -146,7 +198,7 @@ public:
      * @param attackTypes       the subset of attacks we must cover with choices of Pokemon teams.
      */
     explicit PokemonLinks(const std::map<std::string,std::set<Resistance>>& typeInteractions,
-                          const std::set<std::string>& attackTypes);
+                           const std::set<std::string>& attackTypes);
 
     /**
      * @brief getExactCoverages  solves the exact cover problem on the initialized PokemonLinks
@@ -161,7 +213,7 @@ public:
      * @param choiceLimit        the user defined limit on number of options we can use to solve.
      * @return                   all exact cover solutions found with the limit.
      */
-    std::set<RankedSet<std::string>> getExactCoverages(int choiceLimit);
+    std::set<RankedSet<TypeEncoding>> getExactCoverages(int choiceLimit);
 
     /**
      * @brief getOverlappingCoverages  solves the overlapping cover problem and returns a solution
@@ -175,7 +227,7 @@ public:
      * @param choiceLimit              the user defined limit on number of options we use to solve.
      * @return                         all overlapping cover solutions found with the limit.
      */
-    std::set<RankedSet<std::string>> getOverlappingCoverages(int choiceLimit);
+    std::set<RankedSet<TypeEncoding>> getOverlappingCoverages(int choiceLimit);
 
     /**
      * @brief hideRequestedItem  hiding a requested item can occur in place and be undone later.
@@ -201,7 +253,7 @@ public:
      * @return                   true if all items are hidden false if at least one fails.
      */
     bool hideRequestedItem(const std::vector<std::string>& toHide,
-                           std::vector<std::string>& failedToHide);
+                             std::vector<std::string>& failedToHide);
 
     /**
      * @brief hideAllItemsExcept  hides all items EXCEPT those specified in the toKeep set. These
@@ -225,7 +277,7 @@ public:
      *                     if the stack is empty and there are no hidden items.
      * @return             the string copy of the most recent hidden item.
      */
-    std::string peekHidItem() const;
+    TypeEncoding peekHidItem() const;
 
     /**
      * @brief popHidItem  pops the most recently hidden item from the stack restoring it as an
@@ -245,7 +297,7 @@ public:
      *                     of the vector is the top of the stack.
      * @return             the vector of all hidden items.
      */
-    std::vector<std::string> getHidItems() const;
+    std::vector<TypeEncoding> getHidItems() const;
 
     /**
      * @brief getNumHidItems  reports the number of hidden items in O(1).
@@ -286,7 +338,7 @@ public:
      * @return                     true if all options were hidden false if at least one failed.
      */
     bool hideRequestedOption(const std::vector<std::string>& toHide,
-                             std::vector<std::string>& failedToCover);
+                               std::vector<std::string>& failedToCover);
 
     /**
      * @brief hideAllOptionsExcept  hides all options EXCEPT those specified in the keep set. By
@@ -308,7 +360,7 @@ public:
      * @brief peekHidOption  peeks the most recently hidden option. Throws if no hidden items.
      * @return               the string of the most recently hidden option.
      */
-    std::string peekHidOption() const;
+    TypeEncoding peekHidOption() const;
 
     /**
      * @brief popHidOption  pops the most recently hidden option from the stack restoring it into
@@ -327,7 +379,7 @@ public:
      * @brief getHidOptions  view a vector representation of the hidden option stack.
      * @return               the vector of hidden options. End of the vector is the top of stack.
      */
-    std::vector<std::string> getHidOptions() const;
+    std::vector<TypeEncoding> getHidOptions() const;
 
     /**
      * @brief getNumHidOptions  reports the number of currently hidden options in the stack. O(1)
@@ -365,7 +417,7 @@ public:
      * @brief getItems  gets the items we try to cover in the constructed attack/defense links
      * @return          a vector of strings representing these items in O(n) time.
      */
-    std::vector<std::string> getItems() const;
+    std::vector<TypeEncoding> getItems() const;
 
     /**
      * @brief getNumItems  will tell you how many items you must cover in the given cover problem.
@@ -377,7 +429,7 @@ public:
      * @brief getOptions  gets the options we use to cover items in the attack/defense links.
      * @return            a vector of strings representing the options in O(n) time.
      */
-    std::vector<std::string> getOptions() const;
+    std::vector<TypeEncoding> getOptions() const;
 
     /**
      * @brief getNumOptions  tells you how many choices present to combine in order to cover all items.
@@ -409,16 +461,17 @@ private:
 
     // This type, in a seperate vector, controls the base case of our recursion.
     struct typeName {
-        std::string name;
+        TypeEncoding name;
         int left;
         int right;
     };
 
-    // Simple, a string and an int! I use it twice when I need two pieces of info at once.
-    struct strNum {
-        std::string str;
+    struct encodingAndNum {
+        TypeEncoding name;
         int num;
     };
+
+
 
     /* These data structures contain the core logic of Algorithm X via dancing links. For more
      * detailed information, see the tests in the implementation. These help acheive in place
@@ -427,7 +480,7 @@ private:
      * table and item table are sorted lexographically we can find any option or item in O(lgN). No
      * auxillary maps are needed.
      */
-    std::vector<strNum> optionTable_;       // How we know the name of the option we chose.
+    std::vector<encodingAndNum> optionTable_;       // How we know the name of the option we chose.
     std::vector<typeName> itemTable_;       // How we know the names of our items.
     std::vector<pokeLink> links_;           // The links that dance!
     std::vector<int> hiddenItems_;          // Treat as stack with user hidden Items.
@@ -449,9 +502,9 @@ private:
      * @param coverage            the successfully coverages we find while the links dance.
      * @param depthLimit          size of a pokemon team or the number of attacks a team can have.
      */
-    void fillExactCoverages(std::set<RankedSet<std::string>>& coverages,
-                            RankedSet<std::string>& coverage,
-                            int depthLimit);
+    void fillExactCoverages(std::set<RankedSet<TypeEncoding>>& coverages,
+                              RankedSet<TypeEncoding>& coverage,
+                              int depthLimit);
 
     /**
      * @brief fillOverlappingCoverages  fills the output parameter with every overlapping cover that
@@ -465,9 +518,9 @@ private:
      * @param coverage                  the helper set that fills the output parameter.
      * @param depthTag                  a tag used to signify the recursive depth. Used internally.
      */
-    void fillOverlappingCoverages(std::set<RankedSet<std::string>>& coverages,
-                                  RankedSet<std::string>& coverage,
-                                  int depthTag);
+    void fillOverlappingCoverages(std::set<RankedSet<TypeEncoding>>& coverages,
+                                    RankedSet<TypeEncoding>& coverage,
+                                    int depthTag);
 
     /**
      * @brief chooseItem  choose an item to cover that appears the least across all options. If an
@@ -486,7 +539,7 @@ private:
      *                       it becomes a part of. Return the strength contribution to the set
      *                       and the name of the option we chose.
      */
-    strNum coverType(int indexInOption);
+    encodingAndNum coverType(int indexInOption);
 
     /**
      * @brief uncoverType    undoes the work of the exact cover operation returning the option,
@@ -523,7 +576,7 @@ private:
      *                              need coverage.
      * @return                      the score our option contributes to its RankedSet and name.
      */
-    strNum overlappingCoverType(int indexInOption, int depthTag);
+    encodingAndNum overlappingCoverType(int indexInOption, int depthTag);
 
     /**
      * @brief overlappingUncoverType  undoes the work of the loos cover operation. It uncovers items
@@ -606,8 +659,8 @@ private:
      * @param requestedCoverage  requested coverage to know which multipliers to pay attention to.
      */
     void initializeColumns(const std::map<std::string,std::set<Resistance>>& typeInteractions,
-                           std::unordered_map<std::string,int>& columnBuilder,
-                           CoverageType requestedCoverage);
+                             std::map<TypeEncoding,int>& columnBuilder,
+                             CoverageType requestedCoverage);
 
 
     /* * * * * * * * * * *    Operators for Test Harness Functionality    * * * * * * * * * * * * */
@@ -626,21 +679,29 @@ private:
     friend bool operator==(const typeName& lhs, const typeName& rhs);
     friend bool operator!=(const typeName& lhs, const typeName& rhs);
     friend std::ostream& operator<<(std::ostream& os, const typeName& type);
-    friend bool operator==(const strNum& lhs, const strNum& rhs);
-    friend bool operator!=(const strNum& lhs, const strNum& rhs);
-    friend std::ostream& operator<<(std::ostream& os, const strNum& nN);
-    friend std::ostream& operator<<(std::ostream& os, const std::vector<strNum>& nN);
-    friend bool operator==(const std::vector<strNum>& lhs, const std::vector<strNum>& rhs);
-    friend bool operator!=(const std::vector<strNum>& lhs, const std::vector<strNum>& rhs);
+    friend bool operator==(const encodingAndNum& lhs, const encodingAndNum& rhs);
+    friend bool operator!=(const encodingAndNum& lhs, const encodingAndNum& rhs);
+    friend std::ostream& operator<<(std::ostream& os, const encodingAndNum& nN);
+    friend std::ostream& operator<<(std::ostream& os, const std::vector<encodingAndNum>& nN);
+    friend bool operator==(const std::vector<encodingAndNum>& lhs, const std::vector<encodingAndNum>& rhs);
+    friend bool operator!=(const std::vector<encodingAndNum>& lhs, const std::vector<encodingAndNum>& rhs);
     friend bool operator==(const std::vector<pokeLink>& lhs, const std::vector<pokeLink>& rhs);
     friend bool operator!=(const std::vector<pokeLink>& lhs, const std::vector<pokeLink>& rhs);
     friend bool operator==(const std::vector<typeName>& lhs, const std::vector<typeName>& rhs);
     friend bool operator!=(const std::vector<typeName>& lhs, const std::vector<typeName>& rhs);
     friend std::ostream& operator<<(std::ostream& os, const std::vector<pokeLink>& links);
     friend std::ostream& operator<<(std::ostream&os, const std::vector<typeName>& items);
+    friend std::ostream& operator<<(std::ostream& os, const std::vector<encodingAndNum>& vec);
+    friend std::ostream& operator<<(std::ostream& os, const std::set<RankedSet<TypeEncoding>>& solution);
     ALLOW_TEST_ACCESS();
+
+
 }; // class PokemonLinks
 
+
+std::ostream& operator<<(std::ostream& out, const PokemonLinks::TypeEncoding& toPrint) {
+    return out << toPrint.to_string() << std::endl;
+}
 
 
 /* * * * * * * * * * *     Free Functions for Client to Use with Class    * * * * * * * * * * * * */
@@ -675,7 +736,7 @@ private:
  *
  * @return                 the set of Ranked Sets that form all solutions of exact cover.
  */
-std::set<RankedSet<std::string>> solveExactCover(PokemonLinks& dlx, int choiceLimit);
+std::set<RankedSet<PokemonLinks::TypeEncoding>> solveExactCover(PokemonLinks& dlx, int choiceLimit);
 
 /**
  * @brief solveOverlappingCover an overlapping coverage is when we cover every "item"
@@ -690,7 +751,7 @@ std::set<RankedSet<std::string>> solveExactCover(PokemonLinks& dlx, int choiceLi
  *                              duplicate solutions with the Dancing Links method.
  * @return                      the set of Ranked Sets that form all overlapping covers.
  */
-std::set<RankedSet<std::string>> solveOverlappingCover(PokemonLinks& dlx, int choiceLimit);
+std::set<RankedSet<PokemonLinks::TypeEncoding>> solveOverlappingCover(PokemonLinks& dlx, int choiceLimit);
 
 /**
  * @brief hasMaxSolutions  exact and overlapping cover solutions are limited at a large number
@@ -708,7 +769,7 @@ bool hasMaxSolutions(const PokemonLinks& dlx);
  * @param dlx    the PokemonLinks object that is instantiated with a requested cover solution.
  * @return       the vector of strings that are our items we must cover in the problem.
  */
-std::vector<std::string> items(const PokemonLinks& dlx);
+std::vector<PokemonLinks::TypeEncoding> items(const PokemonLinks& dlx);
 
 /**
  * @brief numItems  the number of items that need cover in the current PokemonLinks object.
@@ -731,7 +792,7 @@ bool hasItem(const PokemonLinks& dlx, const std::string& item);
  * @param dlx      the PokemonLinks object that is instantiated with a requested cover solution.
  * @return         the vector of strings that are our options we can use to cover the items.
  */
-std::vector<std::string> options(const PokemonLinks& dlx);
+std::vector<PokemonLinks::TypeEncoding> options(const PokemonLinks& dlx);
 
 /**
  * @brief numOptions  the number of options we can choose from to cover the total items.
@@ -810,7 +871,7 @@ int numHidItems(const PokemonLinks& dlx);
  * @param dlx          the PokemonLinks object we examine.
  * @return             the most recently hidden item.
  */
-std::string peekHidItem(const PokemonLinks& dlx);
+PokemonLinks::TypeEncoding peekHidItem(const PokemonLinks& dlx);
 
 /**
  * @brief popHidItem  pop the most recently hidden item from the stack altering the stack. Throws
@@ -831,7 +892,7 @@ bool hidItemsEmpty(const PokemonLinks& dlx);
  * @param dlx       the PokemonLinks object we alter.
  * @return          the vector of items in the order we hid them. Last is first out if popped.
  */
-std::vector<std::string> hidItems(const PokemonLinks& dlx);
+std::vector<PokemonLinks::TypeEncoding> hidItems(const PokemonLinks& dlx);
 
 /**
  * @brief resetItems  restores the items in the world to their original state. O(H), H hidden items.
@@ -876,7 +937,7 @@ bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide);
  * @return              true if all options were hidden false if at least one failed.
  */
 bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide,
-                                   std::vector<std::string>& failedToHide);
+                                    std::vector<std::string>& failedToHide);
 
 /**
  * @brief hideOptionsExcept  hides all options NOT specified in the given set. In place O(NlgKI)
@@ -901,7 +962,7 @@ int numHidOptions(const PokemonLinks& dlx);
  * @param dlx            the PokemonLinks object we examine.
  * @return               the most recently hidden option.
  */
-std::string peekHidOption(const PokemonLinks& dlx);
+PokemonLinks::TypeEncoding peekHidOption(const PokemonLinks& dlx);
 
 /**
  * @brief popHidOption  pop the most recently hidden item from stack altering the stack. O(1).
@@ -921,7 +982,7 @@ bool hidOptionsEmpty(const PokemonLinks& dlx);
  * @param dlx         the PokemonLinks object we alter.
  * @return            the vector of options in order we hid them. Last is first out if popped.
  */
-std::vector<std::string> hidOptions(const PokemonLinks& dlx);
+std::vector<PokemonLinks::TypeEncoding> hidOptions(const PokemonLinks& dlx);
 
 /**
  * @brief resetOptions  restore the options in the world to original state. O(H), H hidden items.

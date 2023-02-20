@@ -411,7 +411,7 @@ private:
      */
     std::unique_ptr<Dx::PokemonLinks> defenseDLX;
     std::unique_ptr<Dx::PokemonLinks> attackDLX;
-    std::unique_ptr<std::set<RankedSet<std::string>>> allSolutions;
+    std::unique_ptr<std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>>> allSolutions;
 
     /* Loads the world with the given name. */
     void loadWorld(const std::string& filename);
@@ -422,8 +422,8 @@ private:
     void resetAllCoverages(Dx::PokemonLinks& dlxSolver, const DlxRequest& req, int depthLimit);
     void solveDefense(const DlxRequest& exactOrOverlapping);
     void solveAttack(const DlxRequest& exactOrOverlapping);
-    void printDefenseSolution(const std::set<RankedSet<std::string>>& solution);
-    void printAttackSolution(const std::set<RankedSet<std::string>>& solution);
+    void printDefenseSolution(const std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>>& solution);
+    void printAttackSolution(const std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>>& solution);
     void printDefenseMessage();
     void printAttackMessage();
 };
@@ -578,12 +578,12 @@ void PokemonGUI::printDefenseMessage() {
                          << Dx::numOptions(*defenseDLX)
                          << " defense options:\n\n| ";
     for (const auto& g : Dx::items(*defenseDLX)) {
-        (*solutionsDisplay) << g << " | ";
+        (*solutionsDisplay) << g.to_string() << " | ";
     }
     (*solutionsDisplay) << "\n" << std::endl;
 }
 
-void PokemonGUI::printAttackSolution(const std::set<RankedSet<std::string>>& solution) {
+void PokemonGUI::printAttackSolution(const std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>>& solution) {
     *solutionsDisplay << "Found " << solution.size()
                        << " attack configurations SCORE | TYPES |. Higher score is better.\n";
     std::string maximumOutputExceeded = "\n";
@@ -594,8 +594,8 @@ void PokemonGUI::printAttackSolution(const std::set<RankedSet<std::string>>& sol
     *solutionsDisplay << maximumOutputExceeded;
     for (auto it = solution.rbegin(); it != solution.rend(); it++) {
         *solutionsDisplay << it->rank() << " | ";
-        for (const std::string& type : *it) {
-            *solutionsDisplay << type << " | ";
+        for (const Dx::PokemonLinks::TypeEncoding& type : *it) {
+            *solutionsDisplay << type.to_string() << " | ";
         }
         *solutionsDisplay << "\n";
     }
@@ -609,12 +609,12 @@ void PokemonGUI::printAttackMessage() {
                          << Dx::numOptions(*attackDLX)
                          << " attack options:\n\n| ";
     for (const auto& type : Dx::items(*attackDLX)) {
-        (*solutionsDisplay) << type << " | ";
+        (*solutionsDisplay) << type.to_string() << " | ";
     }
     (*solutionsDisplay) << "\n" << std::endl;
 }
 
-void PokemonGUI::printDefenseSolution(const std::set<RankedSet<std::string>>& solution) {
+void PokemonGUI::printDefenseSolution(const std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>>& solution) {
     *solutionsDisplay << "Found " << solution.size()
                        << " Pokemon teams SCORE | TEAM |. Lower score is better.\n";
 
@@ -624,10 +624,10 @@ void PokemonGUI::printDefenseSolution(const std::set<RankedSet<std::string>>& so
                                 + std::to_string(solution.size()) + ".\n\n";
     }
     *solutionsDisplay << maximumOutputExceeded;
-    for (const RankedSet<std::string>& cov : solution) {
+    for (const RankedSet<Dx::PokemonLinks::TypeEncoding>& cov : solution) {
         *solutionsDisplay << cov.rank() << " | ";
-        for (const std::string& type : cov) {
-            *solutionsDisplay << type << " | ";
+        for (const Dx::PokemonLinks::TypeEncoding& type : cov) {
+            *solutionsDisplay << type.to_string() << " | ";
         }
         *solutionsDisplay << "\n";
     }
@@ -639,11 +639,11 @@ void PokemonGUI::resetAllCoverages(Dx::PokemonLinks& dlxSolver,
                                    int depthLimit) {
     if (req == EXACT) {
         allSolutions.reset(
-            new std::set<RankedSet<std::string>>(Dx::solveExactCover(dlxSolver, depthLimit))
+            new std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>>(Dx::solveExactCover(dlxSolver, depthLimit))
         );
     } else {
         allSolutions.reset(
-            new std::set<RankedSet<std::string>>(Dx::solveOverlappingCover(dlxSolver, depthLimit))
+            new std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>>(Dx::solveOverlappingCover(dlxSolver, depthLimit))
         );
     }
 }
