@@ -146,11 +146,11 @@ public:
      *      Dragon-Flying = 0x84 = 0b10000100
      *
      * Storing these types masked in a simple integer makes searching for them in our links, adding
-     * or removing them to sets, or copying them if we wish to incorporate multiprocessing much
-     * easier and faster. We then simply provide a method to convert the encoding back to a string
-     * and we only have to use that method when output is desired at the last moment, like when we
-     * want to print the type names to a GUI in an ostream. We create a copy of the string on
-     * demand rather than store it.
+     * or removing them to sets, or copying the dancing links class instance  much easier and
+     * faster. We then simply provide a method to convert the encoding back to a string and we only
+     * have to use that method when output is desired at the last moment, like when we want to print
+     * the type names to a GUI in an ostream. We create a copy of the string on demand and use the
+     * much more efficient encoding for our internal algorithms.
      */
     struct TypeEncoding {
         uint32_t encoding_;
