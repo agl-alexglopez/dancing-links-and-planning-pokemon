@@ -178,6 +178,9 @@ public:
         operator bool() const {
             return encoding_;
         }
+        std::ostream& operator<<(std::ostream& out) {
+            return out << this->to_string() << std::endl;
+        }
     };
 
     /**
@@ -697,11 +700,6 @@ private:
 
 
 }; // class PokemonLinks
-
-
-std::ostream& operator<<(std::ostream& out, const PokemonLinks::TypeEncoding& toPrint) {
-    return out << toPrint.to_string() << std::endl;
-}
 
 
 /* * * * * * * * * * *     Free Functions for Client to Use with Class    * * * * * * * * * * * * */
