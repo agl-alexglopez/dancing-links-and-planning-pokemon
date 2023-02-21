@@ -231,7 +231,7 @@ TypeEncoding::TypeEncoding(std::string_view type) {
  *      Bug-Steel = 0x10001 = 0b10000 0000 0000 0001
  *
  * With single shifts it would take 16 bit shifts to get to the second type. With nyble shifts
- * we can get that bit in 4 shifts. At worst we have four additional shifts after a nybl shift.
+ * we can get that bit in 4 shifts. At worst we have three additional shifts after a nybl shift.
  */
 std::pair<std::string_view,std::string_view> TypeEncoding::to_string() const {
     if (!this->encoding_) {
