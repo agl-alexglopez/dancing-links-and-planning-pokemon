@@ -109,8 +109,8 @@ OTHER_FILES     *=  $$files(*.md, true)
 CONFIG          +=  sdk_no_version_check   # removes spurious warnings on Mac OS X
 
 # MinGW compiler lags, be conservative and use C++11 on all platforms
-# rather than special case
-CONFIG          +=  c++11
+# rather than special case. I'm doing c++20.
+CONFIG          +=  c++20
 
 # WARN_ON has -Wall -Wextra, add/remove a few specific warnings
 QMAKE_CXXFLAGS_WARN_ON      +=  -Werror=return-type
