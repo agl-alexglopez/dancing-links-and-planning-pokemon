@@ -346,7 +346,7 @@ namespace DancingLinks {
 bool hideOption(PokemonLinks& dlx, const TypeEncoding& toHide);
 bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide);
 bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
-                                   std::vector<TypeEncoding>& failedToHide);
+                std::vector<TypeEncoding>& failedToHide);
 void hideOptionsExcept(PokemonLinks& dlx, const std::set<TypeEncoding>& toKeep);
 }
 ```
