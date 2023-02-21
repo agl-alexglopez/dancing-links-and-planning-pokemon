@@ -36,8 +36,8 @@
  */
 #include "GUI/MiniGUI.h"
 #include "PokemonParser.h"
-#include "PokemonLinks.h"
-#include "Utilities/Resistance.h"
+#include "DancingLinks.h"
+#include "Resistance.h"
 #include "Utilities/RankedSet.h"
 #include <fstream>
 #include <memory>

@@ -46,33 +46,34 @@
 #define RESISTANCE_H
 #include <string>
 #include <ostream>
+#include "TypeEncoding.h"
 
+namespace DancingLinks {
+
+enum Multiplier {
+    /* It would not make sense for someone to let a multiplier in a Resistance default to
+     * IMMUNE, because that is a valuable multiplier to have for a Pokemon. Make sure you
+     * initialize multipliers unless you want an EMPTY_ placeholder.
+     */
+    EMPTY_=0,
+    IMMUNE,
+    FRAC14,  // x0.25 damage aka the fraction 1/4
+    FRAC12,  // x0.5 damage aka the fraction 1/2
+    NORMAL,
+    DOUBLE,
+    QUADRU
+};
 
 class Resistance {
 public:
-    typedef enum Multiplier {
-        /* It would not make sense for someone to let a multiplier in a Resistance default to
-         * IMMUNE, because that is a valuable multiplier to have for a Pokemon. Make sure you
-         * initialize multipliers unless you want an EMPTY_ placeholder.
-         */
-        EMPTY_=0,
-        IMMUNE,
-        FRAC14,  // x0.25 damage aka the fraction 1/4
-        FRAC12,  // x0.5 damage aka the fraction 1/2
-        NORMAL,
-        DOUBLE,
-        QUADRU
-    }Multiplier;
 
-    Resistance() = default;
-
-    Resistance(const std::string& type, const Multiplier& multiplier);
+    Resistance(const TypeEncoding& type, const Multiplier& multiplier);
 
     Resistance(const Resistance& other);
 
     Resistance(Resistance&& other) noexcept;
 
-    std::string type() const;
+    TypeEncoding type() const;
 
     Multiplier multiplier() const;
 
@@ -97,13 +98,15 @@ public:
         return !(*this == rhs);
     }
 private:
-    std::string type_;
+    TypeEncoding type_;
     Multiplier multiplier_;
 
 };
 
-std::ostream& operator<<(std::ostream& out, const Resistance& res);
-std::ostream& operator<<(std::ostream& out, const Resistance::Multiplier& mult);
 
+std::ostream& operator<<(std::ostream& out, const Resistance& res);
+std::ostream& operator<<(std::ostream& out, const Multiplier& mult);
+
+}// namespace DancingLinks
 
 #endif // RESISTANCE_H

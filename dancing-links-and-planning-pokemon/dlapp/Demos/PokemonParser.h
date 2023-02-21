@@ -39,8 +39,8 @@
 #include <string>
 #include <vector>
 #include "MapParser.h"
-#include "PokemonLinks.h"
-#include "Utilities/Resistance.h"
+#include "TypeEncoding.h"
+#include "Resistance.h"
 
 namespace Dx = DancingLinks;
 
@@ -73,7 +73,7 @@ struct PokemonTest {
      * might be missing. For example, generation one Pokemon did not have types like Fairy, Dark,
      * or Steel.
      */
-    std::map<std::string,std::set<Resistance>> interactions;
+    std::map<Dx::TypeEncoding,std::set<Dx::Resistance>> interactions;
     MapTest genMap;
 };
 

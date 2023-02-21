@@ -70,17 +70,21 @@ DEFINES     +=  main=qMain qMain=studentMain
 # Afterward we glob-add files to SOURCES ourselves. Operator *= will unique
 # entries, so no worries about duplicates
 SOURCES         *=  "" \
+    TypeEncoding.cpp \
+    Resistance.cpp \
     PokemonLinks.cpp \
     Demos/MapParser.cpp \
     Demos/PokemonGUI.cpp \
     Demos/PokemonParser.cpp \
-    Utilities/Resistance.cpp
+    Tests.cpp
 HEADERS         *=  "" \
+    TypeEncoding.h \
+    Resistance.h \
+    DancingLinks.h \
     PokemonLinks.h \
     Demos/MapParser.h \
     Demos/PokemonParser.h \
-    Utilities/RankedSet.h \
-    Utilities/Resistance.h
+    Utilities/RankedSet.h
 
 # Gather any .cpp or .h files within the project folder (student/starter code).
 # Second argument true makes search recursive

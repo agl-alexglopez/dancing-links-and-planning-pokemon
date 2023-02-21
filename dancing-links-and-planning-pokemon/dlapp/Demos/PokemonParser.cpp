@@ -79,13 +79,13 @@ const std::vector<QString> GENERATION_JSON_FILES = {
 };
 
 // Might as well use QStrings if I am parsing with them in the first place.
-const std::map<QString, Resistance::Multiplier> DAMAGE_MULTIPLIERS = {
-    {"immune", Resistance::IMMUNE},
-    {"quarter", Resistance::FRAC14},
-    {"half", Resistance::FRAC12},
-    {"normal", Resistance::NORMAL},
-    {"double", Resistance::DOUBLE},
-    {"quad", Resistance::QUADRU},
+const std::map<QString, Dx::Multiplier> DAMAGE_MULTIPLIERS = {
+    {"immune", Dx::IMMUNE},
+    {"quarter", Dx::FRAC14},
+    {"half", Dx::FRAC12},
+    {"normal", Dx::NORMAL},
+    {"double", Dx::DOUBLE},
+    {"quad", Dx::QUADRU},
 };
 
 void printGenerationError(const std::exception& ex) {
@@ -122,32 +122,33 @@ void getQJsonObject(QJsonObject& jsonObj, const QString& pathToJson) {
     }
 }
 
-void setResistances(std::map<std::string,std::set<Resistance>>& result,
-                     const std::string& newType,
+void setResistances(std::map<Dx::TypeEncoding,std::set<Dx::Resistance>>& result,
+                     const Dx::TypeEncoding& newType,
                      const QJsonObject& multipliers) {
     for (const QString& multiplier : multipliers.keys()) {
-        Resistance::Multiplier multiplierTag = DAMAGE_MULTIPLIERS.at(multiplier);
+        Dx::Multiplier multiplierTag = DAMAGE_MULTIPLIERS.at(multiplier);
         QJsonArray  typesInMultiplier = multipliers[multiplier].toArray();
         for (QJsonValueConstRef t : typesInMultiplier) {
             std::string resistanceType = QString(t.toString()).toStdString();
-            result[newType].insert({resistanceType, multiplierTag});
+            result[newType].insert({Dx::TypeEncoding(resistanceType), multiplierTag});
         }
     }
 }
 
-std::map<std::string,std::set<Resistance>> fromJsonToMap(int generation) {
+std::map<Dx::TypeEncoding,std::set<Dx::Resistance>> fromJsonToMap(int generation) {
     QJsonObject jsonTypes;
     getQJsonObject(jsonTypes, GENERATION_JSON_FILES[generation]);
-    std::map<std::string,std::set<Resistance>> result = {};
+    std::map<Dx::TypeEncoding,std::set<Dx::Resistance>> result = {};
     for (const QString& type : jsonTypes.keys()) {
         std::string newType = type.toStdString();
-        result.insert({newType, {}});
-        setResistances(result, newType, jsonTypes[type].toObject());
+        Dx::TypeEncoding encoded(newType);
+        result.insert({encoded, {}});
+        setResistances(result, encoded, jsonTypes[type].toObject());
     }
     return result;
 }
 
-std::map<std::string,std::set<Resistance>> loadGenerationFromJson(std::istream& source) {
+std::map<Dx::TypeEncoding,std::set<Dx::Resistance>> loadGenerationFromJson(std::istream& source) {
     std::string line;
     std::getline(source, line);
     std::string afterHashtag = line.substr(1, line.length() - 1);
