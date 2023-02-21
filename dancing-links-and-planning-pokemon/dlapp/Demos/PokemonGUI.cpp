@@ -411,7 +411,7 @@ private:
      */
     std::unique_ptr<Dx::PokemonLinks> defenseDLX;
     std::unique_ptr<Dx::PokemonLinks> attackDLX;
-    std::unique_ptr<std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>>> allSolutions;
+    std::unique_ptr<std::set<RankedSet<Dx::TypeEncoding>>> allSolutions;
 
     /* Loads the world with the given name. */
     void loadWorld(const std::string& filename);
@@ -422,8 +422,8 @@ private:
     void resetAllCoverages(Dx::PokemonLinks& dlxSolver, const DlxRequest& req, int depthLimit);
     void solveDefense(const DlxRequest& exactOrOverlapping);
     void solveAttack(const DlxRequest& exactOrOverlapping);
-    void printDefenseSolution(const std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>>& solution);
-    void printAttackSolution(const std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>>& solution);
+    void printDefenseSolution(const std::set<RankedSet<Dx::TypeEncoding>>& solution);
+    void printAttackSolution(const std::set<RankedSet<Dx::TypeEncoding>>& solution);
     void printDefenseMessage();
     void printAttackMessage();
 };
@@ -583,7 +583,7 @@ void PokemonGUI::printDefenseMessage() {
     (*solutionsDisplay) << "\n" << std::endl;
 }
 
-void PokemonGUI::printAttackSolution(const std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>>& solution) {
+void PokemonGUI::printAttackSolution(const std::set<RankedSet<Dx::TypeEncoding>>& solution) {
     *solutionsDisplay << "Found " << solution.size()
                        << " attack configurations SCORE | TYPES |. Higher score is better.\n";
     std::string maximumOutputExceeded = "\n";
@@ -594,7 +594,7 @@ void PokemonGUI::printAttackSolution(const std::set<RankedSet<Dx::PokemonLinks::
     *solutionsDisplay << maximumOutputExceeded;
     for (auto it = solution.rbegin(); it != solution.rend(); it++) {
         *solutionsDisplay << it->rank() << " | ";
-        for (const Dx::PokemonLinks::TypeEncoding& type : *it) {
+        for (const Dx::TypeEncoding& type : *it) {
             *solutionsDisplay << type << " | ";
         }
         *solutionsDisplay << "\n";
@@ -614,7 +614,7 @@ void PokemonGUI::printAttackMessage() {
     (*solutionsDisplay) << "\n" << std::endl;
 }
 
-void PokemonGUI::printDefenseSolution(const std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>>& solution) {
+void PokemonGUI::printDefenseSolution(const std::set<RankedSet<Dx::TypeEncoding>>& solution) {
     *solutionsDisplay << "Found " << solution.size()
                        << " Pokemon teams SCORE | TEAM |. Lower score is better.\n";
 
@@ -624,9 +624,9 @@ void PokemonGUI::printDefenseSolution(const std::set<RankedSet<Dx::PokemonLinks:
                                 + std::to_string(solution.size()) + ".\n\n";
     }
     *solutionsDisplay << maximumOutputExceeded;
-    for (const RankedSet<Dx::PokemonLinks::TypeEncoding>& cov : solution) {
+    for (const RankedSet<Dx::TypeEncoding>& cov : solution) {
         *solutionsDisplay << cov.rank() << " | ";
-        for (const Dx::PokemonLinks::TypeEncoding& type : cov) {
+        for (const Dx::TypeEncoding& type : cov) {
             *solutionsDisplay << type << " | ";
         }
         *solutionsDisplay << "\n";
@@ -639,11 +639,11 @@ void PokemonGUI::resetAllCoverages(Dx::PokemonLinks& dlxSolver,
                                    int depthLimit) {
     if (req == EXACT) {
         allSolutions.reset(
-            new std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>>(Dx::solveExactCover(dlxSolver, depthLimit))
+            new std::set<RankedSet<Dx::TypeEncoding>>(Dx::solveExactCover(dlxSolver, depthLimit))
         );
     } else {
         allSolutions.reset(
-            new std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>>(Dx::solveOverlappingCover(dlxSolver, depthLimit))
+            new std::set<RankedSet<Dx::TypeEncoding>>(Dx::solveOverlappingCover(dlxSolver, depthLimit))
         );
     }
 }
@@ -659,7 +659,7 @@ void PokemonGUI::solveDefense(const DlxRequest& req) {
     if (!selectedGyms.empty()) {
         selectionDrawStyle = SELECTED_GYMS;
 
-        std::set<Dx::PokemonLinks::TypeEncoding>
+        std::set<Dx::TypeEncoding>
         gymAttackTypes = loadSelectedGymsAttacks(mapDropdown->getSelectedItem(), selectedGyms);
         DancingLinks::hideItemsExcept(*defenseDLX, gymAttackTypes);
 
@@ -694,7 +694,7 @@ void PokemonGUI::solveAttack(const DlxRequest& req) {
 
     if (!selectedGyms.empty()) {
         selectionDrawStyle = SELECTED_GYMS;
-        std::set<Dx::PokemonLinks::TypeEncoding>
+        std::set<Dx::TypeEncoding>
         gymDefenseTypes = loadSelectedGymsDefenses(mapDropdown->getSelectedItem(),
                                                    selectedGyms);
         Dx::hideItemsExcept(*attackDLX, gymDefenseTypes);

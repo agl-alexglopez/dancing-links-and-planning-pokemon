@@ -117,6 +117,57 @@
 
 namespace DancingLinks {
 
+/* These algorithms may generate many solutions. Instead of storing strings with the type names
+ * in our internal data structures and solution sets we will encode the types we are working
+ * with into bits. From the 0th index bit, zero being the least significant bit position, we
+ * have the following types.
+ *
+ *  17,   16,   15,   14,     13,    12,  11,  10,     9,    8,    7,    6,     5,     4,      3,     2,     1,   0
+ * Water,Steel,Rock,Psychic,Poison,Normal,Ice,Ground,Grass,Ghost,Flying,Fire,Fighting,Fairy,Electric,Dragon,Dark,Bug
+ *
+ * Notice as well that the bits are organized in lexographical order according to their string
+ * representations. This means that we can be consistent when decoding the bits back to a string
+ * with the lexographical ordering I have decided on for the entire project. As an example the
+ * Dragon-Flying type would be the following hex and binary value.
+ *
+ *      Dragon-Flying = 0x84 = 0b10000100
+ *
+ * Storing these types masked in a simple integer makes searching for them in our links, adding
+ * or removing them to sets, or copying the dancing links class instance  much easier and
+ * faster. We then simply provide a method to convert the encoding back to a string and we only
+ * have to use that method when output is desired at the last moment, like when we want to print
+ * the type names to a GUI in an ostream. We create a copy of the string on demand and use the
+ * much more efficient encoding for our internal algorithms.
+ */
+struct TypeEncoding {
+    uint32_t encoding_;
+    TypeEncoding() = default;
+    TypeEncoding(std::string_view type);
+    std::pair<std::string_view,std::string_view> to_string() const;
+    bool operator==(TypeEncoding rhs) const {
+        return this->encoding_ == rhs.encoding_;
+    }
+    bool operator!=(TypeEncoding rhs) const {
+        return !(*this == rhs);
+    }
+    bool operator<(TypeEncoding rhs) const {
+        return this->encoding_ < rhs.encoding_;
+    }
+    bool operator>(TypeEncoding rhs) const {
+        return rhs < *this;
+    }
+    bool operator<=(TypeEncoding rhs) const {
+        return !(*this > rhs);
+    }
+    bool operator>=(TypeEncoding rhs) const {
+        return !(*this < rhs);
+    }
+};
+std::ostream& operator<<(std::ostream& out, const TypeEncoding& tp);
+std::ostream& operator<<(std::ostream& os, const std::set<RankedSet<TypeEncoding>>& solution);
+std::ostream& operator<<(std::ostream& os, const std::vector<TypeEncoding>& types);
+std::ostream& operator<<(std::ostream& os, const std::set<TypeEncoding>& types);
+
 
 /* See bottom of file for the free functions that accompany this class in DancingLinks namespace. */
 
@@ -130,60 +181,6 @@ public:
         ATTACK
     };
 
-    /* These algorithms may generate many solutions. Instead of storing strings with the type names
-     * in our internal data structures and solution sets we will encode the types we are working
-     * with into bits. From the 0th index bit, zero being the least significant bit position, we
-     * have the following types.
-     *
-     *  17,   16,   15,   14,     13,    12,  11,  10,     9,    8,    7,    6,     5,     4,      3,     2,     1,   0
-     * Water,Steel,Rock,Psychic,Poison,Normal,Ice,Ground,Grass,Ghost,Flying,Fire,Fighting,Fairy,Electric,Dragon,Dark,Bug
-     *
-     * Notice as well that the bits are organized in lexographical order according to their string
-     * representations. This means that we can be consistent when decoding the bits back to a string
-     * with the lexographical ordering I have decided on for the entire project. As an example the
-     * Dragon-Flying type would be the following hex and binary value.
-     *
-     *      Dragon-Flying = 0x84 = 0b10000100
-     *
-     * Storing these types masked in a simple integer makes searching for them in our links, adding
-     * or removing them to sets, or copying the dancing links class instance  much easier and
-     * faster. We then simply provide a method to convert the encoding back to a string and we only
-     * have to use that method when output is desired at the last moment, like when we want to print
-     * the type names to a GUI in an ostream. We create a copy of the string on demand and use the
-     * much more efficient encoding for our internal algorithms.
-     */
-    struct TypeEncoding {
-        uint32_t encoding_;
-        TypeEncoding() = default;
-        TypeEncoding(std::string_view type);
-        std::pair<std::string_view,std::string_view> to_string() const;
-        bool operator==(TypeEncoding rhs) const {
-            return this->encoding_ == rhs.encoding_;
-        }
-        bool operator!=(TypeEncoding rhs) const {
-            return !(*this == rhs);
-        }
-        bool operator<(TypeEncoding rhs) const {
-            return this->encoding_ < rhs.encoding_;
-        }
-        bool operator>(TypeEncoding rhs) const {
-            return rhs < *this;
-        }
-        bool operator<=(TypeEncoding rhs) const {
-            return !(*this > rhs);
-        }
-        bool operator>=(TypeEncoding rhs) const {
-            return !(*this < rhs);
-        }
-        std::ostream& operator<<(std::ostream& out) const {
-            std::pair<std::string_view,std::string_view> toPrint = this->to_string();
-            out << toPrint.first;
-            if (toPrint.second != "") {
-                out << "-" << toPrint.second;
-            }
-            return out << std::endl;
-        }
-    };
 
     /**
      * @brief PokemonLinks            this constructor builds the necessary internal data structures
@@ -694,12 +691,9 @@ private:
     friend bool operator!=(const std::vector<pokeLink>& lhs, const std::vector<pokeLink>& rhs);
     friend bool operator==(const std::vector<typeName>& lhs, const std::vector<typeName>& rhs);
     friend bool operator!=(const std::vector<typeName>& lhs, const std::vector<typeName>& rhs);
-    friend std::ostream& operator<<(std::ostream& os, const std::vector<TypeEncoding>& types);
-    friend std::ostream& operator<<(std::ostream& os, const std::set<TypeEncoding>& types);
     friend std::ostream& operator<<(std::ostream& os, const std::vector<pokeLink>& links);
     friend std::ostream& operator<<(std::ostream&os, const std::vector<typeName>& items);
     friend std::ostream& operator<<(std::ostream& os, const std::vector<encodingAndNum>& vec);
-    friend std::ostream& operator<<(std::ostream& os, const std::set<RankedSet<TypeEncoding>>& solution);
     ALLOW_TEST_ACCESS();
 
 
@@ -738,7 +732,7 @@ private:
  *
  * @return                 the set of Ranked Sets that form all solutions of exact cover.
  */
-std::set<RankedSet<PokemonLinks::TypeEncoding>> solveExactCover(PokemonLinks& dlx, int choiceLimit);
+std::set<RankedSet<TypeEncoding>> solveExactCover(PokemonLinks& dlx, int choiceLimit);
 
 /**
  * @brief solveOverlappingCover an overlapping coverage is when we cover every "item"
@@ -753,7 +747,7 @@ std::set<RankedSet<PokemonLinks::TypeEncoding>> solveExactCover(PokemonLinks& dl
  *                              duplicate solutions with the Dancing Links method.
  * @return                      the set of Ranked Sets that form all overlapping covers.
  */
-std::set<RankedSet<PokemonLinks::TypeEncoding>> solveOverlappingCover(PokemonLinks& dlx, int choiceLimit);
+std::set<RankedSet<TypeEncoding>> solveOverlappingCover(PokemonLinks& dlx, int choiceLimit);
 
 /**
  * @brief hasMaxSolutions  exact and overlapping cover solutions are limited at a large number
@@ -771,7 +765,7 @@ bool hasMaxSolutions(const PokemonLinks& dlx);
  * @param dlx    the PokemonLinks object that is instantiated with a requested cover solution.
  * @return       the vector of strings that are our items we must cover in the problem.
  */
-std::vector<PokemonLinks::TypeEncoding> items(const PokemonLinks& dlx);
+std::vector<TypeEncoding> items(const PokemonLinks& dlx);
 
 /**
  * @brief numItems  the number of items that need cover in the current PokemonLinks object.
@@ -787,14 +781,14 @@ int numItems(const PokemonLinks& dlx);
  * @param item     the item we are trying to find.
  * @return         true if the item is present and not hidden false if not.
  */
-bool hasItem(const PokemonLinks& dlx, const PokemonLinks::TypeEncoding& item);
+bool hasItem(const PokemonLinks& dlx, const TypeEncoding& item);
 
 /**
  * @brief options  reports the options available to us to cover our items in the cover problem.
  * @param dlx      the PokemonLinks object that is instantiated with a requested cover solution.
  * @return         the vector of strings that are our options we can use to cover the items.
  */
-std::vector<PokemonLinks::TypeEncoding> options(const PokemonLinks& dlx);
+std::vector<TypeEncoding> options(const PokemonLinks& dlx);
 
 /**
  * @brief numOptions  the number of options we can choose from to cover the total items.
@@ -810,7 +804,7 @@ int numOptions(const PokemonLinks& dlx);
  * @param option     the option we are searching for.
  * @return           true if found and not hidden false if not.
  */
-bool hasOption(const PokemonLinks& dlx, const PokemonLinks::TypeEncoding& option);
+bool hasOption(const PokemonLinks& dlx, const TypeEncoding& option);
 
 /**
  * @brief coverageType  the coverage type the PokemonLinks is set to.
@@ -831,7 +825,7 @@ PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
  * @param toHide    the string item representing the item to hide depending on ATTACK or DEFENSE.
  * @return          true if the item was hidden false if it was already hidden or not found.
  */
-bool hideItem(PokemonLinks& dlx, const PokemonLinks::TypeEncoding& toHide);
+bool hideItem(PokemonLinks& dlx, const TypeEncoding& toHide);
 
 /**
  * @brief hideItem  hides all items specified from the vector as above. In place, O(NlgN) guarantee.
@@ -839,7 +833,7 @@ bool hideItem(PokemonLinks& dlx, const PokemonLinks::TypeEncoding& toHide);
  * @param toHide    the string item representing the item to hide depending on ATTACK or DEFENSE.
  * @return          true if all items were hidden false if at least one was not.
  */
-bool hideItem(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>& toHide);
+bool hideItem(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide);
 
 /**
  * @brief hideItem      hides items specified from the vector as above. In place, O(NlgN) guarantee.
@@ -848,8 +842,8 @@ bool hideItem(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>& 
  * @param failedToHide  an additional output parameter if user wants to see failures.
  * @return              true if all items were hidden false if at least one was not found.
  */
-bool hideItem(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>& toHide,
-                                 std::vector<PokemonLinks::TypeEncoding>& failedToHide);
+bool hideItem(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
+                                 std::vector<TypeEncoding>& failedToHide);
 
 /**
  * @brief hideItemsExcept  hides all items NOT included in the specified set. In place, O(NlgK)
@@ -857,7 +851,7 @@ bool hideItem(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>& 
  * @param dlx              the PokemonLinks object we alter in place.
  * @param toKeep           the items that remain the world as items we must cover.
  */
-void hideItemsExcept(PokemonLinks& dlx, const std::set<PokemonLinks::TypeEncoding>& toKeep);
+void hideItemsExcept(PokemonLinks& dlx, const std::set<TypeEncoding>& toKeep);
 
 /**
  * @brief numHidItems  returns the number of items we are currently hiding from the world. O(1).
@@ -873,7 +867,7 @@ int numHidItems(const PokemonLinks& dlx);
  * @param dlx          the PokemonLinks object we examine.
  * @return             the most recently hidden item.
  */
-PokemonLinks::TypeEncoding peekHidItem(const PokemonLinks& dlx);
+TypeEncoding peekHidItem(const PokemonLinks& dlx);
 
 /**
  * @brief popHidItem  pop the most recently hidden item from the stack altering the stack. Throws
@@ -894,7 +888,7 @@ bool hidItemsEmpty(const PokemonLinks& dlx);
  * @param dlx       the PokemonLinks object we alter.
  * @return          the vector of items in the order we hid them. Last is first out if popped.
  */
-std::vector<PokemonLinks::TypeEncoding> hidItems(const PokemonLinks& dlx);
+std::vector<TypeEncoding> hidItems(const PokemonLinks& dlx);
 
 /**
  * @brief resetItems  restores the items in the world to their original state. O(H), H hidden items.
@@ -915,7 +909,7 @@ void resetItems(PokemonLinks& dlx);
  * @param toHide      the option we must hide from the world.
  * @return            true if option was hidden false if it was hidden or could not be found.
  */
-bool hideOption(PokemonLinks& dlx, const PokemonLinks::TypeEncoding& toHide);
+bool hideOption(PokemonLinks& dlx, const TypeEncoding& toHide);
 
 /**
  * @brief hideOption  hides all options specified in the vector from the world. Uses the same
@@ -926,7 +920,7 @@ bool hideOption(PokemonLinks& dlx, const PokemonLinks::TypeEncoding& toHide);
  * @param toHide      the options we must hide from the world.
  * @return            true if all options were hidden false if at least one was not.
  */
-bool hideOption(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>& toHide);
+bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide);
 
 /**
  * @brief hideOption    hides all options specified in the vector from the world. Uses the same
@@ -938,8 +932,8 @@ bool hideOption(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>
  * @param failedToHide  an additional output showing the options that could not be found.
  * @return              true if all options were hidden false if at least one failed.
  */
-bool hideOption(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>& toHide,
-                                    std::vector<PokemonLinks::TypeEncoding>& failedToHide);
+bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
+                                    std::vector<TypeEncoding>& failedToHide);
 
 /**
  * @brief hideOptionsExcept  hides all options NOT specified in the given set. In place O(NlgKI)
@@ -949,7 +943,7 @@ bool hideOption(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>
  * @param dlx                the PokemonLinks object we alter.
  * @param toKeep             the options we will keep available to choose from for the problem.
  */
-void hideOptionsExcept(PokemonLinks& dlx, const std::set<PokemonLinks::TypeEncoding>& toKeep);
+void hideOptionsExcept(PokemonLinks& dlx, const std::set<TypeEncoding>& toKeep);
 
 /**
  * @brief numHidOptions  num options currently hidden in the stack. The last is first out. O(1).
@@ -964,7 +958,7 @@ int numHidOptions(const PokemonLinks& dlx);
  * @param dlx            the PokemonLinks object we examine.
  * @return               the most recently hidden option.
  */
-PokemonLinks::TypeEncoding peekHidOption(const PokemonLinks& dlx);
+TypeEncoding peekHidOption(const PokemonLinks& dlx);
 
 /**
  * @brief popHidOption  pop the most recently hidden item from stack altering the stack. O(1).
@@ -984,7 +978,7 @@ bool hidOptionsEmpty(const PokemonLinks& dlx);
  * @param dlx         the PokemonLinks object we alter.
  * @return            the vector of options in order we hid them. Last is first out if popped.
  */
-std::vector<PokemonLinks::TypeEncoding> hidOptions(const PokemonLinks& dlx);
+std::vector<TypeEncoding> hidOptions(const PokemonLinks& dlx);
 
 /**
  * @brief resetOptions  restore the options in the world to original state. O(H), H hidden items.
@@ -1002,5 +996,6 @@ void resetAll(PokemonLinks& dlx);
 
 
 } // namespace DancingLinks
+
 
 #endif // POKEMONLINKS_H

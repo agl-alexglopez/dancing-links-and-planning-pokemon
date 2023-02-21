@@ -174,12 +174,12 @@ PokemonTest loadPokemonGeneration(std::istream& source) {
     return generation;
 }
 
-std::set<Dx::PokemonLinks::TypeEncoding>
+std::set<Dx::TypeEncoding>
 loadSelectedGymsDefenses(const std::string& selectedMap,
                            const std::set<std::string>& selectedGyms) {
     QJsonObject mapData;
     getQJsonObject(mapData, JSON_ALL_MAPS_FILE);
-    std::set<Dx::PokemonLinks::TypeEncoding> result = {};
+    std::set<Dx::TypeEncoding> result = {};
 
     QString map = QString::fromStdString(selectedMap);
     QJsonObject gymKeys = mapData[map].toObject();
@@ -190,7 +190,7 @@ loadSelectedGymsDefenses(const std::string& selectedMap,
 
             for (const QJsonValueConstRef& type : gymDefenseTypes) {
                 std::string stdVersion = QString(type.toString()).toStdString();
-                result.insert(Dx::PokemonLinks::TypeEncoding(stdVersion));
+                result.insert(Dx::TypeEncoding(stdVersion));
             }
         }
     }
@@ -198,12 +198,12 @@ loadSelectedGymsDefenses(const std::string& selectedMap,
     return result;
 }
 
-std::set<Dx::PokemonLinks::TypeEncoding>
+std::set<Dx::TypeEncoding>
 loadSelectedGymsAttacks(const std::string& selectedMap,
                           const std::set<std::string>& selectedGyms) {
     QJsonObject mapData;
     getQJsonObject(mapData, JSON_ALL_MAPS_FILE);
-    std::set<Dx::PokemonLinks::TypeEncoding> result = {};
+    std::set<Dx::TypeEncoding> result = {};
     QString map = QString::fromStdString(selectedMap);
     QJsonObject gymKeys = mapData[map].toObject();
 
@@ -213,7 +213,7 @@ loadSelectedGymsAttacks(const std::string& selectedMap,
 
             for (const QJsonValueConstRef& type : gymAttackTypes) {
                 std::string stdVersion = QString(type.toString()).toStdString();
-                result.insert(Dx::PokemonLinks::TypeEncoding(stdVersion));
+                result.insert(Dx::TypeEncoding(stdVersion));
             }
         }
     }

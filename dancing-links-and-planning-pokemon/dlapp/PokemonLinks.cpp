@@ -43,11 +43,11 @@ namespace DancingLinks {
 /* * * * * * * * * * * * *       Convenience Callers for Encapsulation      * * * * * * * * * * * */
 
 
-std::set<RankedSet<PokemonLinks::TypeEncoding>> solveExactCover(PokemonLinks& dlx, int choiceLimit) {
+std::set<RankedSet<TypeEncoding>> solveExactCover(PokemonLinks& dlx, int choiceLimit) {
     return dlx.getExactCoverages(choiceLimit);
 }
 
-std::set<RankedSet<PokemonLinks::TypeEncoding>> solveOverlappingCover(PokemonLinks& dlx, int choiceLimit) {
+std::set<RankedSet<TypeEncoding>> solveOverlappingCover(PokemonLinks& dlx, int choiceLimit) {
     return dlx.getOverlappingCoverages(choiceLimit);
 }
 
@@ -59,7 +59,7 @@ int numItems(const PokemonLinks& dlx) {
     return dlx.getNumItems();
 }
 
-bool hasItem(const PokemonLinks& dlx, const PokemonLinks::TypeEncoding& item) {
+bool hasItem(const PokemonLinks& dlx, const TypeEncoding& item) {
     return dlx.hasItem(item);
 }
 
@@ -67,7 +67,7 @@ int numOptions(const PokemonLinks& dlx) {
     return dlx.getNumOptions();
 }
 
-bool hasOption(const PokemonLinks& dlx, const PokemonLinks::TypeEncoding& option) {
+bool hasOption(const PokemonLinks& dlx, const TypeEncoding& option) {
     return dlx.hasOption(option);
 }
 
@@ -75,28 +75,28 @@ PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx) {
     return dlx.getLinksType();
 }
 
-std::vector<PokemonLinks::TypeEncoding> items(const PokemonLinks& dlx) {
+std::vector<TypeEncoding> items(const PokemonLinks& dlx) {
     return dlx.getItems();
 }
 
-std::vector<PokemonLinks::TypeEncoding> options(const PokemonLinks& dlx) {
+std::vector<TypeEncoding> options(const PokemonLinks& dlx) {
     return dlx.getOptions();
 }
 
-bool hideItem(PokemonLinks& dlx, const PokemonLinks::TypeEncoding& toHide) {
+bool hideItem(PokemonLinks& dlx, const TypeEncoding& toHide) {
     return dlx.hideRequestedItem(toHide);
 }
 
-bool hideItem(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>& toHide) {
+bool hideItem(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide) {
     return dlx.hideRequestedItem(toHide);
 }
 
-bool hideItem(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>& toHide,
-                                 std::vector<PokemonLinks::TypeEncoding>& failedToHide) {
+bool hideItem(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
+                                 std::vector<TypeEncoding>& failedToHide) {
     return dlx.hideRequestedItem(toHide, failedToHide);
 }
 
-void hideItemsExcept(PokemonLinks& dlx, const std::set<PokemonLinks::TypeEncoding>& toKeep) {
+void hideItemsExcept(PokemonLinks& dlx, const std::set<TypeEncoding>& toKeep) {
     dlx.hideAllItemsExcept(toKeep);
 }
 
@@ -104,7 +104,7 @@ int numHidItems(const PokemonLinks& dlx) {
     return dlx.getNumHidItems();
 }
 
-PokemonLinks::TypeEncoding peekHidItem(const PokemonLinks& dlx) {
+TypeEncoding peekHidItem(const PokemonLinks& dlx) {
     return dlx.peekHidItem();
 }
 
@@ -116,7 +116,7 @@ bool hidItemsEmpty(const PokemonLinks& dlx) {
     return dlx.hidItemsEmpty();
 }
 
-std::vector<PokemonLinks::TypeEncoding> hidItems(const PokemonLinks& dlx) {
+std::vector<TypeEncoding> hidItems(const PokemonLinks& dlx) {
     return dlx.getHidItems();
 }
 
@@ -124,20 +124,20 @@ void resetItems(PokemonLinks& dlx) {
     dlx.resetItems();
 }
 
-bool hideOption(PokemonLinks& dlx, const PokemonLinks::TypeEncoding& toHide) {
+bool hideOption(PokemonLinks& dlx, const TypeEncoding& toHide) {
     return dlx.hideRequestedOption(toHide);
 }
 
-bool hideOption(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>& toHide) {
+bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide) {
     return dlx.hideRequestedOption(toHide);
 }
 
-bool hideOption(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>& toHide,
-                                   std::vector<PokemonLinks::TypeEncoding>& failedToHide) {
+bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
+                                   std::vector<TypeEncoding>& failedToHide) {
     return dlx.hideRequestedOption(toHide, failedToHide);
 }
 
-void hideOptionsExcept(PokemonLinks& dlx, const std::set<PokemonLinks::TypeEncoding>& toKeep) {
+void hideOptionsExcept(PokemonLinks& dlx, const std::set<TypeEncoding>& toKeep) {
     dlx.hideAllOptionsExcept(toKeep);
 }
 
@@ -145,7 +145,7 @@ int numHidOptions(const PokemonLinks& dlx) {
     return dlx.getNumHidOptions();
 }
 
-PokemonLinks::TypeEncoding peekHidOption(const PokemonLinks& dlx) {
+TypeEncoding peekHidOption(const PokemonLinks& dlx) {
     return dlx.peekHidOption();
 }
 
@@ -157,7 +157,7 @@ bool hidOptionsEmpty(const PokemonLinks& dlx) {
     return dlx.hidOptionsEmpty();
 }
 
-std::vector<PokemonLinks::TypeEncoding> hidOptions(const PokemonLinks& dlx) {
+std::vector<TypeEncoding> hidOptions(const PokemonLinks& dlx) {
     return dlx.getHidOptions();
 }
 
@@ -170,10 +170,108 @@ void resetAll(PokemonLinks& dlx) {
 }
 
 
+/* * * * * * * * * * * * * * * * *      TypeEncoding Utilities          * * * * * * * * * * * * * */
+
+
+namespace {
+
+// Half a byte is a nibble (aka nybl, nyble, nybble, half-byte...)
+const uint32_t NYBL_SHIFT = 4;
+const uint32_t NYBL_MASK = 0xf;
+const uint32_t TYPE_MAX = 0x30000;
+const size_t TYPE_TABLE_SIZE = 18;
+
+// Lexographically organized table. 0th index is 0th bit in encoding. Goes up to 17th bit index.
+std::string TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
+    "Bug","Dark","Dragon","Electric","Fairy","Fighting","Fire","Flying","Ghost","Grass",
+    "Ground","Ice","Normal","Poison","Psychic","Rock","Steel","Water"
+};
+
+size_t binsearchBitIndex(std::string_view type) {
+    for (size_t remain = TYPE_TABLE_SIZE, base = 0; remain; remain >>= 1) {
+        size_t index = base + (remain >> 1);
+        std::string_view found = TYPE_ENCODING_TABLE[index];
+        if (found == type) {
+            return index;
+        }
+        if (type > found) {
+            base = index + 1;
+            remain--;
+        }
+    }
+    return 0;
+}
+
+} // namespace
+
+
+TypeEncoding::TypeEncoding(std::string_view type) {
+    if (type == "") {
+        this->encoding_ = 0;
+        return;
+    }
+    size_t delim = type.find('-');
+    this->encoding_ = 1 << binsearchBitIndex(type.substr(0, delim));
+    if (!this->encoding_ || delim == std::string::npos) {
+        return;
+    }
+    size_t secondBitIndex = binsearchBitIndex(type.substr(delim + 1));
+    if (!secondBitIndex) {
+        this->encoding_ = 0;
+        return;
+    }
+    this->encoding_ |= (1 << secondBitIndex);
+}
+
+/* Shifting a nyble at a time is a good balance. The second loop will have at most 4 shifts.
+ * This could cut down the shifts to get to the bit we want significantly. Consider how many
+ * shifts to get the indices of the following bits with normal single shifts and then with
+ * nyble shifts. Nybl shifts are the size of a nybl, 4 bits.
+ *
+ *      Bug-Steel = 0x10001 = 0b10000 0000 0000 0001
+ *
+ * With single shifts it would take 16 bit shifts to get to the second type. With nyble shifts
+ * we can get that bit in 4 shifts. At worst we have four additional shifts after a nybl shift.
+ */
+std::pair<std::string_view,std::string_view> TypeEncoding::to_string() const {
+    if (!this->encoding_) {
+        return {};
+    }
+    TypeEncoding thisCopy = *this;
+    int tableIndex = 0;
+    while (thisCopy.encoding_) {
+        if (!(thisCopy.encoding_ & NYBL_MASK)) {
+            thisCopy.encoding_ >>= NYBL_SHIFT;
+            tableIndex += NYBL_SHIFT;
+            continue;
+        }
+        for (; !(thisCopy.encoding_ & 1); tableIndex++, thisCopy.encoding_ >>= 1) {
+        }
+        break;
+    }
+    std::string_view decoded = TYPE_ENCODING_TABLE[tableIndex];
+    if (thisCopy.encoding_ == 1) {
+        return {decoded, {}};
+    }
+    while (thisCopy.encoding_) {
+        if (!(thisCopy.encoding_ & NYBL_MASK)) {
+            thisCopy.encoding_ >>= NYBL_SHIFT;
+            tableIndex += NYBL_SHIFT;
+            continue;
+        }
+        do {
+            ++tableIndex;
+        } while (!((thisCopy.encoding_ >>= 1) & 1));
+        break;
+    }
+    return {decoded, TYPE_ENCODING_TABLE[tableIndex]};
+}
+
+
 /* * * * * * * * * * * * * * * *    Algorithm X via Dancing Links   * * * * * * * * * * * * * * * */
 
 
-std::set<RankedSet<PokemonLinks::TypeEncoding>> PokemonLinks::getExactCoverages(int choiceLimit) {
+std::set<RankedSet<TypeEncoding>> PokemonLinks::getExactCoverages(int choiceLimit) {
     std::set<RankedSet<TypeEncoding>> coverages = {};
     RankedSet<TypeEncoding> coverage = {};
     hitLimit_ = false;
@@ -337,7 +435,7 @@ int PokemonLinks::chooseItem() const {
 /* * * * * * * * * * * *   Overlapping Coverage via Dancing Links   * * * * * * * * * * * * * * * */
 
 
-std::set<RankedSet<PokemonLinks::TypeEncoding>>
+std::set<RankedSet<TypeEncoding>>
 PokemonLinks::getOverlappingCoverages(int choiceLimit) {
     std::set<RankedSet<TypeEncoding>> coverages = {};
     RankedSet<TypeEncoding> coverage = {};
@@ -427,99 +525,6 @@ void PokemonLinks::overlappingUncoverType(int indexInOption) {
 }
 
 
-/* * * * * * * * * * * * * * * * *      TypeEncoding Utilities          * * * * * * * * * * * * * */
-
-
-namespace {
-
-const uint32_t TYPE_MAX = 0x30000;
-const uint32_t NYBL_CHECKER = 0xf;
-const uint32_t NYBL_SIZE = 4;
-const size_t TYPE_TABLE_SIZE = 18;
-
-std::string TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
-    "Bug","Dark","Dragon","Electric","Fairy","Fighting","Fire","Flying","Ghost","Grass",
-    "Ground","Ice","Normal","Poison","Psychic","Rock","Steel","Water"
-};
-
-size_t binsearchBitIndex(std::string_view type) {
-    for (size_t remain = TYPE_TABLE_SIZE, base = 0; remain; remain >>= 1) {
-        size_t index = base + (remain >> 1);
-        std::string_view found = TYPE_ENCODING_TABLE[index];
-        if (found == type) {
-            return index;
-        }
-        if (type > found) {
-            base = index + 1;
-            remain--;
-        }
-    }
-    return TYPE_TABLE_SIZE;
-}
-
-} // namespace
-
-
-PokemonLinks::TypeEncoding::TypeEncoding(std::string_view type) {
-    if (type == "") {
-        this->encoding_ = 0;
-        return;
-    }
-    size_t delim = type.find('-');
-    if (delim == std::string::npos) {
-        this->encoding_ = 1 << binsearchBitIndex(type);
-    }
-    std::string_view firstType = type.substr(0, delim);
-    size_t firstBitIndex = binsearchBitIndex(firstType);
-    if (firstBitIndex == TYPE_TABLE_SIZE) {
-        this->encoding_ = 0;
-        return;
-    }
-    this->encoding_ = 1 << firstBitIndex;
-    std::string_view secondType = type.substr(delim + 1);
-    size_t secondBitIndex = binsearchBitIndex(secondType);
-    if (secondBitIndex == TYPE_TABLE_SIZE) {
-        this->encoding_ = 0;
-        return;
-    }
-    this->encoding_ |= (1 << secondBitIndex);
-}
-
-std::pair<std::string_view,std::string_view> PokemonLinks::TypeEncoding::to_string() const {
-    if (!this->encoding_) {
-        return {};
-    }
-    TypeEncoding thisCopy = *this;
-    int tableIndex = 0;
-    while (thisCopy.encoding_) {
-        if (!(thisCopy.encoding_ & NYBL_CHECKER)) {
-            thisCopy.encoding_ >>= 4;
-            tableIndex += 4;
-            continue;
-        }
-        for (; !(thisCopy.encoding_ & 1); tableIndex++, thisCopy.encoding_ >>= 1) {
-        }
-        break;
-    }
-    std::string_view decoded = TYPE_ENCODING_TABLE[tableIndex];
-    if (thisCopy.encoding_ == 1) {
-        return {decoded, {}};
-    }
-    while (thisCopy.encoding_) {
-        if (!(thisCopy.encoding_ & NYBL_CHECKER)) {
-            thisCopy.encoding_ >>= NYBL_SIZE;
-            tableIndex += NYBL_SIZE;
-            continue;
-        }
-        do {
-            ++tableIndex;
-        } while (!((thisCopy.encoding_ >>= 1) & 1));
-        break;
-    }
-    return {decoded, TYPE_ENCODING_TABLE[tableIndex]};
-}
-
-
 /* * * * * * * * * * * * * * * * *        Utility Functions             * * * * * * * * * * * * * */
 
 
@@ -539,24 +544,24 @@ PokemonLinks::CoverageType PokemonLinks::getLinksType() const {
     return requestedCoverSolution_;
 }
 
-std::vector<PokemonLinks::TypeEncoding> PokemonLinks::getItems() const {
-    std::vector<PokemonLinks::TypeEncoding> result = {};
+std::vector<TypeEncoding> PokemonLinks::getItems() const {
+    std::vector<TypeEncoding> result = {};
     for (int i = itemTable_[0].right; i != 0; i = itemTable_[i].right) {
         result.push_back(itemTable_[i].name);
     }
     return result;
 }
 
-std::vector<PokemonLinks::TypeEncoding> PokemonLinks::getHidItems() const {
-    std::vector<PokemonLinks::TypeEncoding>result = {};
+std::vector<TypeEncoding> PokemonLinks::getHidItems() const {
+    std::vector<TypeEncoding>result = {};
     for (const auto& i : hiddenItems_) {
         result.push_back(itemTable_[i].name);
     }
     return result;
 }
 
-std::vector<PokemonLinks::TypeEncoding> PokemonLinks::getOptions() const {
-    std::vector<PokemonLinks::TypeEncoding> result = {};
+std::vector<TypeEncoding> PokemonLinks::getOptions() const {
+    std::vector<TypeEncoding> result = {};
     // Hop from row title to row title, skip hidden options. Skip bookend node that is placeholder.
     for (int i = itemTable_.size(); i < links_.size() - 1; i = links_[i].down + 1) {
         if (links_[i].tag != HIDDEN) {
@@ -566,8 +571,8 @@ std::vector<PokemonLinks::TypeEncoding> PokemonLinks::getOptions() const {
     return result;
 }
 
-std::vector<PokemonLinks::TypeEncoding> PokemonLinks::getHidOptions() const {
-    std::vector<PokemonLinks::TypeEncoding> result = {};
+std::vector<TypeEncoding> PokemonLinks::getHidOptions() const {
+    std::vector<TypeEncoding> result = {};
     for (const auto& i : hiddenOptions_) {
         result.push_back(optionTable_[std::abs(links_[i].topOrLen)].name);
     }
@@ -632,7 +637,7 @@ void PokemonLinks::popHidItem() {
     }
 }
 
-PokemonLinks::TypeEncoding PokemonLinks::peekHidItem() const {
+TypeEncoding PokemonLinks::peekHidItem() const {
     if (hiddenItems_.size()) {
         return itemTable_[hiddenItems_.back()].name;
     }
@@ -714,7 +719,7 @@ void PokemonLinks::popHidOption() {
     }
 }
 
-PokemonLinks::TypeEncoding PokemonLinks::peekHidOption() const {
+TypeEncoding PokemonLinks::peekHidOption() const {
     if (!hiddenOptions_.empty()) {
         // Row spacer tiles in the links hold their name as a negative index in the optionTable_
         return optionTable_[std::abs(links_[hiddenOptions_.back()].topOrLen)].name;
@@ -1016,6 +1021,33 @@ void PokemonLinks::buildAttackLinks(const std::map<std::string,std::set<Resistan
  * friend overloaded operators and the tests will begin.
  */
 
+std::ostream& operator<<(std::ostream& out, const TypeEncoding& tp) {
+    std::pair<std::string_view,std::string_view> toPrint = tp.to_string();
+    out << toPrint.first;
+    if (toPrint.second != "") {
+        out << "-" << toPrint.second;
+    }
+    return out;
+}
+std::ostream& operator<<(std::ostream& os,
+                         const std::set<RankedSet<TypeEncoding>>& solution) {
+    for (const auto& i : solution) {
+        os << i;
+    }
+    return os << std::endl;
+}
+std::ostream& operator<<(std::ostream& os, const std::vector<TypeEncoding>& types) {
+    for (const auto& t : types) {
+        os << t << ",";
+    }
+    return os << std::endl;
+}
+std::ostream& operator<<(std::ostream& os, const std::set<TypeEncoding>& types) {
+    for (const auto& t : types) {
+        os << t << ",";
+    }
+    return os << std::endl;
+}
 bool operator==(const PokemonLinks::pokeLink& lhs, const PokemonLinks::pokeLink& rhs) {
     return lhs.topOrLen == rhs.topOrLen && lhs.up == rhs.up
             && lhs.down == rhs.down && lhs.multiplier == rhs.multiplier
@@ -1123,45 +1155,12 @@ std::ostream& operator<<(std::ostream& os, const std::vector<PokemonLinks::encod
     }
     return os << std::endl;
 }
-std::ostream& operator<<(std::ostream& os,
-                         const std::set<RankedSet<PokemonLinks::TypeEncoding>>& solution) {
-    for (const auto& i : solution) {
-        os << i;
-    }
-    return os << std::endl;
-}
-std::ostream& operator<<(std::ostream& os, const std::vector<PokemonLinks::TypeEncoding>& types) {
-    for (const auto& t : types) {
-        os << t << ",";
-    }
-    return os << std::endl;
-}
-std::ostream& operator<<(std::ostream& os, const std::set<PokemonLinks::TypeEncoding>& types) {
-    for (const auto& t : types) {
-        os << t << ",";
-    }
-    return os << std::endl;
-}
 
 
 } // namespace DancingLinks
 
 
 /* * * * * * * * * * * * * * *      Tests Below This Point      * * * * * * * * * * * * * * * * * */
-
-
-// Clang needs to know that these operators match the namespace of their arguments. Can't be global.
-namespace std {
-
-inline ostream& operator<<(ostream& os, const vector<string>& vec) {
-    for (const auto& s : vec) {
-        os << s;
-    }
-    os << endl;
-    return os;
-}
-
-} // namespace std
 
 
 /* These type names completely crowd out our test cases when I construct the dlx grids in the test
@@ -1190,7 +1189,7 @@ constexpr Resistance::Multiplier QD = Resistance::QUADRU;
 STUDENT_TEST("Easiest type encoding lexographically is Bug.") {
     uint32_t hexType = 0x1;
     std::string_view strType = "Bug";
-    Dx::PokemonLinks::TypeEncoding code(strType);
+    Dx::TypeEncoding code(strType);
     EXPECT_EQUAL(hexType, code.encoding_);
     EXPECT_EQUAL(strType, code.to_string().first);
     std::string_view empty{};
@@ -1215,7 +1214,7 @@ STUDENT_TEST("Initialize small defensive links") {
     };
 
     std::vector<Dx::PokemonLinks::encodingAndNum> optionTable = {
-        {Dx::PokemonLinks::TypeEncoding(""),0},
+        {Dx::TypeEncoding(""),0},
         {{"Ghost"},4},
         {{"Water"},6}
     };
@@ -1515,7 +1514,7 @@ STUDENT_TEST("There are two exact covers for this typing combo.") {
         {"Water", {{"Electric",NM},{"Grass",DB},{"Ice",F2},{"Normal",NM},{"Water",F2}}},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>> correct = {{11,{{"Ghost"},{"Ground"},{"Poison"},{"Water"}}},
+    std::set<RankedSet<Dx::TypeEncoding>> correct = {{11,{{"Ghost"},{"Ground"},{"Poison"},{"Water"}}},
                                                                    {13,{{"Electric"},{"Ghost"},{"Poison"},{"Water"}}}};
     EXPECT_EQUAL(links.getExactCoverages(6), correct);
 }
@@ -1588,8 +1587,8 @@ STUDENT_TEST("There is one exact and a few overlapping covers here. Exact cover 
     EXPECT_EQUAL(links.optionTable_, options);
     EXPECT_EQUAL(links.itemTable_, items);
     EXPECT_EQUAL(links.links_, dlx);
-    std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>> result = links.getExactCoverages(6);
-    std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>> correct = {{13,{{"Bug-Ghost"},
+    std::set<RankedSet<Dx::TypeEncoding>> result = links.getExactCoverages(6);
+    std::set<RankedSet<Dx::TypeEncoding>> correct = {{13,{{"Bug-Ghost"},
                                                                         {"Ground-Water"},
                                                                         {"Ice-Water"},}}};
     EXPECT_EQUAL(correct, result);
@@ -1668,7 +1667,7 @@ STUDENT_TEST("At least test that we can recognize a successful attack coverage")
         {"Normal", {{"Fighting",DB}}},
         {"Water", {{"Grass",DB}}},
     };
-    std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>> solutions = {{30, {{"Fighting"},{"Grass"},{"Ground"},{"Ice"}}},
+    std::set<RankedSet<Dx::TypeEncoding>> solutions = {{30, {{"Fighting"},{"Grass"},{"Ground"},{"Ice"}}},
                                                                      {30,{{"Fighting"},{"Grass"},{"Ground"},{"Poison"}}}};
     Dx::PokemonLinks links(types, Dx::PokemonLinks::ATTACK);
     EXPECT_EQUAL(links.getExactCoverages(24), solutions);
@@ -1700,8 +1699,8 @@ STUDENT_TEST("There is one exact and a few overlapping covers here. Exact cover 
         {"Ice-Water",{{"Electric",DB},{"Fire",NM},{"Grass",DB},{"Ice",F2},{"Normal",NM},{"Water",F2}}},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::ATTACK);
-    std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>> result = links.getExactCoverages(24);
-    std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>> correct = {
+    std::set<RankedSet<Dx::TypeEncoding>> result = links.getExactCoverages(24);
+    std::set<RankedSet<Dx::TypeEncoding>> correct = {
         {31,{{"Fire"},{"Grass"},{"Water"},}}
     };
     EXPECT_EQUAL(result, correct);
@@ -1878,8 +1877,8 @@ STUDENT_TEST("Overlapping allows two types to cover same opposing type i.e. Fire
         {"Water", {{"Electric",NM},{"Fire",F2},{"Grass",NM},{"Ice",NM},{"Normal",NM},{"Water",F2}}},
     };
     Dx::PokemonLinks links (types, Dx::PokemonLinks::DEFENSE);
-    std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>> result = links.getOverlappingCoverages(6);
-    std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>> correct = {
+    std::set<RankedSet<Dx::TypeEncoding>> result = links.getOverlappingCoverages(6);
+    std::set<RankedSet<Dx::TypeEncoding>> correct = {
         {18,{{"Electric"},{"Fire"},{"Ice"},{"Normal"}}},
         {18,{{"Fire"},{"Grass"},{"Ice"},{"Normal"}}},
         {18,{{"Fire"},{"Ice"},{"Normal"},{"Water"}}}
@@ -1916,8 +1915,8 @@ STUDENT_TEST("There is one exact and a few overlapping covers here. Let's see ov
         {"Ice-Water",{{"Ice",F4},{"Water",F2}}},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>> result = links.getOverlappingCoverages(6);
-    std::set<RankedSet<Dx::PokemonLinks::TypeEncoding>> correct = {
+    std::set<RankedSet<Dx::TypeEncoding>> result = links.getOverlappingCoverages(6);
+    std::set<RankedSet<Dx::TypeEncoding>> correct = {
         {13,{{"Bug-Ghost"},{"Ground-Water"},{"Ice-Water"}}},
         {14,{{"Bug-Ghost"},{"Electric-Grass"},{"Fire-Flying"},{"Ice-Water"}}},
         {14,{{"Bug-Ghost"},{"Electric-Grass"},{"Ground-Water"},{"Ice-Psychic"}}},
@@ -1964,13 +1963,13 @@ STUDENT_TEST("Test binary search on the item table.") {
         {{"Water"},5,0},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    EXPECT_EQUAL(links.findItemIndex(Dx::PokemonLinks::TypeEncoding(std::string{"Electric"})), 1);
-    EXPECT_EQUAL(links.findItemIndex(Dx::PokemonLinks::TypeEncoding(std::string{"Fire"})), 2);
-    EXPECT_EQUAL(links.findItemIndex(Dx::PokemonLinks::TypeEncoding(std::string{"Grass"})), 3);
-    EXPECT_EQUAL(links.findItemIndex(Dx::PokemonLinks::TypeEncoding(std::string{"Ice"})), 4);
-    EXPECT_EQUAL(links.findItemIndex(Dx::PokemonLinks::TypeEncoding(std::string{"Normal"})), 5);
-    EXPECT_EQUAL(links.findItemIndex(Dx::PokemonLinks::TypeEncoding(std::string{"Water"})), 6);
-    EXPECT_EQUAL(links.findItemIndex(Dx::PokemonLinks::TypeEncoding(std::string{"Flamio"})), 0);
+    EXPECT_EQUAL(links.findItemIndex(Dx::TypeEncoding(std::string{"Electric"})), 1);
+    EXPECT_EQUAL(links.findItemIndex(Dx::TypeEncoding(std::string{"Fire"})), 2);
+    EXPECT_EQUAL(links.findItemIndex(Dx::TypeEncoding(std::string{"Grass"})), 3);
+    EXPECT_EQUAL(links.findItemIndex(Dx::TypeEncoding(std::string{"Ice"})), 4);
+    EXPECT_EQUAL(links.findItemIndex(Dx::TypeEncoding(std::string{"Normal"})), 5);
+    EXPECT_EQUAL(links.findItemIndex(Dx::TypeEncoding(std::string{"Water"})), 6);
+    EXPECT_EQUAL(links.findItemIndex(Dx::TypeEncoding(std::string{"Flamio"})), 0);
 }
 
 STUDENT_TEST("Test binary search on the option table.") {
@@ -2022,13 +2021,13 @@ STUDENT_TEST("Test binary search on the option table.") {
         {INT_MIN,24,INT_MIN,EM,0},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    EXPECT_EQUAL(links.findOptionIndex(Dx::PokemonLinks::TypeEncoding(std::string("Electric"))), 7);
-    EXPECT_EQUAL(links.findOptionIndex(Dx::PokemonLinks::TypeEncoding(std::string("Fire"))), 10);
-    EXPECT_EQUAL(links.findOptionIndex(Dx::PokemonLinks::TypeEncoding(std::string("Grass"))), 14);
-    EXPECT_EQUAL(links.findOptionIndex(Dx::PokemonLinks::TypeEncoding(std::string("Ice"))), 17);
-    EXPECT_EQUAL(links.findOptionIndex(Dx::PokemonLinks::TypeEncoding(std::string("Normal"))), 20);
-    EXPECT_EQUAL(links.findOptionIndex(Dx::PokemonLinks::TypeEncoding(std::string("Water"))), 23);
-    EXPECT_EQUAL(links.findOptionIndex(Dx::PokemonLinks::TypeEncoding(std::string("Flamio"))), 0);
+    EXPECT_EQUAL(links.findOptionIndex(Dx::TypeEncoding(std::string("Electric"))), 7);
+    EXPECT_EQUAL(links.findOptionIndex(Dx::TypeEncoding(std::string("Fire"))), 10);
+    EXPECT_EQUAL(links.findOptionIndex(Dx::TypeEncoding(std::string("Grass"))), 14);
+    EXPECT_EQUAL(links.findOptionIndex(Dx::TypeEncoding(std::string("Ice"))), 17);
+    EXPECT_EQUAL(links.findOptionIndex(Dx::TypeEncoding(std::string("Normal"))), 20);
+    EXPECT_EQUAL(links.findOptionIndex(Dx::TypeEncoding(std::string("Water"))), 23);
+    EXPECT_EQUAL(links.findOptionIndex(Dx::TypeEncoding(std::string("Flamio"))), 0);
 }
 
 
@@ -2084,7 +2083,7 @@ STUDENT_TEST("Test hiding an item from the world.") {
         {INT_MIN,24,INT_MIN,EM,0},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    EXPECT(links.hideRequestedItem(Dx::PokemonLinks::TypeEncoding(std::string("Fire"))));
+    EXPECT(links.hideRequestedItem(Dx::TypeEncoding(std::string("Fire"))));
     const std::vector<Dx::PokemonLinks::typeName> headersHideFire {
         {{""},6,1},
         {{"Electric"},0,3},
@@ -2115,7 +2114,7 @@ STUDENT_TEST("Test hiding an item from the world.") {
     };
     EXPECT_EQUAL(links.links_, dlxHideFire);
     EXPECT_EQUAL(links.itemTable_, headersHideFire);
-    EXPECT(!links.hideRequestedItem(Dx::PokemonLinks::TypeEncoding(std::string("Fire"))));
+    EXPECT(!links.hideRequestedItem(Dx::TypeEncoding(std::string("Fire"))));
     EXPECT_EQUAL(links.links_, dlxHideFire);
     EXPECT_EQUAL(links.peekHidItem().to_string().first, "Fire");
     EXPECT_EQUAL(links.getNumHidItems(), 1);
@@ -2126,7 +2125,7 @@ STUDENT_TEST("Test hiding an item from the world.") {
     EXPECT_EQUAL(links.itemTable_, headers);
     EXPECT(links.hidItemsEmpty());
     EXPECT_EQUAL(links.getNumHidItems(), 0);
-    EXPECT(links.hideRequestedItem(Dx::PokemonLinks::TypeEncoding(std::string("Fire"))));
+    EXPECT(links.hideRequestedItem(Dx::TypeEncoding(std::string("Fire"))));
     links.resetItems();
     EXPECT_EQUAL(links.links_, dlx);
     EXPECT_EQUAL(links.itemTable_, headers);
@@ -2242,10 +2241,10 @@ STUDENT_TEST("Test hiding an option from the world.") {
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
 
-    EXPECT(links.hideRequestedOption(Dx::PokemonLinks::TypeEncoding(std::string("Fire"))));
-    Dx::PokemonLinks::TypeEncoding fire("Fire");
-    Dx::PokemonLinks::TypeEncoding flipper("Fire");
-    std::vector<Dx::PokemonLinks::TypeEncoding> failedToHide = {};
+    EXPECT(links.hideRequestedOption(Dx::TypeEncoding(std::string("Fire"))));
+    Dx::TypeEncoding fire("Fire");
+    Dx::TypeEncoding flipper("Fire");
+    std::vector<Dx::TypeEncoding> failedToHide = {};
     EXPECT(!links.hideRequestedOption({fire, flipper}));
     EXPECT(!links.hideRequestedOption({fire, flipper}, failedToHide));
     EXPECT_EQUAL(failedToHide, {fire, flipper});
@@ -2335,7 +2334,7 @@ STUDENT_TEST("Test hiding an item from the world and then solving both types of 
         {INT_MIN,23,INT_MIN,EM,0},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    Dx::PokemonLinks::TypeEncoding electric("Electric");
+    Dx::TypeEncoding electric("Electric");
     EXPECT(links.hideRequestedItem(electric));
     const std::vector<Dx::PokemonLinks::typeName> headersHideElectric {
         {{""},6,2},
@@ -2423,13 +2422,13 @@ STUDENT_TEST("Test hiding two items from the world and then solving both types o
         {INT_MIN,23,INT_MIN,EM,0},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    Dx::PokemonLinks::TypeEncoding electric("Electric");
+    Dx::TypeEncoding electric("Electric");
     EXPECT(links.hideRequestedItem(electric));
-    std::vector<Dx::PokemonLinks::TypeEncoding> failOutput = {};
-    Dx::PokemonLinks::TypeEncoding grass("Grass");
-    Dx::PokemonLinks::TypeEncoding grassy("Grassy");
-    Dx::PokemonLinks::TypeEncoding cloudy("Cloudy");
-    Dx::PokemonLinks::TypeEncoding rainy("Rainy");
+    std::vector<Dx::TypeEncoding> failOutput = {};
+    Dx::TypeEncoding grass("Grass");
+    Dx::TypeEncoding grassy("Grassy");
+    Dx::TypeEncoding cloudy("Cloudy");
+    Dx::TypeEncoding rainy("Rainy");
     EXPECT(!links.hideRequestedItem({grass, electric, grassy, cloudy, rainy}, failOutput));
     EXPECT_EQUAL(failOutput, {electric,grassy,cloudy,rainy});
 
@@ -2519,7 +2518,7 @@ STUDENT_TEST("Test the hiding all the items except for the ones the user wants t
         {INT_MIN,23,INT_MIN,EM,0},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    links.hideAllItemsExcept({Dx::PokemonLinks::TypeEncoding("Water")});
+    links.hideAllItemsExcept({Dx::TypeEncoding("Water")});
     const std::vector<Dx::PokemonLinks::typeName> headersHideExceptWater {
         {{""},6,6},
         {{"Electric"},0,2},
@@ -2608,12 +2607,12 @@ STUDENT_TEST("Test hiding all options and items except one each. One exact/overl
         {INT_MIN,23,INT_MIN,EM,0},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    Dx::PokemonLinks::TypeEncoding water("Water");
-    Dx::PokemonLinks::TypeEncoding grass("Grass");
-    Dx::PokemonLinks::TypeEncoding electric("Electric");
-    Dx::PokemonLinks::TypeEncoding fire("Fire");
-    Dx::PokemonLinks::TypeEncoding ice("Ice");
-    Dx::PokemonLinks::TypeEncoding normal("Normal");
+    Dx::TypeEncoding water("Water");
+    Dx::TypeEncoding grass("Grass");
+    Dx::TypeEncoding electric("Electric");
+    Dx::TypeEncoding fire("Fire");
+    Dx::TypeEncoding ice("Ice");
+    Dx::TypeEncoding normal("Normal");
     links.hideAllItemsExcept({water});
     links.hideAllOptionsExcept({grass});
     EXPECT_EQUAL(links.getNumHidItems(), 5);
