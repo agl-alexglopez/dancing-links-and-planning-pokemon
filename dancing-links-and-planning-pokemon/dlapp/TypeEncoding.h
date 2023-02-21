@@ -37,7 +37,7 @@
  * the encoding even when it is in its unsigned integer form. The lowest string by lexographical
  * order, Bug, will actually be our highest order bit and largest value. This ensures that any dual
  * typing that contains Bug will always be a larger number than one that contains Dark, for example.
- * In the same way, any string that contains Bug, would always be sorted lexographically first than
+ * In the same way, any string that contains Bug, would always be sorted lexographically before
  * one that contains Dark. Then, we simply reverse the less than operator for the TypeEncoding and
  * we can use this type as keys in sets, keys maps, or elements in binary searches and they will
  * behave as if they are strings, but all comparisons are much more efficient. This means that we
@@ -85,8 +85,9 @@ struct TypeEncoding {
     bool operator!=(TypeEncoding rhs) const {
         return !(*this == rhs);
     }
+    // Not a mistake! We want the bits in a uint32_t to be sorted like strings. See file header.
     bool operator<(TypeEncoding rhs) const {
-        return rhs.encoding_ < this->encoding_;
+        return this->encoding_ > rhs.encoding_;
     }
     bool operator>(TypeEncoding rhs) const {
         return rhs < *this;

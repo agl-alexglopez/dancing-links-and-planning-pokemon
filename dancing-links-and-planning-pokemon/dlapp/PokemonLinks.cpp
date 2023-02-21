@@ -912,13 +912,10 @@ void PokemonLinks::buildAttackLinks(const std::map<TypeEncoding,std::set<Resista
 }
 
 
-/* * * * * * * * * * * * * * * *   Test Cases Below this Point    * * * * * * * * * * * * * * * * */
-
-
 /* Implementation ends here and the following are just the operators for debugging and the tests
- * that use those operators. The namespace DancingLinks will end after the implementation of these
- * friend overloaded operators and the tests will begin.
+ * that use those operators.
  */
+
 
 std::ostream& operator<<(std::ostream& out, const TypeEncoding& tp) {
     std::pair<std::string_view,std::string_view> toPrint = tp.to_pair();
