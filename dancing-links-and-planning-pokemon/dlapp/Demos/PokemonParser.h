@@ -39,7 +39,10 @@
 #include <string>
 #include <vector>
 #include "MapParser.h"
+#include "PokemonLinks.h"
 #include "Utilities/Resistance.h"
+
+namespace Dx = DancingLinks;
 
 /* Leave a comment at the first line of the Pokemon Generation .dst file you want to construct with
  * the pokemon generation in base 10 numbers. This will determine the types availabe for the given
@@ -92,8 +95,9 @@ PokemonTest loadPokemonGeneration(std::istream& source);
  * @param selectedGyms              the gyms G1-E4 that we are considering attacking.
  * @return                          the set of all defensive types present in the selection of gyms.
  */
-std::set<std::string> loadSelectedGymsDefenses(const std::string& selectedMap,
-                                               const std::set<std::string>& selectedGyms);
+std::set<Dx::PokemonLinks::TypeEncoding>
+loadSelectedGymsDefenses(const std::string& selectedMap,
+                           const std::set<std::string>& selectedGyms);
 
 /**
  * @brief loadSelectedGymsAttacks  the user interacting with the GUI may want to defend themselves
@@ -105,7 +109,8 @@ std::set<std::string> loadSelectedGymsDefenses(const std::string& selectedMap,
  * @param selected                 the gyms they have selected.
  * @return                         a set of all attack types present across those gyms.
  */
-std::set<std::string> loadSelectedGymsAttacks(const std::string& selectedMap,
-                                              const std::set<std::string>& selected);
+std::set<Dx::PokemonLinks::TypeEncoding>
+loadSelectedGymsAttacks(const std::string& selectedMap,
+                          const std::set<std::string>& selected);
 
 #endif // POKEMONPARSER_H

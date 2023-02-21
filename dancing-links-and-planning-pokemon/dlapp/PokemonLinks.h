@@ -156,7 +156,7 @@ public:
         uint32_t encoding_;
         TypeEncoding() = default;
         TypeEncoding(std::string_view type);
-        std::string to_string() const;
+        std::pair<std::string_view,std::string_view> to_string() const;
         bool operator==(TypeEncoding rhs) const {
             return this->encoding_ == rhs.encoding_;
         }
@@ -175,11 +175,13 @@ public:
         bool operator>=(TypeEncoding rhs) const {
             return !(*this < rhs);
         }
-        operator bool() const {
-            return encoding_;
-        }
-        std::ostream& operator<<(std::ostream& out) {
-            return out << this->to_string() << std::endl;
+        std::ostream& operator<<(std::ostream& out) const {
+            std::pair<std::string_view,std::string_view> toPrint = this->to_string();
+            out << toPrint.first;
+            if (toPrint.second != "") {
+                out << "-" << toPrint.second;
+            }
+            return out << std::endl;
         }
     };
 
@@ -238,7 +240,7 @@ public:
      *                           item is not in the PokemonLinks object, it is unchanged. O(lgN)
      * @param toHide             the item we wish to cover.
      */
-    bool hideRequestedItem(const std::string& toHide);
+    bool hideRequestedItem(const TypeEncoding& toHide);
 
     /**
      * @brief hideRequestedItem  hides all items in the vector if successful. You cannot find an
@@ -246,7 +248,7 @@ public:
      * @param toHide             the vector of items to hide.
      * @return                   true if all items are hidden false if at least one fails.
      */
-    bool hideRequestedItem(const std::vector<std::string>& toHide);
+    bool hideRequestedItem(const std::vector<TypeEncoding>& toHide);
 
     /**
      * @brief hideRequestedItem  hides all items in the vector if successful. You cannot find an
@@ -255,8 +257,8 @@ public:
      * @param failedToHide       output of the items we failed to hide.
      * @return                   true if all items are hidden false if at least one fails.
      */
-    bool hideRequestedItem(const std::vector<std::string>& toHide,
-                             std::vector<std::string>& failedToHide);
+    bool hideRequestedItem(const std::vector<TypeEncoding>& toHide,
+                             std::vector<TypeEncoding>& failedToHide);
 
     /**
      * @brief hideAllItemsExcept  hides all items EXCEPT those specified in the toKeep set. These
@@ -265,7 +267,7 @@ public:
      *                            of items and K is the number of items to keep.
      * @param toKeep              the set of items we wish to keep for future cover problems.
      */
-    void hideAllItemsExcept(const std::set<std::string>& toKeep);
+    void hideAllItemsExcept(const std::set<TypeEncoding>& toKeep);
 
     /**
      * @brief hasItem  searches for the requested item in the PokemonLinks items. A hidden item
@@ -273,7 +275,7 @@ public:
      * @param item     the string item we search for.
      * @return         true if we found it false if it is hidden or absent.
      */
-    bool hasItem(const std::string& item) const;
+    bool hasItem(const TypeEncoding& item) const;
 
     /**
      * @brief peekHidItem  peek the most recently hidden item from the stack. Throws an exception
@@ -320,7 +322,7 @@ public:
      *                             options and C is the items covered by this option.
      * @param toHide               the option to hide.
      */
-    bool hideRequestedOption(const std::string& toHide);
+    bool hideRequestedOption(const TypeEncoding& toHide);
 
     /**
      * @brief hideRequestedOption  hides all requested options from the links. If an option is not
@@ -331,7 +333,7 @@ public:
      * @param toHide               the vector of options we must hide.
      * @return                     true if all items are hidden false if at least one fails.
      */
-    bool hideRequestedOption(const std::vector<std::string>& toHide);
+    bool hideRequestedOption(const std::vector<TypeEncoding>& toHide);
 
     /**
      * @brief hideRequestedOption  hides all requested options. If any hide operations fail the
@@ -340,8 +342,8 @@ public:
      * @param failedToCover        any options we failed to hide.
      * @return                     true if all options were hidden false if at least one failed.
      */
-    bool hideRequestedOption(const std::vector<std::string>& toHide,
-                               std::vector<std::string>& failedToCover);
+    bool hideRequestedOption(const std::vector<TypeEncoding>& toHide,
+                               std::vector<TypeEncoding>& failedToCover);
 
     /**
      * @brief hideAllOptionsExcept  hides all options EXCEPT those specified in the keep set. By
@@ -349,7 +351,7 @@ public:
      *                              forming the set.
      * @param toKeep                the options we wish to keep for future cover problems.
      */
-    void hideAllOptionsExcept(const std::set<std::string>& toKeep);
+    void hideAllOptionsExcept(const std::set<TypeEncoding>& toKeep);
 
     /**
      * @brief hasOption  determines if an option is present and not hidden. Hidden options cannot
@@ -357,7 +359,7 @@ public:
      * @param option     the string option we search for.
      * @return           true if the item is present and not hidden, false if not.
      */
-    bool hasOption(const std::string& option) const;
+    bool hasOption(const TypeEncoding& option) const;
 
     /**
      * @brief peekHidOption  peeks the most recently hidden option. Throws if no hidden items.
@@ -596,7 +598,7 @@ private:
      * @param item           the string item we search for depending on ATTACK or DEFENSE.
      * @return               the index in the item lookup table. This is same as header in links.
      */
-    int findItemIndex(const std::string& item) const;
+    int findItemIndex(const TypeEncoding& item) const;
 
     /**
      * @brief findItemIndex  performs binary search on the sorted option array to find its index in
@@ -604,7 +606,7 @@ private:
      * @param item           the string item we search for depending on ATTACK or DEFENSE.
      * @return               the index in the item option table. This is same as spacer in links.
      */
-    int findOptionIndex(const std::string& option) const;
+    int findOptionIndex(const TypeEncoding& option) const;
 
     /**
      * @brief hideItem     hiding an item in the links means we simply tag its column header with a
@@ -692,6 +694,8 @@ private:
     friend bool operator!=(const std::vector<pokeLink>& lhs, const std::vector<pokeLink>& rhs);
     friend bool operator==(const std::vector<typeName>& lhs, const std::vector<typeName>& rhs);
     friend bool operator!=(const std::vector<typeName>& lhs, const std::vector<typeName>& rhs);
+    friend std::ostream& operator<<(std::ostream& os, const std::vector<TypeEncoding>& types);
+    friend std::ostream& operator<<(std::ostream& os, const std::set<TypeEncoding>& types);
     friend std::ostream& operator<<(std::ostream& os, const std::vector<pokeLink>& links);
     friend std::ostream& operator<<(std::ostream&os, const std::vector<typeName>& items);
     friend std::ostream& operator<<(std::ostream& os, const std::vector<encodingAndNum>& vec);
@@ -783,7 +787,7 @@ int numItems(const PokemonLinks& dlx);
  * @param item     the item we are trying to find.
  * @return         true if the item is present and not hidden false if not.
  */
-bool hasItem(const PokemonLinks& dlx, const std::string& item);
+bool hasItem(const PokemonLinks& dlx, const PokemonLinks::TypeEncoding& item);
 
 /**
  * @brief options  reports the options available to us to cover our items in the cover problem.
@@ -806,7 +810,7 @@ int numOptions(const PokemonLinks& dlx);
  * @param option     the option we are searching for.
  * @return           true if found and not hidden false if not.
  */
-bool hasOption(const PokemonLinks& dlx, const std::string& option);
+bool hasOption(const PokemonLinks& dlx, const PokemonLinks::TypeEncoding& option);
 
 /**
  * @brief coverageType  the coverage type the PokemonLinks is set to.
@@ -827,7 +831,7 @@ PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
  * @param toHide    the string item representing the item to hide depending on ATTACK or DEFENSE.
  * @return          true if the item was hidden false if it was already hidden or not found.
  */
-bool hideItem(PokemonLinks& dlx, const std::string& toHide);
+bool hideItem(PokemonLinks& dlx, const PokemonLinks::TypeEncoding& toHide);
 
 /**
  * @brief hideItem  hides all items specified from the vector as above. In place, O(NlgN) guarantee.
@@ -835,7 +839,7 @@ bool hideItem(PokemonLinks& dlx, const std::string& toHide);
  * @param toHide    the string item representing the item to hide depending on ATTACK or DEFENSE.
  * @return          true if all items were hidden false if at least one was not.
  */
-bool hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide);
+bool hideItem(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>& toHide);
 
 /**
  * @brief hideItem      hides items specified from the vector as above. In place, O(NlgN) guarantee.
@@ -844,8 +848,8 @@ bool hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide);
  * @param failedToHide  an additional output parameter if user wants to see failures.
  * @return              true if all items were hidden false if at least one was not found.
  */
-bool hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide,
-                                 std::vector<std::string>& failedToHide);
+bool hideItem(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>& toHide,
+                                 std::vector<PokemonLinks::TypeEncoding>& failedToHide);
 
 /**
  * @brief hideItemsExcept  hides all items NOT included in the specified set. In place, O(NlgK)
@@ -853,7 +857,7 @@ bool hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide,
  * @param dlx              the PokemonLinks object we alter in place.
  * @param toKeep           the items that remain the world as items we must cover.
  */
-void hideItemsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
+void hideItemsExcept(PokemonLinks& dlx, const std::set<PokemonLinks::TypeEncoding>& toKeep);
 
 /**
  * @brief numHidItems  returns the number of items we are currently hiding from the world. O(1).
@@ -911,7 +915,7 @@ void resetItems(PokemonLinks& dlx);
  * @param toHide      the option we must hide from the world.
  * @return            true if option was hidden false if it was hidden or could not be found.
  */
-bool hideOption(PokemonLinks& dlx, const std::string& toHide);
+bool hideOption(PokemonLinks& dlx, const PokemonLinks::TypeEncoding& toHide);
 
 /**
  * @brief hideOption  hides all options specified in the vector from the world. Uses the same
@@ -922,7 +926,7 @@ bool hideOption(PokemonLinks& dlx, const std::string& toHide);
  * @param toHide      the options we must hide from the world.
  * @return            true if all options were hidden false if at least one was not.
  */
-bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide);
+bool hideOption(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>& toHide);
 
 /**
  * @brief hideOption    hides all options specified in the vector from the world. Uses the same
@@ -934,8 +938,8 @@ bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide);
  * @param failedToHide  an additional output showing the options that could not be found.
  * @return              true if all options were hidden false if at least one failed.
  */
-bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide,
-                                    std::vector<std::string>& failedToHide);
+bool hideOption(PokemonLinks& dlx, const std::vector<PokemonLinks::TypeEncoding>& toHide,
+                                    std::vector<PokemonLinks::TypeEncoding>& failedToHide);
 
 /**
  * @brief hideOptionsExcept  hides all options NOT specified in the given set. In place O(NlgKI)
@@ -945,7 +949,7 @@ bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide,
  * @param dlx                the PokemonLinks object we alter.
  * @param toKeep             the options we will keep available to choose from for the problem.
  */
-void hideOptionsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
+void hideOptionsExcept(PokemonLinks& dlx, const std::set<PokemonLinks::TypeEncoding>& toKeep);
 
 /**
  * @brief numHidOptions  num options currently hidden in the stack. The last is first out. O(1).

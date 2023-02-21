@@ -578,7 +578,7 @@ void PokemonGUI::printDefenseMessage() {
                          << Dx::numOptions(*defenseDLX)
                          << " defense options:\n\n| ";
     for (const auto& g : Dx::items(*defenseDLX)) {
-        (*solutionsDisplay) << g.to_string() << " | ";
+        (*solutionsDisplay) << g << " | ";
     }
     (*solutionsDisplay) << "\n" << std::endl;
 }
@@ -595,7 +595,7 @@ void PokemonGUI::printAttackSolution(const std::set<RankedSet<Dx::PokemonLinks::
     for (auto it = solution.rbegin(); it != solution.rend(); it++) {
         *solutionsDisplay << it->rank() << " | ";
         for (const Dx::PokemonLinks::TypeEncoding& type : *it) {
-            *solutionsDisplay << type.to_string() << " | ";
+            *solutionsDisplay << type << " | ";
         }
         *solutionsDisplay << "\n";
     }
@@ -609,7 +609,7 @@ void PokemonGUI::printAttackMessage() {
                          << Dx::numOptions(*attackDLX)
                          << " attack options:\n\n| ";
     for (const auto& type : Dx::items(*attackDLX)) {
-        (*solutionsDisplay) << type.to_string() << " | ";
+        (*solutionsDisplay) << type << " | ";
     }
     (*solutionsDisplay) << "\n" << std::endl;
 }
@@ -627,7 +627,7 @@ void PokemonGUI::printDefenseSolution(const std::set<RankedSet<Dx::PokemonLinks:
     for (const RankedSet<Dx::PokemonLinks::TypeEncoding>& cov : solution) {
         *solutionsDisplay << cov.rank() << " | ";
         for (const Dx::PokemonLinks::TypeEncoding& type : cov) {
-            *solutionsDisplay << type.to_string() << " | ";
+            *solutionsDisplay << type << " | ";
         }
         *solutionsDisplay << "\n";
     }
@@ -659,7 +659,7 @@ void PokemonGUI::solveDefense(const DlxRequest& req) {
     if (!selectedGyms.empty()) {
         selectionDrawStyle = SELECTED_GYMS;
 
-        std::set<std::string>
+        std::set<Dx::PokemonLinks::TypeEncoding>
         gymAttackTypes = loadSelectedGymsAttacks(mapDropdown->getSelectedItem(), selectedGyms);
         DancingLinks::hideItemsExcept(*defenseDLX, gymAttackTypes);
 
@@ -694,7 +694,7 @@ void PokemonGUI::solveAttack(const DlxRequest& req) {
 
     if (!selectedGyms.empty()) {
         selectionDrawStyle = SELECTED_GYMS;
-        std::set<std::string>
+        std::set<Dx::PokemonLinks::TypeEncoding>
         gymDefenseTypes = loadSelectedGymsDefenses(mapDropdown->getSelectedItem(),
                                                    selectedGyms);
         Dx::hideItemsExcept(*attackDLX, gymDefenseTypes);
