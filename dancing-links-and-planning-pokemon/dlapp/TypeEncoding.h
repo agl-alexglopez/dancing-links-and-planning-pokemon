@@ -33,19 +33,19 @@
  *  0      1    2     3       4      5     6     7     8     9     10    11     12     13     14       15   16   17
  * Water,Steel,Rock,Psychic,Poison,Normal,Ice,Ground,Grass,Ghost,Flying,Fire,Fighting,Fairy,Electric,Dragon,Dark,Bug
  *
- * We have to be slightly creative with the bit representation to ensure lexographical ordering of
- * the encoding even when it is in its unsigned integer form. The lowest string by lexographical
+ * We have to be slightly creative with the bit representation to ensure lexicographic ordering of
+ * the encoding even when it is in its unsigned integer form. The lowest string by lexicographic
  * order, Bug, will actually be our highest order bit and largest value. This ensures that any dual
  * typing that starts with "Bug" will always be a larger number than one that starts with "Dark,"
  * for example. In the same way, any string that starts wit "Bug", would always be sorted
- * lexographically before one that starts with "Dark." Then, we simply reverse the less than
+ * lexicographicly before one that starts with "Dark." Then, we simply reverse the less than
  * operator for the TypeEncoding and we can use this type as keys in sets, keys maps, or elements in
  * binary searches and they will behave as if they are strings, but all comparisons are much more
  * efficient. Consider why this would NOT work if we put the "Bug" bit at the Least Significant Bit
  * position, the 0th index
  *
  * This means that we can be consistent when decoding the bits back to a string with the
- * lexographical ordering I am using for the entire project. As an example the Dragon-Flying type
+ * lexicographic ordering I am using for the entire project. As an example the Dragon-Flying type
  * would be the following hex and binary value.
  *
  *         |---------------------1
@@ -71,7 +71,7 @@
 namespace DancingLinks {
 
 const size_t TYPE_TABLE_SIZE = 18;
-// Lexographically organized table. 17th index is the first lexographical order Bug.
+// lexicographicly organized table. 17th index is the first lexicographic order Bug.
 const std::string TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
     "Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass","Ghost","Flying",
     "Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"

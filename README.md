@@ -150,21 +150,71 @@ Here is the type that I use to manage the recursion and know when every item is 
 
 ```c++
 struct typeName {
-    std::string name;
-    int left;
-    int right;
+	TypeEncoding name;
+	int left;
+	int right;
 };
-
-std::vector<typeName> itemTable_ = {
-    {"",6,1},
-    {"Electric",0,2},
-    {"Fire",1,3},
-    {"Grass",2,4},
-    {"Ice",3,5},
-    {"Normal",4,6},
-    {"Water",5,0},
+std::vector<typeName> headers = {
+	{{""},6,1},
+	{{"Electric"},0,2},
+	{{"Fire"},1,3},
+	{{"Grass"},2,4},
+	{{"Ice"},3,5},
+	{{"Normal"},4,6},
+	{{"Water"},5,0},
 };
 ```
+
+The `TypeEncoding` is a new addition to this project. Previously, this implementation produced solutions in string format. This means all input and output for the Pokémon types came in the form of `std::string`. Normally, this would be fine, but the exact cover problem as I have set it up communicates with sets and maps which means behind the scenes the algorithm is performing thousands if not millions of string comparisons of varying lengths. We can reduce all of these comparisons that are happening to a single comparison between two numbers. This will make moving data and some of the algorithms faster while vastly reducing the memory footprint. We simply encode all types into this format.
+
+```c++
+const size_t TYPE_TABLE_SIZE = 18;
+// Lexographically organized table. 17th index is the first lexographical order Bug.
+const std::string TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
+	"Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass",
+	"Ghost","Flying","Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
+};
+
+struct TypeEncoding {
+	uint32_t encoding_;
+	TypeEncoding() = default;
+	TypeEncoding(std::string_view type);
+	std::pair<std::string_view,std::string_view> to_pair() const;
+	bool operator==(TypeEncoding rhs) const {
+		return this->encoding_ == rhs.encoding_;
+	}
+	bool operator!=(TypeEncoding rhs) const {
+		return !(*this == rhs);
+	}
+	// Not a mistake! Read on for why this works.
+	bool operator<(TypeEncoding rhs) const {
+		return this->encoding_ > rhs.encoding_;
+	}
+	bool operator>(TypeEncoding rhs) const {
+		return rhs < *this;
+	}
+	bool operator<=(TypeEncoding rhs) const {
+		return !(*this > rhs);
+	}
+	bool operator>=(TypeEncoding rhs) const {
+		return !(*this < rhs);
+	}
+};
+```
+
+We place every Pokémon type in this `uint32_t` such that the 0th index bit is Water and the 17th index bit is Bug. In its binary representation it looks like this.
+
+![type-encoding](/images/type-encoding.png)
+
+We now have the ability to turn specific bits on in this type to represent the type we are working with. Turn on one bit for single types and two bits for dual types. For example, "Bug-Water" would be the following.
+
+![type-encoding-bug-water](/images/type-encoding-bug-water.png)
+
+The final challenge for this strategy is making sure that we can use this type as you would a normal string, in a set or map for example. This means that the `TypeEncoding` must behave the same as its string representation in terms of lexicographic sorting. To achieve this we must take a counterintuitive approach; the bits must be aligned in the HIGHEST order bit position according to LOWEST lexicographical order of the string they represent. 
+
+So above, "Bug" will always be first in terms of lexicographical ordering among these strings. It's bit must be in the highest order position we have available. We need to ensure that any type that starts with "Bug" will always be less than any other possible type combination that does not start with bug, and so on for the next string in ascending order. The easy way to do this is to ensure that any `TypeEncoding` that contains the "Bug" bit is larger than one that does not (counterintuitive right?). That is why you see the `operator<` overload for this type flipped. Once we have consistent logic for this type we just need to flip the meaning of a larger value so it behaves like a normal string. If this is confusing consider the problems you would run into if you flipped this bit array, placing "Bug" at the zero index. The type "Bug-Water" would be a larger numeric value than "Ghost-Grass," but "Bug-Water" should be sorted first. It becomes a mess! Using the doubling nature of base 2 bits, we can achieve the consistency we want, we just need to take an odd approach. There are other bit tricks and strategies I use to implement this type efficiently but you can explore those in the code if you wish. 
+
+The final optimization involves the newish type `std::string_view`. I try to avoid creating heap allocated strings whenever necessary. Because we must have a table with type names to refer to for the `TypeEncoding` I just point to those strings to display type information when decoding a `TypeEncoding`. I added this constraint to learn more about how to properly use `std::string_view` and I like the design decisions that followed. See the code for more.
 
 Here is the type that I use within the dancing links array.
 
@@ -198,21 +248,25 @@ We then place all of this in one array. Here is a illustration of these links as
 
 ![pokelinks-illustrated](/images/pokelinks-illustrated.png)
 
-There is also one node at the end of this array to know we are at the end and that our last option is complete. Finally, to help keep track of the options that we choose to cover items, there is another array consisting only of names of the options.
+There is also one node at the end of this array to know we are at the end and that our last option is complete. Finally, to help keep track of the options that we choose to cover items, there is another array consisting only of names of the options. These also have an index for the option in the dancing links data structure for some class methods I cover in the next section.
 
 ```c++
-const std::vector<std::string> optionTable_ = {
-    "",
-    "Bug-Ghost",
-    "Electric-Grass",
-    "Fire-Flying",
-    "Ground-Water",
-    "Ice-Psychic",
-    "Ice-Water"
+struct encodingAndNum {
+	TypeEncoding name;
+	int num;
+};
+const std::vector<encodingAndNum> options = {
+	{{""},0},
+	{{"Bug-Ghost"},7},
+	{{"Electric-Grass"},10},
+	{{"Fire-Flying"},14},
+	{{"Ground-Water"},17},
+	{{"Ice-Psychic"},20},
+	{{"Ice-Water"},22},
 };
 ```
 
-The spacer nodes in the dancing links array have a negative `topOrLen` field that correspond to the index in this options array. There are other subtleties to the implementation that I must consider, especially how to use the depth tag to produce Overlapping Type Coverages, but that can all be gleaned from the code itself.
+The spacer nodes in the dancing links array have a negative `topOrLen` field that correspond to the index in this options array and this array has the index of that option. There are other subtleties to the implementation that I must consider, especially how to use the depth tag to produce Overlapping Type Coverages, but that can all be gleaned from the code itself.
 
 ## Bonus: Justifying a PokemonLinks Class
 
@@ -232,8 +286,8 @@ If a user wants to membership test an item or option we can make some guarantees
 
 ```c++
 namespace DancingLinks{
-bool hasItem(const PokemonLinks& dlx, const std::string& item);
-bool hasOption(const PokemonLinks& dlx, const std::string& option);
+bool hasItem(const PokemonLinks& dlx, const TypeEncoding& item);
+bool hasOption(const PokemonLinks& dlx, const TypeEncoding& option);
 }
 ```
 
@@ -246,11 +300,11 @@ As a part of Algorithm X via Dancing Links, covering items is central to the pro
 
 ```c++
 namespace DancingLinks {
-bool hideItem(PokemonLinks& dlx, const std::string& toHide);
-bool hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide);
-bool hideItem(PokemonLinks& dlx, const std::vector<std::string>& toHide,
-                                 std::vector<std::string>& failedToHide);
-void hideItemsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
+bool hideItem(PokemonLinks& dlx, const TypeEncoding& toHide);
+bool hideItem(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide);
+bool hideItem(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
+              std::vector<TypeEncoding>& failedToHide);
+void hideItemsExcept(PokemonLinks& dlx, const std::set<TypeEncoding>& toKeep);
 }
 ```
 
@@ -268,10 +322,10 @@ To track the order, I use a stack and offer the user stack-like operations that 
 ```c++
 namespace DancingLinks {
 int numHidItems(const PokemonLinks& dlx);
-std::string peekHidItem(const PokemonLinks& dlx);
+TypeEncoding peekHidItem(const PokemonLinks& dlx);
 void popHidItem(PokemonLinks& dlx);
 bool hidItemsEmpty(const PokemonLinks& dlx);
-std::vector<std::string> hiddenItems(const PokemonLinks& dlx);
+std::vector<TypeEncoding> hiddenItems(const PokemonLinks& dlx);
 void resetItems(PokemonLinks& dlx);
 }
 ```
@@ -289,11 +343,11 @@ We will also use a stack to manage hidden options. Here, however, the stack is r
 
 ```c++
 namespace DancingLinks {
-bool hideOption(PokemonLinks& dlx, const std::string& toHide);
-bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide);
-bool hideOption(PokemonLinks& dlx, const std::vector<std::string>& toHide,
-                                   std::vector<std::string>& failedToHide);
-void hideOptionsExcept(PokemonLinks& dlx, const std::set<std::string>& toKeep);
+bool hideOption(PokemonLinks& dlx, const TypeEncoding& toHide);
+bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide);
+bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
+                                   std::vector<TypeEncoding>& failedToHide);
+void hideOptionsExcept(PokemonLinks& dlx, const std::set<TypeEncoding>& toKeep);
 }
 ```
 
@@ -309,10 +363,10 @@ Here are the same stack utilities we offer for the option version of these opera
 ```c++
 namespace DancingLinks {
 int numHidOptions(const PokemonLinks& dlx);
-std::string peekHidOption(const PokemonLinks& dlx);
+TypeEncoding peekHidOption(const PokemonLinks& dlx);
 void popHidOption(PokemonLinks& dlx);
 bool hidOptionsEmpty(const PokemonLinks& dlx);
-std::vector<std::string> hidOptions(const PokemonLinks& dlx);
+std::vector<TypeEncoding> hidOptions(const PokemonLinks& dlx);
 void resetOptions(PokemonLinks& dlx);
 }
 ```
@@ -327,11 +381,11 @@ With the hiding and unhiding logic in place you now have a complete set of opera
 
 ```c++
 namespace DancingLinks {
-std::set<RankedSet<std::string>> solveExactCover(PokemonLinks& dlx, int choiceLimit);
-std::set<RankedSet<std::string>> solveOverlappingCover(PokemonLinks& dlx, int choiceLimit);
-std::vector<std::string> items(const PokemonLinks& dlx);
+std::set<RankedSet<TypeEncoding>> solveExactCover(PokemonLinks& dlx, int choiceLimit);
+std::set<RankedSet<TypeEncoding>> solveOverlappingCover(PokemonLinks& dlx, int choiceLimit);
+std::vector<TypeEncoding> items(const PokemonLinks& dlx);
 int numItems(const PokemonLinks& dlx);
-std::vector<std::string> options(const PokemonLinks& dlx);
+std::vector<TypeEncoding> options(const PokemonLinks& dlx);
 int numOptions(const PokemonLinks& dlx);
 PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
 }

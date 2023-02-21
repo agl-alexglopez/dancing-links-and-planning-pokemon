@@ -53,7 +53,7 @@ size_t binsearchBitIndex(std::string_view type) {
         if (found == type) {
             return index;
         }
-        // This should look weird! Lower lexographical order is stored in higher order bits. (*_*).
+        // This should look weird! Lower lexicographic order is stored in higher order bits. (*_*).
         if (type < found) {
             base = index + 1;
             remain--;

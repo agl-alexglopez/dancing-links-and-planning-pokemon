@@ -47,11 +47,7 @@
 namespace DancingLinks {
 
 
-
-/* See bottom of file for the free functions that accompany this class in DancingLinks namespace. */
-
 class PokemonLinks {
-    friend TypeEncoding;
 
 public:
 
