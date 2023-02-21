@@ -223,7 +223,7 @@ TypeEncoding::TypeEncoding(std::string_view type) {
     this->encoding_ |= (1 << secondBitIndex);
 }
 
-/* Shifting a nyble at a time is a good balance. The second loop will have at most 4 shifts.
+/* Shifting a nyble at a time is a good balance. The second loop will have at most 3 shifts.
  * This could cut down the shifts to get to the bit we want significantly. Consider how many
  * shifts to get the indices of the following bits with normal single shifts and then with
  * nyble shifts. Nybl shifts are the size of a nybl, 4 bits.
