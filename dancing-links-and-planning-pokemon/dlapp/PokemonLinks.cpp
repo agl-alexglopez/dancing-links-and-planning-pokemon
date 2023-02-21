@@ -1238,6 +1238,12 @@ STUDENT_TEST("Test every possible combination of typings.") {
             std::string checkDualType = checkSingleType + "-" + Dx::TYPE_ENCODING_TABLE[type2];
             Dx::TypeEncoding dualTypeEncoding(checkDualType);
             EXPECT_EQUAL(dualTypeEncoding.encoding_, bit1 | bit2);
+            /* I discourage the use of methods that create heap strings whenever possible. I use
+             * string_views internally to report back typing for human readability when requested
+             * in a GUI via ostream. This way I only need to create one character "-" on the heap to
+             * join the two string_views of the lookup table in the stream. I don't have a use case
+             * for creating strings yet but will add it if needed.
+             */
             std::ostringstream captureType;
             captureType << dualTypeEncoding;
             std::string dualTypeString = captureType.str();
