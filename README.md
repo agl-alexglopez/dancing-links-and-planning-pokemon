@@ -252,17 +252,17 @@ There is also one node at the end of this array to know we are at the end and th
 
 ```c++
 struct encodingAndNum {
-	TypeEncoding name;
-	int num;
+    TypeEncoding name;
+    int num;
 };
 const std::vector<encodingAndNum> options = {
-	{{""},0},
-	{{"Bug-Ghost"},7},
-	{{"Electric-Grass"},10},
-	{{"Fire-Flying"},14},
-	{{"Ground-Water"},17},
-	{{"Ice-Psychic"},20},
-	{{"Ice-Water"},22},
+    {{""},0},
+    {{"Bug-Ghost"},7},	
+    {{"Electric-Grass"},10},
+    {{"Fire-Flying"},14},	
+    {{"Ground-Water"},17},
+    {{"Ice-Psychic"},20},
+    {{"Ice-Water"},22},
 };
 ```
 
