@@ -143,7 +143,7 @@ struct TypeEncoding {
     uint32_t encoding_;
     TypeEncoding() = default;
     TypeEncoding(std::string_view type);
-    std::pair<std::string_view,std::string_view> to_string() const;
+    std::pair<std::string_view,std::string_view> to_pair() const;
     bool operator==(TypeEncoding rhs) const {
         return this->encoding_ == rhs.encoding_;
     }
