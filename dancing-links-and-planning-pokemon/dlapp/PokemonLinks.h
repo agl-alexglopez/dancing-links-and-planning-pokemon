@@ -136,8 +136,9 @@ namespace DancingLinks {
  * or removing them to sets, or copying the dancing links class instance  much easier and
  * faster. We then simply provide a method to convert the encoding back to a string and we only
  * have to use that method when output is desired at the last moment, like when we want to print
- * the type names to a GUI in an ostream. We create a copy of the string on demand and use the
- * much more efficient encoding for our internal algorithms.
+ * the type names to a GUI in an ostream. Also, because we need to maintain a table of strings
+ * somewhere to do our initial encoding we will just provide a string_view of the table entries
+ * that make up our types. We dont have to create any heap strings.
  */
 struct TypeEncoding {
     uint32_t encoding_;
