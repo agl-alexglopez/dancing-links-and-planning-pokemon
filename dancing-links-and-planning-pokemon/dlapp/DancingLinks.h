@@ -104,8 +104,8 @@
 #define DANCINGLINKS_H
 #include "Src/PokemonLinks.h"
 
-class PokemonLinks;
 namespace DancingLinks {
+class PokemonLinks;
 
 
 /* * * * * * * *        Free Functions for Client to Use with DLX Solvers       * * * * * * * * * */
@@ -251,7 +251,7 @@ bool hideItem(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide);
  * @return              true if all items were hidden false if at least one was not found.
  */
 bool hideItem(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
-               std::vector<TypeEncoding>& failedToHide);
+              std::vector<TypeEncoding>& failedToHide);
 
 /**
  * @brief hideItemsExcept  hides all items NOT included in the specified set. In place, O(NlgK)
@@ -341,7 +341,7 @@ bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide);
  * @return              true if all options were hidden false if at least one failed.
  */
 bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
-                 std::vector<TypeEncoding>& failedToHide);
+                std::vector<TypeEncoding>& failedToHide);
 
 /**
  * @brief hideOptionsExcept  hides all options NOT specified in the given set. In place O(NlgKI)
