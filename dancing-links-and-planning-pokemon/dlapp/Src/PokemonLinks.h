@@ -86,7 +86,7 @@ public:
 
     std::set<RankedSet<TypeEncoding>> getOverlappingCoverages(int choiceLimit);
 
-    bool hideRequestedItem(const TypeEncoding& toHide);
+    bool hideRequestedItem(TypeEncoding toHide);
 
     bool hideRequestedItem(const std::vector<TypeEncoding>& toHide);
 
@@ -95,7 +95,7 @@ public:
 
     void hideAllItemsExcept(const std::set<TypeEncoding>& toKeep);
 
-    bool hasItem(const TypeEncoding& item) const;
+    bool hasItem(TypeEncoding item) const;
 
     TypeEncoding peekHidItem() const;
 
@@ -109,7 +109,7 @@ public:
 
     void resetItems();
 
-    bool hideRequestedOption(const TypeEncoding& toHide);
+    bool hideRequestedOption(TypeEncoding toHide);
 
     bool hideRequestedOption(const std::vector<TypeEncoding>& toHide);
 
@@ -118,7 +118,7 @@ public:
 
     void hideAllOptionsExcept(const std::set<TypeEncoding>& toKeep);
 
-    bool hasOption(const TypeEncoding& option) const;
+    bool hasOption(TypeEncoding option) const;
 
     TypeEncoding peekHidOption() const;
 
@@ -295,7 +295,7 @@ private:
      * @param item           the type item we search for depending on ATTACK or DEFENSE.
      * @return               the index in the item lookup table. This is same as header in links.
      */
-    int findItemIndex(const TypeEncoding& item) const;
+    int findItemIndex(TypeEncoding item) const;
 
     /**
      * @brief findItemIndex  performs binary search on the sorted option array to find its index in
@@ -303,7 +303,7 @@ private:
      * @param item           the type item we search for depending on ATTACK or DEFENSE.
      * @return               the index in the item option table. This is same as spacer in links.
      */
-    int findOptionIndex(const TypeEncoding& option) const;
+    int findOptionIndex(TypeEncoding option) const;
 
     /**
      * @brief hideItem     hiding an item in the links means we simply tag its column header with a

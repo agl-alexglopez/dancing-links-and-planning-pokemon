@@ -60,22 +60,22 @@ const int GEN_7 = 7;
 const int GEN_8 = 8;
 const int GEN_9 = 9;
 const int MAX_GEN_COMMENT_LEN = 4;
-const QString JSON_ALL_MAPS_FILE = "res/json/all-maps.json";
+const QString JSON_ALL_MAPS_FILE = "Res/json/all-maps.json";
 const QString GYM_ATTACKS_KEY = "attack";
 const QString GYM_DEFENSE_KEY = "defense";
 
 // There is no 0th generation so we will make it easier to select the right file by leaving 0 "".
 const std::vector<QString> GENERATION_JSON_FILES = {
     "",
-    "res/json/gen-1-types.json",
-    "res/json/gen-2-types.json",
-    "res/json/gen-3-types.json",
-    "res/json/gen-4-types.json",
-    "res/json/gen-5-types.json",
-    "res/json/gen-6-types.json",
-    "res/json/gen-7-types.json",
-    "res/json/gen-8-types.json",
-    "res/json/gen-9-types.json",
+    "Res/json/gen-1-types.json",
+    "Res/json/gen-2-types.json",
+    "Res/json/gen-3-types.json",
+    "Res/json/gen-4-types.json",
+    "Res/json/gen-5-types.json",
+    "Res/json/gen-6-types.json",
+    "Res/json/gen-7-types.json",
+    "Res/json/gen-8-types.json",
+    "Res/json/gen-9-types.json",
 };
 
 // Might as well use QStrings if I am parsing with them in the first place.

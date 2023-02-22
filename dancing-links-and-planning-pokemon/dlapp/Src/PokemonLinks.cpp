@@ -59,7 +59,7 @@ int numItems(const PokemonLinks& dlx) {
     return dlx.getNumItems();
 }
 
-bool hasItem(const PokemonLinks& dlx, const TypeEncoding& item) {
+bool hasItem(const PokemonLinks& dlx, TypeEncoding item) {
     return dlx.hasItem(item);
 }
 
@@ -67,7 +67,7 @@ int numOptions(const PokemonLinks& dlx) {
     return dlx.getNumOptions();
 }
 
-bool hasOption(const PokemonLinks& dlx, const TypeEncoding& option) {
+bool hasOption(const PokemonLinks& dlx, TypeEncoding option) {
     return dlx.hasOption(option);
 }
 
@@ -83,7 +83,7 @@ std::vector<TypeEncoding> options(const PokemonLinks& dlx) {
     return dlx.getOptions();
 }
 
-bool hideItem(PokemonLinks& dlx, const TypeEncoding& toHide) {
+bool hideItem(PokemonLinks& dlx, TypeEncoding toHide) {
     return dlx.hideRequestedItem(toHide);
 }
 
@@ -124,7 +124,7 @@ void resetItems(PokemonLinks& dlx) {
     dlx.resetItems();
 }
 
-bool hideOption(PokemonLinks& dlx, const TypeEncoding& toHide) {
+bool hideOption(PokemonLinks& dlx, TypeEncoding toHide) {
     return dlx.hideRequestedOption(toHide);
 }
 
@@ -480,7 +480,7 @@ std::vector<TypeEncoding> PokemonLinks::getHidOptions() const {
     return result;
 }
 
-bool PokemonLinks::hideRequestedItem(const TypeEncoding& toHide) {
+bool PokemonLinks::hideRequestedItem(TypeEncoding toHide) {
     int lookupIndex = findItemIndex(toHide);
     // Can't find or this item has already been hidden.
     if (lookupIndex && links_[lookupIndex].tag != HIDDEN) {
@@ -523,7 +523,7 @@ void PokemonLinks::hideAllItemsExcept(const std::set<TypeEncoding>& toKeep) {
 
 }
 
-bool PokemonLinks::hasItem(const TypeEncoding& item) const {
+bool PokemonLinks::hasItem(TypeEncoding item) const {
     int found = findItemIndex(item);
     return found && links_[found].tag != HIDDEN;
 }
@@ -561,7 +561,7 @@ void PokemonLinks::resetItems() {
     }
 }
 
-bool PokemonLinks::hideRequestedOption(const TypeEncoding& toHide) {
+bool PokemonLinks::hideRequestedOption(TypeEncoding toHide) {
     int lookupIndex = findOptionIndex(toHide);
     // Couldn't find or this option has already been hidden.
     if (lookupIndex && links_[lookupIndex].tag != HIDDEN) {
@@ -605,7 +605,7 @@ void PokemonLinks::hideAllOptionsExcept(const std::set<TypeEncoding>& toKeep) {
     }
 }
 
-bool PokemonLinks::hasOption(const TypeEncoding& option) const {
+bool PokemonLinks::hasOption(TypeEncoding option) const {
     int found = findOptionIndex(option);
     return found && links_[found].tag != HIDDEN;
 }
@@ -686,7 +686,7 @@ void PokemonLinks::unhideOption(int rowIndex) {
     numOptions_++;
 }
 
-int PokemonLinks::findItemIndex(const TypeEncoding& item) const {
+int PokemonLinks::findItemIndex(TypeEncoding item) const {
     if (item.encoding_) {
         for (size_t nremain = itemTable_.size(), base = 0; nremain != 0; nremain >>= 1) {
             int curIndex = base + (nremain >> 1);
@@ -704,7 +704,7 @@ int PokemonLinks::findItemIndex(const TypeEncoding& item) const {
     return 0;
 }
 
-int PokemonLinks::findOptionIndex(const TypeEncoding& option) const {
+int PokemonLinks::findOptionIndex(TypeEncoding option) const {
     if (option.encoding_) {
         for (size_t nremain = optionTable_.size(), base = 0; nremain != 0; nremain >>= 1) {
             int curIndex = base + (nremain >> 1);
@@ -917,33 +917,6 @@ void PokemonLinks::buildAttackLinks(const std::map<TypeEncoding,std::set<Resista
  */
 
 
-std::ostream& operator<<(std::ostream& out, const TypeEncoding& tp) {
-    std::pair<std::string_view,std::string_view> toPrint = tp.to_pair();
-    out << toPrint.first;
-    if (toPrint.second != "") {
-        out << "-" << toPrint.second;
-    }
-    return out;
-}
-std::ostream& operator<<(std::ostream& os,
-                         const std::set<RankedSet<TypeEncoding>>& solution) {
-    for (const auto& i : solution) {
-        os << i;
-    }
-    return os << std::endl;
-}
-std::ostream& operator<<(std::ostream& os, const std::vector<TypeEncoding>& types) {
-    for (const auto& t : types) {
-        os << t << ",";
-    }
-    return os << std::endl;
-}
-std::ostream& operator<<(std::ostream& os, const std::set<TypeEncoding>& types) {
-    for (const auto& t : types) {
-        os << t << ",";
-    }
-    return os << std::endl;
-}
 bool operator==(const PokemonLinks::pokeLink& lhs, const PokemonLinks::pokeLink& rhs) {
     return lhs.topOrLen == rhs.topOrLen && lhs.up == rhs.up
             && lhs.down == rhs.down && lhs.multiplier == rhs.multiplier

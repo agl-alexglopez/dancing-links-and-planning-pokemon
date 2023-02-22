@@ -36,6 +36,7 @@
  * type string and at worst 8 bit shifts to decode the encoding back to a string. This is fine.
  */
 #include "TypeEncoding.h"
+#include "Utilities/RankedSet.h"
 
 namespace DancingLinks {
 
@@ -98,40 +99,70 @@ TypeEncoding::TypeEncoding(std::string_view type)
  * With single shifts it would take 16 bit shifts to get to the second type. With nyble shifts
  * we can get that bit in 4 shifts. At worst we have three additional shifts after a nybl shift.
  */
-std::pair<std::string_view,std::string_view> TypeEncoding::to_pair() const {
-    if (!this->encoding_) {
+std::pair<std::string_view,std::string_view> to_pair(TypeEncoding type) {
+    if (!type.encoding_) {
         return {};
     }
-    uint32_t thisCopy = this->encoding_;
     int tableIndex = 0;
-    while (thisCopy) {
-        if (!(thisCopy & NYBL_MASK)) {
-            thisCopy >>= NYBL_SHIFT;
+    while (type.encoding_) {
+        if (!(type.encoding_ & NYBL_MASK)) {
+            type.encoding_ >>= NYBL_SHIFT;
             tableIndex += NYBL_SHIFT;
             continue;
         }
-        for (; !(thisCopy & 1); tableIndex++, thisCopy >>= 1) {
+        for (; !(type.encoding_ & 1); tableIndex++, type.encoding_ >>= 1) {
         }
         break;
     }
     std::string_view decoded = TYPE_ENCODING_TABLE[tableIndex];
-    if (thisCopy == 1) {
+    if (type.encoding_ == 1) {
         return {decoded, {}};
     }
-    thisCopy >>= 1;
+    type.encoding_ >>= 1;
     tableIndex++;
-    while (thisCopy) {
-        if (!(thisCopy & NYBL_MASK)) {
-            thisCopy >>= NYBL_SHIFT;
+    while (type.encoding_) {
+        if (!(type.encoding_ & NYBL_MASK)) {
+            type.encoding_ >>= NYBL_SHIFT;
             tableIndex += NYBL_SHIFT;
             continue;
         }
-        for (; !(thisCopy & 1); tableIndex++, thisCopy >>= 1) {
+        for (; !(type.encoding_ & 1); tableIndex++, type.encoding_ >>= 1) {
         }
         break;
     }
     return {TYPE_ENCODING_TABLE[tableIndex], decoded};
 }
 
+// Mostly convenience overloads for test framework but this one is useful for the GUI application.
+std::ostream& operator<<(std::ostream& out, TypeEncoding tp) {
+    std::pair<std::string_view,std::string_view> toPrint = to_pair(tp);
+    out << toPrint.first;
+    if (toPrint.second != "") {
+        out << '-' << toPrint.second;
+    }
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& os,
+                         const std::set<RankedSet<TypeEncoding>>& solution) {
+    for (const auto& i : solution) {
+        os << i;
+    }
+    return os << std::endl;
+}
+
+std::ostream& operator<<(std::ostream& os, const std::vector<TypeEncoding>& types) {
+    for (const auto& t : types) {
+        os << t << ',';
+    }
+    return os << std::endl;
+}
+
+std::ostream& operator<<(std::ostream& os, const std::set<TypeEncoding>& types) {
+    for (const auto& t : types) {
+        os << t << ',';
+    }
+    return os << std::endl;
+}
 
 } // namespace DancingLinks

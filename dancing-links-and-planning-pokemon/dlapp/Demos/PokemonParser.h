@@ -40,7 +40,7 @@
 #include <vector>
 #include "MapParser.h"
 #include "TypeEncoding.h"
-#include "Resistance.h"
+#include "TypeResistance.h"
 
 namespace Dx = DancingLinks;
 

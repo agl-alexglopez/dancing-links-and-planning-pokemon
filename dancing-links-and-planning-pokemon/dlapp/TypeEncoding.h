@@ -81,7 +81,7 @@ struct TypeEncoding {
     uint32_t encoding_;
     TypeEncoding() = default;
     TypeEncoding(std::string_view type);
-    std::pair<std::string_view,std::string_view> to_pair() const;
+    // If there is no second type, the second string in pair will be {} constructor for string_view.
     bool operator==(TypeEncoding rhs) const {
         return this->encoding_ == rhs.encoding_;
     }
@@ -103,7 +103,17 @@ struct TypeEncoding {
     }
 };
 
-std::ostream& operator<<(std::ostream& out, const TypeEncoding& tp);
+/**
+ * @brief to_pair  returns a read-only string_view of the type encoding table consisting of the
+ *                 string representation of the current type. If its a dual-type both fields of the
+ *                 pair will be filled. If it is a single type the second field will be the {} empty
+ *                 string_view constructor.
+ * @param type     the encoded type we use to represent the Pokemon single or dual-type.
+ * @return         a pair holding pointers to the strings making up the types, single or double.
+ */
+std::pair<std::string_view,std::string_view> to_pair(TypeEncoding type);
+
+std::ostream& operator<<(std::ostream& out, TypeEncoding tp);
 std::ostream& operator<<(std::ostream& os, const std::set<RankedSet<TypeEncoding>>& solution);
 std::ostream& operator<<(std::ostream& os, const std::vector<TypeEncoding>& types);
 std::ostream& operator<<(std::ostream& os, const std::set<TypeEncoding>& types);

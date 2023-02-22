@@ -30,7 +30,7 @@
  */
 #include "GUI/SimpleTest.h"
 #include "TypeEncoding.h"
-#include "PokemonLinks.h"
+#include "Src/PokemonLinks.h"
 
 /* * * * * * * *  Test the Type Encoding We Use To Represent Pokemon Types in Bits  * * * * * * * */
 
@@ -41,9 +41,9 @@ STUDENT_TEST("Easiest type encoding lexographically is Bug.") {
     std::string_view strType = "Bug";
     Dx::TypeEncoding code(strType);
     EXPECT_EQUAL(hexType, code.encoding_);
-    EXPECT_EQUAL(strType, code.to_pair().first);
+    EXPECT_EQUAL(strType, to_pair(code).first);
     std::string_view empty{};
-    EXPECT_EQUAL(empty, code.to_pair().second);
+    EXPECT_EQUAL(empty, to_pair(code).second);
 }
 
 STUDENT_TEST("Test the next simplist dual type Bug-Dark") {
@@ -51,8 +51,8 @@ STUDENT_TEST("Test the next simplist dual type Bug-Dark") {
     std::string_view strType = "Bug-Dark";
     Dx::TypeEncoding code(strType);
     EXPECT_EQUAL(hexType, code.encoding_);
-    EXPECT_EQUAL(std::string_view("Bug"), code.to_pair().first);
-    EXPECT_EQUAL(std::string_view("Dark"), code.to_pair().second);
+    EXPECT_EQUAL(std::string_view("Bug"), to_pair(code).first);
+    EXPECT_EQUAL(std::string_view("Dark"), to_pair(code).second);
 }
 
 STUDENT_TEST("Test for off by one errors with first and last index type Bug-Water.") {
@@ -60,8 +60,8 @@ STUDENT_TEST("Test for off by one errors with first and last index type Bug-Wate
     std::string_view strType = "Bug-Water";
     Dx::TypeEncoding code(strType);
     EXPECT_EQUAL(hexType, code.encoding_);
-    EXPECT_EQUAL(std::string_view("Bug"), code.to_pair().first);
-    EXPECT_EQUAL(std::string_view("Water"), code.to_pair().second);
+    EXPECT_EQUAL(std::string_view("Bug"), to_pair(code).first);
+    EXPECT_EQUAL(std::string_view("Water"), to_pair(code).second);
 }
 
 STUDENT_TEST("Test every possible combination of typings.") {
@@ -76,8 +76,8 @@ STUDENT_TEST("Test every possible combination of typings.") {
         std::string checkSingleType(Dx::TYPE_ENCODING_TABLE[type1]);
         Dx::TypeEncoding singleTypeEncoding(checkSingleType);
         EXPECT_EQUAL(singleTypeEncoding.encoding_, bit1);
-        EXPECT_EQUAL(singleTypeEncoding.to_pair().first, checkSingleType);
-        EXPECT_EQUAL(singleTypeEncoding.to_pair().second, {});
+        EXPECT_EQUAL(to_pair(singleTypeEncoding).first, checkSingleType);
+        EXPECT_EQUAL(to_pair(singleTypeEncoding).second, {});
 
         for (uint32_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2--) {
 
@@ -306,7 +306,7 @@ STUDENT_TEST("Cover Electric with Dragon eliminates Electric Option. Uncover res
 
     Dx::PokemonLinks::encodingAndNum pick = links.coverType(8);
     EXPECT_EQUAL(pick.num,12);
-    EXPECT_EQUAL(pick.name.to_pair().first,"Dragon");
+    EXPECT_EQUAL(to_pair(pick.name).first,"Dragon");
     EXPECT_EQUAL(itemCoverElectric, links.itemTable_);
     EXPECT_EQUAL(dlxCoverElectric, links.links_);
 
@@ -402,7 +402,7 @@ STUDENT_TEST("Cover Electric with Electric to cause hiding of many options.") {
 
     Dx::PokemonLinks::encodingAndNum pick = links.coverType(8);
     EXPECT_EQUAL(pick.num, 6);
-    EXPECT_EQUAL(pick.name.to_pair().first,"Electric");
+    EXPECT_EQUAL(to_pair(pick.name).first,"Electric");
     EXPECT_EQUAL(headersCoverElectric, links.itemTable_);
     EXPECT_EQUAL(dlxCoverElectric, links.links_);
 
@@ -690,7 +690,7 @@ STUDENT_TEST("Test the depth tag approach to overlapping coverage.") {
 
     Dx::PokemonLinks::encodingAndNum choice = links.overlappingCoverType(8, 6);
     EXPECT_EQUAL(choice.num, 6);
-    EXPECT_EQUAL(choice.name.to_pair().first, "Electric");
+    EXPECT_EQUAL(to_pair(choice.name).first, "Electric");
     const std::vector<Dx::PokemonLinks::typeName> headersCoverElectric {
         {{""},6,3},
         {{"Electric"},0,2},
@@ -733,7 +733,7 @@ STUDENT_TEST("Test the depth tag approach to overlapping coverage.") {
 
     Dx::PokemonLinks::encodingAndNum choice2 = links.overlappingCoverType(12, 5);
     EXPECT_EQUAL(choice2.num, 6);
-    EXPECT_EQUAL(choice2.name.to_pair().first, "Fire");
+    EXPECT_EQUAL(to_pair(choice2.name).first, "Fire");
     const std::vector<Dx::PokemonLinks::typeName> headersCoverGrass {
         {{""},5,4},
         {{"Electric"},0,2},
@@ -1041,7 +1041,7 @@ STUDENT_TEST("Test hiding an item from the world.") {
     EXPECT_EQUAL(links.itemTable_, headersHideFire);
     EXPECT(!links.hideRequestedItem(Dx::TypeEncoding(std::string("Fire"))));
     EXPECT_EQUAL(links.links_, dlxHideFire);
-    EXPECT_EQUAL(links.peekHidItem().to_pair().first, "Fire");
+    EXPECT_EQUAL(to_pair(links.peekHidItem()).first, "Fire");
     EXPECT_EQUAL(links.getNumHidItems(), 1);
 
     // Test our unhide and reset functions.

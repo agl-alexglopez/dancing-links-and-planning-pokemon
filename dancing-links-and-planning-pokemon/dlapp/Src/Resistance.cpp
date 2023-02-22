@@ -27,6 +27,18 @@
 namespace DancingLinks {
 
 
+/* * * * * * * * * *      Free Functions for TypeResistance.h       * * * * * * * * * * * * * * * */
+
+
+TypeEncoding type(const Resistance& res) {
+    return res.type();
+}
+
+Multiplier multiplier(const Resistance& res) {
+    return res.multiplier();
+}
+
+
 /* * * * * * * * * * * * *     Resistance Helper Class      * * * * * * * * * * * * * * * * * * * */
 
 

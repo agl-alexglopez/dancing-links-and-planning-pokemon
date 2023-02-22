@@ -102,7 +102,7 @@
  */
 #ifndef DANCINGLINKS_H
 #define DANCINGLINKS_H
-#include "PokemonLinks.h"
+#include "Src/PokemonLinks.h"
 
 namespace DancingLinks {
 class PokemonLinks;
@@ -189,7 +189,7 @@ int numItems(const PokemonLinks& dlx);
  * @param item     the item we are trying to find.
  * @return         true if the item is present and not hidden false if not.
  */
-bool hasItem(const PokemonLinks& dlx, const TypeEncoding& item);
+bool hasItem(const PokemonLinks& dlx, TypeEncoding item);
 
 /**
  * @brief options  reports the options available to us to cover our items in the cover problem.
@@ -212,7 +212,7 @@ int numOptions(const PokemonLinks& dlx);
  * @param option     the option we are searching for.
  * @return           true if found and not hidden false if not.
  */
-bool hasOption(const PokemonLinks& dlx, const TypeEncoding& option);
+bool hasOption(const PokemonLinks& dlx, TypeEncoding option);
 
 /**
  * @brief coverageType  the coverage type the PokemonLinks is set to.
@@ -233,7 +233,7 @@ PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
  * @param toHide    the type item representing the item to hide depending on ATTACK or DEFENSE.
  * @return          true if the item was hidden false if it was already hidden or not found.
  */
-bool hideItem(PokemonLinks& dlx, const TypeEncoding& toHide);
+bool hideItem(PokemonLinks& dlx, TypeEncoding toHide);
 
 /**
  * @brief hideItem  hides all items specified from the vector as above. In place, O(NlgN) guarantee.
@@ -317,7 +317,7 @@ void resetItems(PokemonLinks& dlx);
  * @param toHide      the option we must hide from the world.
  * @return            true if option was hidden false if it was hidden or could not be found.
  */
-bool hideOption(PokemonLinks& dlx, const TypeEncoding& toHide);
+bool hideOption(PokemonLinks& dlx, TypeEncoding toHide);
 
 /**
  * @brief hideOption  hides all options specified in the vector from the world. Uses the same

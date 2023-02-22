@@ -37,7 +37,7 @@
 #include "GUI/MiniGUI.h"
 #include "PokemonParser.h"
 #include "DancingLinks.h"
-#include "Resistance.h"
+#include "TypeResistance.h"
 #include "Utilities/RankedSet.h"
 #include <fstream>
 #include <memory>
@@ -61,7 +61,7 @@ namespace {
 
 /* File constants. */
 const std::string kProblemSuffix = ".dst";
-const std::string kBasePath = "res/dst/";
+const std::string kBasePath = "Res/dst/";
 /* Background color. */
 const std::string kBackgroundColor  = "#000000";
 
