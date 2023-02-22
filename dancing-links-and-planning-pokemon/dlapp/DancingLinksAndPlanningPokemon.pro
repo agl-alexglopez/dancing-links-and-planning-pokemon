@@ -83,9 +83,9 @@ HEADERS         *=  "" \
     TypeResistance.h \
     Src/Resistance.h \
     Src/PokemonLinks.h \
+    Src/RankedSet.h \
     Demos/MapParser.h \
-    Demos/PokemonParser.h \
-    Utilities/RankedSet.h
+    Demos/PokemonParser.h
 
 # Gather any .cpp or .h files within the project folder (student/starter code).
 # Second argument true makes search recursive

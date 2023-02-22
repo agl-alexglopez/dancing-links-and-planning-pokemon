@@ -39,7 +39,7 @@
 #include <utility>
 #include <vector>
 #include "GUI/SimpleTest.h"
-#include "Utilities/RankedSet.h"
+#include "RankedSet.h"
 #include "Resistance.h"
 #include "TypeEncoding.h"
 

@@ -48,8 +48,8 @@
 #define TYPERESISTANCE_H
 #include "Src/Resistance.h"
 
-namespace DancingLinks {
 class Resistance;
+namespace DancingLinks {
 
 /**
  * @brief type  returns the TypeEncoding for the resistance. May be viewed as a pair of strings.

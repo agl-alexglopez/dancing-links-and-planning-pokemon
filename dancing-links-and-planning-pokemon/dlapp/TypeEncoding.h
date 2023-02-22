@@ -66,7 +66,7 @@
 #include <ostream>
 #include <vector>
 #include <set>
-#include "Utilities/RankedSet.h"
+#include "Src/RankedSet.h"
 
 namespace DancingLinks {
 

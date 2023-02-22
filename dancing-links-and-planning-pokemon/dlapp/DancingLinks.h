@@ -104,8 +104,8 @@
 #define DANCINGLINKS_H
 #include "Src/PokemonLinks.h"
 
-namespace DancingLinks {
 class PokemonLinks;
+namespace DancingLinks {
 
 
 /* * * * * * * *        Free Functions for Client to Use with DLX Solvers       * * * * * * * * * */

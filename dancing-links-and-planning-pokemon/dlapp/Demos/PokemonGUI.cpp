@@ -38,7 +38,6 @@
 #include "PokemonParser.h"
 #include "DancingLinks.h"
 #include "TypeResistance.h"
-#include "Utilities/RankedSet.h"
 #include <fstream>
 #include <memory>
 #include <cmath>
