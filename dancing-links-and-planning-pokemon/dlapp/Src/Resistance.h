@@ -26,21 +26,7 @@
  * ------------------
  * This file contains a utility class for defining a Pokemon Resistance. The intended use is for
  * these resistances to be associated with keys. The keys should either be attack types or defensive
- * types, so this is not a generic class. For example, you could have a defensive type in a map
- * like this:
- *
- *      {"Ground-Rock":{"Electric x0.0","Water x4","Fire x0.5"}},
- *
- * or the flipped version of the same setup for attack types like this:
- *
- *      {"Fire":{"Ground-Rock x0.5","Grass-Bug x4"}}.
- *
- * You can see that multiplier remains constant whether we have the defensive type as a key or as
- * a Resistance in the map. That is why I use this to help make answering questions of exact or
- * overlapping cover for both Attack and Defense Pokemon types faster and more convenient. A
- * resistance should always be tied to a key that it interacts with. Maybe there is a better way,
- * but this was a convenient way I found to deal with the added complexity of different multipliers
- * in the Pokemon Type Coverage Problem.
+ * types, so this is not a generic class.
  */
 #ifndef RESISTANCE_H
 #define RESISTANCE_H
