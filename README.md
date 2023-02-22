@@ -2,8 +2,8 @@
 
 ## Navigation
 - Pokémon Planning
-	- Dancing Links Class **([`PokemonLinks.h`](/dancing-links-and-planning-pokemon/dlapp/PokemonLinks.h))**
-	- Dancing Links Implementation **([`PokemonLinks.cpp`](/dancing-links-and-planning-pokemon/dlapp/PokemonLinks.cpp))**
+	- Dancing Links Class **([`PokemonLinks.h`](/dancing-links-and-planning-pokemon/dlapp/Src/PokemonLinks.h))**
+	- Dancing Links Implementation **([`PokemonLinks.cpp`](/dancing-links-and-planning-pokemon/dlapp/Src/PokemonLinks.cpp))**
 - [Citations](#citations)
 
 ## Build Note
