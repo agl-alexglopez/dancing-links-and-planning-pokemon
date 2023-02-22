@@ -106,7 +106,7 @@ struct TypeEncoding {
  * @brief to_pair  returns a read-only string_view of the type encoding table consisting of the
  *                 string representation of the current type. If its a dual-type both fields of the
  *                 pair will be filled. If it is a single type the second field will be the {} empty
- *                 string_view constructor.
+ *                 string_view constructor. Check if .size() == 0 if needed.
  * @param type     the encoded type we use to represent the Pokemon single or dual-type.
  * @return         a pair holding pointers to the strings making up the types, single or double.
  */
