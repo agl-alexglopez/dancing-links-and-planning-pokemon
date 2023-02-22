@@ -60,7 +60,7 @@ namespace {
 
 /* File constants. */
 const std::string kProblemSuffix = ".dst";
-const std::string kBasePath = "Res/dst/";
+const std::string kBasePath = "Data/dst/";
 /* Background color. */
 const std::string kBackgroundColor  = "#000000";
 

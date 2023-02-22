@@ -36,7 +36,6 @@
  * type string and at worst 8 bit shifts to decode the encoding back to a string. This is fine.
  */
 #include "TypeEncoding.h"
-#include "Utilities/RankedSet.h"
 
 namespace DancingLinks {
 
