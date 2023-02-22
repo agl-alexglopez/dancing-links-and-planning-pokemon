@@ -39,7 +39,7 @@
  * typing that starts with "Bug" will always be a larger number than one that starts with "Dark,"
  * for example. In the same way, any string that starts wit "Bug", would always be sorted
  * lexicographicly before one that starts with "Dark." Then, we simply reverse the less than
- * operator for the TypeEncoding and we can use this type as keys in sets, keys maps, or elements in
+ * operator for the TypeEncoding and we can use this type as keys in sets, in maps, or elements in
  * binary searches and they will behave as if they are strings, but all comparisons are much more
  * efficient. Consider why this would NOT work if we put the "Bug" bit at the Least Significant Bit
  * position, the 0th index
@@ -81,7 +81,6 @@ struct TypeEncoding {
     uint32_t encoding_;
     TypeEncoding() = default;
     TypeEncoding(std::string_view type);
-    // If there is no second type, the second string in pair will be {} constructor for string_view.
     bool operator==(TypeEncoding rhs) const {
         return this->encoding_ == rhs.encoding_;
     }
