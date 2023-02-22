@@ -179,7 +179,6 @@ struct TypeEncoding {
 	uint32_t encoding_;
 	TypeEncoding() = default;
 	TypeEncoding(std::string_view type);
-	std::pair<std::string_view,std::string_view> to_pair() const;
 	bool operator==(TypeEncoding rhs) const {
 		return this->encoding_ == rhs.encoding_;
 	}
@@ -200,6 +199,9 @@ struct TypeEncoding {
 		return !(*this < rhs);
 	}
 };
+
+std::pair<std::string_view,std::string_view> to_pair(TypeEncoding type);
+
 ```
 
 We place every Pokémon type in this `uint32_t` such that the 0th index bit is Water and the 17th index bit is Bug. In its binary representation it looks like this.
