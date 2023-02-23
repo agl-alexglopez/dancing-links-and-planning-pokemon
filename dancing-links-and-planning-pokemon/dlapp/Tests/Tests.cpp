@@ -33,7 +33,9 @@
 #include "Src/PokemonLinks.h"
 #include "Src/RankedSet.h"
 
-/* * * * * * * *  Test the Type Encoding We Use To Represent Pokemon Types in Bits  * * * * * * * */
+
+/* * * * * * * *     All Operators We Overloaded Simply for Testing/Debugging       * * * * * * * */
+
 
 namespace DancingLinks {
 
@@ -59,9 +61,140 @@ std::ostream& operator<<(std::ostream& os, const std::set<TypeEncoding>& types) 
     return os;
 }
 
+bool operator==(const PokemonLinks::pokeLink& lhs, const PokemonLinks::pokeLink& rhs) {
+    return lhs.topOrLen == rhs.topOrLen && lhs.up == rhs.up
+            && lhs.down == rhs.down && lhs.multiplier == rhs.multiplier
+             && lhs.tag == rhs.tag;
+}
+
+bool operator!=(const PokemonLinks::pokeLink& lhs, const PokemonLinks::pokeLink& rhs) {
+    return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& os, const PokemonLinks::pokeLink& link) {
+    return os << "{" << link.topOrLen
+              << ", " << link.up << ", " << link.down << ", " << link.multiplier << "},";
+}
+
+bool operator==(const PokemonLinks::typeName& lhs, const PokemonLinks::typeName& rhs) {
+    return lhs.name == rhs.name && lhs.left == rhs.left && lhs.right == rhs.right;
+}
+
+bool operator!=(const PokemonLinks::typeName& lhs, const PokemonLinks::typeName& rhs) {
+    return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& os, const PokemonLinks::typeName& type) {
+    return os << "{ name: " << type.name
+              << ", left: " << type.left << ", right: " << type.right << " }";
+}
+
+bool operator==(const std::vector<PokemonLinks::pokeLink>& lhs,
+                const std::vector<PokemonLinks::pokeLink>& rhs) {
+    if (lhs.size() != rhs.size()) {
+        return false;
+    }
+    for (int i = 0; i < lhs.size(); i++) {
+        if (lhs[i] != rhs[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool operator!=(const std::vector<PokemonLinks::pokeLink>& lhs,
+                const std::vector<PokemonLinks::pokeLink>& rhs) {
+    return !(lhs == rhs);
+}
+
+bool operator==(const std::vector<PokemonLinks::typeName>& lhs,
+                const std::vector<PokemonLinks::typeName>& rhs) {
+    if (lhs.size() != rhs.size()) {
+        return false;
+    }
+    for (int i = 0; i < lhs.size(); i++) {
+        if (lhs[i] != rhs[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool operator!=(const std::vector<PokemonLinks::typeName>& lhs,
+                const std::vector<PokemonLinks::typeName>& rhs) {
+    return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& os, const std::vector<PokemonLinks::pokeLink>& links) {
+    os << "DLX ARRAY" << std::endl;
+    for (int index = 0; index < links.size(); index++) {
+        PokemonLinks::pokeLink item = links[index];
+        if (item.topOrLen < 0) {
+            os << "\n";
+        }
+        os << "{" << item.topOrLen << ","
+           << item.up << "," << item.down << "," << item.multiplier << "," << item.tag << "},";
+    }
+    os << std::endl;
+    return os;
+}
+
+std::ostream& operator<<(std::ostream&os,
+                         const std::vector<PokemonLinks::typeName>& items) {
+    os << "LOOKUP TABLE" << std::endl;
+    for (const auto& item : items) {
+        os << "{\"" << item.name << "\"," << item.left << "," << item.right << "},\n";
+    }
+    os << std::endl;
+    return os;
+}
+
+bool operator==(const PokemonLinks::encodingAndNum& lhs, const PokemonLinks::encodingAndNum& rhs) {
+    return lhs.name == rhs.name && lhs.num == rhs.num;
+}
+
+bool operator!=(const PokemonLinks::encodingAndNum& lhs, const PokemonLinks::encodingAndNum& rhs) {
+    return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& os, const PokemonLinks::encodingAndNum& nN) {
+    return os << "{\"" << nN.name << "\"," << nN.num << "}";
+}
+
+bool operator==(const std::vector<PokemonLinks::encodingAndNum>& lhs,
+                const std::vector<PokemonLinks::encodingAndNum>& rhs) {
+    if (lhs.size() != rhs.size()) {
+        return false;
+    }
+    for (int i = 0; i < lhs.size(); i++) {
+        if (lhs[i] != rhs[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool operator!=(const std::vector<PokemonLinks::encodingAndNum>& lhs,
+                const std::vector<PokemonLinks::encodingAndNum>& rhs) {
+    return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& os, const std::vector<PokemonLinks::encodingAndNum>& nN) {
+    for (const auto& i : nN) {
+        os << i;
+    }
+    return os << std::endl;
+}
+
+
 } // namespace DancingLinks
 
+
 namespace Dx = DancingLinks;
+
+
+/* * * * * * * *  Test the Type Encoding We Use To Represent Pokemon Types in Bits  * * * * * * * */
+
 
 STUDENT_TEST("Easiest type encoding lexographically is Bug.") {
     uint32_t hexType = 0x20000;
