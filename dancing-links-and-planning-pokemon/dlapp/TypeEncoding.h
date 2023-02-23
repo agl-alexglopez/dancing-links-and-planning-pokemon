@@ -70,17 +70,32 @@
 
 namespace DancingLinks {
 
-const size_t TYPE_TABLE_SIZE = 18;
+
+/* * * * * * * * * *          Lookup Table for Encoding and Decoding          * * * * * * * * * * */
+
+
 // lexicographicly organized table. 17th index is the first lexicographic order Bug.
+const size_t TYPE_TABLE_SIZE = 18;
 const std::string TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
     "Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass","Ghost","Flying",
     "Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
 };
 
+
+/* * * * * * * * * *       Wrapper Struct for Trivial Encoding Type     * * * * * * * * * * * * * */
+
+
 struct TypeEncoding {
     uint32_t encoding_;
+
     TypeEncoding() = default;
+    // If encoding cannot be found encoding_ is set the falsey value 0.
     TypeEncoding(std::string_view type);
+<<<<<<< Updated upstream
+=======
+
+    // If there is no second type, the second string in pair will be {} constructor for string_view.
+>>>>>>> Stashed changes
     bool operator==(TypeEncoding rhs) const {
         return this->encoding_ == rhs.encoding_;
     }
@@ -102,6 +117,10 @@ struct TypeEncoding {
     }
 };
 
+
+/* * * * * * * * * *      Efficient Free Function for Decoding      * * * * * * * * * * * * * * * */
+
+
 /**
  * @brief to_pair  returns a read-only string_view of the type encoding table consisting of the
  *                 string representation of the current type. If its a dual-type both fields of the
@@ -111,6 +130,10 @@ struct TypeEncoding {
  * @return         a pair holding pointers to the strings making up the types, single or double.
  */
 std::pair<std::string_view,std::string_view> to_pair(TypeEncoding type);
+
+
+/* * * * * * * * * *    Overloaded Operators Mainly for Debugging   * * * * * * * * * * * * * * * */
+
 
 std::ostream& operator<<(std::ostream& out, TypeEncoding tp);
 std::ostream& operator<<(std::ostream& os, const std::set<RankedSet<TypeEncoding>>& solution);

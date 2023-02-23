@@ -687,17 +687,15 @@ void PokemonLinks::unhideOption(int rowIndex) {
 }
 
 int PokemonLinks::findItemIndex(TypeEncoding item) const {
-    if (item.encoding_) {
-        for (size_t nremain = itemTable_.size(), base = 0; nremain != 0; nremain >>= 1) {
-            int curIndex = base + (nremain >> 1);
-            if (itemTable_[curIndex].name == item) {
-                // This is the index where we can find the header for this items column.
-                return curIndex;
-            }
-            if (item > itemTable_[curIndex].name) {
-                base = curIndex + 1;
-                nremain--;
-            }
+    for (size_t nremain = itemTable_.size(), base = 0; nremain != 0; nremain >>= 1) {
+        int curIndex = base + (nremain >> 1);
+        if (itemTable_[curIndex].name == item) {
+            // This is the index where we can find the header for this items column.
+            return curIndex;
+        }
+        if (item > itemTable_[curIndex].name) {
+            base = curIndex + 1;
+            nremain--;
         }
     }
     // We know zero holds no value in the itemTable_ and this can double as a falsey value.
@@ -705,17 +703,15 @@ int PokemonLinks::findItemIndex(TypeEncoding item) const {
 }
 
 int PokemonLinks::findOptionIndex(TypeEncoding option) const {
-    if (option.encoding_) {
-        for (size_t nremain = optionTable_.size(), base = 0; nremain != 0; nremain >>= 1) {
-            int curIndex = base + (nremain >> 1);
-            if (optionTable_[curIndex].name == option) {
-                // This is the index corresponding to the spacer node for an option in the links.
-                return optionTable_[curIndex].num;
-            }
-            if (option > optionTable_[curIndex].name) {
-                base = curIndex + 1;
-                nremain--;
-            }
+    for (size_t nremain = optionTable_.size(), base = 0; nremain != 0; nremain >>= 1) {
+        int curIndex = base + (nremain >> 1);
+        if (optionTable_[curIndex].name == option) {
+            // This is the index corresponding to the spacer node for an option in the links.
+            return optionTable_[curIndex].num;
+        }
+        if (option > optionTable_[curIndex].name) {
+            base = curIndex + 1;
+            nremain--;
         }
     }
     // We know zero holds no value in the optionTable_ and this can double as a falsey value.

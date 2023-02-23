@@ -136,7 +136,7 @@ std::pair<std::string_view,std::string_view> to_pair(TypeEncoding type) {
 std::ostream& operator<<(std::ostream& out, TypeEncoding tp) {
     std::pair<std::string_view,std::string_view> toPrint = to_pair(tp);
     out << toPrint.first;
-    if (toPrint.second != "") {
+    if (!toPrint.second.empty()) {
         out << '-' << toPrint.second;
     }
     return out;
@@ -147,21 +147,21 @@ std::ostream& operator<<(std::ostream& os,
     for (const auto& i : solution) {
         os << i;
     }
-    return os << std::endl;
+    return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const std::vector<TypeEncoding>& types) {
     for (const auto& t : types) {
         os << t << ',';
     }
-    return os << std::endl;
+    return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const std::set<TypeEncoding>& types) {
     for (const auto& t : types) {
         os << t << ',';
     }
-    return os << std::endl;
+    return os;
 }
 
 } // namespace DancingLinks
