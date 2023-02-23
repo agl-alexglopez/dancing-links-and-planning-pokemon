@@ -88,7 +88,7 @@ TypeEncoding::TypeEncoding(std::string_view type)
  *
  *       |----------------------1
  *       |    |-------------------------------------1
- *      Bug-Water = 0x10001 = 0b10000 0000 0000 00001
+ *      Bug-Water = 0x20001 = 0b10000 0000 0000 00001
  */
 std::pair<std::string_view,std::string_view> to_pair(TypeEncoding type) {
     if (!type.encoding_) {
