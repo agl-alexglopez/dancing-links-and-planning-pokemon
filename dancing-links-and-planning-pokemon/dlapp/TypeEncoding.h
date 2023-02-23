@@ -92,7 +92,10 @@ struct TypeEncoding {
     // If encoding cannot be found encoding_ is set the falsey value 0.
     TypeEncoding(std::string_view type);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
 
     // If there is no second type, the second string in pair will be {} constructor for string_view.
 >>>>>>> Stashed changes
