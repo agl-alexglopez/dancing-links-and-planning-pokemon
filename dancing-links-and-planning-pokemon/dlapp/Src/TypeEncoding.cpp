@@ -123,26 +123,4 @@ std::ostream& operator<<(std::ostream& out, TypeEncoding tp) {
     return out;
 }
 
-std::ostream& operator<<(std::ostream& os,
-                         const std::set<RankedSet<TypeEncoding>>& solution) {
-    for (const auto& i : solution) {
-        os << i;
-    }
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const std::vector<TypeEncoding>& types) {
-    for (const auto& t : types) {
-        os << t << ',';
-    }
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const std::set<TypeEncoding>& types) {
-    for (const auto& t : types) {
-        os << t << ',';
-    }
-    return os;
-}
-
 } // namespace DancingLinks

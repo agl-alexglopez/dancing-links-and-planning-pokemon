@@ -64,9 +64,6 @@
 #define TYPEENCODING_H
 #include <string_view>
 #include <ostream>
-#include <vector>
-#include <set>
-#include "Src/RankedSet.h"
 
 namespace DancingLinks {
 
@@ -76,7 +73,7 @@ namespace DancingLinks {
 
 // lexicographicly organized table. 17th index is the first lexicographic order Bug.
 const size_t TYPE_TABLE_SIZE = 18;
-const std::string TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
+const char * const TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
     "Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass","Ghost","Flying",
     "Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
 };
@@ -92,7 +89,6 @@ struct TypeEncoding {
     // If encoding cannot be found encoding_ is set the falsey value 0.
     TypeEncoding(std::string_view type);
 
-    // If there is no second type, the second string in pair will be {} constructor for string_view.
     bool operator==(TypeEncoding rhs) const {
         return this->encoding_ == rhs.encoding_;
     }
@@ -129,13 +125,17 @@ struct TypeEncoding {
 std::pair<std::string_view,std::string_view> to_pair(TypeEncoding type);
 
 
-/* * * * * * * * * *    Overloaded Operators Mainly for Debugging   * * * * * * * * * * * * * * * */
+/* * * * * * * * * *      Overloaded Operator for a String View       * * * * * * * * * * * * * * */
 
 
+/**
+ * @brief operator <<  overload of the ostream operator to efficiently print the decoding to a GUI.
+ * @param out          the stream.
+ * @param tp           the type we will decode and print with one joining '-' for dual types.
+ * @return             the stream.
+ */
 std::ostream& operator<<(std::ostream& out, TypeEncoding tp);
-std::ostream& operator<<(std::ostream& os, const std::set<RankedSet<TypeEncoding>>& solution);
-std::ostream& operator<<(std::ostream& os, const std::vector<TypeEncoding>& types);
-std::ostream& operator<<(std::ostream& os, const std::set<TypeEncoding>& types);
+
 
 } // namespace DancingLinks
 

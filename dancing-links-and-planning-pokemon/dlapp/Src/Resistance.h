@@ -32,7 +32,7 @@
 #define RESISTANCE_H
 #include <string>
 #include <ostream>
-#include "TypeEncoding.h"
+#include "../TypeEncoding.h"
 
 namespace DancingLinks {
 

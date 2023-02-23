@@ -47,6 +47,7 @@
 #ifndef TYPERESISTANCE_H
 #define TYPERESISTANCE_H
 #include "Src/Resistance.h"
+#include "TypeEncoding.h"
 
 namespace DancingLinks {
 class Resistance;

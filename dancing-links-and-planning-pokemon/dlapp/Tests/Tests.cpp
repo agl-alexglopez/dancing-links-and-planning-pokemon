@@ -31,8 +31,35 @@
 #include "GUI/SimpleTest.h"
 #include "TypeEncoding.h"
 #include "Src/PokemonLinks.h"
+#include "Src/RankedSet.h"
 
 /* * * * * * * *  Test the Type Encoding We Use To Represent Pokemon Types in Bits  * * * * * * * */
+
+namespace DancingLinks {
+
+std::ostream& operator<<(std::ostream& os,
+                         const std::set<RankedSet<TypeEncoding>>& solution) {
+    for (const auto& i : solution) {
+        os << i;
+    }
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const std::vector<TypeEncoding>& types) {
+    for (const auto& t : types) {
+        os << t << ',';
+    }
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const std::set<TypeEncoding>& types) {
+    for (const auto& t : types) {
+        os << t << ',';
+    }
+    return os;
+}
+
+} // namespace DancingLinks
 
 namespace Dx = DancingLinks;
 
