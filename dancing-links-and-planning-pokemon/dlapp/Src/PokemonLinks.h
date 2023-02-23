@@ -185,13 +185,13 @@ private:
     std::vector<encodingAndNum> optionTable_;  // How we know the name of the option we chose.
     std::vector<typeName> itemTable_;          // How we know the names of our items.
     std::vector<pokeLink> links_;              // The links that dance!
-    std::vector<int> hiddenItems_;            // Treat as stack with user hidden Items.
-    std::vector<int> hiddenOptions_;          // Treat as stack with user hidden Options.
-    std::size_t maxOutput_;                   // Cutoff our solution generation for GUI usability.
-    bool hitLimit_;                           // How we report to a user that we cutoff more solutions
-    int numItems_;                            // What needs to be covered.
-    int numOptions_;                          // Options we can choose from to cover items.
-    CoverageType requestedCoverSolution_;    // The user is asking for ATTACK or DEFENSE
+    std::vector<int> hiddenItems_;             // Treat as stack with user hidden Items.
+    std::vector<int> hiddenOptions_;           // Treat as stack with user hidden Options.
+    std::size_t maxOutput_;                    // Cutoff our solution generation for GUI usability.
+    bool hitLimit_;                            // How we report to a user that we cutoff more solutions
+    int numItems_;                             // What needs to be covered.
+    int numOptions_;                           // Options we can choose from to cover items.
+    CoverageType requestedCoverSolution_;      // The user is asking for ATTACK or DEFENSE
 
     static const int HIDDEN = -1;
 
