@@ -33,7 +33,7 @@
  * overhead of the std library implementation of a hashmap or hashing function. We simply store
  * the minimum possible information, a stack array of single type strings. I think this is a good
  * balance of performance and space efficiency. We have at worst two binary searches to encode a
- * type string and at worst 8 bit shifts to decode the encoding back to a string. This is fine.
+ * type string and at worst 16 bit shifts to decode the encoding back to a string. This is fine.
  */
 #include "TypeEncoding.h"
 
@@ -41,10 +41,6 @@ namespace DancingLinks {
 
 namespace {
 
-// Half a byte is a nibble (aka nybl, nyble, nybble, half-byte...)
-const uint32_t NYBL_SHIFT = 4;
-const uint32_t NYBL_MASK = 0xf;
-const uint32_t TYPE_MAX = 0x30000;
 
 size_t binsearchBitIndex(std::string_view type) {
     for (size_t remain = TYPE_TABLE_SIZE, base = 0; remain; remain >>= 1) {
@@ -88,47 +84,32 @@ TypeEncoding::TypeEncoding(std::string_view type)
     encoding_ |= (1 << found);
 }
 
-/* Shifting a nyble at a time is a good balance. The second loop will have at most 3 shifts.
- * This could cut down the shifts to get to the bit we want significantly. Consider how many
- * shifts to get the indices of the following bits with normal single shifts and then with
- * nyble shifts. Nybl shifts are the size of a nybl, 4 bits.
+/* As the worst case, it takes a few condition checks and 16 bit shifts to fully decode this type.
  *
- *      Bug-Steel = 0x10001 = 0b10000 0000 0000 0001
- *
- * With single shifts it would take 16 bit shifts to get to the second type. With nyble shifts
- * we can get that bit in 4 shifts. At worst we have three additional shifts after a nybl shift.
+ *       |----------------------1
+ *       |    |-------------------------------------1
+ *      Bug-Water = 0x10001 = 0b10000 0000 0000 00001
  */
 std::pair<std::string_view,std::string_view> to_pair(TypeEncoding type) {
     if (!type.encoding_) {
         return {};
     }
-    int tableIndex = 0;
-    while (type.encoding_) {
-        if (!(type.encoding_ & NYBL_MASK)) {
-            type.encoding_ >>= NYBL_SHIFT;
-            tableIndex += NYBL_SHIFT;
-            continue;
-        }
-        for (; !(type.encoding_ & 1); tableIndex++, type.encoding_ >>= 1) {
-        }
-        break;
+
+    uint32_t tableIndex = 0;
+    while (!(type.encoding_ & 1)) {
+        type.encoding_ >>= 1;
+        tableIndex++;
     }
+
     std::string_view decoded = TYPE_ENCODING_TABLE[tableIndex];
     if (type.encoding_ == 1) {
         return {decoded, {}};
     }
-    type.encoding_ >>= 1;
-    tableIndex++;
-    while (type.encoding_) {
-        if (!(type.encoding_ & NYBL_MASK)) {
-            type.encoding_ >>= NYBL_SHIFT;
-            tableIndex += NYBL_SHIFT;
-            continue;
-        }
-        for (; !(type.encoding_ & 1); tableIndex++, type.encoding_ >>= 1) {
-        }
-        break;
-    }
+
+    do {
+        tableIndex++;
+        type.encoding_ >>= 1;
+    } while (!(type.encoding_ & 1));
     return {TYPE_ENCODING_TABLE[tableIndex], decoded};
 }
 
