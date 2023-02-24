@@ -92,7 +92,7 @@ bool hideItem(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide) {
 }
 
 bool hideItem(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
-                                 std::vector<TypeEncoding>& failedToHide) {
+               std::vector<TypeEncoding>& failedToHide) {
     return dlx.hideRequestedItem(toHide, failedToHide);
 }
 
@@ -133,7 +133,7 @@ bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide) {
 }
 
 bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
-                                   std::vector<TypeEncoding>& failedToHide) {
+                 std::vector<TypeEncoding>& failedToHide) {
     return dlx.hideRequestedOption(toHide, failedToHide);
 }
 
