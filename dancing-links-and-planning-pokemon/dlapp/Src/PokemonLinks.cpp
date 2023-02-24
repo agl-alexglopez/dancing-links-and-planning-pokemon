@@ -380,6 +380,12 @@ void PokemonLinks::fillOverlappingCoverages(std::set<RankedSet<TypeEncoding>>& c
     }
 }
 
+/* Overlapping cover is much simpler at the cost of generating a tremendous number of solutions. We
+ * only need to know which items and options are covered at which recursive levels because we are
+ * more relaxed about leaving options available after items in those options have been covered by
+ * other options.
+ */
+
 PokemonLinks::encodingAndNum PokemonLinks::overlappingCoverType(int indexInOption, int depthTag) {
     int i = indexInOption;
     encodingAndNum result = {};
@@ -389,12 +395,6 @@ PokemonLinks::encodingAndNum PokemonLinks::overlappingCoverType(int indexInOptio
             i = links_[i].up;
             result.name = optionTable_[std::abs(links_[i - 1].topOrLen)].name;
         } else {
-            /* Overlapping cover is much simpler at the cost of generating a tremendous number of
-             * solutions. We only need to know which items and options are covered at which
-             * recursive levels because we are more relaxed about leaving options available after
-             * items in those options have been covered by other options.
-             */
-
             if (!links_[top].tag) {
                 links_[top].tag = depthTag;
                 itemTable_[itemTable_[top].left].right = itemTable_[top].right;
@@ -595,7 +595,7 @@ bool PokemonLinks::hideRequestedOption(const std::vector<TypeEncoding>& toHide,
 }
 
 void PokemonLinks::hideAllOptionsExcept(const std::set<TypeEncoding>& toKeep) {
-    // We are not interested in the last node in the vector.
+    // We start i at the index of the first option spacer. This is after the column headers.
     for (int i = itemTable_.size(); i < links_.size() - 1; i = links_[i].down + 1) {
         if (links_[i].tag != HIDDEN
                 && !toKeep.count(optionTable_[std::abs(links_[i].topOrLen)].name)) {

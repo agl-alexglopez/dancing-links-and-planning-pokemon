@@ -62,7 +62,11 @@ public:
     /**
      * @brief PokemonLinks            this constructor builds the necessary internal data structures
      *                                to run the exact cover via dancing links algorithm. We need
-     *                                to build differently based on attack or defense.
+     *                                to build differently based on attack or defense. It is
+     *                                important that the data is passed in with a map because we
+     *                                need our dancing links items and options to be built and setup
+     *                                in lexicographic order for some additional functionality and
+     *                                runtime guarantees.
      * @param typeInteractions        map of pokemon types and their resistances to attack types.
      * @param requestedCoverSolution  ATTACK or DEFENSE. Build a team or choose attack types.
      */
@@ -72,7 +76,11 @@ public:
     /**
      * @brief PokemonLinks      this alternative constructor is helpful when choosing a defensive
      *                          team based on a subset of attack types. For example, we could build
-     *                          defenses against the attack types present at specific gyms.
+     *                          defenses against the attack types present at specific gyms. It is
+     *                          important that the data is passed in with a map and set because we
+     *                          need our dancing links items and options to be built and setup
+     *                          in lexicographic order for some additional functionality and
+     *                          runtime guarantees.
      * @param typeInteractions  the map of types and their defenses for a given generation.
      * @param attackTypes       the subset of attacks we must cover with choices of Pokemon teams.
      */
