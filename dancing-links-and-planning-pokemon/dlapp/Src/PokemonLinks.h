@@ -33,6 +33,7 @@
 #define POKEMONLINKS_H
 #include <iostream>
 #include <map>
+#include <unordered_map>
 #include <string>
 #include <string_view>
 #include <set>
@@ -361,7 +362,7 @@ private:
      * @param requestedCoverage  requested coverage to know which multipliers to pay attention to.
      */
     void initializeColumns(const std::map<TypeEncoding,std::set<Resistance>>& typeInteractions,
-                             std::map<TypeEncoding,int>& columnBuilder,
+                             std::unordered_map<TypeEncoding,int>& columnBuilder,
                              CoverageType requestedCoverage);
 
 

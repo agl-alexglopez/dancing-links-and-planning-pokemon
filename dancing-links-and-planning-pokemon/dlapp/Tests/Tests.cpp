@@ -28,6 +28,11 @@
  * found it much easier to develop the algorithm quickly with internal testing rather than just
  * plain unit testing. You can learn a lot about how Dancing Links works by reading these tests.
  */
+#include <unordered_map>
+#include <functional>
+#include <random>
+#include <chrono>
+#include <ctime>
 #include "GUI/SimpleTest.h"
 #include "TypeEncoding.h"
 #include "Src/PokemonLinks.h"
@@ -190,6 +195,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<PokemonLinks::encod
 } // namespace DancingLinks
 
 
+
 namespace Dx = DancingLinks;
 
 
@@ -256,6 +262,130 @@ STUDENT_TEST("Test every possible combination of typings.") {
             EXPECT_EQUAL(dualTypeString, checkDualType);
         }
     }
+}
+
+STUDENT_TEST("Compare my encoding speed compared to two hash tables with all encoding/decoding.") {
+
+    /* I was curious to see the how stashing all possible encodings and decodings we could encounter
+     * in hash tables would stack up against my current encoding method. As expected the hash table
+     * performs consistently well, especially becuase both encoding directions are precomputed and
+     * thus have the same lookup time. Run the test to see for yourself, but my encoding method
+     * is definitely slower than the hashing method, but I think it is competitive coming in at
+     * around twice as slow as hashing. Surprisingly, I make up for that loss in speed in the
+     * decoding phase by halving the time it takes a hash table to decode a type encoding. So, this
+     * helps balance out the impact of slower encoding. However, the major benefit is that the
+     * information I need to perform my encoding and decoding is trivially small compared to the
+     * hash maps that require 177 entries which consist of one string and one encoding. So each
+     * map contains 177 strings and 177 TypeEncodings for a total across two maps of 708 individual
+     * pieces of information we need to store. In contrast, my method only needs an array size
+     * variable and an array of 18 stack strings that the compiler will likely place in the
+     * read-only memory segment, much less wasteful.
+     */
+
+    std::unordered_map<std::string,Dx::TypeEncoding> encodeMap;
+    std::unordered_map<Dx::TypeEncoding,std::string> decodeMap;
+
+    // Generate all possible unique type combinations and place them in the maps.
+    const uint32_t BUG = 0x20000;
+    uint32_t tableSize = Dx::TYPE_TABLE_SIZE;
+    for (uint32_t bit1 = BUG, type1 = tableSize - 1; bit1 != 0; bit1 >>= 1, type1--) {
+        std::string checkSingleType(Dx::TYPE_ENCODING_TABLE[type1]);
+        Dx::TypeEncoding singleTypeEncoding(checkSingleType);
+        encodeMap.insert({checkSingleType, singleTypeEncoding});
+        decodeMap.insert({singleTypeEncoding, checkSingleType});
+        for (uint32_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2--) {
+            std::string checkDualType = checkSingleType + "-" + Dx::TYPE_ENCODING_TABLE[type2];
+            Dx::TypeEncoding dualTypeEncoding(checkDualType);
+            encodeMap.insert({checkDualType, dualTypeEncoding});
+            decodeMap.insert({dualTypeEncoding, checkDualType});
+        }
+    }
+
+    // Generate 1,000,000 random types to encode and store them so both techniques use same data.
+    const int NUM_REQUESTS = 1000000;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    // Our first type will always be in the table and be a valid type index.
+    std::uniform_int_distribution<> firstType(0, 17);
+    // We will only access an index with our second type if it is less than the first.
+    std::uniform_int_distribution<> secondType(0, 17);
+    int singleTypeTotal = 0;
+    int dualTypeTotal = 0;
+
+    std::vector<std::string> toEncode(NUM_REQUESTS);
+    for (int i = 0; i < NUM_REQUESTS; i++) {
+        int type1 = firstType(gen);
+        int type2 = secondType(gen);
+        singleTypeTotal++;
+        std::string type(Dx::TYPE_ENCODING_TABLE[type1]);
+        // This ensures we get a decent amount of single and dual types into the mix.
+        if (type2 < type1) {
+            type += "-" + std::string(Dx::TYPE_ENCODING_TABLE[type2]);
+            dualTypeTotal++;
+            singleTypeTotal--;
+        }
+        toEncode[i] = type;
+    }
+
+    std::cout << "Generated " << NUM_REQUESTS << " random types: "
+              << singleTypeTotal << " single types, " << dualTypeTotal << " dual types\n";
+
+    std::cout << "----------START TIMER SESSION-------------\n";
+
+    // Time 1,000,000 encodings with both methods.
+
+
+    std::vector<Dx::TypeEncoding> typeEncodings(toEncode.size());
+    std::clock_t start = std::clock();
+    for (int i = 0; i < toEncode.size(); i++) {
+        typeEncodings[i] = Dx::TypeEncoding(toEncode[i]);
+    }
+    std::clock_t end = std::clock();
+    std::cout << "TypeEncoding encode method(ms): " << 1000.0 * (end-start)/CLOCKS_PER_SEC << "\n";
+
+    std::vector<Dx::TypeEncoding> hashEncodings(NUM_REQUESTS);
+    std::clock_t start2 = std::clock();
+    for (int i = 0; i < toEncode.size(); i++) {
+        hashEncodings[i] = encodeMap[toEncode[i]];
+    }
+    std::clock_t end2 = std::clock();
+    std::cout << "Hashing encode method(ms): " << 1000.0 * (end2 - start2) / CLOCKS_PER_SEC << "\n";
+
+
+    // Time 1,000,000 decodings with both methods.
+
+
+    std::vector<std::pair<std::string_view,std::string_view>> typeDecodings(typeEncodings.size());
+    std::clock_t start3 = std::clock();
+    for (int i = 0; i < typeDecodings.size(); i++) {
+        typeDecodings[i] = to_pair(typeEncodings[i]);
+    }
+    std::clock_t end3 = std::clock();
+    std::cout << "TypeEncoding decoding method(ms): "<<1000.0*(end3-start3)/CLOCKS_PER_SEC<< "\n";
+
+    std::vector<std::string_view> hashDecodings(hashEncodings.size());
+    std::clock_t start4 = std::clock();
+    for (int i = 0; i < hashDecodings.size(); i++) {
+        hashDecodings[i] = decodeMap[hashEncodings[i]];
+    }
+    std::clock_t end4 = std::clock();
+    std::cout << "Hash decoding method(ms): " << 1000.0 * (end4 - start4) / CLOCKS_PER_SEC << "\n";
+
+    std::cout << "----------END TIMER SESSION-------------\n";
+    std::cout << "----------START MEMORY REPORT-------------\n";
+    std::cout << "TypeEncoding Lookup Array holds 18 elements, one size variable, and occupies "
+              << sizeof(Dx::TYPE_TABLE_SIZE) + sizeof(Dx::TYPE_ENCODING_TABLE) << " bytes\n";
+
+    std::cout << "Hash Encoding Unordered Map holds " << encodeMap.size() << " elements"
+              << " and occupies an unknown number of bytes.\n";
+    std::cout << "Hash Decoding Unordered Map holds " << decodeMap.size() << " elements"
+              << " and occupies an unknown number of bytes.\n";
+    std::cout << "----------END MEMORY REPORT-------------" << std::endl;
+
+    EXPECT_EQUAL(toEncode.size(), typeEncodings.size());
+    EXPECT_EQUAL(toEncode.size(), hashEncodings.size());
+    EXPECT_EQUAL(hashEncodings.size(), hashDecodings.size());
+    EXPECT_EQUAL(typeEncodings.size(), typeDecodings.size());
 }
 
 

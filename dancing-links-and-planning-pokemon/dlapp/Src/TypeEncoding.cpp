@@ -42,9 +42,9 @@ namespace DancingLinks {
 namespace {
 
 
-size_t binsearchBitIndex(std::string_view type) {
-    for (size_t remain = TYPE_TABLE_SIZE, base = 0; remain; remain >>= 1) {
-        size_t index = base + (remain >> 1);
+uint8_t binsearchBitIndex(std::string_view type) {
+    for (uint8_t remain = TYPE_TABLE_SIZE, base = 0; remain; remain >>= 1) {
+        uint8_t index = base + (remain >> 1);
         std::string_view found = TYPE_ENCODING_TABLE[index];
         if (found == type) {
             return index;
@@ -68,7 +68,7 @@ TypeEncoding::TypeEncoding(std::string_view type)
         return;
     }
     size_t delim = type.find('-');
-    size_t found = binsearchBitIndex(type.substr(0, delim));
+    uint8_t found = binsearchBitIndex(type.substr(0, delim));
     if (found == TYPE_TABLE_SIZE) {
         return;
     }
@@ -95,22 +95,22 @@ std::pair<std::string_view,std::string_view> to_pair(TypeEncoding type) {
         return {};
     }
 
-    uint32_t tableIndex = 0;
+    uint8_t tableIndex = 0;
     while (!(type.encoding_ & 1)) {
         type.encoding_ >>= 1;
         tableIndex++;
     }
 
-    std::string_view decoded = TYPE_ENCODING_TABLE[tableIndex];
+    std::string_view firstFound = TYPE_ENCODING_TABLE[tableIndex];
     if (type.encoding_ == 1) {
-        return {decoded, {}};
+        return {firstFound, {}};
     }
 
     do {
         tableIndex++;
         type.encoding_ >>= 1;
     } while (!(type.encoding_ & 1));
-    return {TYPE_ENCODING_TABLE[tableIndex], decoded};
+    return {TYPE_ENCODING_TABLE[tableIndex], firstFound};
 }
 
 // Mostly convenience overloads for test framework but this one is useful for the GUI application.

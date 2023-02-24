@@ -63,6 +63,7 @@
 #ifndef TYPEENCODING_H
 #define TYPEENCODING_H
 #include <string_view>
+#include <cstdint>
 #include <ostream>
 
 namespace DancingLinks {
@@ -72,7 +73,7 @@ namespace DancingLinks {
 
 
 // lexicographicly organized table. 17th index is the first lexicographic order Bug.
-const size_t TYPE_TABLE_SIZE = 18;
+const uint8_t TYPE_TABLE_SIZE = 18;
 const char * const TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
     "Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass","Ghost","Flying",
     "Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
@@ -138,5 +139,21 @@ std::ostream& operator<<(std::ostream& out, TypeEncoding tp);
 
 
 } // namespace DancingLinks
+
+
+/* * * * * * * * * *          TypeEncodings Should be Hashable          * * * * * * * * * * * * * */
+
+
+namespace std {
+
+template<>
+struct hash<DancingLinks::TypeEncoding> {
+    size_t operator()(DancingLinks::TypeEncoding type) const noexcept {
+        return std::hash<uint32_t>{}(type.encoding_);
+    }
+};
+
+} // namespace std
+
 
 #endif // TYPEENCODING_H

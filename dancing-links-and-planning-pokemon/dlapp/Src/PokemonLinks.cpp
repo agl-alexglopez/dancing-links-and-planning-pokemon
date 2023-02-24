@@ -788,7 +788,7 @@ void PokemonLinks::buildDefenseLinks(const std::map<TypeEncoding,std::set<Resist
         generationTypes.insert(res.type());
     }
 
-    std::map<TypeEncoding,int> columnBuilder = {};
+    std::unordered_map<TypeEncoding,int> columnBuilder = {};
     optionTable_.push_back({TypeEncoding(""),0});
     itemTable_.push_back({TypeEncoding(""), 0, 1});
     links_.push_back({0, 0, 0, EMPTY_, 0});
@@ -812,7 +812,7 @@ void PokemonLinks::buildDefenseLinks(const std::map<TypeEncoding,std::set<Resist
 
 void PokemonLinks::initializeColumns(const std::map<TypeEncoding,std::set<Resistance>>&
                                        typeInteractions,
-                                       std::map<TypeEncoding,int>& columnBuilder,
+                                       std::unordered_map<TypeEncoding,int>& columnBuilder,
                                        CoverageType requestedCoverage) {
     int previousSetSize = links_.size();
     int currentLinksIndex = links_.size();
@@ -891,7 +891,7 @@ void PokemonLinks::buildAttackLinks(const std::map<TypeEncoding,std::set<Resista
      */
 
     std::map<TypeEncoding,std::set<Resistance>> invertedMap = {};
-    std::map<TypeEncoding,int> columnBuilder = {};
+    std::unordered_map<TypeEncoding,int> columnBuilder = {};
     for (const auto& interaction : typeInteractions) {
         columnBuilder[interaction.first] = index;
         itemTable_.push_back({interaction.first, index - 1, index + 1});
