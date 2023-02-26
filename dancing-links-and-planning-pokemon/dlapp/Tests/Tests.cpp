@@ -729,8 +729,10 @@ STUDENT_TEST("There are two exact covers for this typing combo.") {
         {{"Water"}, {{{"Electric"},NM},{{"Grass"},DB},{{"Ice"},F2},{{"Normal"},NM},{{"Water"},F2}}},
     };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
-    std::set<RankedSet<Dx::TypeEncoding>> correct = {{11,{{"Ghost"},{"Ground"},{"Poison"},{"Water"}}},
-                                                                   {13,{{"Electric"},{"Ghost"},{"Poison"},{"Water"}}}};
+    std::set<RankedSet<Dx::TypeEncoding>> correct = {
+        {11,{{"Ghost"},{"Ground"},{"Poison"},{"Water"}}},
+        {13,{{"Electric"},{"Ghost"},{"Poison"},{"Water"}}}
+    };
     EXPECT_EQUAL(links.getExactCoverages(6), correct);
 }
 
@@ -803,9 +805,9 @@ STUDENT_TEST("There is one exact and a few overlapping covers here. Exact cover 
     EXPECT_EQUAL(links.itemTable_, items);
     EXPECT_EQUAL(links.links_, dlx);
     std::set<RankedSet<Dx::TypeEncoding>> result = links.getExactCoverages(6);
-    std::set<RankedSet<Dx::TypeEncoding>> correct = {{13,{{"Bug-Ghost"},
-                                                                        {"Ground-Water"},
-                                                                        {"Ice-Water"},}}};
+    std::set<RankedSet<Dx::TypeEncoding>> correct = {
+        {13,{{"Bug-Ghost"},{"Ground-Water"},{"Ice-Water"},}}
+    };
     EXPECT_EQUAL(correct, result);
 }
 
@@ -882,8 +884,10 @@ STUDENT_TEST("At least test that we can recognize a successful attack coverage")
         {{"Normal"}, {{{"Fighting"},DB}}},
         {{"Water"}, {{{"Grass"},DB}}},
     };
-    std::set<RankedSet<Dx::TypeEncoding>> solutions = {{30, {{"Fighting"},{"Grass"},{"Ground"},{"Ice"}}},
-                                                                     {30,{{"Fighting"},{"Grass"},{"Ground"},{"Poison"}}}};
+    std::set<RankedSet<Dx::TypeEncoding>> solutions = {
+        {30, {{"Fighting"},{"Grass"},{"Ground"},{"Ice"}}},
+        {30,{{"Fighting"},{"Grass"},{"Ground"},{"Poison"}}}
+    };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::ATTACK);
     EXPECT_EQUAL(links.getExactCoverages(24), solutions);
 }
@@ -1583,9 +1587,11 @@ STUDENT_TEST("Test hiding an item from the world and then solving both types of 
     EXPECT_EQUAL(links.itemTable_, headersHideElectric);
     EXPECT_EQUAL(links.getNumItems(), 5);
     EXPECT_EQUAL(links.getExactCoverages(6), {{15,{{"Electric"},{"Fire"},{"Ice"},{"Normal"}}}});
-    EXPECT_EQUAL(links.getOverlappingCoverages(6), {{15,{{"Electric"},{"Fire"},{"Ice"},{"Normal"}}},
-                                                    {15,{{"Fire"},{"Grass"},{"Ice"},{"Normal"}}},
-                                                    {15,{{"Fire"},{"Ice"},{"Normal"},{"Water"}}}});
+    EXPECT_EQUAL(links.getOverlappingCoverages(6), {
+        {15,{{"Electric"},{"Fire"},{"Ice"},{"Normal"}}},
+        {15,{{"Fire"},{"Grass"},{"Ice"},{"Normal"}}},
+        {15,{{"Fire"},{"Ice"},{"Normal"},{"Water"}}}
+    });
 }
 
 STUDENT_TEST("Test hiding two items from the world and then solving both types of cover.") {
@@ -1678,10 +1684,14 @@ STUDENT_TEST("Test hiding two items from the world and then solving both types o
     EXPECT_EQUAL(links.links_, dlxHideElectricAndGrass);
     EXPECT_EQUAL(links.itemTable_, headersHideElectricAndGrass);
     EXPECT_EQUAL(links.getNumItems(), 4);
-    EXPECT_EQUAL(links.getExactCoverages(6), {{12, {{"Electric"},{"Ice"},{"Normal"}}}});
-    EXPECT_EQUAL(links.getOverlappingCoverages(6), {{12,{{"Electric"},{"Ice"},{"Normal"}}},
-                                                     {12,{{"Grass"},{"Ice"},{"Normal"}}},
-                                                     {12,{{"Ice"},{"Normal"},{"Water"}}}});
+    EXPECT_EQUAL(links.getExactCoverages(6), {
+        {12, {{"Electric"},{"Ice"},{"Normal"}}}
+    });
+    EXPECT_EQUAL(links.getOverlappingCoverages(6), {
+        {12,{{"Electric"},{"Ice"},{"Normal"}}},
+        {12,{{"Grass"},{"Ice"},{"Normal"}}},
+        {12,{{"Ice"},{"Normal"},{"Water"}}}
+    });
 }
 
 STUDENT_TEST("Test the hiding all the items except for the ones the user wants to keep.") {
@@ -1765,8 +1775,16 @@ STUDENT_TEST("Test the hiding all the items except for the ones the user wants t
     EXPECT_EQUAL(links.links_, dlxHideExceptWater);
     EXPECT_EQUAL(links.itemTable_, headersHideExceptWater);
     EXPECT_EQUAL(links.getNumItems(), 1);
-    EXPECT_EQUAL(links.getExactCoverages(6), {{3, {{"Grass"}}},{3,{{"Ice"}}},{3,{{"Water"}}}});
-    EXPECT_EQUAL(links.getOverlappingCoverages(6), {{3, {{"Grass"}}},{3,{{"Ice"}}},{3,{{"Water"}}}});
+    EXPECT_EQUAL(links.getExactCoverages(6), {
+        {3, {{"Grass"}}},
+        {3,{{"Ice"}}},
+        {3,{{"Water"}}}
+    });
+    EXPECT_EQUAL(links.getOverlappingCoverages(6), {
+        {3, {{"Grass"}}},
+        {3,{{"Ice"}}},
+        {3,{{"Water"}}}
+    });
     links.resetItems();
     EXPECT_EQUAL(links.links_, dlx);
     EXPECT_EQUAL(links.itemTable_, headers);
