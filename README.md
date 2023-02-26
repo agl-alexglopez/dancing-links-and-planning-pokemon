@@ -278,8 +278,8 @@ I wrote this implementation as a class from the beginning. However, early on, I 
 
 In order for the following techniques to work we must maintain some invariants in the Dancing Links internals.
 
-1. Maintain the identifiers for items--for me this is the `string` name of the item--in a sorted vector. This is required by Knuth's algorithms already but I am adding that the items must be sorted for some later techniques.
-2. Maintain the identifiers for the options--for me this is the string name of the option--in a sorted vector. This is not required by Knuth's algorithm, but my options have meaningful names that may be different than the item names so I must make this vector. This will also help with later techniques.
+1. Maintain the identifiers for items--for me this is the `TypeEncoding` name of the item--in a sorted vector. This is required by Knuth's algorithms already but I am adding that the items must be sorted for some later techniques.
+2. Maintain the identifiers for the options--for me this is the `TypeEncoding` name of the option--in a sorted vector. This is not required by Knuth's algorithm, but my options have meaningful names that may be different than the item names so I must make this vector. This will also help with later techniques.
 3. Do not support insertion or deletion of items or options from any data structure. Inserting an item or option may be possible but it would require substantial modification to the dancing links array that would either be slow or require more space to store the required information. We can support hiding items and options but not deleting them completely. All operations will be in-place.
 
 ### Searching
