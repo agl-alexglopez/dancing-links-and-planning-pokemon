@@ -169,7 +169,7 @@ The `TypeEncoding` is a new addition to this project. Previously, this implement
 
 ```c++
 const size_t TYPE_TABLE_SIZE = 18;
-// Lexographically organized table. 17th index is the first lexographical order Bug.
+// Lexicographic organized table. 17th index is the first lexographical order Bug.
 const std::string TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
 	"Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass",
 	"Ghost","Flying","Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
