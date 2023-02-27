@@ -129,7 +129,7 @@ void setResistances(std::map<Dx::TypeEncoding,std::set<Dx::Resistance>>& result,
         Dx::Multiplier multiplierTag = DAMAGE_MULTIPLIERS.at(multiplier);
         QJsonArray  typesInMultiplier = multipliers[multiplier].toArray();
         for (QJsonValueConstRef t : typesInMultiplier) {
-            std::string resistanceType = QString(t.toString()).toStdString();
+            const std::string& resistanceType = QString(t.toString()).toStdString();
             result[newType].insert({Dx::TypeEncoding(resistanceType), multiplierTag});
         }
     }
@@ -140,7 +140,7 @@ std::map<Dx::TypeEncoding,std::set<Dx::Resistance>> fromJsonToMap(int generation
     getQJsonObject(jsonTypes, GENERATION_JSON_FILES[generation]);
     std::map<Dx::TypeEncoding,std::set<Dx::Resistance>> result = {};
     for (const QString& type : jsonTypes.keys()) {
-        std::string newType = type.toStdString();
+        const std::string& newType = type.toStdString();
         Dx::TypeEncoding encoded(newType);
         result.insert({encoded, {}});
         setResistances(result, encoded, jsonTypes[type].toObject());
@@ -186,13 +186,13 @@ loadSelectedGymsDefenses(const std::string& selectedMap,
     QJsonObject gymKeys = mapData[map].toObject();
 
     for (const QString& gym : gymKeys.keys()) {
-        if (selectedGyms.count(gym.toStdString())) {
-            QJsonArray gymDefenseTypes = gymKeys[gym][GYM_DEFENSE_KEY].toArray();
-
-            for (const QJsonValueConstRef& type : gymDefenseTypes) {
-                std::string stdVersion = QString(type.toString()).toStdString();
-                result.insert(Dx::TypeEncoding(stdVersion));
-            }
+        if (!selectedGyms.count(gym.toStdString())) {
+            continue;
+        }
+        QJsonArray gymDefenseTypes = gymKeys[gym][GYM_DEFENSE_KEY].toArray();
+        for (const QJsonValueConstRef& type : gymDefenseTypes) {
+            const std::string& stdVersion = QString(type.toString()).toStdString();
+            result.insert(Dx::TypeEncoding(stdVersion));
         }
     }
     // This will be a much smaller map.
@@ -209,13 +209,13 @@ loadSelectedGymsAttacks(const std::string& selectedMap,
     QJsonObject gymKeys = mapData[map].toObject();
 
     for (const QString& gym : gymKeys.keys()) {
-        if (selectedGyms.count(gym.toStdString())) {
-            QJsonArray gymAttackTypes = gymKeys[gym][GYM_ATTACKS_KEY].toArray();
-
-            for (const QJsonValueConstRef& type : gymAttackTypes) {
-                std::string stdVersion = QString(type.toString()).toStdString();
-                result.insert(Dx::TypeEncoding(stdVersion));
-            }
+        if (!selectedGyms.count(gym.toStdString())) {
+            continue;
+        }
+        QJsonArray gymAttackTypes = gymKeys[gym][GYM_ATTACKS_KEY].toArray();
+        for (const QJsonValueConstRef& type : gymAttackTypes) {
+            const std::string& stdVersion = QString(type.toString()).toStdString();
+            result.insert(Dx::TypeEncoding(stdVersion));
         }
     }
     // Return a simple set rather than altering every type's resistances in a large map.
