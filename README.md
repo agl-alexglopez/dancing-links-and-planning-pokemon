@@ -399,7 +399,7 @@ Treating the PokemonLinks as an alterable object with a prolonged lifetime was u
 
 ### Pokémon Planning Usage Instructions
 
-I have created a small testing ground for the Pokémon Cover Problem. I adapted a graph drawing application written by Keith Schwarz and Stanford course staff to allow you to explore various Pokémon maps. The maps are divided by Pokémon Generation. For example, the Kanto map is based around the attack and defense types available in Generation I of Pokémon. I included a Generation V and Generation IX map as well with more types available as you progress through generations.
+I have created a small testing ground for the Pokémon Cover Problem. I adapted a graph drawing application written by Keith Schwarz and Stanford course staff to allow you to explore various Pokémon maps. The maps are divided by Pokémon Generation. For example, the Kanto map is based around the attack and defense types available in Generation I of Pokémon. I included maps for Generations 1-9. I am fairly confident that the type information is accurate for each generation. There may be some minor errors in what types were avaialable in the specific game map that I chose to represent a certain generation, but overall the division by generation is accurate.
 
 You can solve the maps entirely for exact and overlapping cover problems or you can select specific gyms. In Pokémon, you progress through the game by defeating 8 gym leaders and then a final group called the Elite 4 (along with one last champion of that league). You can select any combination of gyms to defend against or attack and the cover problem will be adapted to the types in those locations. Interesting results can arise as you plan out your type advantages!
 
