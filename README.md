@@ -150,18 +150,18 @@ Here is the type that I use to manage the recursion and know when every item is 
 
 ```c++
 struct typeName {
-	TypeEncoding name;
-	int left;
-	int right;
+    TypeEncoding name;
+    int left;
+    int right;
 };
 std::vector<typeName> headers = {
-	{{""},6,1},
-	{{"Electric"},0,2},
-	{{"Fire"},1,3},
-	{{"Grass"},2,4},
-	{{"Ice"},3,5},
-	{{"Normal"},4,6},
-	{{"Water"},5,0},
+    {{""},6,1},	
+    {{"Electric"},0,2},
+    {{"Fire"},1,3},
+    {{"Grass"},2,4},
+    {{"Ice"},3,5},
+    {{"Normal"},4,6},
+    {{"Water"},5,0},
 };
 ```
 
@@ -171,33 +171,33 @@ The `TypeEncoding` is a new addition to this project. Previously, this implement
 const size_t TYPE_TABLE_SIZE = 18;
 // Lexicographic organized table. 17th index is the first lexographical order Bug.
 const std::string TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
-	"Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass",
-	"Ghost","Flying","Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
+    "Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass",
+    "Ghost","Flying","Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
 };
 
 struct TypeEncoding {
-	uint32_t encoding_;
-	TypeEncoding() = default;
-	TypeEncoding(std::string_view type);
-	bool operator==(TypeEncoding rhs) const {
-		return this->encoding_ == rhs.encoding_;
-	}
-	bool operator!=(TypeEncoding rhs) const {
-		return !(*this == rhs);
-	}
-	// Not a mistake! Read on for why this works.
-	bool operator<(TypeEncoding rhs) const {
-		return this->encoding_ > rhs.encoding_;
-	}
-	bool operator>(TypeEncoding rhs) const {
-		return rhs < *this;
-	}
-	bool operator<=(TypeEncoding rhs) const {
-		return !(*this > rhs);
-	}
-	bool operator>=(TypeEncoding rhs) const {
-		return !(*this < rhs);
-	}
+    uint32_t encoding_;
+    TypeEncoding() = default;
+    TypeEncoding(std::string_view type);
+    bool operator==(TypeEncoding rhs) const {
+    	return this->encoding_ == rhs.encoding_;
+    }
+    bool operator!=(TypeEncoding rhs) const {
+    	return !(*this == rhs);
+    }	
+    // Not a mistake! Read on for why this works.
+    bool operator<(TypeEncoding rhs) const {
+    	return this->encoding_ > rhs.encoding_;
+    }
+    bool operator>(TypeEncoding rhs) const {
+        return rhs < *this;
+    }
+    bool operator<=(TypeEncoding rhs) const {
+        return !(*this > rhs);
+    }
+    bool operator>=(TypeEncoding rhs) const {
+        return !(*this < rhs);
+    }
 };
 
 std::pair<std::string_view,std::string_view> to_pair(TypeEncoding type);
