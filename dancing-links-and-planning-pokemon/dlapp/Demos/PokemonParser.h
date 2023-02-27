@@ -97,7 +97,7 @@ PokemonTest loadPokemonGeneration(std::istream& source);
  */
 std::set<Dx::TypeEncoding>
 loadSelectedGymsDefenses(const std::string& selectedMap,
-                           const std::set<std::string>& selectedGyms);
+                         const std::set<std::string>& selectedGyms);
 
 /**
  * @brief loadSelectedGymsAttacks  the user interacting with the GUI may want to defend themselves
@@ -111,6 +111,6 @@ loadSelectedGymsDefenses(const std::string& selectedMap,
  */
 std::set<Dx::TypeEncoding>
 loadSelectedGymsAttacks(const std::string& selectedMap,
-                          const std::set<std::string>& selected);
+                        const std::set<std::string>& selected);
 
 #endif // POKEMONPARSER_H
