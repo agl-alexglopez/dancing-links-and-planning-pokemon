@@ -110,10 +110,11 @@ std::pair<std::string_view,std::string_view> to_pair(TypeEncoding type) {
         tableIndex++;
         type.encoding_ >>= 1;
     } while (!(type.encoding_ & 1));
+
     return {TYPE_ENCODING_TABLE[tableIndex], firstFound};
 }
 
-// Mostly convenience overloads for test framework but this one is useful for the GUI application.
+// This operator is useful for the GUI application. I can make heap string methods when needed.
 std::ostream& operator<<(std::ostream& out, TypeEncoding tp) {
     std::pair<std::string_view,std::string_view> toPrint = to_pair(tp);
     out << toPrint.first;
