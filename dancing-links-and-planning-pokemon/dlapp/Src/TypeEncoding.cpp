@@ -37,30 +37,20 @@
  */
 #include "TypeEncoding.h"
 
+
 namespace DancingLinks {
 
-namespace {
 
+// lexicographicly organized table. 17th index is the first lexicographic order Bug.
+const uint8_t TypeEncoding::TYPE_TABLE_SIZE = 18;
+const char *const TypeEncoding::TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
+    "Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass",
+    "Ghost","Flying","Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
+};
 
-uint8_t binsearchBitIndex(std::string_view type) {
-    for (uint8_t remain = TYPE_TABLE_SIZE, base = 0; remain; remain >>= 1) {
-        uint8_t index = base + (remain >> 1);
-        std::string_view found = TYPE_ENCODING_TABLE[index];
-        if (found == type) {
-            return index;
-        }
-        // This should look weird! Lower lexicographic order is stored in higher order bits. (*_*).
-        if (type < found) {
-            base = index + 1;
-            remain--;
-        }
-    }
-    return TYPE_TABLE_SIZE;
+std::pair<std::string_view, std::string_view> viewType(TypeEncoding tp) {
+    return tp.decodeType();
 }
-
-
-} // namespace
-
 
 TypeEncoding::TypeEncoding(std::string_view type)
     : encoding_(0) {
@@ -90,38 +80,84 @@ TypeEncoding::TypeEncoding(std::string_view type)
  *       |    |-------------------------------------1
  *      Bug-Water = 0x20001 = 0b10000 0000 0000 00001
  */
-std::pair<std::string_view,std::string_view> to_pair(TypeEncoding type) {
-    if (!type.encoding_) {
+std::pair<std::string_view,std::string_view> TypeEncoding::decodeType() const {
+    if (!encoding_) {
         return {};
     }
-
+    uint32_t shiftCopy = encoding_;
     uint8_t tableIndex = 0;
-    while (!(type.encoding_ & 1)) {
-        type.encoding_ >>= 1;
+    while (!(shiftCopy & 1)) {
+        shiftCopy >>= 1;
         tableIndex++;
     }
 
     std::string_view firstFound = TYPE_ENCODING_TABLE[tableIndex];
-    if (type.encoding_ == 1) {
+    if (shiftCopy == 1) {
         return {firstFound, {}};
     }
 
     do {
         tableIndex++;
-        type.encoding_ >>= 1;
-    } while (!(type.encoding_ & 1));
+        shiftCopy >>= 1;
+    } while (!(shiftCopy & 1));
 
     return {TYPE_ENCODING_TABLE[tableIndex], firstFound};
 }
 
+uint8_t TypeEncoding::binsearchBitIndex(std::string_view type) const {
+    for (uint8_t remain = TYPE_TABLE_SIZE, base = 0; remain; remain >>= 1) {
+        uint8_t index = base + (remain >> 1);
+        std::string_view found = TYPE_ENCODING_TABLE[index];
+        if (found == type) {
+            return index;
+        }
+        // This should look weird! Lower lexicographic order is stored in higher order bits!
+        if (type < found) {
+            base = index + 1;
+            remain--;
+        }
+    }
+    return TYPE_TABLE_SIZE;
+}
+
+uint32_t TypeEncoding::encoding() const {
+    return encoding_;
+}
+
+bool TypeEncoding::operator==(TypeEncoding rhs) const {
+    return this->encoding_ == rhs.encoding_;
+}
+
+bool TypeEncoding::operator!=(TypeEncoding rhs) const {
+    return !(*this == rhs);
+}
+
+// Not a mistake! We want the bits in a uint32_t to be sorted like strings. See file header.
+bool TypeEncoding::operator<(TypeEncoding rhs) const {
+    return this->encoding_ > rhs.encoding_;
+}
+
+bool TypeEncoding::operator>(TypeEncoding rhs) const {
+    return rhs < *this;
+}
+
+bool TypeEncoding::operator<=(TypeEncoding rhs) const {
+    return !(*this > rhs);
+}
+
+bool TypeEncoding::operator>=(TypeEncoding rhs) const {
+    return !(*this < rhs);
+}
+
 // This operator is useful for the GUI application. I can make heap string methods when needed.
 std::ostream& operator<<(std::ostream& out, TypeEncoding tp) {
-    std::pair<std::string_view,std::string_view> toPrint = to_pair(tp);
+    std::pair<std::string_view,std::string_view> toPrint = tp.decodeType();
     out << toPrint.first;
     if (!toPrint.second.empty()) {
         out << '-' << toPrint.second;
     }
     return out;
 }
+
 
 } // namespace DancingLinks

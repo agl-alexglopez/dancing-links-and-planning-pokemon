@@ -63,78 +63,46 @@
 #ifndef TYPEENCODING_H
 #define TYPEENCODING_H
 #include <string_view>
+#include <utility>
 #include <cstdint>
 #include <ostream>
+#include "GUI/SimpleTest.h"
 
 namespace DancingLinks {
 
 
-/* * * * * * * * * *          Lookup Table for Encoding and Decoding          * * * * * * * * * * */
+class TypeEncoding {
 
-
-// lexicographicly organized table. 17th index is the first lexicographic order Bug.
-const uint8_t TYPE_TABLE_SIZE = 18;
-const char * const TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
-    "Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass","Ghost","Flying",
-    "Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
-};
-
-
-/* * * * * * * * * *       Wrapper Struct for Trivial Encoding Type     * * * * * * * * * * * * * */
-
-
-struct TypeEncoding {
-    uint32_t encoding_;
+public:
 
     TypeEncoding() = default;
     // If encoding cannot be found encoding_ is set the falsey value 0.
     TypeEncoding(std::string_view type);
+    uint32_t encoding() const;
+    std::pair<std::string_view,std::string_view> decodeType() const;
 
-    bool operator==(TypeEncoding rhs) const {
-        return this->encoding_ == rhs.encoding_;
-    }
-    bool operator!=(TypeEncoding rhs) const {
-        return !(*this == rhs);
-    }
-    // Not a mistake! We want the bits in a uint32_t to be sorted like strings. See file header.
-    bool operator<(TypeEncoding rhs) const {
-        return this->encoding_ > rhs.encoding_;
-    }
-    bool operator>(TypeEncoding rhs) const {
-        return rhs < *this;
-    }
-    bool operator<=(TypeEncoding rhs) const {
-        return !(*this > rhs);
-    }
-    bool operator>=(TypeEncoding rhs) const {
-        return !(*this < rhs);
-    }
+    bool operator==(TypeEncoding rhs) const;
+    bool operator!=(TypeEncoding rhs) const;
+    bool operator<(TypeEncoding rhs) const;
+    bool operator>(TypeEncoding rhs) const;
+    bool operator<=(TypeEncoding rhs) const;
+    bool operator>=(TypeEncoding rhs) const;
+    // See Tests/Tests.cpp for some fun runtime testing for encode/decode.
+    ALLOW_TEST_ACCESS();
+
+private:
+
+    uint32_t encoding_;
+    uint8_t binsearchBitIndex(std::string_view type) const;
+    // Any and all TypeEncodings will have one global string_view of the type strings for decoding.
+    static const uint8_t TYPE_TABLE_SIZE;
+    static const char * const TYPE_ENCODING_TABLE[];
 };
-
-
-/* * * * * * * * * *      Efficient Free Function for Decoding      * * * * * * * * * * * * * * * */
-
-
-/**
- * @brief to_pair  returns a read-only string_view of the type encoding table consisting of the
- *                 string representation of the current type. If its a dual-type both fields of the
- *                 pair will be filled. If it is a single type the second field will be the {} empty
- *                 string_view constructor. Check with .empty().
- * @param type     the encoded type we use to represent the Pokemon single or dual-type.
- * @return         a pair holding pointers to the strings making up the types, single or double.
- */
-std::pair<std::string_view,std::string_view> to_pair(TypeEncoding type);
 
 
 /* * * * * * * * * *      Overloaded Operator for a String View       * * * * * * * * * * * * * * */
 
 
-/**
- * @brief operator <<  overload of the ostream operator to efficiently print the decoding to a GUI.
- * @param out          the stream.
- * @param tp           the type we will decode and print with one joining '-' for dual types.
- * @return             the stream.
- */
 std::ostream& operator<<(std::ostream& out, TypeEncoding tp);
 
 
@@ -149,7 +117,7 @@ namespace std {
 template<>
 struct hash<DancingLinks::TypeEncoding> {
     size_t operator()(DancingLinks::TypeEncoding type) const noexcept {
-        return std::hash<uint32_t>{}(type.encoding_);
+        return std::hash<uint32_t>{}(type.encoding());
     }
 };
 

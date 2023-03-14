@@ -35,6 +35,7 @@
 #include <ctime>
 #include "GUI/SimpleTest.h"
 #include "TypeEncoding.h"
+#include "DancingLinks.h"
 #include "Src/PokemonLinks.h"
 #include "Src/RankedSet.h"
 
@@ -206,28 +207,28 @@ STUDENT_TEST("Easiest type encoding lexographically is Bug.") {
     uint32_t hexType = 0x20000;
     std::string_view strType = "Bug";
     Dx::TypeEncoding code(strType);
-    EXPECT_EQUAL(hexType, code.encoding_);
-    EXPECT_EQUAL(strType, to_pair(code).first);
+    EXPECT_EQUAL(hexType, code.encoding());
+    EXPECT_EQUAL(strType, viewType(code).first);
     std::string_view empty{};
-    EXPECT_EQUAL(empty, to_pair(code).second);
+    EXPECT_EQUAL(empty, viewType(code).second);
 }
 
 STUDENT_TEST("Test the next simplist dual type Bug-Dark") {
     uint32_t hexType = 0x30000;
     std::string_view strType = "Bug-Dark";
     Dx::TypeEncoding code(strType);
-    EXPECT_EQUAL(hexType, code.encoding_);
-    EXPECT_EQUAL(std::string_view("Bug"), to_pair(code).first);
-    EXPECT_EQUAL(std::string_view("Dark"), to_pair(code).second);
+    EXPECT_EQUAL(hexType, code.encoding());
+    EXPECT_EQUAL(std::string_view("Bug"), viewType(code).first);
+    EXPECT_EQUAL(std::string_view("Dark"), viewType(code).second);
 }
 
 STUDENT_TEST("Test for off by one errors with first and last index type Bug-Water.") {
     uint32_t hexType = 0x20001;
     std::string_view strType = "Bug-Water";
     Dx::TypeEncoding code(strType);
-    EXPECT_EQUAL(hexType, code.encoding_);
-    EXPECT_EQUAL(std::string_view("Bug"), to_pair(code).first);
-    EXPECT_EQUAL(std::string_view("Water"), to_pair(code).second);
+    EXPECT_EQUAL(hexType, code.encoding());
+    EXPECT_EQUAL(std::string_view("Bug"), viewType(code).first);
+    EXPECT_EQUAL(std::string_view("Water"), viewType(code).second);
 }
 
 STUDENT_TEST("Test every possible combination of typings.") {
@@ -236,20 +237,20 @@ STUDENT_TEST("Test every possible combination of typings.") {
      * types order does not matter so Water-Bug is the same as Bug-Water and is only counted once.
      */
     const uint32_t BUG = 0x20000;
-    uint32_t tableSize = Dx::TYPE_TABLE_SIZE;
+    uint32_t tableSize = Dx::TypeEncoding::TYPE_TABLE_SIZE;
     for (uint32_t bit1 = BUG, type1 = tableSize - 1; bit1 != 0; bit1 >>= 1, type1--) {
 
-        std::string checkSingleType(Dx::TYPE_ENCODING_TABLE[type1]);
+        std::string checkSingleType(Dx::TypeEncoding::TYPE_ENCODING_TABLE[type1]);
         Dx::TypeEncoding singleTypeEncoding(checkSingleType);
-        EXPECT_EQUAL(singleTypeEncoding.encoding_, bit1);
-        EXPECT_EQUAL(to_pair(singleTypeEncoding).first, checkSingleType);
-        EXPECT_EQUAL(to_pair(singleTypeEncoding).second, {});
+        EXPECT_EQUAL(singleTypeEncoding.encoding(), bit1);
+        EXPECT_EQUAL(viewType(singleTypeEncoding).first, checkSingleType);
+        EXPECT_EQUAL(viewType(singleTypeEncoding).second, {});
 
         for (uint32_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2--) {
 
-            std::string checkDualType = checkSingleType + "-" + Dx::TYPE_ENCODING_TABLE[type2];
+            std::string checkDualType = checkSingleType + "-" + Dx::TypeEncoding::TYPE_ENCODING_TABLE[type2];
             Dx::TypeEncoding dualTypeEncoding(checkDualType);
-            EXPECT_EQUAL(dualTypeEncoding.encoding_, bit1 | bit2);
+            EXPECT_EQUAL(dualTypeEncoding.encoding(), bit1 | bit2);
             /* I discourage the use of methods that create heap strings whenever possible. I use
              * string_views internally to report back typing for human readability when requested
              * in a GUI via ostream. This way I only need to create one character "-" on the heap to
@@ -287,14 +288,14 @@ STUDENT_TEST("Compare my encoding speed compared to two hash tables with all enc
 
     // Generate all possible unique type combinations and place them in the maps.
     const uint32_t BUG = 0x20000;
-    uint32_t tableSize = Dx::TYPE_TABLE_SIZE;
+    uint32_t tableSize = Dx::TypeEncoding::TYPE_TABLE_SIZE;
     for (uint32_t bit1 = BUG, type1 = tableSize - 1; bit1 != 0; bit1 >>= 1, type1--) {
-        std::string checkSingleType(Dx::TYPE_ENCODING_TABLE[type1]);
+        std::string checkSingleType(Dx::TypeEncoding::TYPE_ENCODING_TABLE[type1]);
         Dx::TypeEncoding singleTypeEncoding(checkSingleType);
         encodeMap.insert({checkSingleType, singleTypeEncoding});
         decodeMap.insert({singleTypeEncoding, checkSingleType});
         for (uint32_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2--) {
-            std::string checkDualType = checkSingleType + "-" + Dx::TYPE_ENCODING_TABLE[type2];
+            std::string checkDualType = checkSingleType + "-" + Dx::TypeEncoding::TYPE_ENCODING_TABLE[type2];
             Dx::TypeEncoding dualTypeEncoding(checkDualType);
             encodeMap.insert({checkDualType, dualTypeEncoding});
             decodeMap.insert({dualTypeEncoding, checkDualType});
@@ -317,15 +318,17 @@ STUDENT_TEST("Compare my encoding speed compared to two hash tables with all enc
         int type1 = firstType(gen);
         int type2 = secondType(gen);
         singleTypeTotal++;
-        std::string type(Dx::TYPE_ENCODING_TABLE[type1]);
+        std::string type(Dx::TypeEncoding::TYPE_ENCODING_TABLE[type1]);
         // This ensures we get a decent amount of single and dual types into the mix.
         if (type2 < type1) {
-            type += "-" + std::string(Dx::TYPE_ENCODING_TABLE[type2]);
+            type += "-" + std::string(Dx::TypeEncoding::TYPE_ENCODING_TABLE[type2]);
             dualTypeTotal++;
             singleTypeTotal--;
         }
         toEncode[i] = type;
     }
+
+    std::cout << "\n";
 
     std::cout << "Generated " << NUM_REQUESTS << " random types: "
               << singleTypeTotal << " single types, " << dualTypeTotal << " dual types\n";
@@ -358,7 +361,7 @@ STUDENT_TEST("Compare my encoding speed compared to two hash tables with all enc
     std::vector<std::pair<std::string_view,std::string_view>> typeDecodings(typeEncodings.size());
     std::clock_t start3 = std::clock();
     for (int i = 0; i < typeDecodings.size(); i++) {
-        typeDecodings[i] = to_pair(typeEncodings[i]);
+        typeDecodings[i] = viewType(typeEncodings[i]);
     }
     std::clock_t end3 = std::clock();
     std::cout << "TypeEncoding decoding method(ms): "<<1000.0*(end3-start3)/CLOCKS_PER_SEC<< "\n";
@@ -371,16 +374,7 @@ STUDENT_TEST("Compare my encoding speed compared to two hash tables with all enc
     std::clock_t end4 = std::clock();
     std::cout << "Hash decoding method(ms): " << 1000.0 * (end4 - start4) / CLOCKS_PER_SEC << "\n";
 
-    std::cout << "----------END TIMER SESSION-------------\n";
-    std::cout << "----------START MEMORY REPORT-------------\n";
-    std::cout << "TypeEncoding Lookup Array holds 18 elements, one size variable, and occupies "
-              << sizeof(Dx::TYPE_TABLE_SIZE) + sizeof(Dx::TYPE_ENCODING_TABLE) << " bytes\n";
-
-    std::cout << "Hash Encoding Unordered Map holds " << encodeMap.size() << " elements"
-              << " and occupies an unknown number of bytes.\n";
-    std::cout << "Hash Decoding Unordered Map holds " << decodeMap.size() << " elements"
-              << " and occupies an unknown number of bytes.\n";
-    std::cout << "----------END MEMORY REPORT-------------" << std::endl;
+    std::cout << std::endl;
 
     EXPECT_EQUAL(toEncode.size(), typeEncodings.size());
     EXPECT_EQUAL(toEncode.size(), hashEncodings.size());
@@ -596,7 +590,7 @@ STUDENT_TEST("Cover Electric with Dragon eliminates Electric Option. Uncover res
 
     Dx::PokemonLinks::encodingAndNum pick = links.coverType(8);
     EXPECT_EQUAL(pick.num,12);
-    EXPECT_EQUAL(to_pair(pick.name).first,"Dragon");
+    EXPECT_EQUAL(viewType(pick.name).first,"Dragon");
     EXPECT_EQUAL(itemCoverElectric, links.itemTable_);
     EXPECT_EQUAL(dlxCoverElectric, links.links_);
 
@@ -692,7 +686,7 @@ STUDENT_TEST("Cover Electric with Electric to cause hiding of many options.") {
 
     Dx::PokemonLinks::encodingAndNum pick = links.coverType(8);
     EXPECT_EQUAL(pick.num, 6);
-    EXPECT_EQUAL(to_pair(pick.name).first,"Electric");
+    EXPECT_EQUAL(viewType(pick.name).first,"Electric");
     EXPECT_EQUAL(headersCoverElectric, links.itemTable_);
     EXPECT_EQUAL(dlxCoverElectric, links.links_);
 
@@ -984,7 +978,7 @@ STUDENT_TEST("Test the depth tag approach to overlapping coverage.") {
 
     Dx::PokemonLinks::encodingAndNum choice = links.overlappingCoverType(8, 6);
     EXPECT_EQUAL(choice.num, 6);
-    EXPECT_EQUAL(to_pair(choice.name).first, "Electric");
+    EXPECT_EQUAL(viewType(choice.name).first, "Electric");
     const std::vector<Dx::PokemonLinks::typeName> headersCoverElectric {
         {{""},6,3},
         {{"Electric"},0,2},
@@ -1027,7 +1021,7 @@ STUDENT_TEST("Test the depth tag approach to overlapping coverage.") {
 
     Dx::PokemonLinks::encodingAndNum choice2 = links.overlappingCoverType(12, 5);
     EXPECT_EQUAL(choice2.num, 6);
-    EXPECT_EQUAL(to_pair(choice2.name).first, "Fire");
+    EXPECT_EQUAL(viewType(choice2.name).first, "Fire");
     const std::vector<Dx::PokemonLinks::typeName> headersCoverGrass {
         {{""},5,4},
         {{"Electric"},0,2},
@@ -1335,7 +1329,7 @@ STUDENT_TEST("Test hiding an item from the world.") {
     EXPECT_EQUAL(links.itemTable_, headersHideFire);
     EXPECT(!links.hideRequestedItem(Dx::TypeEncoding(std::string("Fire"))));
     EXPECT_EQUAL(links.links_, dlxHideFire);
-    EXPECT_EQUAL(to_pair(links.peekHidItem()).first, "Fire");
+    EXPECT_EQUAL(viewType(links.peekHidItem()).first, "Fire");
     EXPECT_EQUAL(links.getNumHidItems(), 1);
 
     // Test our unhide and reset functions.

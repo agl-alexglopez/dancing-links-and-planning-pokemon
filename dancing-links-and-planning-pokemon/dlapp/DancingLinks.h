@@ -106,10 +106,20 @@
 
 namespace DancingLinks {
 class PokemonLinks;
+class TypeEncoding;
 
 
 /* * * * * * * *        Free Functions for Client to Use with DLX Solvers       * * * * * * * * * */
 
+
+/**
+ * @brief viewType  provides a view of they strings that make up this pokemon type. This is the
+ *                  decoding of the type encoding. Dual types will have both fields of the pair
+ *                  filled. Single types will only fill .first and .second will be default {}.
+ * @param tp        the TypeEncoding passed by copy. TypeEncodings are trivially copyable.
+ * @return          the pair of string_view representing the pokemon type.
+ */
+std::pair<std::string_view, std::string_view> viewType(TypeEncoding tp);
 
 /**
  * @brief solveExactCover  an exact type coverage is one in which every "option" we choose
