@@ -68,6 +68,7 @@
 #include <ostream>
 #include "GUI/SimpleTest.h"
 
+
 namespace DancingLinks {
 
 
