@@ -48,9 +48,6 @@ const char *const TypeEncoding::TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
     "Ghost","Flying","Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
 };
 
-std::pair<std::string_view, std::string_view> viewType(TypeEncoding tp) {
-    return tp.decodeType();
-}
 
 TypeEncoding::TypeEncoding(std::string_view type)
     : encoding_(0) {
