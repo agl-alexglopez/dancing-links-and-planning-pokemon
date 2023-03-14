@@ -97,6 +97,7 @@ private:
     // Any and all TypeEncodings will have one global string_view of the type strings for decoding.
     static const uint8_t TYPE_TABLE_SIZE;
     static const char * const TYPE_ENCODING_TABLE[];
+
 };
 
 
