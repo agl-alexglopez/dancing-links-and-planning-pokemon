@@ -88,8 +88,6 @@ public:
     bool operator>(TypeEncoding rhs) const;
     bool operator<=(TypeEncoding rhs) const;
     bool operator>=(TypeEncoding rhs) const;
-    // See Tests/Tests.cpp for some fun runtime testing for encode/decode.
-    ALLOW_TEST_ACCESS();
 
 private:
 
@@ -98,6 +96,8 @@ private:
     // Any and all TypeEncodings will have one global string_view of the type strings for decoding.
     static const uint8_t TYPE_TABLE_SIZE;
     static const char * const TYPE_ENCODING_TABLE[];
+    // See Tests/Tests.cpp for some fun runtime testing for encode/decode.
+    ALLOW_TEST_ACCESS();
 
 };
 
