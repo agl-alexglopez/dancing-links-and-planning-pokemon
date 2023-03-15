@@ -88,8 +88,9 @@ public:
     }
 
     void insert(const int rank, const valueType& elem) {
-        rank_ += rank;
-        set_.insert(elem);
+        if (set_.insert(elem).second) {
+            rank_ += rank;
+        }
     }
 
     void erase(const valueType& elem) {
@@ -97,8 +98,9 @@ public:
     }
 
     void erase(const int rank, const valueType& elem) {
-        rank_ -= rank;
-        set_.erase(elem);
+        if (set_.erase(elem)) {
+            rank_ -= rank;
+        }
     }
 
     void add(const int rankChange) {
