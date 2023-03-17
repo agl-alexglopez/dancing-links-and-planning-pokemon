@@ -804,6 +804,85 @@ STUDENT_TEST("There is one exact and a few overlapping covers here. Exact cover 
     EXPECT_EQUAL(correct, result);
 }
 
+STUDENT_TEST("All algorithms that operate on these links should cleanup and restore state after.") {
+    /*
+     *                     Electric    Fire    Grass    Ice    Normal    Water
+     *
+     *   Bug-Ghost                              x.5             x0
+     *
+     *   Electric-Grass     x.25                x.5                       x.5
+     *
+     *   Fire-Flying                   x.5      x.25
+     *
+     *   Ground-Water       x0         x.5
+     *
+     *   Ice-Psychic                                    x.5
+     *
+     *   Ice-Water                                      x.25              x.5
+     */
+    const std::map<Dx::TypeEncoding,std::set<Dx::Resistance>> types = {
+        /* In reality maps will have every type present in every key. But I know the internals
+         * of my implementation and will just enter all types for the first key to make entering
+         * the rest of the test cases easier.
+         */
+        {{"Bug-Ghost"},{{{"Electric"},NM},{{"Fire"},NM},{{"Grass"},F2},{{"Ice"},NM},{{"Normal"},IM},{{"Water"},NM}}},
+        {{"Electric-Grass"},{{{"Electric"},F4},{{"Grass"},F2},{{"Water"},F2}}},
+        {{"Fire-Flying"},{{{"Fire"},F2},{{"Grass"},F4}}},
+        {{"Ground-Water"},{{{"Electric"},IM},{{"Fire"},F2}}},
+        {{"Ice-Psychic"},{{{"Ice"},F2}}},
+        {{"Ice-Water"},{{{"Ice"},F4},{{"Water"},F2}}},
+    };
+    const std::vector<Dx::PokemonLinks::encodingAndNum> options = {
+        {{""},0},
+        {{"Bug-Ghost"},7},
+        {{"Electric-Grass"},10},
+        {{"Fire-Flying"},14},
+        {{"Ground-Water"},17},
+        {{"Ice-Psychic"},20},
+        {{"Ice-Water"},22},
+    };
+    std::vector<Dx::PokemonLinks::typeName> items = {
+        {{""},6,1},
+        {{"Electric"},0,2},
+        {{"Fire"},1,3},
+        {{"Grass"},2,4},
+        {{"Ice"},3,5},
+        {{"Normal"},4,6},
+        {{"Water"},5,0},
+    };
+    const std::vector<Dx::PokemonLinks::pokeLink> dlx = {
+        // 0                 1Electric       2Fire          3Grass         4Ice          5Normal       6Water
+        {0,0,0,EM,0},      {2,18,11,EM,0}, {2,19,15,EM,0},{3,16,8,EM,0},{2,23,21,EM,0},{1,9,9,EM,0},{2,24,13,EM,0},
+        //7Bug-Ghost                                         8                            9
+        {-1,0,9,EM,0},                                    {3,3,12,F2,0},               {5,5,5,IM,0},
+        //10Electric-Grass     11                            12                                         13
+        {-2,8,13,EM,0},    {1,1,18,F4,0},                 {3,8,16,F2,0},                            {6,6,24,F2,0},
+        //14Fire-Flying                       15             16
+        {-3,11,16,EM,0},                   {2,2,19,F2,0}, {3,12,3,F4,0},
+        //17Ground-Water       18             19
+        {-4,15,19,EM,0},   {1,11,1,IM,0},  {2,15,2,F2,0},
+        //20Ice-Psychic                                                     21
+        {-5,18,21,EM,0},                                                 {4,4,23,F2,0},
+        //22Ice-Water                                                       23                          24
+        {-6,21,24,EM,0},                                                 {4,21,4,F4,0},             {6,13,6,F2,0},
+        //25
+        {INT_MIN,23,INT_MIN,EM,0},
+    };
+    Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
+    EXPECT_EQUAL(links.optionTable_, options);
+    EXPECT_EQUAL(links.itemTable_, items);
+    EXPECT_EQUAL(links.links_, dlx);
+    std::set<RankedSet<Dx::TypeEncoding>> result = links.getExactCoverages(6);
+    std::set<RankedSet<Dx::TypeEncoding>> correct = {
+        {13,{{"Bug-Ghost"},{"Ground-Water"},{"Ice-Water"},}}
+    };
+    EXPECT_EQUAL(correct, result);
+    // Did we cleanup correctly when the algorithm was done?
+    EXPECT_EQUAL(links.optionTable_, options);
+    EXPECT_EQUAL(links.itemTable_, items);
+    EXPECT_EQUAL(links.links_, dlx);
+}
+
 
 /* * * * * * * * * * * * * * * * * *   Attack Links Init    * * * * * * * * * * * * * * * * * * * */
 
@@ -1126,6 +1205,33 @@ STUDENT_TEST("There is one exact and a few overlapping covers here. Let's see ov
         {{"Ice-Psychic"},{{{"Ice"},F2}}},
         {{"Ice-Water"},{{{"Ice"},F4},{{"Water"},F2}}},
     };
+    const std::vector<Dx::PokemonLinks::typeName> headers = {
+        {{""},6,1},
+        {{"Electric"},0,2},
+        {{"Fire"},1,3},
+        {{"Grass"},2,4},
+        {{"Ice"},3,5},
+        {{"Normal"},4,6},
+        {{"Water"},5,0},
+    };
+    const std::vector<Dx::PokemonLinks::pokeLink> dlx = {
+        // 0             1Electric       2Fire            3Grass        4Ice          5Normal       6Water
+        {0,0,0,EM,0},   {2,18,11,EM,0},{2,19,15,EM,0},{3,16,8,EM,0},{2,23,21,EM,0},{1,9,9,EM,0},{2,24,13,EM,0},
+        //7Bug-Ghost                                      8                            9
+        {-1,0,9,EM,0},                                {3,3,12,F2,0},               {5,5,5,IM,0},
+        //10Elec-Fly      11                              12                                        13
+        {-2,8,13,EM,0}, {1,1,18,F4,0},                {3,8,16,F2,0},                            {6,6,24,F2,0},
+        //14Fire-Fly                     15               16
+        {-3,11,16,EM,0},               {2,2,19,F2,0}, {3,12,3,F4,0},
+        //17Ground-Wat    18             19
+        {-4,15,19,EM,0},{1,11,1,IM,0}, {2,15,2,F2,0},
+        //20Ice-Psych                                                  21
+        {-5,18,21,EM,0},                                            {4,4,23,F2,0},
+        //22Ice-Water                                                  23                           24
+        {-6,21,24,EM,0},                                            {4,21,4,F4,0},              {6,13,6,F2,0},
+        //25
+        {INT_MIN,23,INT_MIN,EM,0},
+    };
     Dx::PokemonLinks links(types, Dx::PokemonLinks::DEFENSE);
     std::set<RankedSet<Dx::TypeEncoding>> result = links.getOverlappingCoverages(6);
     std::set<RankedSet<Dx::TypeEncoding>> correct = {
@@ -1138,6 +1244,9 @@ STUDENT_TEST("There is one exact and a few overlapping covers here. Let's see ov
         {15,{{"Bug-Ghost"},{"Electric-Grass"},{"Ground-Water"},{"Ice-Psychic"}}}
     };
     EXPECT_EQUAL(correct, result);
+    // Make sure the overlapping algorithms clean up the tables when done.
+    EXPECT_EQUAL(links.itemTable_, headers);
+    EXPECT_EQUAL(links.links_, dlx);
 }
 
 
