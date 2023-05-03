@@ -38,11 +38,14 @@
  */
 #include "PokemonParser.h"
 #include "MapParser.h"
+#include <array>
 #include <functional>
 #include <exception>
 #include <map>
 #include <set>
+#include <string_view>
 #include <iostream>
+#include <utility>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -50,22 +53,23 @@
 
 namespace {
 
-const int GEN_1 = 1;
-const int GEN_2 = 2;
-const int GEN_3 = 3;
-const int GEN_4 = 4;
-const int GEN_5 = 5;
-const int GEN_6 = 6;
-const int GEN_7 = 7;
-const int GEN_8 = 8;
-const int GEN_9 = 9;
-const int MAX_GEN_COMMENT_LEN = 4;
-const QString JSON_ALL_MAPS_FILE = "Data/json/all-maps.json";
-const QString GYM_ATTACKS_KEY = "attack";
-const QString GYM_DEFENSE_KEY = "defense";
+
+constexpr int GEN_1 = 1;
+constexpr int GEN_2 = 2;
+constexpr int GEN_3 = 3;
+constexpr int GEN_4 = 4;
+constexpr int GEN_5 = 5;
+constexpr int GEN_6 = 6;
+constexpr int GEN_7 = 7;
+constexpr int GEN_8 = 8;
+constexpr int GEN_9 = 9;
+constexpr int MAX_GEN_COMMENT_LEN = 4;
+constexpr std::string_view JSON_ALL_MAPS_FILE = "Data/json/all-maps.json";
+constexpr std::string_view GYM_ATTACKS_KEY = "attack";
+constexpr std::string_view GYM_DEFENSE_KEY = "defense";
 
 // There is no 0th generation so we will make it easier to select the right file by leaving 0 "".
-const std::vector<QString> GENERATION_JSON_FILES = {
+constexpr std::array<std::string_view,10> GENERATION_JSON_FILES = {
     "",
     "Data/json/gen-1-types.json",
     "Data/json/gen-2-types.json",
@@ -79,14 +83,23 @@ const std::vector<QString> GENERATION_JSON_FILES = {
 };
 
 // Might as well use QStrings if I am parsing with them in the first place.
-const std::map<QString, Dx::Multiplier> DAMAGE_MULTIPLIERS = {
+const std::array<std::pair<std::string_view, Dx::Multiplier>,6> DAMAGE_MULTIPLIERS = { {
     {"immune", Dx::IMMUNE},
     {"quarter", Dx::FRAC14},
     {"half", Dx::FRAC12},
     {"normal", Dx::NORMAL},
     {"double", Dx::DOUBLE},
     {"quad", Dx::QUADRU},
-};
+} };
+
+const Dx::Multiplier& get_multiplier( const std::string& key ) {
+    for ( const auto& mult : DAMAGE_MULTIPLIERS ) {
+        if ( mult.first == key ) {
+            return mult.second;
+        }
+    }
+    throw std::logic_error( "Out of bounds. Key not found. ");
+}
 
 void printGenerationError(const std::exception& ex) {
     std::cerr << "Found this: " << ex.what();
@@ -96,8 +109,8 @@ void printGenerationError(const std::exception& ex) {
     std::cerr << "# Above, I want to load in this map as Generation One. Choose 1-9" << std::endl;
 }
 
-void getQJsonObject(QJsonObject& jsonObj, const QString& pathToJson) {
-    QFile jsonFile(pathToJson);
+void getQJsonObject(QJsonObject& jsonObj, std::string_view pathToJson) {
+    QFile jsonFile(QString::fromStdString( std::string( pathToJson ) ) );
     if (!jsonFile.open(QIODevice::ReadOnly)) {
         std::cerr << "Could not open json file." << std::endl;
         jsonFile.close();
@@ -122,11 +135,10 @@ void getQJsonObject(QJsonObject& jsonObj, const QString& pathToJson) {
     }
 }
 
-void setResistances(std::map<Dx::TypeEncoding,std::set<Dx::Resistance>>& result,
-                     const Dx::TypeEncoding& newType,
+void setResistances(std::map<Dx::TypeEncoding,std::set<Dx::Resistance>>& result, const Dx::TypeEncoding& newType,
                      const QJsonObject& multipliers) {
     for (const QString& multiplier : multipliers.keys()) {
-        Dx::Multiplier multiplierTag = DAMAGE_MULTIPLIERS.at(multiplier);
+        Dx::Multiplier multiplierTag = get_multiplier( multiplier.toStdString() );
         QJsonArray  typesInMultiplier = multipliers[multiplier].toArray();
         for (QJsonValueConstRef t : typesInMultiplier) {
             const std::string& resistanceType = QString(t.toString()).toStdString();
@@ -137,7 +149,7 @@ void setResistances(std::map<Dx::TypeEncoding,std::set<Dx::Resistance>>& result,
 
 std::map<Dx::TypeEncoding,std::set<Dx::Resistance>> fromJsonToMap(int generation) {
     QJsonObject jsonTypes;
-    getQJsonObject(jsonTypes, GENERATION_JSON_FILES[generation]);
+    getQJsonObject(jsonTypes, GENERATION_JSON_FILES.at( generation ));
     std::map<Dx::TypeEncoding,std::set<Dx::Resistance>> result = {};
     for (const QString& type : jsonTypes.keys()) {
         const std::string& newType = type.toStdString();
@@ -176,8 +188,7 @@ PokemonTest loadPokemonGeneration(std::istream& source) {
 }
 
 std::set<Dx::TypeEncoding>
-loadSelectedGymsDefenses(const std::string& selectedMap,
-                           const std::set<std::string>& selectedGyms) {
+loadSelectedGymsDefenses(const std::string& selectedMap, const std::set<std::string>& selectedGyms) {
     QJsonObject mapData;
     getQJsonObject(mapData, JSON_ALL_MAPS_FILE);
     std::set<Dx::TypeEncoding> result = {};
@@ -189,7 +200,8 @@ loadSelectedGymsDefenses(const std::string& selectedMap,
         if (!selectedGyms.count(gym.toStdString())) {
             continue;
         }
-        QJsonArray gymDefenseTypes = gymKeys[gym][GYM_DEFENSE_KEY].toArray();
+        QJsonArray gymDefenseTypes
+                = gymKeys[gym][QString::fromStdString( std::string( GYM_DEFENSE_KEY ) )].toArray();
         for (const QJsonValueConstRef& type : gymDefenseTypes) {
             const std::string& stdVersion = QString(type.toString()).toStdString();
             result.insert(Dx::TypeEncoding(stdVersion));
@@ -200,8 +212,7 @@ loadSelectedGymsDefenses(const std::string& selectedMap,
 }
 
 std::set<Dx::TypeEncoding>
-loadSelectedGymsAttacks(const std::string& selectedMap,
-                          const std::set<std::string>& selectedGyms) {
+loadSelectedGymsAttacks(const std::string& selectedMap, const std::set<std::string>& selectedGyms) {
     QJsonObject mapData;
     getQJsonObject(mapData, JSON_ALL_MAPS_FILE);
     std::set<Dx::TypeEncoding> result = {};
@@ -212,7 +223,8 @@ loadSelectedGymsAttacks(const std::string& selectedMap,
         if (!selectedGyms.count(gym.toStdString())) {
             continue;
         }
-        QJsonArray gymAttackTypes = gymKeys[gym][GYM_ATTACKS_KEY].toArray();
+        QJsonArray gymAttackTypes
+                = gymKeys[gym][QString::fromStdString( std::string( GYM_ATTACKS_KEY ) )].toArray();
         for (const QJsonValueConstRef& type : gymAttackTypes) {
             const std::string& stdVersion = QString(type.toString()).toStdString();
             result.insert(Dx::TypeEncoding(stdVersion));

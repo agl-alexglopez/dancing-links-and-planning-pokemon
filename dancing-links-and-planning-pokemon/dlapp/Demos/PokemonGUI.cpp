@@ -38,6 +38,7 @@
 #include "PokemonParser.h"
 #include "DancingLinks.h"
 #include "TypeResistance.h"
+#include <array>
 #include <fstream>
 #include <memory>
 #include <cmath>
@@ -47,6 +48,7 @@
 #include <vector>
 #include <regex>
 #include <string>
+#include <string_view>
 #include <set>
 #include "filelib.h"
 #include "strlib.h"
@@ -59,10 +61,10 @@ namespace {
 
 
 /* File constants. */
-const std::string kProblemSuffix = ".dst";
-const std::string kBasePath = "Data/dst/";
+constexpr std::string_view kProblemSuffix = ".dst";
+constexpr std::string_view kBasePath = "Data/dst/";
 /* Background color. */
-const std::string kBackgroundColor  = "#000000";
+constexpr std::string_view kBackgroundColor  = "#000000";
 
 /* Colors to use when drawing the network. */
 struct CityColors {
@@ -81,13 +83,8 @@ enum MapDrawSelection {
     SELECTED_GYMS
 };
 
-/* Colors to use when drawing cities. */
-const std::vector<CityColors> kColorOptions = {
-    { "#101010", "#202020", MiniGUI::Font(MiniGUI::FontFamily::MONOSPACE, MiniGUI::FontStyle::BOLD, 12, "#A0A0A0") },   // Uncovered
-    { "#806030", "#FFB000", MiniGUI::Font(MiniGUI::FontFamily::MONOSPACE, MiniGUI::FontStyle::BOLD, 12, "#000000") },   // Directly covered
-};
 
-const std::vector<std::string> BUTTON_TOGGLE_COLORS = {
+constexpr std::array<std::string_view,2> BUTTON_TOGGLE_COLORS = {
     // NOT_SELECTED
     "#000000",
     // SELECTED
@@ -95,29 +92,29 @@ const std::vector<std::string> BUTTON_TOGGLE_COLORS = {
 };
 
 /* Colors to use to draw the roads. */
-const std::string kDarkRoadColor = "#505050";
-const std::string kLightRoadColor = "#FFFFFF";
+constexpr std::string_view kDarkRoadColor = "#505050";
+constexpr std::string_view kLightRoadColor = "#FFFFFF";
 
 /* Line thicknesses. */
-const double kRoadWidth = 3;
-const double kCityWidth = 1.5;
+constexpr double kRoadWidth = 3;
+constexpr double kCityWidth = 1.5;
 
 /* Font to use for city labels. */
-const std::string kLabelFont = "Monospace-BOLD-12";
+constexpr std::string_view kLabelFont = "Monospace-BOLD-12";
 
 /* Radius of a city */
-const double kCityRadius = 25;
+constexpr double kCityRadius = 25;
 
 /* Buffer space around the window. */
-const double kBufferSpace = 60;
+constexpr double kBufferSpace = 60;
 
 /* Lower bound on the width or height of the data range, used for
  * collinear points.
  */
-const double kLogicalPadding = 1e-5;
+constexpr double kLogicalPadding = 1e-5;
 
 /* Max length of a string in a label. */
-const std::string::size_type kMaxLength = 3;
+constexpr std::string::size_type kMaxLength = 3;
 
 /* Geometry information for drawing the network. */
 struct Geometry {
@@ -224,7 +221,7 @@ void drawRoads(GWindow& window,
             /* Selected roads draw in the bright color; deselected
              * roads draw in a the dark color.
              */
-            toDraw.setColor(userSelection == FULL_GENERATION ? kLightRoadColor : kDarkRoadColor);
+            toDraw.setColor(std::string( userSelection == FULL_GENERATION ? kLightRoadColor : kDarkRoadColor ) );
 
             /* Draw the line, remembering that the coordinates are in
              * logical rather than physical space.
@@ -273,7 +270,11 @@ void drawCities(GWindow& window,
                  const Geometry& geo,
                  const MapTest& network,
                  const std::set<std::string>& selected) {
-
+    /* Colors to use when drawing cities. */
+    const std::vector<CityColors> kColorOptions = {
+        { "#101010", "#202020", MiniGUI::Font(MiniGUI::FontFamily::MONOSPACE, MiniGUI::FontStyle::BOLD, 12, "#A0A0A0") },   // Uncovered
+        { "#806030", "#FFB000", MiniGUI::Font(MiniGUI::FontFamily::MONOSPACE, MiniGUI::FontStyle::BOLD, 12, "#000000") },   // Directly covered
+    };
     /* For simplicity, just make a single oval. */
     GOval oval(0, 0, 2 * kCityRadius, 2 * kCityRadius);
     oval.setLineWidth(kCityWidth);
@@ -310,7 +311,7 @@ void visualizeNetwork(GWindow& window,
                       const PokemonTest& network,
                       const std::set<std::string>& selected,
                       const MapDrawSelection userSelection) {
-    clearDisplay(window, kBackgroundColor);
+    clearDisplay(window, std::string( kBackgroundColor ));
 
     /* Edge case: Don't draw if the window is too small. */
     if (window.getCanvasWidth()  <= 2 * kBufferSpace ||
@@ -335,8 +336,9 @@ void visualizeNetwork(GWindow& window,
 
 std::vector<std::string> sampleProblems(const std::string& basePath) {
     std::vector<std::string> result;
+    const std::string problem( kProblemSuffix );
     for (const auto& file: listDirectory(basePath)) {
-        if (endsWith(file, kProblemSuffix)) {
+        if (endsWith(file, problem)) {
             result.push_back(file);
         }
     }
@@ -353,12 +355,12 @@ std::vector<std::string> sampleProblems(const std::string& basePath) {
  * 15-18 attack types in this game so there is effectively no limit on attack choices. So if
  * one day they add more attack types, the second limit for attack may become more relevant.
  */
-const int POKEMON_TEAM_SIZE = 6;
-const int POKEMON_TEAM_ATTACK_SLOTS = 24;
-const int GYM_BUTTON_ROW_START = 6;
-const int GYM_BUTTON_COL_START = 0;
-const std::string CLEAR_SELECTIONS = "CL";
-const std::string GBUTTON_STR = "GButton";
+constexpr int POKEMON_TEAM_SIZE = 6;
+constexpr int POKEMON_TEAM_ATTACK_SLOTS = 24;
+constexpr int GYM_BUTTON_ROW_START = 6;
+constexpr int GYM_BUTTON_COL_START = 0;
+constexpr std::string_view CLEAR_SELECTIONS = "CL";
+constexpr std::string_view GBUTTON_STR = "GButton";
 
 class PokemonGUI: public ProblemHandler {
 public:
@@ -447,7 +449,7 @@ PokemonGUI::PokemonGUI(GWindow& window) : ProblemHandler(window) {
     solutionControls->addToGrid(overlappingAttackButton, 3, 0);
     solutionControls->setEnabled(false);
     GComboBox* choices = new GComboBox();
-    for (const std::string& file: sampleProblems(kBasePath)) {
+    for (const std::string& file: sampleProblems(std::string( kBasePath ))) {
         choices->addItem(file);
     }
     choices->setEditable(false);
@@ -468,10 +470,10 @@ void PokemonGUI::toggleSelectedGym(GButton& button) {
     std::string gymName = button.getText();
     if (selectedGyms.count(gymName)) {
         selectedGyms.erase(gymName);
-        button.setForeground(BUTTON_TOGGLE_COLORS[NOT_SELECTED]);
+        button.setForeground(std::string( BUTTON_TOGGLE_COLORS[NOT_SELECTED] ));
     } else {
         selectedGyms.insert(gymName);
-        button.setForeground(BUTTON_TOGGLE_COLORS[SELECTED]);
+        button.setForeground(std::string( BUTTON_TOGGLE_COLORS[SELECTED] ));
     }
     selectionDrawStyle = SELECTED_GYMS;
     requestRepaint();
@@ -479,7 +481,7 @@ void PokemonGUI::toggleSelectedGym(GButton& button) {
 
 void PokemonGUI::toggleAllGyms(const ButtonToggle& buttonState) {
     for (const auto& button : *gymButtons) {
-        button.second->setForeground(BUTTON_TOGGLE_COLORS[buttonState]);
+        button.second->setForeground(std::string( BUTTON_TOGGLE_COLORS[buttonState] ));
     }
 }
 
@@ -521,7 +523,7 @@ void PokemonGUI::repaint() {
 }
 
 void PokemonGUI::loadWorld(const std::string& filename) {
-    std::ifstream input(kBasePath + filename);
+    std::ifstream input(std::string( kBasePath ) + filename);
     if (!input) error("Cannot open file.");
     generation = loadPokemonGeneration(input);
 
@@ -536,7 +538,8 @@ void PokemonGUI::loadWorld(const std::string& filename) {
         allGyms.insert(s.first);
         gymButtons->insert({s.first, std::unique_ptr<GButton>(new GButton(s.first))});
     }
-    gymButtons->insert({CLEAR_SELECTIONS, std::unique_ptr<GButton>(new GButton(CLEAR_SELECTIONS))});
+    const std::string clr( CLEAR_SELECTIONS );
+    gymButtons->insert({clr, std::unique_ptr<GButton>(new GButton(clr))});
 
     /* Create buttons for the gyms in a 2 by N grid where N is determined by how many gyms exist.
      * Different games have different numbers of gyms so we don't know until we build.

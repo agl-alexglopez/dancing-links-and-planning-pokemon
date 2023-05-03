@@ -96,8 +96,7 @@ PokemonTest loadPokemonGeneration(std::istream& source);
  * @return                          the set of all defensive types present in the selection of gyms.
  */
 std::set<Dx::TypeEncoding>
-loadSelectedGymsDefenses(const std::string& selectedMap,
-                         const std::set<std::string>& selectedGyms);
+loadSelectedGymsDefenses(const std::string& selectedMap, const std::set<std::string>& selectedGyms);
 
 /**
  * @brief loadSelectedGymsAttacks  the user interacting with the GUI may want to defend themselves
@@ -110,7 +109,6 @@ loadSelectedGymsDefenses(const std::string& selectedMap,
  * @return                         a set of all attack types present across those gyms.
  */
 std::set<Dx::TypeEncoding>
-loadSelectedGymsAttacks(const std::string& selectedMap,
-                        const std::set<std::string>& selected);
+loadSelectedGymsAttacks(const std::string& selectedMap, const std::set<std::string>& selected);
 
 #endif // POKEMONPARSER_H
