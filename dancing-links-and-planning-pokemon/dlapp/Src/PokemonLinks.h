@@ -202,7 +202,7 @@ private:
     int numOptions_;                           // Options we can choose from to cover items.
     CoverageType requestedCoverSolution_;      // The user is asking for ATTACK or DEFENSE
 
-    static const int HIDDEN = -1;
+    static constexpr int HIDDEN = -1;
 
     /**
      * @brief fillExactCoverages  fills the output parameters with every exact cover that can be
