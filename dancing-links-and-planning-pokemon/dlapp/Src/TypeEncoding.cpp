@@ -41,14 +41,6 @@
 namespace DancingLinks {
 
 
-// lexicographicly organized table. 17th index is the first lexicographic order Bug.
-const uint8_t TypeEncoding::TYPE_TABLE_SIZE = 18;
-const char *const TypeEncoding::TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
-    "Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass",
-    "Ghost","Flying","Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
-};
-
-
 TypeEncoding::TypeEncoding(std::string_view type)
     : encoding_(0) {
     if (type == "") {
@@ -56,7 +48,7 @@ TypeEncoding::TypeEncoding(std::string_view type)
     }
     size_t delim = type.find('-');
     uint8_t found = binsearchBitIndex(type.substr(0, delim));
-    if (found == TYPE_TABLE_SIZE) {
+    if (found == TYPE_ENCODING_TABLE.size()) {
         return;
     }
     encoding_ = 1 << found;
@@ -64,7 +56,7 @@ TypeEncoding::TypeEncoding(std::string_view type)
         return;
     }
     found = binsearchBitIndex(type.substr(delim + 1));
-    if (found == TYPE_TABLE_SIZE) {
+    if (found == TYPE_ENCODING_TABLE.size()) {
         encoding_ = 0;
         return;
     }
@@ -88,7 +80,7 @@ std::pair<std::string_view,std::string_view> TypeEncoding::decodeType() const {
         tableIndex++;
     }
 
-    std::string_view firstFound = TYPE_ENCODING_TABLE[tableIndex];
+    std::string_view firstFound = TYPE_ENCODING_TABLE.at( tableIndex );
     if (shiftCopy == 1) {
         return {firstFound, {}};
     }
@@ -98,13 +90,13 @@ std::pair<std::string_view,std::string_view> TypeEncoding::decodeType() const {
         shiftCopy >>= 1;
     } while (!(shiftCopy & 1));
 
-    return {TYPE_ENCODING_TABLE[tableIndex], firstFound};
+    return {TYPE_ENCODING_TABLE.at( tableIndex ), firstFound};
 }
 
 uint8_t TypeEncoding::binsearchBitIndex(std::string_view type) const {
-    for (uint8_t remain = TYPE_TABLE_SIZE, base = 0; remain; remain >>= 1) {
+    for (uint8_t remain = TYPE_ENCODING_TABLE.size(), base = 0; remain; remain >>= 1) {
         uint8_t index = base + (remain >> 1);
-        std::string_view found = TYPE_ENCODING_TABLE[index];
+        std::string_view found = TYPE_ENCODING_TABLE.at( index );
         if (found == type) {
             return index;
         }
@@ -114,7 +106,7 @@ uint8_t TypeEncoding::binsearchBitIndex(std::string_view type) const {
             remain--;
         }
     }
-    return TYPE_TABLE_SIZE;
+    return TYPE_ENCODING_TABLE.size();
 }
 
 uint32_t TypeEncoding::encoding() const {

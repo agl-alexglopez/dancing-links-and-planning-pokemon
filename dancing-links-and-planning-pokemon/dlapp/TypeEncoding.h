@@ -62,6 +62,7 @@
  */
 #ifndef TYPEENCODING_H
 #define TYPEENCODING_H
+#include <array>
 #include <string_view>
 #include <utility>
 #include <cstdint>
@@ -94,8 +95,11 @@ private:
     uint32_t encoding_;
     uint8_t binsearchBitIndex(std::string_view type) const;
     // Any and all TypeEncodings will have one global string_view of the type strings for decoding.
-    static const uint8_t TYPE_TABLE_SIZE;
-    static const char * const TYPE_ENCODING_TABLE[];
+    static constexpr std::array<std::string_view,18> TYPE_ENCODING_TABLE = {
+        // lexicographicly organized table. 17th index is the first lexicographic order Bug.
+        "Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass",
+        "Ghost","Flying","Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
+    };
     // See Tests/Tests.cpp for some fun runtime testing for encode/decode.
     ALLOW_TEST_ACCESS();
 

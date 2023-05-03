@@ -236,10 +236,10 @@ STUDENT_TEST("Test every possible combination of typings.") {
      * types order does not matter so Water-Bug is the same as Bug-Water and is only counted once.
      */
     const uint32_t BUG = 0x20000;
-    uint32_t tableSize = Dx::TypeEncoding::TYPE_TABLE_SIZE;
+    uint32_t tableSize = Dx::TypeEncoding::TYPE_ENCODING_TABLE.size();
     for (uint32_t bit1 = BUG, type1 = tableSize - 1; bit1 != 0; bit1 >>= 1, type1--) {
 
-        std::string checkSingleType(Dx::TypeEncoding::TYPE_ENCODING_TABLE[type1]);
+        std::string checkSingleType(Dx::TypeEncoding::TYPE_ENCODING_TABLE.at( type1 ));
         Dx::TypeEncoding singleTypeEncoding(checkSingleType);
         EXPECT_EQUAL(singleTypeEncoding.encoding(), bit1);
         EXPECT_EQUAL(singleTypeEncoding.decodeType().first, checkSingleType);
@@ -247,7 +247,7 @@ STUDENT_TEST("Test every possible combination of typings.") {
 
         for (uint32_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2--) {
 
-            std::string checkDualType = checkSingleType + "-" + Dx::TypeEncoding::TYPE_ENCODING_TABLE[type2];
+            std::string checkDualType = checkSingleType + "-" + std::string( Dx::TypeEncoding::TYPE_ENCODING_TABLE.at(type2) );
             Dx::TypeEncoding dualTypeEncoding(checkDualType);
             EXPECT_EQUAL(dualTypeEncoding.encoding(), bit1 | bit2);
             /* I discourage the use of methods that create heap strings whenever possible. I use
@@ -287,14 +287,14 @@ STUDENT_TEST("Compare my encoding speed compared to two hash tables with all enc
 
     // Generate all possible unique type combinations and place them in the maps.
     const uint32_t BUG = 0x20000;
-    uint32_t tableSize = Dx::TypeEncoding::TYPE_TABLE_SIZE;
+    const uint32_t tableSize = Dx::TypeEncoding::TYPE_ENCODING_TABLE.size();
     for (uint32_t bit1 = BUG, type1 = tableSize - 1; bit1 != 0; bit1 >>= 1, type1--) {
-        std::string checkSingleType(Dx::TypeEncoding::TYPE_ENCODING_TABLE[type1]);
+        std::string checkSingleType(Dx::TypeEncoding::TYPE_ENCODING_TABLE.at( type1 ));
         Dx::TypeEncoding singleTypeEncoding(checkSingleType);
         encodeMap.insert({checkSingleType, singleTypeEncoding});
         decodeMap.insert({singleTypeEncoding, checkSingleType});
         for (uint32_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2--) {
-            std::string checkDualType = checkSingleType + "-" + Dx::TypeEncoding::TYPE_ENCODING_TABLE[type2];
+            std::string checkDualType = checkSingleType + "-" + std::string( Dx::TypeEncoding::TYPE_ENCODING_TABLE.at( type2 ) );
             Dx::TypeEncoding dualTypeEncoding(checkDualType);
             encodeMap.insert({checkDualType, dualTypeEncoding});
             decodeMap.insert({dualTypeEncoding, checkDualType});
@@ -317,10 +317,10 @@ STUDENT_TEST("Compare my encoding speed compared to two hash tables with all enc
         int type1 = firstType(gen);
         int type2 = secondType(gen);
         singleTypeTotal++;
-        std::string type(Dx::TypeEncoding::TYPE_ENCODING_TABLE[type1]);
+        std::string type(Dx::TypeEncoding::TYPE_ENCODING_TABLE.at( type1 ));
         // This ensures we get a decent amount of single and dual types into the mix.
         if (type2 < type1) {
-            type += "-" + std::string(Dx::TypeEncoding::TYPE_ENCODING_TABLE[type2]);
+            type += "-" + std::string(Dx::TypeEncoding::TYPE_ENCODING_TABLE.at( type2 ));
             dualTypeTotal++;
             singleTypeTotal--;
         }
