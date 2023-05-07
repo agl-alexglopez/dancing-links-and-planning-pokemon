@@ -165,43 +165,31 @@ std::vector<typeName> headers = {
 };
 ```
 
-The `TypeEncoding` is a new addition to this project. Previously, this implementation produced solutions in string format. This means all input and output for the Pokémon types came in the form of `std::string`. Normally, this would be fine, but the exact cover problem as I have set it up communicates with sets and maps which means behind the scenes the algorithm is performing thousands if not millions of string comparisons of varying lengths. We can reduce all of these comparisons that are happening to a single comparison between two numbers. This will make moving data and some of the algorithms faster while vastly reducing the memory footprint. We simply encode all types into this format.
+The `TypeEncoding` is a new addition to this project. Previously, this implementation produced solutions in string format. This means all input and output for the Pokémon types came in the form of `std::string`. Normally, this would be fine, but the exact cover problem as I have set it up communicates with sets and maps which means behind the scenes the algorithm is performing thousands if not millions of string comparisons of varying lengths. We can reduce all of these comparisons that are happening to a single comparison between two numbers. This will make moving data and some of the algorithms faster while vastly reducing the memory footprint. We simply encode all types into this format and get the added benefit of a trivially copyable class.
 
 ```c++
-const size_t TYPE_TABLE_SIZE = 18;
-// Lexicographic organized table. 17th index is the first lexographical order Bug.
-const std::string TYPE_ENCODING_TABLE[TYPE_TABLE_SIZE] = {
-    "Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass",
-    "Ghost","Flying","Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
-};
-
-struct TypeEncoding {
-    uint32_t encoding_;
+class TypeEncoding {
+public:
     TypeEncoding() = default;
     TypeEncoding(std::string_view type);
-    bool operator==(TypeEncoding rhs) const {
-    	return this->encoding_ == rhs.encoding_;
-    }
-    bool operator!=(TypeEncoding rhs) const {
-    	return !(*this == rhs);
-    }	
-    // Not a mistake! Read on for why this works.
-    bool operator<(TypeEncoding rhs) const {
-    	return this->encoding_ > rhs.encoding_;
-    }
-    bool operator>(TypeEncoding rhs) const {
-        return rhs < *this;
-    }
-    bool operator<=(TypeEncoding rhs) const {
-        return !(*this > rhs);
-    }
-    bool operator>=(TypeEncoding rhs) const {
-        return !(*this < rhs);
-    }
+    uint32_t encoding() const;
+    std::pair<std::string_view,std::string_view> decodeType() const;
+    bool operator==(TypeEncoding rhs) const;
+    bool operator!=(TypeEncoding rhs) const;
+    bool operator<(TypeEncoding rhs) const;
+    bool operator>(TypeEncoding rhs) const;
+    bool operator<=(TypeEncoding rhs) const;
+    bool operator>=(TypeEncoding rhs) const;
+private:
+    uint32_t encoding_;
+    uint8_t binsearchBitIndex(std::string_view type) const;
+    // Any and all TypeEncodings will have one global string_view of the type strings for decoding.
+    static constexpr std::array<std::string_view,18> TYPE_ENCODING_TABLE = {
+        // lexicographicly organized table. 17th index is the first lexicographic order Bug.
+        "Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass",
+        "Ghost","Flying","Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
+    };
 };
-
-std::pair<std::string_view,std::string_view> to_pair(TypeEncoding type);
-
 ```
 
 We place every Pokémon type in this `uint32_t` such that the 0th index bit is Water and the 17th index bit is Bug. In its binary representation it looks like this.
