@@ -227,22 +227,22 @@ PokemonLinks::encodingAndNum PokemonLinks::coverType(int indexInOption) {
         if (top <= 0) {
             i = links_[i].up;
             result.name = optionTable_[std::abs(links_[i - 1].topOrLen)].name;
-        } else {
-            if (!links_[top].tag) {
-                typeName cur = itemTable_[top];
-                itemTable_[cur.left].right = cur.right;
-                itemTable_[cur.right].left = cur.left;
-                hideOptions(i);
-                /* If there is a better way to score the teams or attack schemes we build here would
-                 * be the place to change it. I just give points based on how good the resistance or
-                 * attack strength is. Immunity is better than quarter is better than half damage if
-                 * we are building defense. Quad is better than double damage if we are building
-                 * attack types. Points only change by increments of one.
-                 */
-                result.num += links_[i].multiplier;
-            }
-            i++;
+            continue;
         }
+        if (!links_[top].tag) {
+            typeName cur = itemTable_[top];
+            itemTable_[cur.left].right = cur.right;
+            itemTable_[cur.right].left = cur.left;
+            hideOptions(i);
+            /* If there is a better way to score the teams or attack schemes we build here would
+             * be the place to change it. I just give points based on how good the resistance or
+             * attack strength is. Immunity is better than quarter is better than half damage if
+             * we are building defense. Quad is better than double damage if we are building
+             * attack types. Points only change by increments of one.
+             */
+            result.num += links_[i].multiplier;
+        }
+        i++;
     } while (i != indexInOption);
     return result;
 }
@@ -254,15 +254,15 @@ void PokemonLinks::uncoverType(int indexInOption) {
         int top = links_[i].topOrLen;
         if (top <= 0) {
             i = links_[i].down;
-        } else {
-            if (!links_[top].tag) {
-                typeName cur = itemTable_[top];
-                itemTable_[cur.left].right = top;
-                itemTable_[cur.right].left = top;
-                unhideOptions(i);
-            }
-            i--;
+            continue;
         }
+        if (!links_[top].tag) {
+            typeName cur = itemTable_[top];
+            itemTable_[cur.left].right = top;
+            itemTable_[cur.right].left = top;
+            unhideOptions(i);
+        }
+        i--;
     } while (i != indexInOption);
 }
 
@@ -281,13 +281,13 @@ void PokemonLinks::hideOptions(int indexInOption) {
             int top = links_[col].topOrLen;
             if (top <= 0) {
                 col = links_[col].up;
-            } else {
-                pokeLink cur = links_[col];
-                links_[cur.up].down = cur.down;
-                links_[cur.down].up = cur.up;
-                links_[top].topOrLen--;
-                col++;
+                continue;
             }
+            pokeLink cur = links_[col];
+            links_[cur.up].down = cur.down;
+            links_[cur.down].up = cur.up;
+            links_[top].topOrLen--;
+            col++;
         }
     }
 }
@@ -301,13 +301,13 @@ void PokemonLinks::unhideOptions(int indexInOption) {
             int top = links_[col].topOrLen;
             if (top <= 0) {
                 col = links_[col].down;
-            } else {
-                pokeLink cur = links_[col];
-                links_[cur.up].down = col;
-                links_[cur.down].up = col;
-                links_[top].topOrLen++;
-                col--;
+                continue;
             }
+            pokeLink cur = links_[col];
+            links_[cur.up].down = col;
+            links_[cur.down].up = col;
+            links_[top].topOrLen++;
+            col--;
         }
     }
 }
@@ -394,15 +394,15 @@ PokemonLinks::encodingAndNum PokemonLinks::overlappingCoverType(int indexInOptio
         if (top <= 0) {
             i = links_[i].up;
             result.name = optionTable_[std::abs(links_[i - 1].topOrLen)].name;
-        } else {
-            if (!links_[top].tag) {
-                links_[top].tag = depthTag;
-                itemTable_[itemTable_[top].left].right = itemTable_[top].right;
-                itemTable_[itemTable_[top].right].left = itemTable_[top].left;
-                result.num += links_[i].multiplier;
-            }
-            links_[top].tag == HIDDEN ? i++ : links_[i++].tag = depthTag;
+            continue;
         }
+        if (!links_[top].tag) {
+            links_[top].tag = depthTag;
+            itemTable_[itemTable_[top].left].right = itemTable_[top].right;
+            itemTable_[itemTable_[top].right].left = itemTable_[top].left;
+            result.num += links_[i].multiplier;
+        }
+        links_[top].tag == HIDDEN ? i++ : links_[i++].tag = depthTag;
     } while (i != indexInOption);
 
     return result;
@@ -414,14 +414,14 @@ void PokemonLinks::overlappingUncoverType(int indexInOption) {
         int top = links_[i].topOrLen;
         if (top < 0) {
             i = links_[i].down;
-        } else {
-            if (links_[top].tag == links_[i].tag) {
-                links_[top].tag = 0;
-                itemTable_[itemTable_[top].left].right = top;
-                itemTable_[itemTable_[top].right].left = top;
-            }
-            links_[top].tag == HIDDEN ? i-- : links_[i--].tag = 0;
+            continue;
         }
+        if (links_[top].tag == links_[i].tag) {
+            links_[top].tag = 0;
+            itemTable_[itemTable_[top].left].right = top;
+            itemTable_[itemTable_[top].right].left = top;
+        }
+        links_[top].tag == HIDDEN ? i-- : links_[i--].tag = 0;
     } while (i != indexInOption);
 }
 
