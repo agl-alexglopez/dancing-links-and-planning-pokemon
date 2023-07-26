@@ -1,5 +1,7 @@
 # Dancing Links and Planning Pokémon
 
+![graph-app](/images/graph-app.png)
+
 ## Navigation
 - Pokémon Planning
 	- Dancing Links Class **([`PokemonLinks.h`](/dancing-links-and-planning-pokemon/dlapp/Src/PokemonLinks.h))**
