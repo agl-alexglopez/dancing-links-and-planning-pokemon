@@ -130,7 +130,8 @@ struct Geometry {
 /* Given a data set, fills in the min and max X and Y values
  * encountered in that set.
  */
-void computeDataBounds(const MapTest& network, Geometry& geo) {
+void computeDataBounds(const MapTest &network, Geometry &geo)
+{
     geo.minDataX = geo.minDataY = std::numeric_limits<double>::infinity();
     geo.maxDataX = geo.maxDataY = -std::numeric_limits<double>::infinity();
 
@@ -361,6 +362,7 @@ constexpr int GYM_BUTTON_ROW_START = 6;
 constexpr int GYM_BUTTON_COL_START = 0;
 constexpr std::string_view CLEAR_SELECTIONS = "CL";
 constexpr std::string_view GBUTTON_STR = "GButton";
+constexpr std::array<std::string_view, 2> SOLUTION_TYPE_OUTPUT{"exact", "overlapping"};
 
 class PokemonGUI: public ProblemHandler {
 public:
@@ -423,8 +425,10 @@ private:
     void resetAllCoverages(Dx::PokemonLinks& dlxSolver, const DlxRequest& req, int depthLimit);
     void solveDefense(const DlxRequest& exactOrOverlapping);
     void solveAttack(const DlxRequest& exactOrOverlapping);
-    void printDefenseSolution(const std::set<RankedSet<Dx::TypeEncoding>>& solution);
-    void printAttackSolution(const std::set<RankedSet<Dx::TypeEncoding>>& solution);
+    void printDefenseSolution(const std::set<RankedSet<Dx::TypeEncoding>> &solution,
+                              DlxRequest exactOrOverlapping);
+    void printAttackSolution(const std::set<RankedSet<Dx::TypeEncoding>> &solution,
+                             DlxRequest exactOrOverlapping);
     void printDefenseMessage();
     void printAttackMessage();
 };
@@ -522,7 +526,8 @@ void PokemonGUI::repaint() {
     }
 }
 
-void PokemonGUI::loadWorld(const std::string& filename) {
+void PokemonGUI::loadWorld(const std::string &filename)
+{
     std::ifstream input(std::string( kBasePath ) + filename);
     if (!input) error("Cannot open file.");
     generation = loadPokemonGeneration(input);
@@ -585,9 +590,11 @@ void PokemonGUI::printDefenseMessage() {
     (*solutionsDisplay) << "\n" << std::endl;
 }
 
-void PokemonGUI::printAttackSolution(const std::set<RankedSet<Dx::TypeEncoding>>& solution) {
-    *solutionsDisplay << "Found " << solution.size()
-                       << " attack configurations SCORE | TYPES |. Higher score is better.\n";
+void PokemonGUI::printAttackSolution(const std::set<RankedSet<Dx::TypeEncoding>> &solution,
+                                     DlxRequest exactOrOverlapping) {
+    *solutionsDisplay << "Found " << solution.size() << " "
+                      << SOLUTION_TYPE_OUTPUT[exactOrOverlapping]
+                      << " cover attack configurations SCORE | TYPES |. Higher score is better.\n";
     std::string maximumOutputExceeded = "\n";
     if (Dx::hasMaxSolutions(*attackDLX)) {
         maximumOutputExceeded = "...exceeded maximum output, stopping at "
@@ -616,9 +623,11 @@ void PokemonGUI::printAttackMessage() {
     (*solutionsDisplay) << "\n" << std::endl;
 }
 
-void PokemonGUI::printDefenseSolution(const std::set<RankedSet<Dx::TypeEncoding>>& solution) {
-    *solutionsDisplay << "Found " << solution.size()
-                       << " Pokemon teams SCORE | TEAM |. Lower score is better.\n";
+void PokemonGUI::printDefenseSolution(const std::set<RankedSet<Dx::TypeEncoding>> &solution,
+                                      DlxRequest exactOrOverlapping) {
+    *solutionsDisplay << "Found " << solution.size() << " "
+                      << SOLUTION_TYPE_OUTPUT[exactOrOverlapping]
+                      << " cover Pokemon teams SCORE | TEAM |. Lower score is better.\n";
 
     std::string maximumOutputExceeded = "\n";
     if (Dx::hasMaxSolutions(*defenseDLX)) {
@@ -667,12 +676,12 @@ void PokemonGUI::solveDefense(const DlxRequest& req) {
 
         printDefenseMessage();
         resetAllCoverages(*defenseDLX, req, POKEMON_TEAM_SIZE);
-        printDefenseSolution(*allSolutions);
+        printDefenseSolution(*allSolutions, req);
     } else {
         selectionDrawStyle = FULL_GENERATION;
         printDefenseMessage();
         resetAllCoverages(*defenseDLX, req, POKEMON_TEAM_SIZE);
-        printDefenseSolution(*allSolutions);
+        printDefenseSolution(*allSolutions, req);
     }
 
     /* Enable controls. */
@@ -702,13 +711,13 @@ void PokemonGUI::solveAttack(const DlxRequest& req) {
         Dx::hideItemsExcept(*attackDLX, gymDefenseTypes);
         printAttackMessage();
         resetAllCoverages(*attackDLX, req, POKEMON_TEAM_ATTACK_SLOTS);
-        printAttackSolution(*allSolutions);
+        printAttackSolution(*allSolutions, req);
 
     } else {
         selectionDrawStyle = FULL_GENERATION;
         printAttackMessage();
         resetAllCoverages(*attackDLX, req, POKEMON_TEAM_ATTACK_SLOTS);
-        printAttackSolution(*allSolutions);
+        printAttackSolution(*allSolutions, req);
     }
 
     /* Enable controls. */
