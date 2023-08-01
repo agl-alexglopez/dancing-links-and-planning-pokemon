@@ -14,7 +14,7 @@ In order to build this project, you will need a copy of the CS106 C++ library fr
 
 Instead of building their new libraries, however, you will just build this older version. It will install all the necessary Stanford specific libraries on your system for use with Qt. I am working on a fix for this by gradually moving away from the Stanford Libraries.
 
-### Pokémon Planning Usage Instructions
+## Pokémon Planning Usage Instructions
 
 I have created a small testing ground for the Pokémon Cover Problem. I adapted a graph drawing application written by Keith Schwarz and Stanford course staff to allow you to explore various Pokémon maps. The maps are divided by Pokémon Generation. For example, the Kanto map is based around the attack and defense types available in Generation I of Pokémon. I included maps for Generations 1-9. I am fairly confident that the type information is accurate for each generation. There may be some minor errors in what types were available in the specific game map that I chose to represent a certain generation, but overall the division by generation is accurate.
 
