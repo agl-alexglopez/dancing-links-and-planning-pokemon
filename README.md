@@ -14,6 +14,21 @@ In order to build this project, you will need a copy of the CS106 C++ library fr
 
 Instead of building their new libraries, however, you will just build this older version. It will install all the necessary Stanford specific libraries on your system for use with Qt. I am working on a fix for this by gradually moving away from the Stanford Libraries.
 
+### Pokémon Planning Usage Instructions
+
+I have created a small testing ground for the Pokémon Cover Problem. I adapted a graph drawing application written by Keith Schwarz and Stanford course staff to allow you to explore various Pokémon maps. The maps are divided by Pokémon Generation. For example, the Kanto map is based around the attack and defense types available in Generation I of Pokémon. I included maps for Generations 1-9. I am fairly confident that the type information is accurate for each generation. There may be some minor errors in what types were available in the specific game map that I chose to represent a certain generation, but overall the division by generation is accurate.
+
+You can solve the maps entirely for exact and overlapping cover problems or you can select specific gyms. In Pokémon, you progress through the game by defeating 8 gym leaders and then a final group called the Elite 4 (along with one last champion of that league). You can select any combination of gyms to defend against or attack and the cover problem will be adapted to the types in those locations. Interesting results can arise as you plan out your type advantages!
+
+1. Open the project in Qt Creator with the correct Stanford C++ library installed. (See the [Build Note](#build-note)).
+2. Build and run the project.
+3. Select the `Pokémon Planning` option from the top menu.
+4. Solve for every possible type you can encounter on a map with the cover buttons.
+5. Select only specific gyms that you would like to cover with the `G1`-`E4` buttons.
+6. Clear all selections at any time with the `CL` button.
+
+I find it interesting that only later generation maps have an exact cover for all possible types you will encounter in that generation. I am no expert on game design, but perhaps that communicates the variety and balance that Game Freak has achieved in their later games. However, looking at smaller subsets of gyms in the other maps can still be plenty of fun!
+
 ## Overview
 
 In October of 2022, Donald Knuth released *The Art of Computer Programming: Volume 4b: Combinatorial Algorithms, Part 2*. In this work he revised his previous implementation of his Algorithm X via Dancing Links. His revision included changing the quadruple linked nodes that solved backtracking problems to an array of nodes. This is an interesting optimization. It provides good locality, ease of debugging, and memory safety if you use an array that does not need to be managed like a C++ vector. One of the points Knuth makes clear through his section on Dancing Links is that he wants to give people the tools they need to expand and try his backtracking strategies on many problems. If you want the original Algorithm, please read Knuth's work. Below, I will discuss how I applied or modified his strategies to fit a fun puzzle I have often considered for the game of Pokémon.
@@ -386,21 +401,6 @@ PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
 We are now able to solve cover problems on a PokemonLinks object that is in a user-defined, altered state. The user can modify the structure as much as they would like and restore it to its original state with minimal internal maintenance of the object required. With the decent runtime guarantees we can offer with this data structure, the memory efficiency, lack of copies, and flexible state, I think there is a strong case to be made for a class implementation of Dancing Links.
 
 Treating the PokemonLinks as an alterable object with a prolonged lifetime was useful in the GUI program you can use in this repository. For each Pokémon map I load in, I only load two PokemonLinks objects, one for ATTACK and one for DEFENSE. As the user asks for solutions to only certain sets of gyms, we simply hide the items the user is not interested in and restore them after every query. I have not yet found a use case for hiding options but this project could continue to grow as I try out different techniques.
-
-### Pokémon Planning Usage Instructions
-
-I have created a small testing ground for the Pokémon Cover Problem. I adapted a graph drawing application written by Keith Schwarz and Stanford course staff to allow you to explore various Pokémon maps. The maps are divided by Pokémon Generation. For example, the Kanto map is based around the attack and defense types available in Generation I of Pokémon. I included maps for Generations 1-9. I am fairly confident that the type information is accurate for each generation. There may be some minor errors in what types were avaialable in the specific game map that I chose to represent a certain generation, but overall the division by generation is accurate.
-
-You can solve the maps entirely for exact and overlapping cover problems or you can select specific gyms. In Pokémon, you progress through the game by defeating 8 gym leaders and then a final group called the Elite 4 (along with one last champion of that league). You can select any combination of gyms to defend against or attack and the cover problem will be adapted to the types in those locations. Interesting results can arise as you plan out your type advantages!
-
-1. Open the project in Qt Creator with the correct Stanford C++ library installed. (See the [Build Note](#build-note)).
-2. Build and run the project.
-3. Select the `Pokémon Planning` option from the top menu.
-4. Solve for every possible type you can encounter on a map with the cover buttons.
-5. Select only specific gyms that you would like to cover with the `G1`-`E4` buttons.
-6. Clear all selections at any time with the `CL` button.
-
-I find it interesting that only later generation maps have an exact cover for all possible types you will encounter in that generation. I am no expert on game design, but perhaps that communicates the variety and balance that Game Freak has achieved in their later games. However, looking at smaller subsets of gyms in the other maps can still be plenty of fun!
 
 ## Citations
 
