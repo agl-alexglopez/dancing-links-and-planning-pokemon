@@ -139,22 +139,22 @@ class Pokemon_links;
  *
  * @return                 the set of Ranked Sets that form all solutions of exact cover.
  */
-std::set<Ranked_set<Type_encoding>> solve_exact_cover( Pokemon_links& dlx, int choice_limit );
+std::set<Ranked_set<Type_encoding>> solve_exact_cover( Pokemon_links& dlx, int8_t choice_limit );
 
 /**
  * @brief solve_overlapping_cover an overlapping coverage is when we cover every "item"
- *                              with our choices of "options." It is allowable for two
- *                              options cover the same item twice, the goal is to cover
- *                              the items with any allowable choices. The scoring scheme
- *                              for generated sets is the same as described in the
- *                              exact cover version of the problem. Currently, this
- *                              solution is slow because it generates duplicate
- *                              Ranked_set solutions. I filter out duplicates by using a
- *                              set. I have not yet found a way to prevent generating
- *                              duplicate solutions with the Dancing Links method.
- * @return                      the set of Ranked Sets that form all overlapping covers.
+ *                                with our choices of "options." It is allowable for two
+ *                                options cover the same item twice, the goal is to cover
+ *                                the items with any allowable choices. The scoring scheme
+ *                                for generated sets is the same as described in the
+ *                                exact cover version of the problem. Currently, this
+ *                                solution is slow because it generates duplicate
+ *                                Ranked_set solutions. I filter out duplicates by using a
+ *                                set. I have not yet found a way to prevent generating
+ *                                duplicate solutions with the Dancing Links method.
+ * @return                        the set of Ranked Sets that form all overlapping covers.
  */
-std::set<Ranked_set<Type_encoding>> solve_overlapping_cover( Pokemon_links& dlx, int choice_limit );
+std::set<Ranked_set<Type_encoding>> solve_overlapping_cover( Pokemon_links& dlx, int8_t choice_limit );
 
 /**
  * @brief has_max_solutions  exact and overlapping cover solutions are limited at a large number
@@ -250,8 +250,8 @@ bool hide_item( Pokemon_links& dlx, const std::vector<Type_encoding>& to_hide );
  * @return              true if all items were hidden false if at least one was not found.
  */
 bool hide_item( Pokemon_links& dlx,
-               const std::vector<Type_encoding>& to_hide,
-               std::vector<Type_encoding>& failed_to_hide );
+                const std::vector<Type_encoding>& to_hide,
+                std::vector<Type_encoding>& failed_to_hide );
 
 /**
  * @brief hide_items_except  hides all items NOT included in the specified set. In place, O(NlgK)
@@ -341,8 +341,8 @@ bool hide_option( Pokemon_links& dlx, const std::vector<Type_encoding>& to_hide 
  * @return              true if all options were hidden false if at least one failed.
  */
 bool hide_option( Pokemon_links& dlx,
-                 const std::vector<Type_encoding>& to_hide,
-                 std::vector<Type_encoding>& failed_to_hide );
+                  const std::vector<Type_encoding>& to_hide,
+                  std::vector<Type_encoding>& failed_to_hide );
 
 /**
  * @brief hide_options_except  hides all options NOT specified in the given set. In place O(NlgKI)

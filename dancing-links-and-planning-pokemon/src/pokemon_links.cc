@@ -102,8 +102,8 @@ bool hide_item( Pokemon_links& dlx, const std::vector<Type_encoding>& to_hide )
 }
 
 bool hide_item( Pokemon_links& dlx,
-               const std::vector<Type_encoding>& to_hide,
-               std::vector<Type_encoding>& failed_to_hide )
+                const std::vector<Type_encoding>& to_hide,
+                std::vector<Type_encoding>& failed_to_hide )
 {
   return dlx.hide_requested_item( to_hide, failed_to_hide );
 }
@@ -154,8 +154,8 @@ bool hide_option( Pokemon_links& dlx, const std::vector<Type_encoding>& to_hide 
 }
 
 bool hide_option( Pokemon_links& dlx,
-                 const std::vector<Type_encoding>& to_hide,
-                 std::vector<Type_encoding>& failed_to_hide )
+                  const std::vector<Type_encoding>& to_hide,
+                  std::vector<Type_encoding>& failed_to_hide )
 {
   return dlx.hide_requested_option( to_hide, failed_to_hide );
 }
@@ -212,8 +212,8 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::get_exact_coverages( int8_t c
 }
 
 void Pokemon_links::fill_exact_coverages( std::set<Ranked_set<Type_encoding>>& coverages, // NOLINT
-                                        Ranked_set<Type_encoding>& coverage,
-                                        int8_t depth_limit )
+                                          Ranked_set<Type_encoding>& coverage,
+                                          int8_t depth_limit )
 {
   if ( item_table_[0].right == 0 && depth_limit >= 0 ) {
     coverages.insert( coverage );
@@ -378,8 +378,8 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::get_overlapping_coverages( in
 }
 
 void Pokemon_links::fill_overlapping_coverages( std::set<Ranked_set<Type_encoding>>& coverages, // NOLINT
-                                              Ranked_set<Type_encoding>& coverage,
-                                              int8_t depth_tag )
+                                                Ranked_set<Type_encoding>& coverage,
+                                                int8_t depth_tag )
 {
   if ( item_table_[0].right == 0 && depth_tag >= 0 ) {
     coverages.insert( coverage );
@@ -547,7 +547,7 @@ bool Pokemon_links::hide_requested_item( const std::vector<Type_encoding>& to_hi
 }
 
 bool Pokemon_links::hide_requested_item( const std::vector<Type_encoding>& to_hide,
-                                       std::vector<Type_encoding>& failed_to_hide )
+                                         std::vector<Type_encoding>& failed_to_hide )
 {
   bool result = true;
   for ( const auto& t : to_hide ) {
@@ -637,7 +637,7 @@ bool Pokemon_links::hide_requested_option( const std::vector<Type_encoding>& to_
 }
 
 bool Pokemon_links::hide_requested_option( const std::vector<Type_encoding>& to_hide,
-                                         std::vector<Type_encoding>& failed_to_hide )
+                                           std::vector<Type_encoding>& failed_to_hide )
 {
   bool result = true;
   for ( const auto& h : to_hide ) {
@@ -859,8 +859,8 @@ void Pokemon_links::build_defense_links( const std::map<Type_encoding, std::set<
 }
 
 void Pokemon_links::initialize_columns( const std::map<Type_encoding, std::set<Resistance>>& type_interactions,
-                                       std::unordered_map<Type_encoding, uint64_t>& column_builder,
-                                       Coverage_type requested_coverage )
+                                        std::unordered_map<Type_encoding, uint64_t>& column_builder,
+                                        Coverage_type requested_coverage )
 {
   uint64_t previous_set_size = links_.size();
   uint64_t current_links_index = links_.size();
@@ -870,7 +870,8 @@ void Pokemon_links::initialize_columns( const std::map<Type_encoding, std::set<R
     const uint64_t type_title = current_links_index;
     int set_size = 0;
     // We will lookup our defense options in a seperate array with an O(1) index.
-    links_.push_back( { -type_lookup_index, current_links_index - previous_set_size, current_links_index, emp, 0 } );
+    links_.push_back(
+      { -type_lookup_index, current_links_index - previous_set_size, current_links_index, emp, 0 } );
     option_table_.push_back( { type.first, current_links_index } );
 
     for ( const Resistance& single_type : type.second ) {

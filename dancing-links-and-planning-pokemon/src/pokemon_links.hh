@@ -117,7 +117,8 @@ public:
 
   bool hide_requested_option( const std::vector<Type_encoding>& to_hide );
 
-  bool hide_requested_option( const std::vector<Type_encoding>& to_hide, std::vector<Type_encoding>& failed_to_hide );
+  bool hide_requested_option( const std::vector<Type_encoding>& to_hide,
+                              std::vector<Type_encoding>& failed_to_hide );
 
   void hide_all_options_except( const std::set<Type_encoding>& to_keep );
 
@@ -197,14 +198,14 @@ private:
    */
   std::vector<Encoding_index> option_table_ {}; // How we know the name of the option we chose.
   std::vector<Type_name> item_table_ {};        // How we know the names of our items.
-  std::vector<Poke_link> links_ {};            // The links that dance!
+  std::vector<Poke_link> links_ {};             // The links that dance!
   std::vector<uint64_t> hidden_items_ {};       // Treat as stack with user hidden Items.
   std::vector<uint64_t> hidden_options_ {};     // Treat as stack with user hidden Options.
   std::size_t max_output_ { 200'000 };          // Cutoff our solution generation for GUI usability.
   bool hit_limit_ { false };                    // How we report to a user that we cutoff more solutions
   uint64_t num_items_ { 0 };                    // What needs to be covered.
   uint64_t num_options_ { 0 };                  // Options we can choose from to cover items.
-  Coverage_type requested_cover_solution_ {};    // The user is asking for ATTACK or DEFENSE
+  Coverage_type requested_cover_solution_ {};   // The user is asking for ATTACK or DEFENSE
 
   static constexpr int8_t hidden_ = -1;
 
@@ -218,8 +219,8 @@ private:
    * @param depth_limit          size of a pokemon team or the number of attacks a team can have.
    */
   void fill_exact_coverages( std::set<Ranked_set<Type_encoding>>& coverages,
-                           Ranked_set<Type_encoding>& coverage,
-                           int8_t depth_limit );
+                             Ranked_set<Type_encoding>& coverage,
+                             int8_t depth_limit );
 
   /**
    * @brief fill_overlapping_coverages  fills the output parameter with every overlapping cover that
@@ -234,8 +235,8 @@ private:
    * @param depth_tag                  a tag used to signify the recursive depth. Used internally.
    */
   void fill_overlapping_coverages( std::set<Ranked_set<Type_encoding>>& coverages,
-                                 Ranked_set<Type_encoding>& coverage,
-                                 int8_t depth_tag );
+                                   Ranked_set<Type_encoding>& coverage,
+                                   int8_t depth_tag );
 
   /**
    * @brief choose_item  choose an item to cover that appears the least across all options. If an
@@ -372,8 +373,8 @@ private:
    * @param requested_coverage  requested coverage to know which multipliers to pay attention to.
    */
   void initialize_columns( const std::map<Type_encoding, std::set<Resistance>>& type_interactions,
-                          std::unordered_map<Type_encoding, uint64_t>& column_builder,
-                          Coverage_type requested_coverage );
+                           std::unordered_map<Type_encoding, uint64_t>& column_builder,
+                           Coverage_type requested_coverage );
 
   /* * * * * * * * * * *    Operators for Test Harness Functionality    * * * * * * * * * * * * */
 
