@@ -68,4 +68,4 @@ Multiplier multiplier( const Resistance& res );
 
 } // namespace Dancing_links
 
-#endif // TYPE_RESISTANCE_H
+#endif // TYPE_RESISTANCE_HH

@@ -37,7 +37,6 @@
 #include <chrono>
 #include <cstdint>
 #include <ctime>
-#include <functional>
 #include <random>
 #include <unordered_map>
 
@@ -248,9 +247,9 @@ TEST( InternalTests, TestEveryPossibleCombinationOfTypings )
    * would be alot but it only comes out to 171 unique combinations. Unique here means that
    * types order does not matter so Water-Bug is the same as Bug-Water and is only counted once.
    */
-  const uint32_t BUG = 0x20000;
-  uint32_t table_size = Dx::Type_encoding::type_encoding_table_.size();
-  for ( uint32_t bit1 = BUG, type1 = table_size - 1; bit1 != 0; bit1 >>= 1, type1-- ) {
+  const uint64_t BUG = 0x20000;
+  uint64_t table_size = Dx::Type_encoding::type_encoding_table_.size();
+  for ( uint64_t bit1 = BUG, type1 = table_size - 1; bit1 != 0; bit1 >>= 1, type1-- ) {
 
     std::string check_single_type( Dx::Type_encoding::type_encoding_table_.at( type1 ) );
     Dx::Type_encoding single_type_encoding( check_single_type );
@@ -258,7 +257,7 @@ TEST( InternalTests, TestEveryPossibleCombinationOfTypings )
     EXPECT_EQ( single_type_encoding.decode_type().first, check_single_type );
     EXPECT_EQ( single_type_encoding.decode_type().second, std::string_view {} );
 
-    for ( uint32_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2-- ) {
+    for ( uint64_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2-- ) {
 
       std::string check_dual_type
         = check_single_type + "-" + std::string( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
@@ -301,14 +300,14 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
   std::unordered_map<Dx::Type_encoding, std::string> decode_map;
 
   // Generate all possible unique type combinations and place them in the maps.
-  const uint32_t BUG = 0x20000;
-  const uint32_t table_size = Dx::Type_encoding::type_encoding_table_.size();
-  for ( uint32_t bit1 = BUG, type1 = table_size - 1; bit1 != 0; bit1 >>= 1, type1-- ) {
+  const uint64_t BUG = 0x20000;
+  const uint64_t table_size = Dx::Type_encoding::type_encoding_table_.size();
+  for ( uint64_t bit1 = BUG, type1 = table_size - 1; bit1 != 0; bit1 >>= 1, type1-- ) {
     std::string check_single_type( Dx::Type_encoding::type_encoding_table_.at( type1 ) );
     Dx::Type_encoding single_type_encoding( check_single_type );
     encode_map.insert( { check_single_type, single_type_encoding } );
     decode_map.insert( { single_type_encoding, check_single_type } );
-    for ( uint32_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2-- ) {
+    for ( uint64_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2-- ) {
       std::string check_dual_type
         = check_single_type + "-" + std::string( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
       Dx::Type_encoding dual_type_encoding( check_dual_type );

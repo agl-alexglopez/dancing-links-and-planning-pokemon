@@ -37,6 +37,8 @@
  */
 #include "type_encoding.hh"
 
+#include <bit>
+
 namespace Dancing_links {
 
 Type_encoding::Type_encoding( std::string_view type ) : encoding_( 0 )
@@ -44,8 +46,8 @@ Type_encoding::Type_encoding( std::string_view type ) : encoding_( 0 )
   if ( type.empty() ) {
     return;
   }
-  const size_t delim = type.find( '-' );
-  uint8_t found = binsearch_bit_index( type.substr( 0, delim ) );
+  const uint64_t delim = type.find( '-' );
+  uint64_t found = binsearch_bit_index( type.substr( 0, delim ) );
   if ( found == type_encoding_table_.size() ) {
     return;
   }
@@ -73,29 +75,19 @@ std::pair<std::string_view, std::string_view> Type_encoding::decode_type() const
     return {};
   }
   uint32_t shift_copy = encoding_;
-  uint8_t table_index = 0;
-  while ( !( shift_copy & 1U ) ) {
-    shift_copy >>= 1U;
-    table_index++;
-  }
-
+  int table_index = std::countr_zero( shift_copy );
   const std::string_view first_found = type_encoding_table_.at( table_index );
-  if ( shift_copy == 1 ) {
+  shift_copy &= ~( 1U << table_index );
+  if ( shift_copy == 0 ) {
     return { first_found, {} };
   }
-
-  do {
-    table_index++;
-    shift_copy >>= 1U;
-  } while ( !( shift_copy & 1U ) );
-
-  return { type_encoding_table_.at( table_index ), first_found };
+  return { type_encoding_table_.at( std::countr_zero( shift_copy ) ), first_found };
 }
 
-uint8_t Type_encoding::binsearch_bit_index( std::string_view type )
+uint64_t Type_encoding::binsearch_bit_index( std::string_view type )
 {
-  for ( uint8_t remain = type_encoding_table_.size(), base = 0; remain; remain >>= 1 ) {
-    const uint8_t index = base + ( remain >> 1 );
+  for ( uint64_t remain = type_encoding_table_.size(), base = 0; remain; remain >>= 1 ) {
+    const uint64_t index = base + ( remain >> 1 );
     const std::string_view found = type_encoding_table_.at( index );
     if ( found == type ) {
       return index;

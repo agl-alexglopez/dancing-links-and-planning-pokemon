@@ -35,7 +35,6 @@
 #include <climits>
 #include <cmath>
 #include <cstdint>
-#include <stdexcept>
 
 namespace Dancing_links {
 
@@ -251,7 +250,7 @@ Pokemon_links::Encoding_score Pokemon_links::cover_type( uint64_t index_in_optio
 {
   Encoding_score result = {};
   uint64_t i = index_in_option;
-  do {
+  do { // NOLINT
     const int top = links_[i].top_or_len;
     /* This is the next spacer node for the next option. We now know how to find the title of
      * our current option if we go back to the start of the chosen option and go left.
@@ -283,7 +282,7 @@ void Pokemon_links::uncover_type( uint64_t index_in_option )
 {
   // Go left first so the in place link restoration of the doubly linked lookup table works.
   uint64_t i = --index_in_option;
-  do {
+  do { // NOLINT
     const int top = links_[i].top_or_len;
     if ( top <= 0 ) {
       i = links_[i].down;
@@ -423,7 +422,7 @@ Pokemon_links::Encoding_score Pokemon_links::overlapping_cover_type( Pokemon_lin
 {
   uint64_t i = tag.index;
   Encoding_score result = {};
-  do {
+  do { // NOLINT
     const int top = links_[i].top_or_len;
     if ( top <= 0 ) {
       i = links_[i].up;
@@ -445,7 +444,7 @@ Pokemon_links::Encoding_score Pokemon_links::overlapping_cover_type( Pokemon_lin
 void Pokemon_links::overlapping_uncover_type( uint64_t index_in_option )
 {
   uint64_t i = --index_in_option;
-  do {
+  do { // NOLINT
     const int top = links_[i].top_or_len;
     if ( top < 0 ) {
       i = links_[i].down;
@@ -581,7 +580,7 @@ void Pokemon_links::pop_hid_item()
     unhide_item( hidden_items_.back() );
     hidden_items_.pop_back();
   } else {
-    std::cout << "No hidden items. Stack is empty." << std::endl;
+    std::cout << "No hidden items. Stack is empty.\n";
     throw;
   }
 }
@@ -591,7 +590,7 @@ Type_encoding Pokemon_links::peek_hid_item() const
   if ( !hidden_items_.empty() ) {
     return item_table_[hidden_items_.back()].name;
   }
-  std::cout << "No hidden items. Stack is empty." << std::endl;
+  std::cout << "No hidden items. Stack is empty.\n";
   throw;
 }
 
@@ -672,7 +671,7 @@ void Pokemon_links::pop_hid_option()
     unhide_option( hidden_options_.back() );
     hidden_options_.pop_back();
   } else {
-    std::cout << "No hidden items. Stack is empty." << std::endl;
+    std::cout << "No hidden items. Stack is empty.\n";
     throw;
   }
 }
@@ -797,7 +796,7 @@ Pokemon_links::Pokemon_links( const std::map<Type_encoding, std::set<Resistance>
   } else if ( requested_cover_solution == attack ) {
     build_attack_links( type_interactions );
   } else {
-    std::cerr << "Invalid requested cover solution. Choose ATTACK or DEFENSE." << std::endl;
+    std::cerr << "Invalid requested cover solution. Choose ATTACK or DEFENSE.\n";
     std::abort();
   }
 }

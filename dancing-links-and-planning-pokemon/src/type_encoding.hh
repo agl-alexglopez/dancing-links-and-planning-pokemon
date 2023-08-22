@@ -60,8 +60,8 @@
  * somewhere to do our initial encoding we will just provide a string_view of the table entries
  * that make up our types. We dont have to create any heap strings.
  */
-#ifndef TYPEENCODING_HH
-#define TYPEENCODING_HH
+#ifndef TYPE_ENCODING_HH
+#define TYPE_ENCODING_HH
 
 #include <gtest/gtest_prod.h>
 
@@ -92,7 +92,7 @@ public:
 
 private:
   uint32_t encoding_;
-  static uint8_t binsearch_bit_index( std::string_view type );
+  static uint64_t binsearch_bit_index( std::string_view type );
   // Any and all Type_encodings will have one global string_view of the type strings for decoding.
   static constexpr std::array<std::string_view, 18> type_encoding_table_ = {
     // lexicographicly organized table. 17th index is the first lexicographic order Bug.
@@ -141,4 +141,4 @@ struct hash<Dancing_links::Type_encoding>
 
 } // namespace std
 
-#endif // TYPEENCODING_HH
+#endif // TYPE_ENCODING_HH
