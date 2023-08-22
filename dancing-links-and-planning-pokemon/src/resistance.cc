@@ -26,108 +26,91 @@
 
 namespace Dancing_links {
 
-
 /* * * * * * * * * *      Free Functions for TypeResistance.h       * * * * * * * * * * * * * * * */
 
-
-Type_encoding type(const Resistance& res) {
-    return res.type();
+Type_encoding type( const Resistance& res )
+{
+  return res.type();
 }
 
-Multiplier multiplier(const Resistance& res) {
-    return res.multiplier();
+Multiplier multiplier( const Resistance& res )
+{
+  return res.multiplier();
 }
-
 
 /* * * * * * * * * * * * *     Resistance Helper Class      * * * * * * * * * * * * * * * * * * * */
 
+Resistance::Resistance( const Type_encoding& type, const Multiplier& multiplier )
+  : type_( type ), multiplier_( multiplier )
+{}
 
-Resistance::Resistance(const Type_encoding& type, const Multiplier& multiplier)
-    : type_(type),
-      multiplier_(multiplier) {
+Type_encoding Resistance::type() const
+{
+  return type_;
 }
 
-Resistance::Resistance(const Resistance& other)
-    : type_(other.type_),
-      multiplier_(other.multiplier_) {
+Multiplier Resistance::multiplier() const
+{
+  return multiplier_;
 }
 
-Resistance::Resistance(Resistance&& other) noexcept
-    : type_(other.type_),
-      multiplier_(other.multiplier_) {
+std::ostream& operator<<( std::ostream& out, const Resistance& res )
+{
+  out << res.type() << " x";
+  switch ( res.multiplier() ) {
+    case emp:
+      out << "NIL";
+      break;
+    case imm:
+      out << "0.0";
+      break;
+    case f14:
+      out << "0.25";
+      break;
+    case f12:
+      out << "0.5";
+      break;
+    case nrm:
+      out << "1.0";
+      break;
+    case dbl:
+      out << "2.0";
+      break;
+    case qdr:
+      out << "4.0";
+      break;
+  }
+  out << std::endl;
+  return out;
 }
 
-Type_encoding Resistance::type() const {
-    return type_;
-}
-
-Multiplier Resistance::multiplier() const {
-    return multiplier_;
-}
-
-Resistance& Resistance::operator=(const Resistance& rhs) {
-    if (this != &rhs) {
-        this->type_ = rhs.type_;
-        this->multiplier_ = rhs.multiplier_;
-    }
-    return *this;
-}
-
-std::ostream& operator<<(std::ostream& out, const Resistance& res) {
-    out << res.type() << " x";
-    switch(res.multiplier()) {
-        case emp:
-            out << "NIL";
-        break;
-        case imm:
-            out << "0.0";
-        break;
-        case f14:
-            out << "0.25";
-        break;
-        case f12:
-            out << "0.5";
-        break;
-        case nrm:
-            out << "1.0";
-        break;
-        case dbl:
-            out << "2.0";
-        break;
-        case qdr:
-            out << "4.0";
-        break;
-    }
-    out << std::endl;
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out, const Multiplier& mult) {
-    out << "Resistance::";
-    switch(mult) {
-        case emp:
-            out << "emp";
-        break;
-        case imm:
-            out << "imm";
-        break;
-        case f14:
-            out << "f14";
-        break;
-        case f12:
-            out << "f12";
-        break;
-        case nrm:
-            out << "nrm";
-        break;
-        case dbl:
-            out << "dbl";
-        break;
-        case qdr:
-            out << "qdr";
-        break;
-    }
-    return out;
+std::ostream& operator<<( std::ostream& out, const Multiplier& mult )
+{
+  out << "Resistance::";
+  switch ( mult ) {
+    case emp:
+      out << "emp";
+      break;
+    case imm:
+      out << "imm";
+      break;
+    case f14:
+      out << "f14";
+      break;
+    case f12:
+      out << "f12";
+      break;
+    case nrm:
+      out << "nrm";
+      break;
+    case dbl:
+      out << "dbl";
+      break;
+    case qdr:
+      out << "qdr";
+      break;
+  }
+  return out;
 }
 
 } // namespace Dancing_links

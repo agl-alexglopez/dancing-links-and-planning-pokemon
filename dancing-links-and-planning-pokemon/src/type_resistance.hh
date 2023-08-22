@@ -57,15 +57,14 @@ class Resistance;
  * @param res   the Resistance instance.
  * @return      the TypeEncoding, an efficient representation of a type. May be printed as a string.
  */
-Type_encoding type(const Resistance& res);
+Type_encoding type( const Resistance& res );
 
 /**
  * @brief multiplier  returns the multiplier for a Resistance object.
  * @param res         the instance of a Resistance.
  * @return            EMPTY_,IMMUNE(x0),FRAC14(x.25),FRAC12(x.5),NORMAL(x1),DOUBLE(x2) or QUADRU(x4)
  */
-Multiplier multiplier(const Resistance& res);
-
+Multiplier multiplier( const Resistance& res );
 
 } // namespace Dancing_links
 

@@ -48,111 +48,83 @@
 #include <utility>
 
 template<class Value_type>
-class Ranked_set {
+class Ranked_set
+{
 public:
+  Ranked_set() = default;
+  Ranked_set( int rank, const std::set<Value_type>& set ) : rank_( rank ), set_( set ) {}
 
-    Ranked_set() = default;
-    Ranked_set(int rank, const std::set<Value_type>& set)
-        : rank_(rank),
-          set_(set) {
-    }
+  Ranked_set( const Ranked_set& other ) = default;
+  Ranked_set( Ranked_set&& other ) noexcept = default;
+  Ranked_set& operator=( Ranked_set&& other ) noexcept = default;
+  Ranked_set& operator=( const Ranked_set& rhs ) = default;
+  ~Ranked_set() = default;
 
-    Ranked_set(const Ranked_set& other) = default;
-    Ranked_set(Ranked_set&& other) noexcept = default;
-    Ranked_set& operator=(Ranked_set&& other) noexcept = default;
-    Ranked_set& operator=(const Ranked_set& rhs) = default;
-    ~Ranked_set() = default;
+  std::size_t size() const { return set_.size(); }
 
-    std::size_t size() const {
-        return set_.size();
-    }
+  int rank() const { return rank_; }
 
-    int rank() const {
-        return rank_;
-    }
+  void insert( const Value_type& elem ) { set_.insert( elem ); }
 
-    void insert(const Value_type& elem) {
-        set_.insert(elem);
+  void insert( const int rank, const Value_type& elem )
+  {
+    if ( set_.insert( elem ).second ) {
+      rank_ += rank;
     }
+  }
 
-    void insert(const int rank, const Value_type& elem) {
-        if (set_.insert(elem).second) {
-            rank_ += rank;
-        }
-    }
+  void erase( const Value_type& elem ) { set_.erase( elem ); }
 
-    void erase(const Value_type& elem) {
-        set_.erase(elem);
+  void erase( const int rank, const Value_type& elem )
+  {
+    if ( set_.erase( elem ) ) {
+      rank_ -= rank;
     }
+  }
 
-    void erase(const int rank, const Value_type& elem) {
-        if (set_.erase(elem)) {
-            rank_ -= rank;
-        }
-    }
+  void add( const int rankChange ) { rank_ += rankChange; }
 
-    void add(const int rankChange) {
-        rank_ += rankChange;
-    }
+  void subtract( const int rankChange ) { rank_ -= rankChange; }
 
-    void subtract(const int rankChange) {
-        rank_ -= rankChange;
-    }
+  using container = typename std::set<Value_type>;
+  using iterator = typename container::iterator;
+  using const_iterator = typename container::const_iterator;
 
-    using container = typename std::set<Value_type>;
-    using iterator = typename container::iterator;
-    using const_iterator = typename container::const_iterator;
+  iterator begin() const { return set_.begin(); }
 
-    iterator begin() const {
-        return set_.begin();
-    }
+  const_iterator cbegin() const { return set_.cbegin(); }
 
-    const_iterator cbegin() const {
-        return set_.cbegin();
-    }
+  iterator end() const { return set_.end(); }
 
-    iterator end() const {
-        return set_.end();
-    }
+  const_iterator cend() const { return set_.cend(); }
 
-    const_iterator cend() const {
-        return set_.cend();
+  friend std::ostream& operator<<( std::ostream& out, const Ranked_set<Value_type>& rs )
+  {
+    out << "{" << rs.rank_ << ",{";
+    for ( const auto& s : rs.set_ ) {
+      out << "\"" << s << "\",";
     }
+    out << "}}" << std::endl;
+    return out;
+  }
 
-    friend std::ostream& operator<<(std::ostream& out, const Ranked_set<Value_type>& rs) {
-        out << "{" << rs.rank_ << ",{";
-        for (const auto& s : rs.set_) {
-            out << "\"" << s << "\",";
-        }
-        out << "}}" << std::endl;
-        return out;
-    }
-
-    bool operator< (const Ranked_set& rhs) const {
-        return rhs.rank_ == rank_ ? this->set_ < rhs.set_ : this->rank_ < rhs.rank_;
-    }
-    explicit operator bool() const {
-        return this->rank_ != 0 || this->cover_.size() != 0;
-    }
-    bool operator== (const Ranked_set<Value_type>& rhs) const {
-        return this->rank_ == rhs.rank_ && this->set_ == rhs.set_;
-    }
-    bool operator> (const Ranked_set<Value_type>& rhs) const {
-        return rhs < *this;
-    }
-    bool operator>= (const Ranked_set<Value_type>& rhs) const {
-        return !(*this < rhs);
-    }
-    bool operator<= (const Ranked_set<Value_type>& rhs) const {
-        return !(*this > rhs);
-    }
-    bool operator!= (const Ranked_set<Value_type>& rhs) const {
-        return !(*this == rhs);
-    }
+  bool operator<( const Ranked_set& rhs ) const
+  {
+    return rhs.rank_ == rank_ ? this->set_ < rhs.set_ : this->rank_ < rhs.rank_;
+  }
+  explicit operator bool() const { return this->rank_ != 0 || this->cover_.size() != 0; }
+  bool operator==( const Ranked_set<Value_type>& rhs ) const
+  {
+    return this->rank_ == rhs.rank_ && this->set_ == rhs.set_;
+  }
+  bool operator>( const Ranked_set<Value_type>& rhs ) const { return rhs < *this; }
+  bool operator>=( const Ranked_set<Value_type>& rhs ) const { return !( *this < rhs ); }
+  bool operator<=( const Ranked_set<Value_type>& rhs ) const { return !( *this > rhs ); }
+  bool operator!=( const Ranked_set<Value_type>& rhs ) const { return !( *this == rhs ); }
 
 private:
-    int rank_ {0};
-    std::set<Value_type> set_ {};
+  int rank_ { 0 };
+  std::set<Value_type> set_ {};
 };
 
 #endif // RANKED_SET_HH

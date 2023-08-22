@@ -1,8 +1,10 @@
 Checks:
-   '*,-altera-*,-llvmlibc-*,-google-build-using-namespace,-modernize-use-trailing-return-type,-readability-implicit-bool-conversion,-*-non-private-member-variables-in-classes,-modernize-use-nodiscard,-*-magic-numbers,-readability-identifier-length,-concurrency-mt-unsafe,-llvm-header-guard,-fuchsia-default-arguments-calls,-fuchsia-default-arguments-declarations,-fuchsia-overloaded-operator,-android-cloexec-accept'
+   '*,-altera-*,-llvmlibc-*,-google-build-using-namespace,-modernize-use-trailing-return-type,-readability-implicit-bool-conversion,-*-non-private-member-variables-in-classes,-modernize-use-nodiscard,-*-magic-numbers,-readability-identifier-length,-readability-identifier-naming,-concurrency-mt-unsafe,-llvm-header-guard,-fuchsia-default-arguments-calls,-fuchsia-default-arguments-declarations,-fuchsia-overloaded-operator,-android-cloexec-accept'
 
 WarningsAsErrors:
    '*'
 
 CheckOptions:
    hicpp-signed-bitwise.IgnorePositiveIntegerLiterals: 'true'
+   readability-identifier-naming.FunctionCase: 'lower_case'
+   readability-identifier-naming.VariableCase: 'lower_case'

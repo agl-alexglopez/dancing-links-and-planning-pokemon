@@ -62,6 +62,9 @@
  */
 #ifndef TYPEENCODING_HH
 #define TYPEENCODING_HH
+
+#include <gtest/gtest_prod.h>
+
 #include <array>
 #include <cstdint>
 #include <ostream>
@@ -70,59 +73,72 @@
 
 namespace Dancing_links {
 
-
-class Type_encoding {
+class Type_encoding
+{
 
 public:
+  Type_encoding() = default;
+  // If encoding cannot be found encoding_ is set the falsey value 0.
+  Type_encoding( std::string_view type ); // NOLINT
+  uint32_t encoding() const;
+  std::pair<std::string_view, std::string_view> decodeType() const;
 
-    Type_encoding() = default;
-    // If encoding cannot be found encoding_ is set the falsey value 0.
-    explicit Type_encoding(std::string_view type);
-    uint32_t encoding() const;
-    std::pair<std::string_view,std::string_view> decodeType() const;
-
-    bool operator==(Type_encoding rhs) const;
-    bool operator!=(Type_encoding rhs) const;
-    bool operator<(Type_encoding rhs) const;
-    bool operator>(Type_encoding rhs) const;
-    bool operator<=(Type_encoding rhs) const;
-    bool operator>=(Type_encoding rhs) const;
+  bool operator==( Type_encoding rhs ) const;
+  bool operator!=( Type_encoding rhs ) const;
+  bool operator<( Type_encoding rhs ) const;
+  bool operator>( Type_encoding rhs ) const;
+  bool operator<=( Type_encoding rhs ) const;
+  bool operator>=( Type_encoding rhs ) const;
 
 private:
+  uint32_t encoding_;
+  static uint8_t binsearchBitIndex( std::string_view type );
+  // Any and all Type_encodings will have one global string_view of the type strings for decoding.
+  static constexpr std::array<std::string_view, 18> type_encoding_table_ = {
+    // lexicographicly organized table. 17th index is the first lexicographic order Bug.
+    "Water",
+    "Steel",
+    "Rock",
+    "Psychic",
+    "Poison",
+    "Normal",
+    "Ice",
+    "Ground",
+    "Grass",
+    "Ghost",
+    "Flying",
+    "Fire",
+    "Fighting",
+    "Fairy",
+    "Electric",
+    "Dragon",
+    "Dark",
+    "Bug" };
 
-    uint32_t encoding_;
-    static uint8_t binsearchBitIndex(std::string_view type);
-    // Any and all Type_encodings will have one global string_view of the type strings for decoding.
-    static constexpr std::array<std::string_view,18> type_encoding_table_ = {
-        // lexicographicly organized table. 17th index is the first lexicographic order Bug.
-        "Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass",
-        "Ghost","Flying","Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
-    };
+  // I know, internal tests are bad but these were for my own curiosity. I will try to delete internal tests.
+  FRIEND_TEST( InternalTests, TestEveryPossibleCombinationOfTypings );
+  FRIEND_TEST( InternalTests, CompareMyEncodingDecodingSpeed );
 };
-
 
 /* * * * * * * * * *      Overloaded Operator for a String View       * * * * * * * * * * * * * * */
 
-
-std::ostream& operator<<(std::ostream& out, Type_encoding tp);
-
+std::ostream& operator<<( std::ostream& out, Type_encoding tp );
 
 } // namespace Dancing_links
 
-
 /* * * * * * * * * *          Type_encodings Should be Hashable          * * * * * * * * * * * * * */
-
 
 namespace std {
 
 template<>
-struct hash<Dancing_links::Type_encoding> {
-    size_t operator()(Dancing_links::Type_encoding type) const noexcept {
-        return std::hash<uint32_t>{}(type.encoding());
-    }
+struct hash<Dancing_links::Type_encoding>
+{
+  size_t operator()( Dancing_links::Type_encoding type ) const noexcept
+  {
+    return std::hash<uint32_t> {}( type.encoding() );
+  }
 };
 
 } // namespace std
-
 
 #endif // TYPEENCODING_HH
