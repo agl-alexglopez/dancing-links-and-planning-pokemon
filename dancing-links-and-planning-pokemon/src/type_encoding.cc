@@ -44,8 +44,8 @@ Type_encoding::Type_encoding( std::string_view type ) : encoding_( 0 )
   if ( type.empty() ) {
     return;
   }
-  size_t delim = type.find( '-' );
-  uint8_t found = binsearchBitIndex( type.substr( 0, delim ) );
+  const size_t delim = type.find( '-' );
+  uint8_t found = binsearch_bit_index( type.substr( 0, delim ) );
   if ( found == type_encoding_table_.size() ) {
     return;
   }
@@ -53,7 +53,7 @@ Type_encoding::Type_encoding( std::string_view type ) : encoding_( 0 )
   if ( delim == std::string::npos ) {
     return;
   }
-  found = binsearchBitIndex( type.substr( delim + 1 ) );
+  found = binsearch_bit_index( type.substr( delim + 1 ) );
   if ( found == type_encoding_table_.size() ) {
     encoding_ = 0;
     return;
@@ -67,36 +67,36 @@ Type_encoding::Type_encoding( std::string_view type ) : encoding_( 0 )
  *       |    |-------------------------------------1
  *      Bug-Water = 0x20001 = 0b10000 0000 0000 00001
  */
-std::pair<std::string_view, std::string_view> Type_encoding::decodeType() const
+std::pair<std::string_view, std::string_view> Type_encoding::decode_type() const
 {
   if ( !encoding_ ) {
     return {};
   }
-  uint32_t shiftCopy = encoding_;
-  uint8_t tableIndex = 0;
-  while ( !( shiftCopy & 1U ) ) {
-    shiftCopy >>= 1U;
-    tableIndex++;
+  uint32_t shift_copy = encoding_;
+  uint8_t table_index = 0;
+  while ( !( shift_copy & 1U ) ) {
+    shift_copy >>= 1U;
+    table_index++;
   }
 
-  std::string_view firstFound = type_encoding_table_.at( tableIndex );
-  if ( shiftCopy == 1 ) {
-    return { firstFound, {} };
+  const std::string_view first_found = type_encoding_table_.at( table_index );
+  if ( shift_copy == 1 ) {
+    return { first_found, {} };
   }
 
   do {
-    tableIndex++;
-    shiftCopy >>= 1U;
-  } while ( !( shiftCopy & 1U ) );
+    table_index++;
+    shift_copy >>= 1U;
+  } while ( !( shift_copy & 1U ) );
 
-  return { type_encoding_table_.at( tableIndex ), firstFound };
+  return { type_encoding_table_.at( table_index ), first_found };
 }
 
-uint8_t Type_encoding::binsearchBitIndex( std::string_view type )
+uint8_t Type_encoding::binsearch_bit_index( std::string_view type )
 {
   for ( uint8_t remain = type_encoding_table_.size(), base = 0; remain; remain >>= 1 ) {
-    uint8_t index = base + ( remain >> 1 );
-    std::string_view found = type_encoding_table_.at( index );
+    const uint8_t index = base + ( remain >> 1 );
+    const std::string_view found = type_encoding_table_.at( index );
     if ( found == type ) {
       return index;
     }
@@ -148,10 +148,10 @@ bool Type_encoding::operator>=( Type_encoding rhs ) const
 // This operator is useful for the GUI application. I can make heap string methods when needed.
 std::ostream& operator<<( std::ostream& out, Type_encoding tp )
 {
-  std::pair<std::string_view, std::string_view> toPrint = tp.decodeType();
-  out << toPrint.first;
-  if ( !toPrint.second.empty() ) {
-    out << '-' << toPrint.second;
+  const std::pair<std::string_view, std::string_view> to_print = tp.decode_type();
+  out << to_print.first;
+  if ( !to_print.second.empty() ) {
+    out << '-' << to_print.second;
   }
   return out;
 }

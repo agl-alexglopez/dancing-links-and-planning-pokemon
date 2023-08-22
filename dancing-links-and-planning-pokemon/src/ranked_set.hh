@@ -52,7 +52,7 @@ class Ranked_set
 {
 public:
   Ranked_set() = default;
-  Ranked_set( int rank, const std::set<Value_type>& set ) : rank_( rank ), set_( set ) {}
+  Ranked_set( int rank, std::set<Value_type> set ) : rank_( rank ), set_( std::move( set ) ) {}
 
   Ranked_set( const Ranked_set& other ) = default;
   Ranked_set( Ranked_set&& other ) noexcept = default;
@@ -82,9 +82,9 @@ public:
     }
   }
 
-  void add( const int rankChange ) { rank_ += rankChange; }
+  void add( const int rank_change ) { rank_ += rank_change; }
 
-  void subtract( const int rankChange ) { rank_ -= rankChange; }
+  void subtract( const int rank_change ) { rank_ -= rank_change; }
 
   using container = typename std::set<Value_type>;
   using iterator = typename container::iterator;

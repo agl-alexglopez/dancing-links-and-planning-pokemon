@@ -41,231 +41,231 @@ namespace Dancing_links {
 
 /* * * * * * * * * * * * *       Convenience Callers for Encapsulation      * * * * * * * * * * * */
 
-std::set<Ranked_set<Type_encoding>> solveExactCover( Pokemon_links& dlx, int8_t choiceLimit )
+std::set<Ranked_set<Type_encoding>> solve_exact_cover( Pokemon_links& dlx, int8_t choice_limit )
 {
-  return dlx.getExactCoverages( choiceLimit );
+  return dlx.get_exact_coverages( choice_limit );
 }
 
-std::set<Ranked_set<Type_encoding>> solveOverlappingCover( Pokemon_links& dlx, int8_t choiceLimit )
+std::set<Ranked_set<Type_encoding>> solve_overlapping_cover( Pokemon_links& dlx, int8_t choice_limit )
 {
-  return dlx.getOverlappingCoverages( choiceLimit );
+  return dlx.get_overlapping_coverages( choice_limit );
 }
 
-bool hasMaxSolutions( const Pokemon_links& dlx )
+bool has_max_solutions( const Pokemon_links& dlx )
 {
-  return dlx.reachedOutputLimit();
+  return dlx.reached_output_limit();
 }
 
-uint64_t numItems( const Pokemon_links& dlx )
+uint64_t num_items( const Pokemon_links& dlx )
 {
-  return dlx.getNumItems();
+  return dlx.get_num_items();
 }
 
-bool hasItem( const Pokemon_links& dlx, Type_encoding item )
+bool has_item( const Pokemon_links& dlx, Type_encoding item )
 {
-  return dlx.hasItem( item );
+  return dlx.has_item( item );
 }
 
-uint64_t numOptions( const Pokemon_links& dlx )
+uint64_t num_options( const Pokemon_links& dlx )
 {
-  return dlx.getNumOptions();
+  return dlx.get_num_options();
 }
 
-bool hasOption( const Pokemon_links& dlx, Type_encoding option )
+bool has_option( const Pokemon_links& dlx, Type_encoding option )
 {
-  return dlx.hasOption( option );
+  return dlx.has_option( option );
 }
 
-Pokemon_links::Coverage_type coverageType( const Pokemon_links& dlx )
+Pokemon_links::Coverage_type coverage_type( const Pokemon_links& dlx )
 {
-  return dlx.getLinksType();
+  return dlx.get_links_type();
 }
 
 std::vector<Type_encoding> items( const Pokemon_links& dlx )
 {
-  return dlx.getItems();
+  return dlx.get_items();
 }
 
 std::vector<Type_encoding> options( const Pokemon_links& dlx )
 {
-  return dlx.getOptions();
+  return dlx.get_options();
 }
 
-bool hideItem( Pokemon_links& dlx, Type_encoding toHide )
+bool hide_item( Pokemon_links& dlx, Type_encoding to_hide )
 {
-  return dlx.hideRequestedItem( toHide );
+  return dlx.hide_requested_item( to_hide );
 }
 
-bool hideItem( Pokemon_links& dlx, const std::vector<Type_encoding>& toHide )
+bool hide_item( Pokemon_links& dlx, const std::vector<Type_encoding>& to_hide )
 {
-  return dlx.hideRequestedItem( toHide );
+  return dlx.hide_requested_item( to_hide );
 }
 
-bool hideItem( Pokemon_links& dlx,
-               const std::vector<Type_encoding>& toHide,
-               std::vector<Type_encoding>& failedToHide )
+bool hide_item( Pokemon_links& dlx,
+               const std::vector<Type_encoding>& to_hide,
+               std::vector<Type_encoding>& failed_to_hide )
 {
-  return dlx.hideRequestedItem( toHide, failedToHide );
+  return dlx.hide_requested_item( to_hide, failed_to_hide );
 }
 
-void hideItemsExcept( Pokemon_links& dlx, const std::set<Type_encoding>& toKeep )
+void hide_items_except( Pokemon_links& dlx, const std::set<Type_encoding>& to_keep )
 {
-  dlx.hideAllItemsExcept( toKeep );
+  dlx.hide_all_items_except( to_keep );
 }
 
-uint64_t numHidItems( const Pokemon_links& dlx )
+uint64_t num_hid_items( const Pokemon_links& dlx )
 {
-  return dlx.getNumHidItems();
+  return dlx.get_num_hid_items();
 }
 
-Type_encoding peekHidItem( const Pokemon_links& dlx )
+Type_encoding peek_hid_item( const Pokemon_links& dlx )
 {
-  return dlx.peekHidItem();
+  return dlx.peek_hid_item();
 }
 
-void popHidItem( Pokemon_links& dlx )
+void pop_hid_item( Pokemon_links& dlx )
 {
-  dlx.popHidItem();
+  dlx.pop_hid_item();
 }
 
-bool hidItemsEmpty( const Pokemon_links& dlx )
+bool hid_items_empty( const Pokemon_links& dlx )
 {
-  return dlx.hidItemsEmpty();
+  return dlx.hid_items_empty();
 }
 
-std::vector<Type_encoding> hidItems( const Pokemon_links& dlx )
+std::vector<Type_encoding> hid_items( const Pokemon_links& dlx )
 {
-  return dlx.getHidItems();
+  return dlx.get_hid_items();
 }
 
-void resetItems( Pokemon_links& dlx )
+void reset_items( Pokemon_links& dlx )
 {
-  dlx.resetItems();
+  dlx.reset_items();
 }
 
-bool hideOption( Pokemon_links& dlx, Type_encoding toHide )
+bool hide_option( Pokemon_links& dlx, Type_encoding to_hide )
 {
-  return dlx.hideRequestedOption( toHide );
+  return dlx.hide_requested_option( to_hide );
 }
 
-bool hideOption( Pokemon_links& dlx, const std::vector<Type_encoding>& toHide )
+bool hide_option( Pokemon_links& dlx, const std::vector<Type_encoding>& to_hide )
 {
-  return dlx.hideRequestedOption( toHide );
+  return dlx.hide_requested_option( to_hide );
 }
 
-bool hideOption( Pokemon_links& dlx,
-                 const std::vector<Type_encoding>& toHide,
-                 std::vector<Type_encoding>& failedToHide )
+bool hide_option( Pokemon_links& dlx,
+                 const std::vector<Type_encoding>& to_hide,
+                 std::vector<Type_encoding>& failed_to_hide )
 {
-  return dlx.hideRequestedOption( toHide, failedToHide );
+  return dlx.hide_requested_option( to_hide, failed_to_hide );
 }
 
-void hideOptionsExcept( Pokemon_links& dlx, const std::set<Type_encoding>& toKeep )
+void hide_options_except( Pokemon_links& dlx, const std::set<Type_encoding>& to_keep )
 {
-  dlx.hideAllOptionsExcept( toKeep );
+  dlx.hide_all_options_except( to_keep );
 }
 
-uint64_t numHidOptions( const Pokemon_links& dlx )
+uint64_t num_hid_options( const Pokemon_links& dlx )
 {
-  return dlx.getNumHidOptions();
+  return dlx.get_num_hid_options();
 }
 
-Type_encoding peekHidOption( const Pokemon_links& dlx )
+Type_encoding peek_hid_option( const Pokemon_links& dlx )
 {
-  return dlx.peekHidOption();
+  return dlx.peek_hid_option();
 }
 
-void popHidOption( Pokemon_links& dlx )
+void pop_hid_option( Pokemon_links& dlx )
 {
-  dlx.popHidOption();
+  dlx.pop_hid_option();
 }
 
-bool hidOptionsEmpty( const Pokemon_links& dlx )
+bool hid_options_empty( const Pokemon_links& dlx )
 {
-  return dlx.hidOptionsEmpty();
+  return dlx.hid_options_empty();
 }
 
-std::vector<Type_encoding> hidOptions( const Pokemon_links& dlx )
+std::vector<Type_encoding> hid_options( const Pokemon_links& dlx )
 {
-  return dlx.getHidOptions();
+  return dlx.get_hid_options();
 }
 
-void resetOptions( Pokemon_links& dlx )
+void reset_options( Pokemon_links& dlx )
 {
-  dlx.resetOptions();
+  dlx.reset_options();
 }
 
-void resetAll( Pokemon_links& dlx )
+void reset_all( Pokemon_links& dlx )
 {
-  dlx.resetItemsOptions();
+  dlx.reset_items_options();
 }
 
 /* * * * * * * * * * * * * * * *    Algorithm X via Dancing Links   * * * * * * * * * * * * * * * */
 
-std::set<Ranked_set<Type_encoding>> Pokemon_links::getExactCoverages( int8_t choiceLimit )
+std::set<Ranked_set<Type_encoding>> Pokemon_links::get_exact_coverages( int8_t choice_limit )
 {
   std::set<Ranked_set<Type_encoding>> coverages = {};
   Ranked_set<Type_encoding> coverage {};
-  hitLimit_ = false;
-  fillExactCoverages( coverages, coverage, choiceLimit );
+  hit_limit_ = false;
+  fill_exact_coverages( coverages, coverage, choice_limit );
   return coverages;
 }
 
-void Pokemon_links::fillExactCoverages( std::set<Ranked_set<Type_encoding>>& coverages, // NOLINT
+void Pokemon_links::fill_exact_coverages( std::set<Ranked_set<Type_encoding>>& coverages, // NOLINT
                                         Ranked_set<Type_encoding>& coverage,
-                                        int8_t depthLimit )
+                                        int8_t depth_limit )
 {
-  if ( itemTable_[0].right == 0 && depthLimit >= 0 ) {
+  if ( item_table_[0].right == 0 && depth_limit >= 0 ) {
     coverages.insert( coverage );
     return;
   }
   // Depth limit is either the size of a Pokemon Team or the number of attack slots on a team.
-  if ( depthLimit <= 0 ) {
+  if ( depth_limit <= 0 ) {
     return;
   }
-  uint64_t itemToCover = chooseItem();
+  const uint64_t item_to_cover = choose_item();
   // An item has become inaccessible due to our chosen options so far, undo.
-  if ( !itemToCover ) {
+  if ( !item_to_cover ) {
     return;
   }
-  for ( uint64_t cur = links_[itemToCover].down; cur != itemToCover; cur = links_[cur].down ) {
-    Encoding_score score = coverType( cur );
+  for ( uint64_t cur = links_[item_to_cover].down; cur != item_to_cover; cur = links_[cur].down ) {
+    const Encoding_score score = cover_type( cur );
     coverage.insert( score.score, score.name );
 
-    fillExactCoverages( coverages, coverage, static_cast<int8_t>( depthLimit - 1 ) );
+    fill_exact_coverages( coverages, coverage, static_cast<int8_t>( depth_limit - 1 ) );
 
     /* It is possible for these algorithms to produce many many sets. To make the Pokemon
      * Planner GUI more usable I cut off recursion if we are generating too many sets.
      */
-    if ( coverages.size() == maxOutput_ ) {
-      hitLimit_ = true;
-      uncoverType( cur );
+    if ( coverages.size() == max_output_ ) {
+      hit_limit_ = true;
+      uncover_type( cur );
       return;
     }
     coverage.erase( score.score, score.name );
-    uncoverType( cur );
+    uncover_type( cur );
   }
 }
 
-Pokemon_links::Encoding_score Pokemon_links::coverType( uint64_t indexInOption )
+Pokemon_links::Encoding_score Pokemon_links::cover_type( uint64_t index_in_option )
 {
   Encoding_score result = {};
-  uint64_t i = indexInOption;
+  uint64_t i = index_in_option;
   do {
-    int top = links_[i].topOrLen;
+    const int top = links_[i].top_or_len;
     /* This is the next spacer node for the next option. We now know how to find the title of
      * our current option if we go back to the start of the chosen option and go left.
      */
     if ( top <= 0 ) {
       i = links_[i].up;
-      result.name = optionTable_[std::abs( links_[i - 1].topOrLen )].name;
+      result.name = option_table_[std::abs( links_[i - 1].top_or_len )].name;
       continue;
     }
     if ( !links_[top].tag ) {
-      Type_name cur = itemTable_[top];
-      itemTable_[cur.left].right = cur.right;
-      itemTable_[cur.right].left = cur.left;
-      hideOptions( i );
+      const Type_name cur = item_table_[top];
+      item_table_[cur.left].right = cur.right;
+      item_table_[cur.right].left = cur.left;
+      hide_options( i );
       /* If there is a better way to score the teams or attack schemes we build here would
        * be the place to change it. I just give points based on how good the resistance or
        * attack strength is. Immunity is better than quarter is better than half damage if
@@ -275,28 +275,28 @@ Pokemon_links::Encoding_score Pokemon_links::coverType( uint64_t indexInOption )
       result.score += links_[i].multiplier;
     }
     i++;
-  } while ( i != indexInOption );
+  } while ( i != index_in_option );
   return result;
 }
 
-void Pokemon_links::uncoverType( uint64_t indexInOption )
+void Pokemon_links::uncover_type( uint64_t index_in_option )
 {
   // Go left first so the in place link restoration of the doubly linked lookup table works.
-  uint64_t i = --indexInOption;
+  uint64_t i = --index_in_option;
   do {
-    int top = links_[i].topOrLen;
+    const int top = links_[i].top_or_len;
     if ( top <= 0 ) {
       i = links_[i].down;
       continue;
     }
     if ( !links_[top].tag ) {
-      Type_name cur = itemTable_[top];
-      itemTable_[cur.left].right = top;
-      itemTable_[cur.right].left = top;
-      unhideOptions( i );
+      const Type_name cur = item_table_[top];
+      item_table_[cur.left].right = top;
+      item_table_[cur.right].left = top;
+      unhide_options( i );
     }
     i--;
-  } while ( i != indexInOption );
+  } while ( i != index_in_option );
 }
 
 /* The hide/unhide technique is what makes exact cover so much more restrictive and fast at
@@ -305,43 +305,43 @@ void Pokemon_links::uncoverType( uint64_t indexInOption )
  * question but also shrinks the problem much more quickly.
  */
 
-void Pokemon_links::hideOptions( uint64_t indexInOption )
+void Pokemon_links::hide_options( uint64_t index_in_option )
 {
-  for ( uint64_t row = links_[indexInOption].down; row != indexInOption; row = links_[row].down ) {
-    if ( static_cast<int>( row ) == links_[indexInOption].topOrLen ) {
+  for ( uint64_t row = links_[index_in_option].down; row != index_in_option; row = links_[row].down ) {
+    if ( static_cast<int>( row ) == links_[index_in_option].top_or_len ) {
       continue;
     }
     for ( uint64_t col = row + 1; col != row; ) {
-      int top = links_[col].topOrLen;
+      const int top = links_[col].top_or_len;
       if ( top <= 0 ) {
         col = links_[col].up;
         continue;
       }
-      Poke_link cur = links_[col];
+      const Poke_link cur = links_[col];
       links_[cur.up].down = cur.down;
       links_[cur.down].up = cur.up;
-      links_[top].topOrLen--;
+      links_[top].top_or_len--;
       col++;
     }
   }
 }
 
-void Pokemon_links::unhideOptions( uint64_t indexInOption )
+void Pokemon_links::unhide_options( uint64_t index_in_option )
 {
-  for ( uint64_t row = links_[indexInOption].up; row != indexInOption; row = links_[row].up ) {
-    if ( static_cast<int>( row ) == links_[indexInOption].topOrLen ) {
+  for ( uint64_t row = links_[index_in_option].up; row != index_in_option; row = links_[row].up ) {
+    if ( static_cast<int>( row ) == links_[index_in_option].top_or_len ) {
       continue;
     }
     for ( uint64_t col = row - 1; col != row; ) {
-      int top = links_[col].topOrLen;
+      const int top = links_[col].top_or_len;
       if ( top <= 0 ) {
         col = links_[col].down;
         continue;
       }
-      Poke_link cur = links_[col];
+      const Poke_link cur = links_[col];
       links_[cur.up].down = col;
       links_[cur.down].up = col;
-      links_[top].topOrLen++;
+      links_[top].top_or_len++;
       col--;
     }
   }
@@ -349,67 +349,67 @@ void Pokemon_links::unhideOptions( uint64_t indexInOption )
 
 /* * * * * * * * * * * *  Shared Choosing Heuristic for Both Techniques * * * * * * * * * * * * * */
 
-uint64_t Pokemon_links::chooseItem() const
+uint64_t Pokemon_links::choose_item() const
 {
   int32_t min = INT32_MAX;
-  uint64_t chosenIndex = 0;
-  for ( uint64_t cur = itemTable_[0].right; cur != 0; cur = itemTable_[cur].right ) {
+  uint64_t chosen_index = 0;
+  for ( uint64_t cur = item_table_[0].right; cur != 0; cur = item_table_[cur].right ) {
     // No way to reach this item. Bad past choices or impossible to solve.
-    if ( links_[cur].topOrLen <= 0 ) {
+    if ( links_[cur].top_or_len <= 0 ) {
       return 0;
     }
-    if ( links_[cur].topOrLen < min ) {
-      chosenIndex = cur;
-      min = links_[cur].topOrLen;
+    if ( links_[cur].top_or_len < min ) {
+      chosen_index = cur;
+      min = links_[cur].top_or_len;
     }
   }
-  return chosenIndex;
+  return chosen_index;
 }
 
 /* * * * * * * * * * * *   Overlapping Coverage via Dancing Links   * * * * * * * * * * * * * * * */
 
-std::set<Ranked_set<Type_encoding>> Pokemon_links::getOverlappingCoverages( int8_t choiceLimit )
+std::set<Ranked_set<Type_encoding>> Pokemon_links::get_overlapping_coverages( int8_t choice_limit )
 {
   std::set<Ranked_set<Type_encoding>> coverages = {};
   Ranked_set<Type_encoding> coverage = {};
-  hitLimit_ = false;
-  fillOverlappingCoverages( coverages, coverage, choiceLimit );
+  hit_limit_ = false;
+  fill_overlapping_coverages( coverages, coverage, choice_limit );
   return coverages;
 }
 
-void Pokemon_links::fillOverlappingCoverages( std::set<Ranked_set<Type_encoding>>& coverages, // NOLINT
+void Pokemon_links::fill_overlapping_coverages( std::set<Ranked_set<Type_encoding>>& coverages, // NOLINT
                                               Ranked_set<Type_encoding>& coverage,
-                                              int8_t depthTag )
+                                              int8_t depth_tag )
 {
-  if ( itemTable_[0].right == 0 && depthTag >= 0 ) {
+  if ( item_table_[0].right == 0 && depth_tag >= 0 ) {
     coverages.insert( coverage );
     return;
   }
-  if ( depthTag <= 0 ) {
+  if ( depth_tag <= 0 ) {
     return;
   }
   // In certain generations certain types have no weaknesses so we might return 0 here.
-  uint64_t itemToCover = chooseItem();
-  if ( !itemToCover ) {
+  const uint64_t item_to_cover = choose_item();
+  if ( !item_to_cover ) {
     return;
   }
 
-  for ( uint64_t cur = links_[itemToCover].down; cur != itemToCover; cur = links_[cur].down ) {
-    Encoding_score score = overlappingCoverType( { cur, depthTag } );
+  for ( uint64_t cur = links_[item_to_cover].down; cur != item_to_cover; cur = links_[cur].down ) {
+    const Encoding_score score = overlapping_cover_type( { cur, depth_tag } );
     coverage.insert( score.score, score.name );
 
-    fillOverlappingCoverages( coverages, coverage, static_cast<int8_t>( depthTag - 1 ) );
+    fill_overlapping_coverages( coverages, coverage, static_cast<int8_t>( depth_tag - 1 ) );
 
     /* It is possible for these algorithms to produce many many sets. To make the Pokemon
      * Planner GUI more usable I cut off recursion if we are generating too many sets.
      */
-    if ( coverages.size() == maxOutput_ ) {
-      hitLimit_ = true;
-      overlappingUncoverType( cur );
+    if ( coverages.size() == max_output_ ) {
+      hit_limit_ = true;
+      overlapping_uncover_type( cur );
       return;
     }
     coverage.erase( score.score, score.name );
-    overlappingUncoverType( cur );
+    overlapping_uncover_type( cur );
   }
 }
 
@@ -419,21 +419,21 @@ void Pokemon_links::fillOverlappingCoverages( std::set<Ranked_set<Type_encoding>
  * other options.
  */
 
-Pokemon_links::Encoding_score Pokemon_links::overlappingCoverType( Pokemon_links::Cover_tag tag )
+Pokemon_links::Encoding_score Pokemon_links::overlapping_cover_type( Pokemon_links::Cover_tag tag )
 {
   uint64_t i = tag.index;
   Encoding_score result = {};
   do {
-    int top = links_[i].topOrLen;
+    const int top = links_[i].top_or_len;
     if ( top <= 0 ) {
       i = links_[i].up;
-      result.name = optionTable_[std::abs( links_[i - 1].topOrLen )].name;
+      result.name = option_table_[std::abs( links_[i - 1].top_or_len )].name;
       continue;
     }
     if ( !links_[top].tag ) {
       links_[top].tag = tag.tag;
-      itemTable_[itemTable_[top].left].right = itemTable_[top].right;
-      itemTable_[itemTable_[top].right].left = itemTable_[top].left;
+      item_table_[item_table_[top].left].right = item_table_[top].right;
+      item_table_[item_table_[top].right].left = item_table_[top].left;
       result.score += links_[i].multiplier;
     }
     links_[top].tag == hidden_ ? i++ : links_[i++].tag = tag.tag;
@@ -442,326 +442,326 @@ Pokemon_links::Encoding_score Pokemon_links::overlappingCoverType( Pokemon_links
   return result;
 }
 
-void Pokemon_links::overlappingUncoverType( uint64_t indexInOption )
+void Pokemon_links::overlapping_uncover_type( uint64_t index_in_option )
 {
-  uint64_t i = --indexInOption;
+  uint64_t i = --index_in_option;
   do {
-    int top = links_[i].topOrLen;
+    const int top = links_[i].top_or_len;
     if ( top < 0 ) {
       i = links_[i].down;
       continue;
     }
     if ( links_[top].tag == links_[i].tag ) {
       links_[top].tag = 0;
-      itemTable_[itemTable_[top].left].right = top;
-      itemTable_[itemTable_[top].right].left = top;
+      item_table_[item_table_[top].left].right = top;
+      item_table_[item_table_[top].right].left = top;
     }
     links_[top].tag == hidden_ ? i-- : links_[i--].tag = 0;
-  } while ( i != indexInOption );
+  } while ( i != index_in_option );
 }
 
 /* * * * * * * * * * * * * * * * *        Utility Functions             * * * * * * * * * * * * * */
 
-bool Pokemon_links::reachedOutputLimit() const
+bool Pokemon_links::reached_output_limit() const
 {
-  return hitLimit_;
+  return hit_limit_;
 }
 
-uint64_t Pokemon_links::getNumItems() const
+uint64_t Pokemon_links::get_num_items() const
 {
-  return numItems_;
+  return num_items_;
 }
 
-uint64_t Pokemon_links::getNumOptions() const
+uint64_t Pokemon_links::get_num_options() const
 {
-  return numOptions_;
+  return num_options_;
 }
 
-Pokemon_links::Coverage_type Pokemon_links::getLinksType() const
+Pokemon_links::Coverage_type Pokemon_links::get_links_type() const
 {
-  return requestedCoverSolution_;
+  return requested_cover_solution_;
 }
 
-std::vector<Type_encoding> Pokemon_links::getItems() const
+std::vector<Type_encoding> Pokemon_links::get_items() const
 {
   std::vector<Type_encoding> result = {};
-  for ( uint64_t i = itemTable_[0].right; i != 0; i = itemTable_[i].right ) {
-    result.push_back( itemTable_[i].name );
+  for ( uint64_t i = item_table_[0].right; i != 0; i = item_table_[i].right ) {
+    result.push_back( item_table_[i].name );
   }
   return result;
 }
 
-std::vector<Type_encoding> Pokemon_links::getHidItems() const
+std::vector<Type_encoding> Pokemon_links::get_hid_items() const
 {
   std::vector<Type_encoding> result = {};
-  result.reserve( hiddenItems_.size() );
-  for ( const auto& i : hiddenItems_ ) {
-    result.push_back( itemTable_[i].name );
+  result.reserve( hidden_items_.size() );
+  for ( const auto& i : hidden_items_ ) {
+    result.push_back( item_table_[i].name );
   }
   return result;
 }
 
-std::vector<Type_encoding> Pokemon_links::getOptions() const
+std::vector<Type_encoding> Pokemon_links::get_options() const
 {
   std::vector<Type_encoding> result = {};
   // Hop from row title to row title, skip hidden options. Skip bookend node that is placeholder.
-  for ( uint64_t i = itemTable_.size(); i < links_.size() - 1; i = links_[i].down + 1 ) {
+  for ( uint64_t i = item_table_.size(); i < links_.size() - 1; i = links_[i].down + 1 ) {
     if ( links_[i].tag != hidden_ ) {
-      result.push_back( optionTable_[i].name );
+      result.push_back( option_table_[i].name );
     }
   }
   return result;
 }
 
-std::vector<Type_encoding> Pokemon_links::getHidOptions() const
+std::vector<Type_encoding> Pokemon_links::get_hid_options() const
 {
   std::vector<Type_encoding> result = {};
-  result.reserve( hiddenOptions_.size() );
-  for ( const auto& i : hiddenOptions_ ) {
-    result.push_back( optionTable_[std::abs( links_[i].topOrLen )].name );
+  result.reserve( hidden_options_.size() );
+  for ( const auto& i : hidden_options_ ) {
+    result.push_back( option_table_[std::abs( links_[i].top_or_len )].name );
   }
   return result;
 }
 
-bool Pokemon_links::hideRequestedItem( Type_encoding toHide )
+bool Pokemon_links::hide_requested_item( Type_encoding to_hide )
 {
-  uint64_t lookupIndex = findItemIndex( toHide );
+  const uint64_t lookup_index = find_item_index( to_hide );
   // Can't find or this item has already been hidden.
-  if ( lookupIndex && links_[lookupIndex].tag != hidden_ ) {
-    hiddenItems_.push_back( lookupIndex );
-    hideItem( lookupIndex );
+  if ( lookup_index && links_[lookup_index].tag != hidden_ ) {
+    hidden_items_.push_back( lookup_index );
+    hide_item( lookup_index );
     return true;
   }
   return false;
 }
 
-bool Pokemon_links::hideRequestedItem( const std::vector<Type_encoding>& toHide )
+bool Pokemon_links::hide_requested_item( const std::vector<Type_encoding>& to_hide )
 {
   bool result = true;
-  for ( const auto& t : toHide ) {
-    if ( !hideRequestedItem( t ) ) {
+  for ( const auto& t : to_hide ) {
+    if ( !hide_requested_item( t ) ) {
       result = false;
     }
   }
   return result;
 }
 
-bool Pokemon_links::hideRequestedItem( const std::vector<Type_encoding>& toHide,
-                                       std::vector<Type_encoding>& failedToHide )
+bool Pokemon_links::hide_requested_item( const std::vector<Type_encoding>& to_hide,
+                                       std::vector<Type_encoding>& failed_to_hide )
 {
   bool result = true;
-  for ( const auto& t : toHide ) {
-    if ( !hideRequestedItem( t ) ) {
+  for ( const auto& t : to_hide ) {
+    if ( !hide_requested_item( t ) ) {
       result = false;
-      failedToHide.push_back( t );
+      failed_to_hide.push_back( t );
     }
   }
   return result;
 }
 
-void Pokemon_links::hideAllItemsExcept( const std::set<Type_encoding>& toKeep )
+void Pokemon_links::hide_all_items_except( const std::set<Type_encoding>& to_keep )
 {
-  for ( uint64_t i = itemTable_[0].right; i != 0; i = itemTable_[i].right ) {
-    if ( !toKeep.contains( itemTable_[i].name ) ) {
-      hiddenItems_.push_back( i );
-      hideItem( i );
+  for ( uint64_t i = item_table_[0].right; i != 0; i = item_table_[i].right ) {
+    if ( !to_keep.contains( item_table_[i].name ) ) {
+      hidden_items_.push_back( i );
+      hide_item( i );
     }
   }
 }
 
-bool Pokemon_links::hasItem( Type_encoding item ) const
+bool Pokemon_links::has_item( Type_encoding item ) const
 {
-  uint64_t found = findItemIndex( item );
+  const uint64_t found = find_item_index( item );
   return found && links_[found].tag != hidden_;
 }
 
-void Pokemon_links::popHidItem()
+void Pokemon_links::pop_hid_item()
 {
-  if ( !hiddenItems_.empty() ) {
-    unhideItem( hiddenItems_.back() );
-    hiddenItems_.pop_back();
+  if ( !hidden_items_.empty() ) {
+    unhide_item( hidden_items_.back() );
+    hidden_items_.pop_back();
   } else {
     std::cout << "No hidden items. Stack is empty." << std::endl;
     throw;
   }
 }
 
-Type_encoding Pokemon_links::peekHidItem() const
+Type_encoding Pokemon_links::peek_hid_item() const
 {
-  if ( !hiddenItems_.empty() ) {
-    return itemTable_[hiddenItems_.back()].name;
+  if ( !hidden_items_.empty() ) {
+    return item_table_[hidden_items_.back()].name;
   }
   std::cout << "No hidden items. Stack is empty." << std::endl;
   throw;
 }
 
-bool Pokemon_links::hidItemsEmpty() const
+bool Pokemon_links::hid_items_empty() const
 {
-  return hiddenItems_.empty();
+  return hidden_items_.empty();
 }
 
-uint64_t Pokemon_links::getNumHidItems() const
+uint64_t Pokemon_links::get_num_hid_items() const
 {
-  return hiddenItems_.size();
+  return hidden_items_.size();
 }
 
-void Pokemon_links::resetItems()
+void Pokemon_links::reset_items()
 {
-  while ( !hiddenItems_.empty() ) {
-    unhideItem( hiddenItems_.back() );
-    hiddenItems_.pop_back();
+  while ( !hidden_items_.empty() ) {
+    unhide_item( hidden_items_.back() );
+    hidden_items_.pop_back();
   }
 }
 
-bool Pokemon_links::hideRequestedOption( Type_encoding toHide )
+bool Pokemon_links::hide_requested_option( Type_encoding to_hide )
 {
-  uint64_t lookupIndex = findOptionIndex( toHide );
+  const uint64_t lookup_index = find_option_index( to_hide );
   // Couldn't find or this option has already been hidden.
-  if ( lookupIndex && links_[lookupIndex].tag != hidden_ ) {
-    hiddenOptions_.push_back( lookupIndex );
-    hideOption( lookupIndex );
+  if ( lookup_index && links_[lookup_index].tag != hidden_ ) {
+    hidden_options_.push_back( lookup_index );
+    hide_option( lookup_index );
     return true;
   }
   return false;
 }
 
-bool Pokemon_links::hideRequestedOption( const std::vector<Type_encoding>& toHide )
+bool Pokemon_links::hide_requested_option( const std::vector<Type_encoding>& to_hide )
 {
   bool result = true;
-  for ( const auto& h : toHide ) {
-    if ( !hideRequestedOption( h ) ) {
+  for ( const auto& h : to_hide ) {
+    if ( !hide_requested_option( h ) ) {
       result = false;
     }
   }
   return result;
 }
 
-bool Pokemon_links::hideRequestedOption( const std::vector<Type_encoding>& toHide,
-                                         std::vector<Type_encoding>& failedToHide )
+bool Pokemon_links::hide_requested_option( const std::vector<Type_encoding>& to_hide,
+                                         std::vector<Type_encoding>& failed_to_hide )
 {
   bool result = true;
-  for ( const auto& h : toHide ) {
-    if ( !hideRequestedOption( h ) ) {
-      failedToHide.push_back( h );
+  for ( const auto& h : to_hide ) {
+    if ( !hide_requested_option( h ) ) {
+      failed_to_hide.push_back( h );
       result = false;
     }
   }
   return result;
 }
 
-void Pokemon_links::hideAllOptionsExcept( const std::set<Type_encoding>& toKeep )
+void Pokemon_links::hide_all_options_except( const std::set<Type_encoding>& to_keep )
 {
   // We start i at the index of the first option spacer. This is after the column headers.
-  for ( uint64_t i = itemTable_.size(); i < links_.size() - 1; i = links_[i].down + 1 ) {
-    if ( links_[i].tag != hidden_ && !toKeep.contains( optionTable_[std::abs( links_[i].topOrLen )].name ) ) {
-      hiddenOptions_.push_back( i );
-      hideOption( i );
+  for ( uint64_t i = item_table_.size(); i < links_.size() - 1; i = links_[i].down + 1 ) {
+    if ( links_[i].tag != hidden_ && !to_keep.contains( option_table_[std::abs( links_[i].top_or_len )].name ) ) {
+      hidden_options_.push_back( i );
+      hide_option( i );
     }
   }
 }
 
-bool Pokemon_links::hasOption( Type_encoding option ) const
+bool Pokemon_links::has_option( Type_encoding option ) const
 {
-  uint64_t found = findOptionIndex( option );
+  const uint64_t found = find_option_index( option );
   return found && links_[found].tag != hidden_;
 }
 
-void Pokemon_links::popHidOption()
+void Pokemon_links::pop_hid_option()
 {
-  if ( !hiddenOptions_.empty() ) {
-    unhideOption( hiddenOptions_.back() );
-    hiddenOptions_.pop_back();
+  if ( !hidden_options_.empty() ) {
+    unhide_option( hidden_options_.back() );
+    hidden_options_.pop_back();
   } else {
     std::cout << "No hidden items. Stack is empty." << std::endl;
     throw;
   }
 }
 
-Type_encoding Pokemon_links::peekHidOption() const
+Type_encoding Pokemon_links::peek_hid_option() const
 {
-  if ( !hiddenOptions_.empty() ) {
+  if ( !hidden_options_.empty() ) {
     // Row spacer tiles in the links hold their name as a negative index in the optionTable_
-    return optionTable_[std::abs( links_[hiddenOptions_.back()].topOrLen )].name;
+    return option_table_[std::abs( links_[hidden_options_.back()].top_or_len )].name;
   }
   return Type_encoding { "" };
 }
 
-bool Pokemon_links::hidOptionsEmpty() const
+bool Pokemon_links::hid_options_empty() const
 {
-  return hiddenOptions_.empty();
+  return hidden_options_.empty();
 }
 
-uint64_t Pokemon_links::getNumHidOptions() const
+uint64_t Pokemon_links::get_num_hid_options() const
 {
-  return hiddenOptions_.size();
+  return hidden_options_.size();
 }
 
-void Pokemon_links::resetOptions()
+void Pokemon_links::reset_options()
 {
-  while ( !hiddenOptions_.empty() ) {
-    unhideOption( hiddenOptions_.back() );
-    hiddenOptions_.pop_back();
+  while ( !hidden_options_.empty() ) {
+    unhide_option( hidden_options_.back() );
+    hidden_options_.pop_back();
   }
 }
 
-void Pokemon_links::resetItemsOptions()
+void Pokemon_links::reset_items_options()
 {
-  resetItems();
-  resetOptions();
+  reset_items();
+  reset_options();
 }
 
-void Pokemon_links::hideItem( uint64_t headerIndex )
+void Pokemon_links::hide_item( uint64_t header_index )
 {
-  Type_name curItem = itemTable_[headerIndex];
-  itemTable_[curItem.left].right = curItem.right;
-  itemTable_[curItem.right].left = curItem.left;
-  links_[headerIndex].tag = hidden_;
-  numItems_--;
+  const Type_name cur_item = item_table_[header_index];
+  item_table_[cur_item.left].right = cur_item.right;
+  item_table_[cur_item.right].left = cur_item.left;
+  links_[header_index].tag = hidden_;
+  num_items_--;
 }
 
-void Pokemon_links::unhideItem( uint64_t headerIndex )
+void Pokemon_links::unhide_item( uint64_t header_index )
 {
-  Type_name curItem = itemTable_[headerIndex];
-  itemTable_[curItem.left].right = headerIndex;
-  itemTable_[curItem.right].left = headerIndex;
-  links_[headerIndex].tag = 0;
-  numItems_++;
+  const Type_name cur_item = item_table_[header_index];
+  item_table_[cur_item.left].right = header_index;
+  item_table_[cur_item.right].left = header_index;
+  links_[header_index].tag = 0;
+  num_items_++;
 }
 
-void Pokemon_links::hideOption( uint64_t rowIndex )
+void Pokemon_links::hide_option( uint64_t row_index )
 {
-  links_[rowIndex].tag = hidden_;
-  for ( uint64_t i = rowIndex + 1; links_[i].topOrLen > 0; i++ ) {
-    Poke_link cur = links_[i];
+  links_[row_index].tag = hidden_;
+  for ( uint64_t i = row_index + 1; links_[i].top_or_len > 0; i++ ) {
+    const Poke_link cur = links_[i];
     links_[cur.up].down = cur.down;
     links_[cur.down].up = cur.up;
-    links_[cur.topOrLen].topOrLen--;
+    links_[cur.top_or_len].top_or_len--;
   }
-  numOptions_--;
+  num_options_--;
 }
 
-void Pokemon_links::unhideOption( uint64_t rowIndex )
+void Pokemon_links::unhide_option( uint64_t row_index )
 {
-  links_[rowIndex].tag = 0;
-  for ( uint64_t i = rowIndex + 1; links_[i].topOrLen > 0; i++ ) {
-    Poke_link cur = links_[i];
+  links_[row_index].tag = 0;
+  for ( uint64_t i = row_index + 1; links_[i].top_or_len > 0; i++ ) {
+    const Poke_link cur = links_[i];
     links_[cur.up].down = i;
     links_[cur.down].up = i;
-    links_[cur.topOrLen].topOrLen++;
+    links_[cur.top_or_len].top_or_len++;
   }
-  numOptions_++;
+  num_options_++;
 }
 
-uint64_t Pokemon_links::findItemIndex( Type_encoding item ) const
+uint64_t Pokemon_links::find_item_index( Type_encoding item ) const
 {
-  for ( uint64_t nremain = itemTable_.size(), base = 0; nremain != 0; nremain >>= 1 ) {
-    uint64_t curIndex = base + ( nremain >> 1 );
-    if ( itemTable_[curIndex].name == item ) {
+  for ( uint64_t nremain = item_table_.size(), base = 0; nremain != 0; nremain >>= 1 ) {
+    const uint64_t cur_index = base + ( nremain >> 1 );
+    if ( item_table_[cur_index].name == item ) {
       // This is the index where we can find the header for this items column.
-      return curIndex;
+      return cur_index;
     }
-    if ( item > itemTable_[curIndex].name ) {
-      base = curIndex + 1;
+    if ( item > item_table_[cur_index].name ) {
+      base = cur_index + 1;
       nremain--;
     }
   }
@@ -769,16 +769,16 @@ uint64_t Pokemon_links::findItemIndex( Type_encoding item ) const
   return 0;
 }
 
-uint64_t Pokemon_links::findOptionIndex( Type_encoding option ) const
+uint64_t Pokemon_links::find_option_index( Type_encoding option ) const
 {
-  for ( uint64_t nremain = optionTable_.size(), base = 0; nremain != 0; nremain >>= 1 ) {
-    uint64_t curIndex = base + ( nremain >> 1 );
-    if ( optionTable_[curIndex].name == option ) {
+  for ( uint64_t nremain = option_table_.size(), base = 0; nremain != 0; nremain >>= 1 ) {
+    const uint64_t cur_index = base + ( nremain >> 1 );
+    if ( option_table_[cur_index].name == option ) {
       // This is the index corresponding to the spacer node for an option in the links.
-      return optionTable_[curIndex].index;
+      return option_table_[cur_index].index;
     }
-    if ( option > optionTable_[curIndex].name ) {
-      base = curIndex + 1;
+    if ( option > option_table_[cur_index].name ) {
+      base = cur_index + 1;
       nremain--;
     }
   }
@@ -788,26 +788,26 @@ uint64_t Pokemon_links::findOptionIndex( Type_encoding option ) const
 
 /* * * * * * * * * * * * * * * * *   Constructors and Links Build       * * * * * * * * * * * * * */
 
-Pokemon_links::Pokemon_links( const std::map<Type_encoding, std::set<Resistance>>& typeInteractions,
-                              const Coverage_type requestedCoverSolution )
-  : requestedCoverSolution_( requestedCoverSolution )
+Pokemon_links::Pokemon_links( const std::map<Type_encoding, std::set<Resistance>>& type_interactions,
+                              const Coverage_type requested_cover_solution )
+  : requested_cover_solution_( requested_cover_solution )
 {
-  if ( requestedCoverSolution == defense ) {
-    buildDefenseLinks( typeInteractions );
-  } else if ( requestedCoverSolution == attack ) {
-    buildAttackLinks( typeInteractions );
+  if ( requested_cover_solution == defense ) {
+    build_defense_links( type_interactions );
+  } else if ( requested_cover_solution == attack ) {
+    build_attack_links( type_interactions );
   } else {
     std::cerr << "Invalid requested cover solution. Choose ATTACK or DEFENSE." << std::endl;
     std::abort();
   }
 }
 
-Pokemon_links::Pokemon_links( const std::map<Type_encoding, std::set<Resistance>>& typeInteractions,
-                              const std::set<Type_encoding>& attackTypes )
-  : requestedCoverSolution_( defense )
+Pokemon_links::Pokemon_links( const std::map<Type_encoding, std::set<Resistance>>& type_interactions,
+                              const std::set<Type_encoding>& attack_types )
+  : requested_cover_solution_( defense )
 {
-  if ( attackTypes.empty() ) {
-    buildDefenseLinks( typeInteractions );
+  if ( attack_types.empty() ) {
+    build_defense_links( type_interactions );
   } else {
 
     /* If we want altered attack types to defend against, it is more efficient and explicit
@@ -815,65 +815,65 @@ Pokemon_links::Pokemon_links( const std::map<Type_encoding, std::set<Resistance>
      * smaller copy.
      */
 
-    std::map<Type_encoding, std::set<Resistance>> modifiedInteractions = {};
-    for ( const auto& type : typeInteractions ) {
-      modifiedInteractions[type.first] = {};
+    std::map<Type_encoding, std::set<Resistance>> modified_interactions = {};
+    for ( const auto& type : type_interactions ) {
+      modified_interactions[type.first] = {};
       for ( const Resistance& t : type.second ) {
-        if ( attackTypes.contains( t.type() ) ) {
-          modifiedInteractions[type.first].insert( t );
+        if ( attack_types.contains( t.type() ) ) {
+          modified_interactions[type.first].insert( t );
         }
       }
     }
-    buildDefenseLinks( modifiedInteractions );
+    build_defense_links( modified_interactions );
   }
 }
 
-void Pokemon_links::buildDefenseLinks( const std::map<Type_encoding, std::set<Resistance>>& typeInteractions )
+void Pokemon_links::build_defense_links( const std::map<Type_encoding, std::set<Resistance>>& type_interactions )
 {
   // We always must gather all attack types available in this query
-  std::set<Type_encoding> generationTypes = {};
-  for ( const Resistance& res : typeInteractions.begin()->second ) {
-    generationTypes.insert( res.type() );
+  std::set<Type_encoding> generation_types = {};
+  for ( const Resistance& res : type_interactions.begin()->second ) {
+    generation_types.insert( res.type() );
   }
 
-  std::unordered_map<Type_encoding, uint64_t> columnBuilder = {};
-  optionTable_.push_back( { Type_encoding( "" ), 0 } );
-  itemTable_.push_back( { Type_encoding( "" ), 0, 1 } );
+  std::unordered_map<Type_encoding, uint64_t> column_builder = {};
+  option_table_.push_back( { Type_encoding( "" ), 0 } );
+  item_table_.push_back( { Type_encoding( "" ), 0, 1 } );
   links_.push_back( { 0, 0, 0, emp, 0 } );
   uint64_t index = 1;
-  for ( const Type_encoding& type : generationTypes ) {
+  for ( const Type_encoding& type : generation_types ) {
 
-    columnBuilder[type] = index;
+    column_builder[type] = index;
 
-    itemTable_.push_back( { type, index - 1, index + 1 } );
-    itemTable_[0].left++;
+    item_table_.push_back( { type, index - 1, index + 1 } );
+    item_table_[0].left++;
 
     links_.push_back( { 0, index, index, emp, 0 } );
 
-    numItems_++;
+    num_items_++;
     index++;
   }
-  itemTable_[itemTable_.size() - 1].right = 0;
+  item_table_[item_table_.size() - 1].right = 0;
 
-  initializeColumns( typeInteractions, columnBuilder, requestedCoverSolution_ );
+  initialize_columns( type_interactions, column_builder, requested_cover_solution_ );
 }
 
-void Pokemon_links::initializeColumns( const std::map<Type_encoding, std::set<Resistance>>& typeInteractions,
-                                       std::unordered_map<Type_encoding, uint64_t>& columnBuilder,
-                                       Coverage_type requestedCoverage )
+void Pokemon_links::initialize_columns( const std::map<Type_encoding, std::set<Resistance>>& type_interactions,
+                                       std::unordered_map<Type_encoding, uint64_t>& column_builder,
+                                       Coverage_type requested_coverage )
 {
-  uint64_t previousSetSize = links_.size();
-  uint64_t currentLinksIndex = links_.size();
-  int32_t typeLookupIndex = 1;
-  for ( const auto& type : typeInteractions ) {
+  uint64_t previous_set_size = links_.size();
+  uint64_t current_links_index = links_.size();
+  int32_t type_lookup_index = 1;
+  for ( const auto& type : type_interactions ) {
 
-    uint64_t typeTitle = currentLinksIndex;
-    int setSize = 0;
+    const uint64_t type_title = current_links_index;
+    int set_size = 0;
     // We will lookup our defense options in a seperate array with an O(1) index.
-    links_.push_back( { -typeLookupIndex, currentLinksIndex - previousSetSize, currentLinksIndex, emp, 0 } );
-    optionTable_.push_back( { type.first, currentLinksIndex } );
+    links_.push_back( { -type_lookup_index, current_links_index - previous_set_size, current_links_index, emp, 0 } );
+    option_table_.push_back( { type.first, current_links_index } );
 
-    for ( const Resistance& singleType : type.second ) {
+    for ( const Resistance& single_type : type.second ) {
 
       /* Important consideration for this algorithm. I am only interested in damage
        * resistances better than normal. So "covered" for a pokemon team means you found at
@@ -884,44 +884,44 @@ void Pokemon_links::initializeColumns( const std::map<Type_encoding, std::set<Re
        * Normal, meaining x2 or x4.
        */
 
-      if ( ( requestedCoverage == defense ? singleType.multiplier() < nrm : nrm < singleType.multiplier() ) ) {
-        currentLinksIndex++;
-        links_[typeTitle].down++;
-        setSize++;
+      if ( ( requested_coverage == defense ? single_type.multiplier() < nrm : nrm < single_type.multiplier() ) ) {
+        current_links_index++;
+        links_[type_title].down++;
+        set_size++;
 
-        Type_encoding sType = singleType.type();
-        links_[links_[columnBuilder[sType]].down].topOrLen++;
+        const Type_encoding s_type = single_type.type();
+        links_[links_[column_builder[s_type]].down].top_or_len++;
 
         // A single item in a circular doubly linked list points to itself.
-        links_.push_back( { static_cast<int>( links_[columnBuilder[sType]].down ),
-                            currentLinksIndex,
-                            currentLinksIndex,
-                            singleType.multiplier(),
+        links_.push_back( { static_cast<int>( links_[column_builder[s_type]].down ),
+                            current_links_index,
+                            current_links_index,
+                            single_type.multiplier(),
                             0 } );
 
         // This is the adjustment to the column header's up field for a given item.
-        links_[links_[columnBuilder[sType]].down].up = currentLinksIndex;
+        links_[links_[column_builder[s_type]].down].up = current_links_index;
         // The current node is the new tail in a vertical circular linked list for an item.
-        links_[currentLinksIndex].up = columnBuilder[sType];
-        links_[currentLinksIndex].down = links_[columnBuilder[sType]].down;
+        links_[current_links_index].up = column_builder[s_type];
+        links_[current_links_index].down = links_[column_builder[s_type]].down;
         // Update the old tail to reflect the new addition of an item in its option.
-        links_[columnBuilder[sType]].down = currentLinksIndex;
+        links_[column_builder[s_type]].down = current_links_index;
         // Similar to a previous/current coding pattern but in an above/below column.
-        columnBuilder[sType] = currentLinksIndex;
+        column_builder[s_type] = current_links_index;
       }
     }
-    typeLookupIndex++;
-    currentLinksIndex++;
-    numOptions_++;
-    previousSetSize = setSize;
+    type_lookup_index++;
+    current_links_index++;
+    num_options_++;
+    previous_set_size = set_size;
   }
-  links_.push_back( { INT_MIN, currentLinksIndex - previousSetSize, UINT64_MAX, emp, 0 } );
+  links_.push_back( { INT_MIN, current_links_index - previous_set_size, UINT64_MAX, emp, 0 } );
 }
 
-void Pokemon_links::buildAttackLinks( const std::map<Type_encoding, std::set<Resistance>>& typeInteractions )
+void Pokemon_links::build_attack_links( const std::map<Type_encoding, std::set<Resistance>>& type_interactions )
 {
-  optionTable_.push_back( { Type_encoding( "" ), 0 } );
-  itemTable_.push_back( { Type_encoding( "" ), 0, 1 } );
+  option_table_.push_back( { Type_encoding( "" ), 0 } );
+  item_table_.push_back( { Type_encoding( "" ), 0, 1 } );
   links_.push_back( { 0, 0, 0, emp, 0 } );
   uint64_t index = 1;
 
@@ -929,21 +929,21 @@ void Pokemon_links::buildAttackLinks( const std::map<Type_encoding, std::set<Res
    * as the set of Resistances. Once this is built just use the same builder function for cols.
    */
 
-  std::map<Type_encoding, std::set<Resistance>> invertedMap = {};
-  std::unordered_map<Type_encoding, uint64_t> columnBuilder = {};
-  for ( const auto& interaction : typeInteractions ) {
-    columnBuilder[interaction.first] = index;
-    itemTable_.push_back( { interaction.first, index - 1, index + 1 } );
-    itemTable_[0].left++;
+  std::map<Type_encoding, std::set<Resistance>> inverted_map = {};
+  std::unordered_map<Type_encoding, uint64_t> column_builder = {};
+  for ( const auto& interaction : type_interactions ) {
+    column_builder[interaction.first] = index;
+    item_table_.push_back( { interaction.first, index - 1, index + 1 } );
+    item_table_[0].left++;
     links_.push_back( { 0, index, index, emp, 0 } );
-    numItems_++;
+    num_items_++;
     index++;
     for ( const Resistance& atk : interaction.second ) {
-      invertedMap[atk.type()].insert( { interaction.first, atk.multiplier() } );
+      inverted_map[atk.type()].insert( { interaction.first, atk.multiplier() } );
     }
   }
-  itemTable_[itemTable_.size() - 1].right = 0;
-  initializeColumns( invertedMap, columnBuilder, requestedCoverSolution_ );
+  item_table_[item_table_.size() - 1].right = 0;
+  initialize_columns( inverted_map, column_builder, requested_cover_solution_ );
 }
 
 } // namespace Dancing_links

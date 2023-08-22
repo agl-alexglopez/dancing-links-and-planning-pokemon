@@ -72,7 +72,7 @@ std::ostream& operator<<( std::ostream& os, const std::set<Type_encoding>& types
 
 bool operator==( const Pokemon_links::Poke_link& lhs, const Pokemon_links::Poke_link& rhs )
 {
-  return lhs.topOrLen == rhs.topOrLen && lhs.up == rhs.up && lhs.down == rhs.down
+  return lhs.top_or_len == rhs.top_or_len && lhs.up == rhs.up && lhs.down == rhs.down
          && lhs.multiplier == rhs.multiplier && lhs.tag == rhs.tag;
 }
 
@@ -83,7 +83,7 @@ bool operator!=( const Pokemon_links::Poke_link& lhs, const Pokemon_links::Poke_
 
 std::ostream& operator<<( std::ostream& os, const Pokemon_links::Poke_link& link )
 {
-  return os << "{" << link.topOrLen << ", " << link.up << ", " << link.down << ", " << link.multiplier << "},";
+  return os << "{" << link.top_or_len << ", " << link.up << ", " << link.down << ", " << link.multiplier << "},";
 }
 
 bool operator==( const Pokemon_links::Type_name& lhs, const Pokemon_links::Type_name& rhs )
@@ -145,10 +145,10 @@ std::ostream& operator<<( std::ostream& os, const std::vector<Pokemon_links::Pok
 {
   os << "DLX ARRAY" << std::endl;
   for ( const auto& ln : links ) {
-    if ( ln.topOrLen < 0 ) {
+    if ( ln.top_or_len < 0 ) {
       os << "\n";
     }
-    os << "{" << ln.topOrLen << "," << ln.up << "," << ln.down << "," << ln.multiplier << "," << ln.tag << "},";
+    os << "{" << ln.top_or_len << "," << ln.up << "," << ln.down << "," << ln.multiplier << "," << ln.tag << "},";
   }
   os << std::endl;
   return os;
@@ -174,9 +174,9 @@ bool operator!=( const Pokemon_links::Encoding_index& lhs, const Pokemon_links::
   return !( lhs == rhs );
 }
 
-std::ostream& operator<<( std::ostream& os, const Pokemon_links::Encoding_index& nN )
+std::ostream& operator<<( std::ostream& os, const Pokemon_links::Encoding_index& n_n )
 {
-  return os << "{\"" << nN.name << "\"," << nN.index << "}";
+  return os << "{\"" << n_n.name << "\"," << n_n.index << "}";
 }
 
 bool operator==( const std::vector<Pokemon_links::Encoding_index>& lhs,
@@ -199,9 +199,9 @@ bool operator!=( const std::vector<Pokemon_links::Encoding_index>& lhs,
   return !( lhs == rhs );
 }
 
-std::ostream& operator<<( std::ostream& os, const std::vector<Pokemon_links::Encoding_index>& nN )
+std::ostream& operator<<( std::ostream& os, const std::vector<Pokemon_links::Encoding_index>& n_n )
 {
-  for ( const auto& i : nN ) {
+  for ( const auto& i : n_n ) {
     os << i;
   }
   return os << std::endl;
@@ -213,33 +213,33 @@ std::ostream& operator<<( std::ostream& os, const std::vector<Pokemon_links::Enc
 
 TEST( InternalTests, EasiestTypeEncodingLexographicallyIsBug )
 {
-  uint32_t hexType = 0x20000;
-  std::string_view strType = "Bug";
-  Dx::Type_encoding code( strType );
-  EXPECT_EQ( hexType, code.encoding() );
-  EXPECT_EQ( strType, code.decodeType().first );
+  uint32_t hex_type = 0x20000;
+  std::string_view str_type = "Bug";
+  Dx::Type_encoding code( str_type );
+  EXPECT_EQ( hex_type, code.encoding() );
+  EXPECT_EQ( str_type, code.decode_type().first );
   std::string_view empty {};
-  EXPECT_EQ( empty, code.decodeType().second );
+  EXPECT_EQ( empty, code.decode_type().second );
 }
 
 TEST( InternalTests, TestTheNextSimplistDualTypeBugDark )
 {
-  uint32_t hexType = 0x30000;
-  std::string_view strType = "Bug-Dark";
-  Dx::Type_encoding code( strType );
-  EXPECT_EQ( hexType, code.encoding() );
-  EXPECT_EQ( std::string_view( "Bug" ), code.decodeType().first );
-  EXPECT_EQ( std::string_view( "Dark" ), code.decodeType().second );
+  uint32_t hex_type = 0x30000;
+  std::string_view str_type = "Bug-Dark";
+  Dx::Type_encoding code( str_type );
+  EXPECT_EQ( hex_type, code.encoding() );
+  EXPECT_EQ( std::string_view( "Bug" ), code.decode_type().first );
+  EXPECT_EQ( std::string_view( "Dark" ), code.decode_type().second );
 }
 
 TEST( InternalTests, TestForOffByOneErrorsWithFirstAndLastIndexTypeBugWater )
 {
-  uint32_t hexType = 0x20001;
-  std::string_view strType = "Bug-Water";
-  Dx::Type_encoding code( strType );
-  EXPECT_EQ( hexType, code.encoding() );
-  EXPECT_EQ( std::string_view( "Bug" ), code.decodeType().first );
-  EXPECT_EQ( std::string_view( "Water" ), code.decodeType().second );
+  uint32_t hex_type = 0x20001;
+  std::string_view str_type = "Bug-Water";
+  Dx::Type_encoding code( str_type );
+  EXPECT_EQ( hex_type, code.encoding() );
+  EXPECT_EQ( std::string_view( "Bug" ), code.decode_type().first );
+  EXPECT_EQ( std::string_view( "Water" ), code.decode_type().second );
 }
 
 TEST( InternalTests, TestEveryPossibleCombinationOfTypings )
@@ -249,31 +249,31 @@ TEST( InternalTests, TestEveryPossibleCombinationOfTypings )
    * types order does not matter so Water-Bug is the same as Bug-Water and is only counted once.
    */
   const uint32_t BUG = 0x20000;
-  uint32_t tableSize = Dx::Type_encoding::type_encoding_table_.size();
-  for ( uint32_t bit1 = BUG, type1 = tableSize - 1; bit1 != 0; bit1 >>= 1, type1-- ) {
+  uint32_t table_size = Dx::Type_encoding::type_encoding_table_.size();
+  for ( uint32_t bit1 = BUG, type1 = table_size - 1; bit1 != 0; bit1 >>= 1, type1-- ) {
 
-    std::string checkSingleType( Dx::Type_encoding::type_encoding_table_.at( type1 ) );
-    Dx::Type_encoding singleType_encoding( checkSingleType );
-    EXPECT_EQ( singleType_encoding.encoding(), bit1 );
-    EXPECT_EQ( singleType_encoding.decodeType().first, checkSingleType );
-    EXPECT_EQ( singleType_encoding.decodeType().second, std::string_view {} );
+    std::string check_single_type( Dx::Type_encoding::type_encoding_table_.at( type1 ) );
+    Dx::Type_encoding single_type_encoding( check_single_type );
+    EXPECT_EQ( single_type_encoding.encoding(), bit1 );
+    EXPECT_EQ( single_type_encoding.decode_type().first, check_single_type );
+    EXPECT_EQ( single_type_encoding.decode_type().second, std::string_view {} );
 
     for ( uint32_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2-- ) {
 
-      std::string checkDualType
-        = checkSingleType + "-" + std::string( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
-      Dx::Type_encoding dualType_encoding( checkDualType );
-      EXPECT_EQ( dualType_encoding.encoding(), bit1 | bit2 );
+      std::string check_dual_type
+        = check_single_type + "-" + std::string( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
+      Dx::Type_encoding dual_type_encoding( check_dual_type );
+      EXPECT_EQ( dual_type_encoding.encoding(), bit1 | bit2 );
       /* I discourage the use of methods that create heap strings whenever possible. I use
        * string_views internally to report back typing for human readability when requested
        * in a GUI via ostream. This way I only need to create one character "-" on the heap to
        * join the two string_views of the lookup table in the stream. I don't have a use case
        * for creating strings yet but will add it if needed.
        */
-      std::ostringstream captureType;
-      captureType << dualType_encoding;
-      std::string dualTypeString = captureType.str();
-      EXPECT_EQ( dualTypeString, checkDualType );
+      std::ostringstream capture_type;
+      capture_type << dual_type_encoding;
+      std::string dual_type_string = capture_type.str();
+      EXPECT_EQ( dual_type_string, check_dual_type );
     }
   }
 }
@@ -297,23 +297,23 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
    * read-only memory segment, much less wasteful.
    */
 
-  std::unordered_map<std::string, Dx::Type_encoding> encodeMap;
-  std::unordered_map<Dx::Type_encoding, std::string> decodeMap;
+  std::unordered_map<std::string, Dx::Type_encoding> encode_map;
+  std::unordered_map<Dx::Type_encoding, std::string> decode_map;
 
   // Generate all possible unique type combinations and place them in the maps.
   const uint32_t BUG = 0x20000;
-  const uint32_t tableSize = Dx::Type_encoding::type_encoding_table_.size();
-  for ( uint32_t bit1 = BUG, type1 = tableSize - 1; bit1 != 0; bit1 >>= 1, type1-- ) {
-    std::string checkSingleType( Dx::Type_encoding::type_encoding_table_.at( type1 ) );
-    Dx::Type_encoding singleType_encoding( checkSingleType );
-    encodeMap.insert( { checkSingleType, singleType_encoding } );
-    decodeMap.insert( { singleType_encoding, checkSingleType } );
+  const uint32_t table_size = Dx::Type_encoding::type_encoding_table_.size();
+  for ( uint32_t bit1 = BUG, type1 = table_size - 1; bit1 != 0; bit1 >>= 1, type1-- ) {
+    std::string check_single_type( Dx::Type_encoding::type_encoding_table_.at( type1 ) );
+    Dx::Type_encoding single_type_encoding( check_single_type );
+    encode_map.insert( { check_single_type, single_type_encoding } );
+    decode_map.insert( { single_type_encoding, check_single_type } );
     for ( uint32_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2-- ) {
-      std::string checkDualType
-        = checkSingleType + "-" + std::string( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
-      Dx::Type_encoding dualType_encoding( checkDualType );
-      encodeMap.insert( { checkDualType, dualType_encoding } );
-      decodeMap.insert( { dualType_encoding, checkDualType } );
+      std::string check_dual_type
+        = check_single_type + "-" + std::string( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
+      Dx::Type_encoding dual_type_encoding( check_dual_type );
+      encode_map.insert( { check_dual_type, dual_type_encoding } );
+      decode_map.insert( { dual_type_encoding, check_dual_type } );
     }
   }
 
@@ -322,49 +322,49 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
   std::random_device rd;
   std::mt19937 gen( rd() );
   // Our first type will always be in the table and be a valid type index.
-  std::uniform_int_distribution<> firstType( 0, 17 );
+  std::uniform_int_distribution<> first_type( 0, 17 );
   // We will only access an index with our second type if it is less than the first.
-  std::uniform_int_distribution<> secondType( 0, 17 );
-  int singleTypeTotal = 0;
-  int dualTypeTotal = 0;
+  std::uniform_int_distribution<> second_type( 0, 17 );
+  int single_type_total = 0;
+  int dual_type_total = 0;
 
-  std::vector<std::string> toEncode( NUM_REQUESTS );
+  std::vector<std::string> to_encode( NUM_REQUESTS );
   for ( int i = 0; i < NUM_REQUESTS; i++ ) {
-    int type1 = firstType( gen );
-    int type2 = secondType( gen );
-    singleTypeTotal++;
+    int type1 = first_type( gen );
+    int type2 = second_type( gen );
+    single_type_total++;
     std::string type( Dx::Type_encoding::type_encoding_table_.at( type1 ) );
     // This ensures we get a decent amount of single and dual types into the mix.
     if ( type2 < type1 ) {
       type += "-" + std::string( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
-      dualTypeTotal++;
-      singleTypeTotal--;
+      dual_type_total++;
+      single_type_total--;
     }
-    toEncode[i] = type;
+    to_encode[i] = type;
   }
 
   std::cerr << "\n";
 
-  std::cerr << "Generated " << NUM_REQUESTS << " random types: " << singleTypeTotal << " single types, "
-            << dualTypeTotal << " dual types\n";
+  std::cerr << "Generated " << NUM_REQUESTS << " random types: " << single_type_total << " single types, "
+            << dual_type_total << " dual types\n";
 
   std::cerr << "----------START TIMER SESSION-------------\n";
 
   // Time 1,000,000 encodings with both methods.
 
-  std::vector<Dx::Type_encoding> typeEncodings( toEncode.size() );
+  std::vector<Dx::Type_encoding> type_encodings( to_encode.size() );
   std::clock_t start = std::clock();
-  for ( uint64_t i = 0; i < toEncode.size(); i++ ) {
-    typeEncodings[i] = Dx::Type_encoding( toEncode[i] );
+  for ( uint64_t i = 0; i < to_encode.size(); i++ ) {
+    type_encodings[i] = Dx::Type_encoding( to_encode[i] );
   }
   std::clock_t end = std::clock();
   std::cerr << "Type_encoding encode method(ms): "
             << 1000.0 * ( static_cast<double>( end - start ) ) / CLOCKS_PER_SEC << "\n";
 
-  std::vector<Dx::Type_encoding> hashEncodings( NUM_REQUESTS );
+  std::vector<Dx::Type_encoding> hash_encodings( NUM_REQUESTS );
   std::clock_t start2 = std::clock();
-  for ( uint64_t i = 0; i < toEncode.size(); i++ ) {
-    hashEncodings[i] = encodeMap[toEncode[i]];
+  for ( uint64_t i = 0; i < to_encode.size(); i++ ) {
+    hash_encodings[i] = encode_map[to_encode[i]];
   }
   std::clock_t end2 = std::clock();
   std::cerr << "Hashing encode method(ms): " << 1000.0 * ( static_cast<double>( end2 - start2 ) ) / CLOCKS_PER_SEC
@@ -372,19 +372,19 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
 
   // Time 1,000,000 decodings with both methods.
 
-  std::vector<std::pair<std::string_view, std::string_view>> typeDecodings( typeEncodings.size() );
+  std::vector<std::pair<std::string_view, std::string_view>> type_decodings( type_encodings.size() );
   std::clock_t start3 = std::clock();
-  for ( uint64_t i = 0; i < typeDecodings.size(); i++ ) {
-    typeDecodings[i] = typeEncodings[i].decodeType();
+  for ( uint64_t i = 0; i < type_decodings.size(); i++ ) {
+    type_decodings[i] = type_encodings[i].decode_type();
   }
   std::clock_t end3 = std::clock();
   std::cerr << "Type_encoding decoding method(ms): "
             << 1000.0 * ( static_cast<double>( end3 - start3 ) ) / CLOCKS_PER_SEC << "\n";
 
-  std::vector<std::string_view> hashDecodings( hashEncodings.size() );
+  std::vector<std::string_view> hash_decodings( hash_encodings.size() );
   std::clock_t start4 = std::clock();
-  for ( uint64_t i = 0; i < hashDecodings.size(); i++ ) {
-    hashDecodings[i] = decodeMap[hashEncodings[i]];
+  for ( uint64_t i = 0; i < hash_decodings.size(); i++ ) {
+    hash_decodings[i] = decode_map[hash_encodings[i]];
   }
   std::clock_t end4 = std::clock();
   std::cerr << "Hash decoding method(ms): " << 1000.0 * ( static_cast<double>( end4 - start4 ) ) / CLOCKS_PER_SEC
@@ -392,10 +392,10 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
 
   std::cerr << std::endl;
 
-  EXPECT_EQ( toEncode.size(), typeEncodings.size() );
-  EXPECT_EQ( toEncode.size(), hashEncodings.size() );
-  EXPECT_EQ( hashEncodings.size(), hashDecodings.size() );
-  EXPECT_EQ( typeEncodings.size(), typeDecodings.size() );
+  EXPECT_EQ( to_encode.size(), type_encodings.size() );
+  EXPECT_EQ( to_encode.size(), hash_encodings.size() );
+  EXPECT_EQ( hash_encodings.size(), hash_decodings.size() );
+  EXPECT_EQ( type_encodings.size(), type_decodings.size() );
 }
 
 /* * * * * * * * * * * * * * *      Tests Below This Point      * * * * * * * * * * * * * * * * * */
@@ -435,9 +435,9 @@ TEST( InternalTests, InitializeSmallDefensiveLinks )
     { { "Water" }, { { { "Fire" }, F2 }, { { "Normal" }, NM }, { { "Water" }, F2 } } },
   };
 
-  std::vector<Dx::Pokemon_links::Encoding_index> optionTable
+  std::vector<Dx::Pokemon_links::Encoding_index> option_table
     = { { Dx::Type_encoding( "" ), 0 }, { { "Ghost" }, 4 }, { { "Water" }, 6 } };
-  std::vector<Dx::Pokemon_links::Type_name> itemTable = {
+  std::vector<Dx::Pokemon_links::Type_name> item_table = {
     { { "" }, 3, 1 },
     { { "Fire" }, 0, 2 },
     { { "Normal" }, 1, 3 },
@@ -460,8 +460,8 @@ TEST( InternalTests, InitializeSmallDefensiveLinks )
     { INT_MIN, 7, UINT64_MAX, EM, 0 },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  EXPECT_EQ( optionTable, links.optionTable_ );
-  EXPECT_EQ( itemTable, links.itemTable_ );
+  EXPECT_EQ( option_table, links.option_table_ );
+  EXPECT_EQ( item_table, links.item_table_ );
   EXPECT_EQ( dlx, links.links_ );
 }
 
@@ -507,9 +507,9 @@ TEST( InternalTests, InitializeAWorldWhereThereAreOnlySingleTypes )
         { { "Ice" }, F2 } } },
   };
 
-  std::vector<Dx::Pokemon_links::Encoding_index> optionTable
+  std::vector<Dx::Pokemon_links::Encoding_index> option_table
     = { { { "" }, 0 }, { { "Dragon" }, 7 }, { { "Electric" }, 12 }, { { "Ghost" }, 14 }, { { "Ice" }, 16 } };
-  std::vector<Dx::Pokemon_links::Type_name> itemTable = {
+  std::vector<Dx::Pokemon_links::Type_name> item_table = {
     { { "" }, 6, 1 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 1, 3 },
@@ -546,8 +546,8 @@ TEST( InternalTests, InitializeAWorldWhereThereAreOnlySingleTypes )
     { INT_MIN, 17, UINT64_MAX, EM, 0 },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  EXPECT_EQ( optionTable, links.optionTable_ );
-  EXPECT_EQ( itemTable, links.itemTable_ );
+  EXPECT_EQ( option_table, links.option_table_ );
+  EXPECT_EQ( item_table, links.item_table_ );
   EXPECT_EQ( dlx, links.links_ );
 }
 
@@ -595,9 +595,9 @@ TEST( InternalTests, CoverElectricWithDragonEliminatesElectricOptionUncoverReset
         { { "Ice" }, F2 } } },
   };
 
-  std::vector<Dx::Pokemon_links::Encoding_index> optionTable
+  std::vector<Dx::Pokemon_links::Encoding_index> option_table
     = { { { "" }, 0 }, { { "Dragon" }, 7 }, { { "Electric" }, 12 }, { { "Ghost" }, 14 }, { { "Ice" }, 16 } };
-  std::vector<Dx::Pokemon_links::Type_name> itemTable = {
+  std::vector<Dx::Pokemon_links::Type_name> item_table = {
     { { "" }, 6, 1 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 1, 3 },
@@ -634,11 +634,11 @@ TEST( InternalTests, CoverElectricWithDragonEliminatesElectricOptionUncoverReset
     { INT_MIN, 17, UINT64_MAX, EM, 0 },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  EXPECT_EQ( optionTable, links.optionTable_ );
-  EXPECT_EQ( itemTable, links.itemTable_ );
+  EXPECT_EQ( option_table, links.option_table_ );
+  EXPECT_EQ( item_table, links.item_table_ );
   EXPECT_EQ( dlx, links.links_ );
 
-  std::vector<Dx::Pokemon_links::Type_name> itemCoverElectric = {
+  std::vector<Dx::Pokemon_links::Type_name> item_cover_electric = {
     { { "" }, 5, 4 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 0, 3 },
@@ -653,7 +653,7 @@ TEST( InternalTests, CoverElectricWithDragonEliminatesElectricOptionUncoverReset
    *  Ice        x0.5
    *
    */
-  std::vector<Dx::Pokemon_links::Poke_link> dlxCoverElectric = {
+  std::vector<Dx::Pokemon_links::Poke_link> dlx_cover_electric = {
     //  0             1Electric     2Fire        3Grass           4Ice         5Normal         6Water
     { 0, 0, 0, EM, 0 },
     { 2, 13, 8, EM, 0 },
@@ -681,14 +681,14 @@ TEST( InternalTests, CoverElectricWithDragonEliminatesElectricOptionUncoverReset
     { INT_MIN, 17, UINT64_MAX, EM, 0 },
   };
 
-  Dx::Pokemon_links::Encoding_score pick = links.coverType( 8 );
+  Dx::Pokemon_links::Encoding_score pick = links.cover_type( 8 );
   EXPECT_EQ( pick.score, 12 );
-  EXPECT_EQ( pick.name.decodeType().first, "Dragon" );
-  EXPECT_EQ( itemCoverElectric, links.itemTable_ );
-  EXPECT_EQ( dlxCoverElectric, links.links_ );
+  EXPECT_EQ( pick.name.decode_type().first, "Dragon" );
+  EXPECT_EQ( item_cover_electric, links.item_table_ );
+  EXPECT_EQ( dlx_cover_electric, links.links_ );
 
-  links.uncoverType( 8 );
-  EXPECT_EQ( itemTable, links.itemTable_ );
+  links.uncover_type( 8 );
+  EXPECT_EQ( item_table, links.item_table_ );
   EXPECT_EQ( dlx, links.links_ );
 }
 
@@ -796,10 +796,10 @@ TEST( InternalTests, CoverElectricWithElectricToCauseHidingOfManyOptions )
     { 6, 19, 6, F2, 0 },
     { INT_MIN, 24, UINT64_MAX, EM, 0 },
   };
-  EXPECT_EQ( headers, links.itemTable_ );
+  EXPECT_EQ( headers, links.item_table_ );
   EXPECT_EQ( dlx, links.links_ );
 
-  std::vector<Dx::Pokemon_links::Type_name> headersCoverElectric = {
+  std::vector<Dx::Pokemon_links::Type_name> headers_cover_electric = {
     { { "" }, 6, 3 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 0, 3 },
@@ -808,7 +808,7 @@ TEST( InternalTests, CoverElectricWithElectricToCauseHidingOfManyOptions )
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
-  std::vector<Dx::Pokemon_links::Poke_link> dlxCoverElectric = {
+  std::vector<Dx::Pokemon_links::Poke_link> dlx_cover_electric = {
     /*
      *
      *        Grass   Ice    Normal  Water
@@ -852,14 +852,14 @@ TEST( InternalTests, CoverElectricWithElectricToCauseHidingOfManyOptions )
     { INT_MIN, 24, UINT64_MAX, EM, 0 },
   };
 
-  Dx::Pokemon_links::Encoding_score pick = links.coverType( 8 );
+  Dx::Pokemon_links::Encoding_score pick = links.cover_type( 8 );
   EXPECT_EQ( pick.score, 6 );
-  EXPECT_EQ( pick.name.decodeType().first, "Electric" );
-  EXPECT_EQ( headersCoverElectric, links.itemTable_ );
-  EXPECT_EQ( dlxCoverElectric, links.links_ );
+  EXPECT_EQ( pick.name.decode_type().first, "Electric" );
+  EXPECT_EQ( headers_cover_electric, links.item_table_ );
+  EXPECT_EQ( dlx_cover_electric, links.links_ );
 
-  links.uncoverType( 8 );
-  EXPECT_EQ( headers, links.itemTable_ );
+  links.uncover_type( 8 );
+  EXPECT_EQ( headers, links.item_table_ );
   EXPECT_EQ( dlx, links.links_ );
 }
 
@@ -923,7 +923,7 @@ TEST( InternalTests, ThereAreTwoExactCoversForThisTypingCombo )
   std::set<Ranked_set<Dx::Type_encoding>> correct
     = { { 11, { { "Ghost" }, { "Ground" }, { "Poison" }, { "Water" } } },
         { 13, { { "Electric" }, { "Ghost" }, { "Poison" }, { "Water" } } } };
-  EXPECT_EQ( links.getExactCoverages( 6 ), correct );
+  EXPECT_EQ( links.get_exact_coverages( 6 ), correct );
 }
 
 TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst )
@@ -1016,10 +1016,10 @@ TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst 
     { INT_MIN, 23, UINT64_MAX, EM, 0 },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  EXPECT_EQ( links.optionTable_, options );
-  EXPECT_EQ( links.itemTable_, items );
+  EXPECT_EQ( links.option_table_, options );
+  EXPECT_EQ( links.item_table_, items );
   EXPECT_EQ( links.links_, dlx );
-  std::set<Ranked_set<Dx::Type_encoding>> result = links.getExactCoverages( 6 );
+  std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages( 6 );
   std::set<Ranked_set<Dx::Type_encoding>> correct = { { 13,
                                                         {
                                                           { "Bug-Ghost" },
@@ -1119,10 +1119,10 @@ TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestore
     { INT_MIN, 23, UINT64_MAX, EM, 0 },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  EXPECT_EQ( links.optionTable_, options );
-  EXPECT_EQ( links.itemTable_, items );
+  EXPECT_EQ( links.option_table_, options );
+  EXPECT_EQ( links.item_table_, items );
   EXPECT_EQ( links.links_, dlx );
-  std::set<Ranked_set<Dx::Type_encoding>> result = links.getExactCoverages( 6 );
+  std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages( 6 );
   std::set<Ranked_set<Dx::Type_encoding>> correct = { { 13,
                                                         {
                                                           { "Bug-Ghost" },
@@ -1131,8 +1131,8 @@ TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestore
                                                         } } };
   EXPECT_EQ( correct, result );
   // Did we cleanup correctly when the algorithm was done?
-  EXPECT_EQ( links.optionTable_, options );
-  EXPECT_EQ( links.itemTable_, items );
+  EXPECT_EQ( links.option_table_, options );
+  EXPECT_EQ( links.item_table_, items );
   EXPECT_EQ( links.links_, dlx );
 }
 
@@ -1158,9 +1158,9 @@ TEST( InternalTests, InitializationOfAttackDancingLinks )
     { { "Ground-Grass" }, { { { "Electric" }, IM }, { { "Fire" }, DB }, { { "Water" }, NM } } },
     { { "Fire-Flying" }, { { { "Electric" }, DB }, { { "Fire" }, F2 }, { { "Water" }, DB } } },
   };
-  const std::vector<Dx::Pokemon_links::Encoding_index> optionTable
+  const std::vector<Dx::Pokemon_links::Encoding_index> option_table
     = { { { "" }, 0 }, { { "Electric" }, 4 }, { { "Fire" }, 6 }, { { "Water" }, 8 } };
-  const std::vector<Dx::Pokemon_links::Type_name> itemTable = {
+  const std::vector<Dx::Pokemon_links::Type_name> item_table = {
     { { "" }, 3, 1 },
     { { "Fire-Flying" }, 0, 2 },
     { { "Ground-Grass" }, 1, 3 },
@@ -1185,8 +1185,8 @@ TEST( InternalTests, InitializationOfAttackDancingLinks )
     { INT_MIN, 9, UINT64_MAX, EM, 0 },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
-  EXPECT_EQ( links.optionTable_, optionTable );
-  EXPECT_EQ( links.itemTable_, itemTable );
+  EXPECT_EQ( links.option_table_, option_table );
+  EXPECT_EQ( links.item_table_, item_table );
   EXPECT_EQ( links.links_, dlx );
 }
 
@@ -1217,7 +1217,7 @@ TEST( InternalTests, AtLeastTestThatWeCanRecognizeASuccessfulAttackCoverage )
     = { { 30, { { "Fighting" }, { "Grass" }, { "Ground" }, { "Ice" } } },
         { 30, { { "Fighting" }, { "Grass" }, { "Ground" }, { "Poison" } } } };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
-  EXPECT_EQ( links.getExactCoverages( 24 ), solutions );
+  EXPECT_EQ( links.get_exact_coverages( 24 ), solutions );
 }
 
 TEST( InternalTests, ThereIsOneExactCoverHere )
@@ -1283,7 +1283,7 @@ TEST( InternalTests, ThereIsOneExactCoverHere )
         { { "Water" }, F2 } } },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
-  std::set<Ranked_set<Dx::Type_encoding>> result = links.getExactCoverages( 24 );
+  std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages( 24 );
   std::set<Ranked_set<Dx::Type_encoding>> correct = { { 31,
                                                         {
                                                           { "Fire" },
@@ -1402,12 +1402,12 @@ TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   EXPECT_EQ( links.links_, dlx );
-  EXPECT_EQ( links.itemTable_, headers );
+  EXPECT_EQ( links.item_table_, headers );
 
-  Dx::Pokemon_links::Encoding_score choice = links.overlappingCoverType( { 8, 6 } );
+  Dx::Pokemon_links::Encoding_score choice = links.overlapping_cover_type( { 8, 6 } );
   EXPECT_EQ( choice.score, 6 );
-  EXPECT_EQ( choice.name.decodeType().first, "Electric" );
-  const std::vector<Dx::Pokemon_links::Type_name> headersCoverElectric {
+  EXPECT_EQ( choice.name.decode_type().first, "Electric" );
+  const std::vector<Dx::Pokemon_links::Type_name> headers_cover_electric {
     { { "" }, 6, 3 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 0, 3 },
@@ -1416,7 +1416,7 @@ TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
-  const std::vector<Dx::Pokemon_links::Poke_link> dlxCoverElectric = {
+  const std::vector<Dx::Pokemon_links::Poke_link> dlx_cover_electric = {
     /*
      *
      *            Grass   Ice   Normal  Water
@@ -1463,13 +1463,13 @@ TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
     // 26
     { INT_MIN, 24, UINT64_MAX, EM, 0 },
   };
-  EXPECT_EQ( links.itemTable_, headersCoverElectric );
-  EXPECT_EQ( links.links_, dlxCoverElectric );
+  EXPECT_EQ( links.item_table_, headers_cover_electric );
+  EXPECT_EQ( links.links_, dlx_cover_electric );
 
-  Dx::Pokemon_links::Encoding_score choice2 = links.overlappingCoverType( { 12, 5 } );
+  Dx::Pokemon_links::Encoding_score choice2 = links.overlapping_cover_type( { 12, 5 } );
   EXPECT_EQ( choice2.score, 6 );
-  EXPECT_EQ( choice2.name.decodeType().first, "Fire" );
-  const std::vector<Dx::Pokemon_links::Type_name> headersCoverGrass {
+  EXPECT_EQ( choice2.name.decode_type().first, "Fire" );
+  const std::vector<Dx::Pokemon_links::Type_name> headers_cover_grass {
     { { "" }, 5, 4 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 0, 3 },
@@ -1478,7 +1478,7 @@ TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
     { { "Normal" }, 4, 0 },
     { { "Water" }, 5, 0 },
   };
-  const std::vector<Dx::Pokemon_links::Poke_link> dlxCoverGrass = {
+  const std::vector<Dx::Pokemon_links::Poke_link> dlx_cover_grass = {
     /*
      *
      *            Ice   Normal
@@ -1524,14 +1524,14 @@ TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
     // 26
     { INT_MIN, 24, UINT64_MAX, EM, 0 },
   };
-  EXPECT_EQ( links.itemTable_, headersCoverGrass );
-  EXPECT_EQ( links.links_, dlxCoverGrass );
-  links.overlappingUncoverType( 12 );
-  EXPECT_EQ( links.itemTable_, headersCoverElectric );
-  EXPECT_EQ( links.links_, dlxCoverElectric );
-  links.overlappingUncoverType( 8 );
+  EXPECT_EQ( links.item_table_, headers_cover_grass );
+  EXPECT_EQ( links.links_, dlx_cover_grass );
+  links.overlapping_uncover_type( 12 );
+  EXPECT_EQ( links.item_table_, headers_cover_electric );
+  EXPECT_EQ( links.links_, dlx_cover_electric );
+  links.overlapping_uncover_type( 8 );
   EXPECT_EQ( links.links_, dlx );
-  EXPECT_EQ( links.itemTable_, headers );
+  EXPECT_EQ( links.item_table_, headers );
 }
 
 TEST( InternalTests, OverlappingAllowsTwoTypesToCoverSameOpposingTypeIEFireAndElectric )
@@ -1593,7 +1593,7 @@ TEST( InternalTests, OverlappingAllowsTwoTypesToCoverSameOpposingTypeIEFireAndEl
         { { "Water" }, F2 } } },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  std::set<Ranked_set<Dx::Type_encoding>> result = links.getOverlappingCoverages( 6 );
+  std::set<Ranked_set<Dx::Type_encoding>> result = links.get_overlapping_coverages( 6 );
   std::set<Ranked_set<Dx::Type_encoding>> correct
     = { { 18, { { "Electric" }, { "Fire" }, { "Ice" }, { "Normal" } } },
         { 18, { { "Fire" }, { "Grass" }, { "Ice" }, { "Normal" } } },
@@ -1682,7 +1682,7 @@ TEST( InternalTests, ThereAreAFewOverlappingCoversHere )
     { INT_MIN, 23, UINT64_MAX, EM, 0 },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  std::set<Ranked_set<Dx::Type_encoding>> result = links.getOverlappingCoverages( 6 );
+  std::set<Ranked_set<Dx::Type_encoding>> result = links.get_overlapping_coverages( 6 );
   std::set<Ranked_set<Dx::Type_encoding>> correct
     = { { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } },
         { 14, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Fire-Flying" }, { "Ice-Water" } } },
@@ -1693,7 +1693,7 @@ TEST( InternalTests, ThereAreAFewOverlappingCoversHere )
         { 15, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Ground-Water" }, { "Ice-Psychic" } } } };
   EXPECT_EQ( correct, result );
   // Make sure the overlapping algorithms clean up the tables when done.
-  EXPECT_EQ( links.itemTable_, headers );
+  EXPECT_EQ( links.item_table_, headers );
   EXPECT_EQ( links.links_, dlx );
 }
 
@@ -1767,13 +1767,13 @@ TEST( InternalTests, TestBinarySearchOnTheItemTable )
     { { "Water" }, 5, 0 },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  EXPECT_EQ( links.findItemIndex( Dx::Type_encoding( std::string { "Electric" } ) ), 1 );
-  EXPECT_EQ( links.findItemIndex( Dx::Type_encoding( std::string { "Fire" } ) ), 2 );
-  EXPECT_EQ( links.findItemIndex( Dx::Type_encoding( std::string { "Grass" } ) ), 3 );
-  EXPECT_EQ( links.findItemIndex( Dx::Type_encoding( std::string { "Ice" } ) ), 4 );
-  EXPECT_EQ( links.findItemIndex( Dx::Type_encoding( std::string { "Normal" } ) ), 5 );
-  EXPECT_EQ( links.findItemIndex( Dx::Type_encoding( std::string { "Water" } ) ), 6 );
-  EXPECT_EQ( links.findItemIndex( Dx::Type_encoding( std::string { "Flamio" } ) ), 0 );
+  EXPECT_EQ( links.find_item_index( Dx::Type_encoding( std::string { "Electric" } ) ), 1 );
+  EXPECT_EQ( links.find_item_index( Dx::Type_encoding( std::string { "Fire" } ) ), 2 );
+  EXPECT_EQ( links.find_item_index( Dx::Type_encoding( std::string { "Grass" } ) ), 3 );
+  EXPECT_EQ( links.find_item_index( Dx::Type_encoding( std::string { "Ice" } ) ), 4 );
+  EXPECT_EQ( links.find_item_index( Dx::Type_encoding( std::string { "Normal" } ) ), 5 );
+  EXPECT_EQ( links.find_item_index( Dx::Type_encoding( std::string { "Water" } ) ), 6 );
+  EXPECT_EQ( links.find_item_index( Dx::Type_encoding( std::string { "Flamio" } ) ), 0 );
 }
 
 TEST( InternalTests, TestBinarySearchOnTheOptionTable )
@@ -1881,13 +1881,13 @@ TEST( InternalTests, TestBinarySearchOnTheOptionTable )
     { INT_MIN, 24, UINT64_MAX, EM, 0 },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  EXPECT_EQ( links.findOptionIndex( Dx::Type_encoding( std::string( "Electric" ) ) ), 7 );
-  EXPECT_EQ( links.findOptionIndex( Dx::Type_encoding( std::string( "Fire" ) ) ), 10 );
-  EXPECT_EQ( links.findOptionIndex( Dx::Type_encoding( std::string( "Grass" ) ) ), 14 );
-  EXPECT_EQ( links.findOptionIndex( Dx::Type_encoding( std::string( "Ice" ) ) ), 17 );
-  EXPECT_EQ( links.findOptionIndex( Dx::Type_encoding( std::string( "Normal" ) ) ), 20 );
-  EXPECT_EQ( links.findOptionIndex( Dx::Type_encoding( std::string( "Water" ) ) ), 23 );
-  EXPECT_EQ( links.findOptionIndex( Dx::Type_encoding( std::string( "Flamio" ) ) ), 0 );
+  EXPECT_EQ( links.find_option_index( Dx::Type_encoding( std::string( "Electric" ) ) ), 7 );
+  EXPECT_EQ( links.find_option_index( Dx::Type_encoding( std::string( "Fire" ) ) ), 10 );
+  EXPECT_EQ( links.find_option_index( Dx::Type_encoding( std::string( "Grass" ) ) ), 14 );
+  EXPECT_EQ( links.find_option_index( Dx::Type_encoding( std::string( "Ice" ) ) ), 17 );
+  EXPECT_EQ( links.find_option_index( Dx::Type_encoding( std::string( "Normal" ) ) ), 20 );
+  EXPECT_EQ( links.find_option_index( Dx::Type_encoding( std::string( "Water" ) ) ), 23 );
+  EXPECT_EQ( links.find_option_index( Dx::Type_encoding( std::string( "Flamio" ) ) ), 0 );
 }
 
 /* * * * * * * *      Test the Hiding of Options and Items the User Can Use         * * * * * * * */
@@ -1997,7 +1997,7 @@ TEST( InternalTests, TestHidingAnItemFromTheWorld )
     { INT_MIN, 24, UINT64_MAX, EM, 0 },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  EXPECT_EQ( true, links.hideRequestedItem( Dx::Type_encoding( std::string( "Fire" ) ) ) );
+  EXPECT_EQ( true, links.hide_requested_item( Dx::Type_encoding( std::string( "Fire" ) ) ) );
   const std::vector<Dx::Pokemon_links::Type_name> headersHideFire {
     { { "" }, 6, 1 },
     { { "Electric" }, 0, 3 },
@@ -2046,24 +2046,24 @@ TEST( InternalTests, TestHidingAnItemFromTheWorld )
     { INT_MIN, 24, UINT64_MAX, EM, 0 },
   };
   EXPECT_EQ( links.links_, dlxHideFire );
-  EXPECT_EQ( links.itemTable_, headersHideFire );
-  EXPECT_EQ( false, links.hideRequestedItem( Dx::Type_encoding( std::string( "Fire" ) ) ) );
+  EXPECT_EQ( links.item_table_, headersHideFire );
+  EXPECT_EQ( false, links.hide_requested_item( Dx::Type_encoding( std::string( "Fire" ) ) ) );
   EXPECT_EQ( links.links_, dlxHideFire );
-  EXPECT_EQ( links.peekHidItem().decodeType().first, "Fire" );
-  EXPECT_EQ( links.getNumHidItems(), 1 );
+  EXPECT_EQ( links.peek_hid_item().decode_type().first, "Fire" );
+  EXPECT_EQ( links.get_num_hid_items(), 1 );
 
   // Test our unhide and reset functions.
-  links.popHidItem();
+  links.pop_hid_item();
   EXPECT_EQ( links.links_, dlx );
-  EXPECT_EQ( links.itemTable_, headers );
-  EXPECT_EQ( true, links.hidItemsEmpty() );
-  EXPECT_EQ( links.getNumHidItems(), 0 );
-  EXPECT_EQ( true, links.hideRequestedItem( Dx::Type_encoding( std::string( "Fire" ) ) ) );
-  links.resetItems();
+  EXPECT_EQ( links.item_table_, headers );
+  EXPECT_EQ( true, links.hid_items_empty() );
+  EXPECT_EQ( links.get_num_hid_items(), 0 );
+  EXPECT_EQ( true, links.hide_requested_item( Dx::Type_encoding( std::string( "Fire" ) ) ) );
+  links.reset_items();
   EXPECT_EQ( links.links_, dlx );
-  EXPECT_EQ( links.itemTable_, headers );
-  EXPECT_EQ( true, links.hidItemsEmpty() );
-  EXPECT_EQ( links.getNumHidItems(), 0 );
+  EXPECT_EQ( links.item_table_, headers );
+  EXPECT_EQ( true, links.hid_items_empty() );
+  EXPECT_EQ( links.get_num_hid_items(), 0 );
 }
 
 TEST( InternalTests, TestHidingGrassAndIceAndThenResetTheLinks )
@@ -2162,7 +2162,7 @@ TEST( InternalTests, TestHidingGrassAndIceAndThenResetTheLinks )
     { INT_MIN, 24, UINT64_MAX, EM, 0 },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  EXPECT_EQ( true, links.hideRequestedOption( { { "Grass" }, { "Ice" } } ) );
+  EXPECT_EQ( true, links.hide_requested_option( { { "Grass" }, { "Ice" } } ) );
   const int HD = Dx::Pokemon_links::hidden_;
   const std::vector<Dx::Pokemon_links::Poke_link> dlxHideOptionIceGrass = {
     // 0               1Electric     2Fire           3Grass        4Ice         5Normal        6Water
@@ -2202,10 +2202,10 @@ TEST( InternalTests, TestHidingGrassAndIceAndThenResetTheLinks )
     { INT_MIN, 24, UINT64_MAX, EM, 0 },
   };
   EXPECT_EQ( links.links_, dlxHideOptionIceGrass );
-  links.resetOptions();
+  links.reset_options();
   EXPECT_EQ( links.links_, dlx );
-  EXPECT_EQ( true, links.hidItemsEmpty() );
-  EXPECT_EQ( links.getNumHidOptions(), 0 );
+  EXPECT_EQ( true, links.hid_items_empty() );
+  EXPECT_EQ( links.get_num_hid_options(), 0 );
 }
 
 TEST( InternalTests, TestHidingAnOptionFromTheWorld )
@@ -2305,14 +2305,14 @@ TEST( InternalTests, TestHidingAnOptionFromTheWorld )
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
 
-  EXPECT_EQ( true, links.hideRequestedOption( Dx::Type_encoding( std::string( "Fire" ) ) ) );
+  EXPECT_EQ( true, links.hide_requested_option( Dx::Type_encoding( std::string( "Fire" ) ) ) );
   Dx::Type_encoding fire( "Fire" );
   Dx::Type_encoding flipper( "Fire" );
   std::vector<Dx::Type_encoding> fire_flipper { fire, flipper };
-  std::vector<Dx::Type_encoding> failedToHide = {};
-  EXPECT_EQ( false, links.hideRequestedOption( { fire, flipper } ) );
-  EXPECT_EQ( false, links.hideRequestedOption( { fire, flipper }, failedToHide ) );
-  EXPECT_EQ( failedToHide, fire_flipper );
+  std::vector<Dx::Type_encoding> failed_to_hide = {};
+  EXPECT_EQ( false, links.hide_requested_option( { fire, flipper } ) );
+  EXPECT_EQ( false, links.hide_requested_option( { fire, flipper }, failed_to_hide ) );
+  EXPECT_EQ( failed_to_hide, fire_flipper );
 
   const int HD = Dx::Pokemon_links::hidden_;
   const std::vector<Dx::Pokemon_links::Poke_link> dlxHideOptionFire = {
@@ -2353,20 +2353,20 @@ TEST( InternalTests, TestHidingAnOptionFromTheWorld )
     { INT_MIN, 24, UINT64_MAX, EM, 0 },
   };
   EXPECT_EQ( links.links_, dlxHideOptionFire );
-  EXPECT_EQ( false, links.hideRequestedOption( fire ) );
+  EXPECT_EQ( false, links.hide_requested_option( fire ) );
   EXPECT_EQ( links.links_, dlxHideOptionFire );
-  EXPECT_EQ( links.peekHidOption(), fire );
-  EXPECT_EQ( links.getNumHidOptions(), 1 );
+  EXPECT_EQ( links.peek_hid_option(), fire );
+  EXPECT_EQ( links.get_num_hid_options(), 1 );
 
-  links.popHidOption();
+  links.pop_hid_option();
   EXPECT_EQ( links.links_, dlx );
-  EXPECT_EQ( true, links.hidItemsEmpty() );
-  EXPECT_EQ( links.getNumHidOptions(), 0 );
-  EXPECT_EQ( true, links.hideRequestedOption( fire ) );
-  links.resetOptions();
+  EXPECT_EQ( true, links.hid_items_empty() );
+  EXPECT_EQ( links.get_num_hid_options(), 0 );
+  EXPECT_EQ( true, links.hide_requested_option( fire ) );
+  links.reset_options();
   EXPECT_EQ( links.links_, dlx );
-  EXPECT_EQ( true, links.hidItemsEmpty() );
-  EXPECT_EQ( links.getNumHidOptions(), 0 );
+  EXPECT_EQ( true, links.hid_items_empty() );
+  EXPECT_EQ( links.get_num_hid_options(), 0 );
 }
 
 TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover )
@@ -2474,7 +2474,7 @@ TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover 
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   Dx::Type_encoding electric( "Electric" );
-  EXPECT_EQ( true, links.hideRequestedItem( electric ) );
+  EXPECT_EQ( true, links.hide_requested_item( electric ) );
   const std::vector<Dx::Pokemon_links::Type_name> headersHideElectric {
     { { "" }, 6, 2 },
     { { "Electric" }, 0, 2 },
@@ -2526,10 +2526,10 @@ TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover 
                                                     { 15, { { "Fire" }, { "Grass" }, { "Ice" }, { "Normal" } } },
                                                     { 15, { { "Fire" }, { "Ice" }, { "Normal" }, { "Water" } } } };
   EXPECT_EQ( links.links_, dlxHideElectric );
-  EXPECT_EQ( links.itemTable_, headersHideElectric );
-  EXPECT_EQ( links.getNumItems(), 5 );
-  EXPECT_EQ( links.getExactCoverages( 6 ), exact );
-  EXPECT_EQ( links.getOverlappingCoverages( 6 ), overlapping );
+  EXPECT_EQ( links.item_table_, headersHideElectric );
+  EXPECT_EQ( links.get_num_items(), 5 );
+  EXPECT_EQ( links.get_exact_coverages( 6 ), exact );
+  EXPECT_EQ( links.get_overlapping_coverages( 6 ), overlapping );
 }
 
 TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCover )
@@ -2637,7 +2637,7 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   Dx::Type_encoding electric( "Electric" );
-  EXPECT_EQ( true, links.hideRequestedItem( electric ) );
+  EXPECT_EQ( true, links.hide_requested_item( electric ) );
   std::vector<Dx::Type_encoding> failOutput = {};
   Dx::Type_encoding grass( "Grass" );
   Dx::Type_encoding grassy( "Grassy" );
@@ -2645,7 +2645,7 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
   Dx::Type_encoding rainy( "Rainy" );
   std::vector<Dx::Type_encoding> hide_request { grass, electric, grassy, cloudy, rainy };
   std::vector<Dx::Type_encoding> should_fail { electric, grassy, cloudy, rainy };
-  EXPECT_EQ( false, links.hideRequestedItem( hide_request, failOutput ) );
+  EXPECT_EQ( false, links.hide_requested_item( hide_request, failOutput ) );
   EXPECT_EQ( failOutput, should_fail );
 
   const std::vector<Dx::Pokemon_links::Type_name> headersHideElectricAndGrass {
@@ -2699,10 +2699,10 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
                                                     { 12, { { "Grass" }, { "Ice" }, { "Normal" } } },
                                                     { 12, { { "Ice" }, { "Normal" }, { "Water" } } } };
   EXPECT_EQ( links.links_, dlxHideElectricAndGrass );
-  EXPECT_EQ( links.itemTable_, headersHideElectricAndGrass );
-  EXPECT_EQ( links.getNumItems(), 4 );
-  EXPECT_EQ( links.getExactCoverages( 6 ), exact );
-  EXPECT_EQ( links.getOverlappingCoverages( 6 ), overlapping );
+  EXPECT_EQ( links.item_table_, headersHideElectricAndGrass );
+  EXPECT_EQ( links.get_num_items(), 4 );
+  EXPECT_EQ( links.get_exact_coverages( 6 ), exact );
+  EXPECT_EQ( links.get_overlapping_coverages( 6 ), overlapping );
 }
 
 TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep )
@@ -2809,8 +2809,8 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
     { INT_MIN, 23, UINT64_MAX, EM, 0 },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  links.hideAllItemsExcept( { Dx::Type_encoding( "Water" ) } );
-  const std::vector<Dx::Pokemon_links::Type_name> headersHideExceptWater {
+  links.hide_all_items_except( { Dx::Type_encoding( "Water" ) } );
+  const std::vector<Dx::Pokemon_links::Type_name> headers_hide_except_water {
     { { "" }, 6, 6 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 0, 3 },
@@ -2820,7 +2820,7 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
     { { "Water" }, 0, 0 },
   };
   const int HD = Dx::Pokemon_links::hidden_;
-  const std::vector<Dx::Pokemon_links::Poke_link> dlxHideExceptWater = {
+  const std::vector<Dx::Pokemon_links::Poke_link> dlx_hide_except_water = {
     // 0               1Electric      2Fire           3Grass          4Ice           5Normal         6Water
     { 0, 0, 0, EM, 0 },
     { 3, 20, 8, EM, HD },
@@ -2860,15 +2860,15 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
     { 3, { { "Grass" } } }, { 3, { { "Ice" } } }, { 3, { { "Water" } } } };
   std::set<Ranked_set<Dx::Type_encoding>> overlapping {
     { 3, { { "Grass" } } }, { 3, { { "Ice" } } }, { 3, { { "Water" } } } };
-  EXPECT_EQ( links.links_, dlxHideExceptWater );
-  EXPECT_EQ( links.itemTable_, headersHideExceptWater );
-  EXPECT_EQ( links.getNumItems(), 1 );
-  EXPECT_EQ( links.getExactCoverages( 6 ), exact );
-  EXPECT_EQ( links.getOverlappingCoverages( 6 ), overlapping );
-  links.resetItems();
+  EXPECT_EQ( links.links_, dlx_hide_except_water );
+  EXPECT_EQ( links.item_table_, headers_hide_except_water );
+  EXPECT_EQ( links.get_num_items(), 1 );
+  EXPECT_EQ( links.get_exact_coverages( 6 ), exact );
+  EXPECT_EQ( links.get_overlapping_coverages( 6 ), overlapping );
+  links.reset_items();
   EXPECT_EQ( links.links_, dlx );
-  EXPECT_EQ( links.itemTable_, headers );
-  EXPECT_EQ( links.getNumHidItems(), 0 );
+  EXPECT_EQ( links.item_table_, headers );
+  EXPECT_EQ( links.get_num_hid_items(), 0 );
 }
 
 TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
@@ -2981,23 +2981,23 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
   Dx::Type_encoding fire( "Fire" );
   Dx::Type_encoding ice( "Ice" );
   Dx::Type_encoding normal( "Normal" );
-  links.hideAllItemsExcept( { water } );
-  links.hideAllOptionsExcept( { grass } );
-  EXPECT_EQ( links.getNumHidItems(), 5 );
-  EXPECT_EQ( links.getNumHidOptions(), 5 );
-  EXPECT_EQ( true, links.hasItem( water ) );
-  EXPECT_EQ( true, links.hasOption( grass ) );
-  EXPECT_EQ( false, links.hasItem( grass ) );
-  EXPECT_EQ( false, links.hasItem( electric ) );
-  EXPECT_EQ( false, links.hasOption( electric ) );
-  EXPECT_EQ( false, links.hasItem( fire ) );
-  EXPECT_EQ( false, links.hasOption( fire ) );
-  EXPECT_EQ( false, links.hasItem( ice ) );
-  EXPECT_EQ( false, links.hasOption( ice ) );
-  EXPECT_EQ( false, links.hasItem( normal ) );
-  EXPECT_EQ( false, links.hasOption( normal ) );
-  EXPECT_EQ( false, links.hasOption( water ) );
-  const std::vector<Dx::Pokemon_links::Type_name> headersHideExceptWater {
+  links.hide_all_items_except( { water } );
+  links.hide_all_options_except( { grass } );
+  EXPECT_EQ( links.get_num_hid_items(), 5 );
+  EXPECT_EQ( links.get_num_hid_options(), 5 );
+  EXPECT_EQ( true, links.has_item( water ) );
+  EXPECT_EQ( true, links.has_option( grass ) );
+  EXPECT_EQ( false, links.has_item( grass ) );
+  EXPECT_EQ( false, links.has_item( electric ) );
+  EXPECT_EQ( false, links.has_option( electric ) );
+  EXPECT_EQ( false, links.has_item( fire ) );
+  EXPECT_EQ( false, links.has_option( fire ) );
+  EXPECT_EQ( false, links.has_item( ice ) );
+  EXPECT_EQ( false, links.has_option( ice ) );
+  EXPECT_EQ( false, links.has_item( normal ) );
+  EXPECT_EQ( false, links.has_option( normal ) );
+  EXPECT_EQ( false, links.has_option( water ) );
+  const std::vector<Dx::Pokemon_links::Type_name> headers_hide_except_water {
     { { "" }, 6, 6 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 0, 3 },
@@ -3007,7 +3007,7 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
     { { "Water" }, 0, 0 },
   };
   const int8_t HD = Dx::Pokemon_links::hidden_;
-  const std::vector<Dx::Pokemon_links::Poke_link> dlxHideExceptWater = {
+  const std::vector<Dx::Pokemon_links::Poke_link> dlx_hide_except_water = {
     // 0               1Electric        2Fire         3Grass         4Ice         5Normal       6Water
     { 0, 0, 0, EM, 0 },
     { 0, 1, 1, EM, HD },
@@ -3044,25 +3044,25 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
     { INT_MIN, 23, UINT64_MAX, EM, 0 },
   };
   std::set<Ranked_set<Dx::Type_encoding>> answer { { 3, { { "Grass" } } } };
-  EXPECT_EQ( links.links_, dlxHideExceptWater );
-  EXPECT_EQ( links.itemTable_, headersHideExceptWater );
-  EXPECT_EQ( links.getNumItems(), 1 );
-  EXPECT_EQ( links.getNumOptions(), 1 );
-  EXPECT_EQ( links.getExactCoverages( 6 ), answer );
-  EXPECT_EQ( links.getOverlappingCoverages( 6 ), answer );
-  links.resetItems();
-  links.resetOptions();
+  EXPECT_EQ( links.links_, dlx_hide_except_water );
+  EXPECT_EQ( links.item_table_, headers_hide_except_water );
+  EXPECT_EQ( links.get_num_items(), 1 );
+  EXPECT_EQ( links.get_num_options(), 1 );
+  EXPECT_EQ( links.get_exact_coverages( 6 ), answer );
+  EXPECT_EQ( links.get_overlapping_coverages( 6 ), answer );
+  links.reset_items();
+  links.reset_options();
   EXPECT_EQ( links.links_, dlx );
-  EXPECT_EQ( links.itemTable_, headers );
-  EXPECT_EQ( links.getNumHidItems(), 0 );
-  EXPECT_EQ( links.getNumHidOptions(), 0 );
-  links.hideAllItemsExcept( { water } );
-  links.hideAllOptionsExcept( { grass } );
-  links.resetItemsOptions();
+  EXPECT_EQ( links.item_table_, headers );
+  EXPECT_EQ( links.get_num_hid_items(), 0 );
+  EXPECT_EQ( links.get_num_hid_options(), 0 );
+  links.hide_all_items_except( { water } );
+  links.hide_all_options_except( { grass } );
+  links.reset_items_options();
   EXPECT_EQ( links.links_, dlx );
-  EXPECT_EQ( links.itemTable_, headers );
-  EXPECT_EQ( links.getNumHidItems(), 0 );
-  EXPECT_EQ( links.getNumHidOptions(), 0 );
+  EXPECT_EQ( links.item_table_, headers );
+  EXPECT_EQ( links.get_num_hid_items(), 0 );
+  EXPECT_EQ( links.get_num_hid_options(), 0 );
 }
 
 // NOLINTEND

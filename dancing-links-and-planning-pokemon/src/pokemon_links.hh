@@ -1,5 +1,5 @@
 /**
- * MIT License
+ * mIT License
  *
  * Copyright (c) 2023 Alex G. Lopez
  *
@@ -65,11 +65,11 @@ public:
    *                                need our dancing links items and options to be built and setup
    *                                in lexicographic order for some additional functionality and
    *                                runtime guarantees.
-   * @param typeInteractions        map of pokemon types and their resistances to attack types.
-   * @param requestedCoverSolution  ATTACK or DEFENSE. Build a team or choose attack types.
+   * @param type_interactions        map of pokemon types and their resistances to attack types.
+   * @param requested_cover_solution  ATTACK or DEFENSE. Build a team or choose attack types.
    */
-  explicit Pokemon_links( const std::map<Type_encoding, std::set<Resistance>>& typeInteractions,
-                          Coverage_type requestedCoverSolution );
+  explicit Pokemon_links( const std::map<Type_encoding, std::set<Resistance>>& type_interactions,
+                          Coverage_type requested_cover_solution );
 
   /**
    * @brief Pokemon_links      this alternative constructor is helpful when choosing a defensive
@@ -79,75 +79,75 @@ public:
    *                          need our dancing links items and options to be built and setup
    *                          in lexicographic order for some additional functionality and
    *                          runtime guarantees.
-   * @param typeInteractions  the map of types and their defenses for a given generation.
-   * @param attackTypes       the subset of attacks we must cover with choices of Pokemon teams.
+   * @param type_interactions  the map of types and their defenses for a given generation.
+   * @param attack_types       the subset of attacks we must cover with choices of Pokemon teams.
    */
-  explicit Pokemon_links( const std::map<Type_encoding, std::set<Resistance>>& typeInteractions,
-                          const std::set<Type_encoding>& attackTypes );
+  explicit Pokemon_links( const std::map<Type_encoding, std::set<Resistance>>& type_interactions,
+                          const std::set<Type_encoding>& attack_types );
 
-  /* * * * * * * * * * * *  See DancingLinks.h for Documented Free Functions  * * * * * * * * * */
+  /* * * * * * * * * * * *  See Dancing_links.h for Documented Free Functions  * * * * * * * * * */
 
-  std::set<Ranked_set<Type_encoding>> getExactCoverages( int8_t choiceLimit );
+  std::set<Ranked_set<Type_encoding>> get_exact_coverages( int8_t choice_limit );
 
-  std::set<Ranked_set<Type_encoding>> getOverlappingCoverages( int8_t choiceLimit );
+  std::set<Ranked_set<Type_encoding>> get_overlapping_coverages( int8_t choice_limit );
 
-  bool hideRequestedItem( Type_encoding toHide );
+  bool hide_requested_item( Type_encoding to_hide );
 
-  bool hideRequestedItem( const std::vector<Type_encoding>& toHide );
+  bool hide_requested_item( const std::vector<Type_encoding>& to_hide );
 
-  bool hideRequestedItem( const std::vector<Type_encoding>& toHide, std::vector<Type_encoding>& failedToHide );
+  bool hide_requested_item( const std::vector<Type_encoding>& to_hide, std::vector<Type_encoding>& failed_to_hide );
 
-  void hideAllItemsExcept( const std::set<Type_encoding>& toKeep );
+  void hide_all_items_except( const std::set<Type_encoding>& to_keep );
 
-  bool hasItem( Type_encoding item ) const;
+  bool has_item( Type_encoding item ) const;
 
-  Type_encoding peekHidItem() const;
+  Type_encoding peek_hid_item() const;
 
-  void popHidItem();
+  void pop_hid_item();
 
-  bool hidItemsEmpty() const;
+  bool hid_items_empty() const;
 
-  std::vector<Type_encoding> getHidItems() const;
+  std::vector<Type_encoding> get_hid_items() const;
 
-  uint64_t getNumHidItems() const;
+  uint64_t get_num_hid_items() const;
 
-  void resetItems();
+  void reset_items();
 
-  bool hideRequestedOption( Type_encoding toHide );
+  bool hide_requested_option( Type_encoding to_hide );
 
-  bool hideRequestedOption( const std::vector<Type_encoding>& toHide );
+  bool hide_requested_option( const std::vector<Type_encoding>& to_hide );
 
-  bool hideRequestedOption( const std::vector<Type_encoding>& toHide, std::vector<Type_encoding>& failedToHide );
+  bool hide_requested_option( const std::vector<Type_encoding>& to_hide, std::vector<Type_encoding>& failed_to_hide );
 
-  void hideAllOptionsExcept( const std::set<Type_encoding>& toKeep );
+  void hide_all_options_except( const std::set<Type_encoding>& to_keep );
 
-  bool hasOption( Type_encoding option ) const;
+  bool has_option( Type_encoding option ) const;
 
-  Type_encoding peekHidOption() const;
+  Type_encoding peek_hid_option() const;
 
-  void popHidOption();
+  void pop_hid_option();
 
-  bool hidOptionsEmpty() const;
+  bool hid_options_empty() const;
 
-  std::vector<Type_encoding> getHidOptions() const;
+  std::vector<Type_encoding> get_hid_options() const;
 
-  uint64_t getNumHidOptions() const;
+  uint64_t get_num_hid_options() const;
 
-  void resetOptions();
+  void reset_options();
 
-  void resetItemsOptions();
+  void reset_items_options();
 
-  bool reachedOutputLimit() const;
+  bool reached_output_limit() const;
 
-  std::vector<Type_encoding> getItems() const;
+  std::vector<Type_encoding> get_items() const;
 
-  uint64_t getNumItems() const;
+  uint64_t get_num_items() const;
 
-  std::vector<Type_encoding> getOptions() const;
+  std::vector<Type_encoding> get_options() const;
 
-  uint64_t getNumOptions() const;
+  uint64_t get_num_options() const;
 
-  Coverage_type getLinksType() const;
+  Coverage_type get_links_type() const;
 
 private:
   /* * * * * * * * * * *   Dancing Links Internals and Implementation   * * * * * * * * * * * * */
@@ -155,7 +155,7 @@ private:
   // This type is entered into our dancing links array for the in place recursive algorithm.
   struct Poke_link
   {
-    int32_t topOrLen;
+    int32_t top_or_len;
     uint64_t up;
     uint64_t down;
     Multiplier multiplier; // x0.0, x0.25, x0.5, x1.0, x2, or x4 damage multipliers.
@@ -195,34 +195,34 @@ private:
    * table and item table are sorted lexographically we can find any option or item in O(lgN). No
    * auxillary maps are needed.
    */
-  std::vector<Encoding_index> optionTable_ {}; // How we know the name of the option we chose.
-  std::vector<Type_name> itemTable_ {};        // How we know the names of our items.
+  std::vector<Encoding_index> option_table_ {}; // How we know the name of the option we chose.
+  std::vector<Type_name> item_table_ {};        // How we know the names of our items.
   std::vector<Poke_link> links_ {};            // The links that dance!
-  std::vector<uint64_t> hiddenItems_ {};       // Treat as stack with user hidden Items.
-  std::vector<uint64_t> hiddenOptions_ {};     // Treat as stack with user hidden Options.
-  std::size_t maxOutput_ { 200'000 };          // Cutoff our solution generation for GUI usability.
-  bool hitLimit_ { false };                    // How we report to a user that we cutoff more solutions
-  uint64_t numItems_ { 0 };                    // What needs to be covered.
-  uint64_t numOptions_ { 0 };                  // Options we can choose from to cover items.
-  Coverage_type requestedCoverSolution_ {};    // The user is asking for ATTACK or DEFENSE
+  std::vector<uint64_t> hidden_items_ {};       // Treat as stack with user hidden Items.
+  std::vector<uint64_t> hidden_options_ {};     // Treat as stack with user hidden Options.
+  std::size_t max_output_ { 200'000 };          // Cutoff our solution generation for GUI usability.
+  bool hit_limit_ { false };                    // How we report to a user that we cutoff more solutions
+  uint64_t num_items_ { 0 };                    // What needs to be covered.
+  uint64_t num_options_ { 0 };                  // Options we can choose from to cover items.
+  Coverage_type requested_cover_solution_ {};    // The user is asking for ATTACK or DEFENSE
 
   static constexpr int8_t hidden_ = -1;
 
   /**
-   * @brief fillExactCoverages  fills the output parameters with every exact cover that can be
+   * @brief fill_exact_coverages  fills the output parameters with every exact cover that can be
    *                            determined for defending against attack types or attacking
    *                            defensive types. Exact covers use options to cover every item
    *                            exactly once.
    * @param coverages           the output parameter that serves as the final solution.
    * @param coverage            the successfully coverages we find while the links dance.
-   * @param depthLimit          size of a pokemon team or the number of attacks a team can have.
+   * @param depth_limit          size of a pokemon team or the number of attacks a team can have.
    */
-  void fillExactCoverages( std::set<Ranked_set<Type_encoding>>& coverages,
+  void fill_exact_coverages( std::set<Ranked_set<Type_encoding>>& coverages,
                            Ranked_set<Type_encoding>& coverage,
-                           int8_t depthLimit );
+                           int8_t depth_limit );
 
   /**
-   * @brief fillOverlappingCoverages  fills the output parameter with every overlapping cover that
+   * @brief fill_overlapping_coverages  fills the output parameter with every overlapping cover that
    *                                  can be determined for defending against attack types or
    *                                  attacking defensive types. Overlapping covers use any
    *                                  number of options within their depth limit to cover all
@@ -231,149 +231,149 @@ private:
    *                                  duplicates other than using a set. Better ideas wanted.
    * @param coverages                 the output parameter as our final solution if found.
    * @param coverage                  the helper set that fills the output parameter.
-   * @param depthTag                  a tag used to signify the recursive depth. Used internally.
+   * @param depth_tag                  a tag used to signify the recursive depth. Used internally.
    */
-  void fillOverlappingCoverages( std::set<Ranked_set<Type_encoding>>& coverages,
+  void fill_overlapping_coverages( std::set<Ranked_set<Type_encoding>>& coverages,
                                  Ranked_set<Type_encoding>& coverage,
-                                 int8_t depthTag );
+                                 int8_t depth_tag );
 
   /**
-   * @brief chooseItem  choose an item to cover that appears the least across all options. If an
+   * @brief choose_item  choose an item to cover that appears the least across all options. If an
    *                    item becomes inaccessible over the course of recursion I signify this by
    *                    returning 0. That branch should fail at that point.
    * @return            the index in the lookup table and headers of links_ of the item to cover.
    */
-  uint64_t chooseItem() const;
+  uint64_t choose_item() const;
 
   /**
-   * @brief coverType      perform an exact cover as described by Donald Knuth, eliminating the
+   * @brief cover_type      perform an exact cover as described by Donald Knuth, eliminating the
    *                       option we have chosen, covering all associated items, and eliminating
    *                       all other options that include those covered items.
-   * @param indexInOption  the index in the array we use to start covering and eliminating links.
+   * @param index_in_option  the index in the array we use to start covering and eliminating links.
    * @return               every option we choose contributes to the strength of the Ranked_set
    *                       it becomes a part of. Return the strength contribution to the set
    *                       and the name of the option we chose.
    */
-  Encoding_score coverType( uint64_t indexInOption );
+  Encoding_score cover_type( uint64_t index_in_option );
 
   /**
-   * @brief uncoverType    undoes the work of the exact cover operation returning the option,
+   * @brief uncover_type    undoes the work of the exact cover operation returning the option,
    *                       the items it covered, and all other options that include the items we
    *                       covered back uint64_to the links.
-   * @param indexInOption  the work will be undone for the same option if given same index.
+   * @param index_in_option  the work will be undone for the same option if given same index.
    */
-  void uncoverType( uint64_t indexInOption );
+  void uncover_type( uint64_t index_in_option );
 
   /**
-   * @brief hideOptions    takes the options containing the option we chose out of the links. Do
+   * @brief hide_options    takes the options containing the option we chose out of the links. Do
    *                       this in order to cover every item exactly once and not overlap. This
    *                       is the vertical traversal of the links.
-   * @param indexInOption  the index we start at in a given option.
+   * @param index_in_option  the index we start at in a given option.
    */
-  void hideOptions( uint64_t indexInOption );
+  void hide_options( uint64_t index_in_option );
 
   /**
-   * @brief unhideOptions  undoes the work done by the hideOptions operation, returning the other
+   * @brief unhide_options  undoes the work done by the hide_options operation, returning the other
    *                       options containing covered items in an option back into the links.
-   * @param indexInOption  the work will be undone for the same option if given same index.
+   * @param index_in_option  the work will be undone for the same option if given same index.
    */
-  void unhideOptions( uint64_t indexInOption );
+  void unhide_options( uint64_t index_in_option );
 
   /**
-   * @brief overlappingCoverType  performs a loose or "overlapping" cover of items in a dancing
+   * @brief overlapping_cover_type  performs a loose or "overlapping" cover of items in a dancing
    *                              links algorithm. We allow other options that cover items already
    *                              covered to stay accessible in the links leading to many more
    *                              solutions being found as multiple options can cover some of the
    *                              same items.
-   * @param indexInOption         the index in array used to start covering and eliminating links.
-   * @param depthTag              to perform this type of coverage I use a depth tag to know which
+   * @param index_in_option         the index in array used to start covering and eliminating links.
+   * @param depth_tag              to perform this type of coverage I use a depth tag to know which
    *                              items have already been covered in an option and which still
    *                              need coverage.
    * @return                      the score our option contributes to its Ranked_set and name.
    */
-  Encoding_score overlappingCoverType( Cover_tag tag );
+  Encoding_score overlapping_cover_type( Cover_tag tag );
 
   /**
-   * @brief overlappingUncoverType  undoes the work of the loos cover operation. It uncovers items
+   * @brief overlapping_uncover_type  undoes the work of the loos cover operation. It uncovers items
    *                                that were covered by an option at the same level of recursion
    *                                in which they were covered, using the depth tags to note
    *                                levels.
-   * @param indexInOption           the same index as cover operation will uncover same items.
+   * @param index_in_option           the same index as cover operation will uncover same items.
    */
-  void overlappingUncoverType( uint64_t indexInOption );
+  void overlapping_uncover_type( uint64_t index_in_option );
 
   /**
-   * @brief findItemIndex  performs binary search on the sorted item array to find its index in
+   * @brief find_item_index  performs binary search on the sorted item array to find its index in
    *                       the links array as the column header.
    * @param item           the type item we search for depending on ATTACK or DEFENSE.
    * @return               the index in the item lookup table. This is same as header in links.
    */
-  uint64_t findItemIndex( Type_encoding item ) const;
+  uint64_t find_item_index( Type_encoding item ) const;
 
   /**
-   * @brief findItemIndex  performs binary search on the sorted option array to find its index in
+   * @brief find_item_index  performs binary search on the sorted option array to find its index in
    *                       the links array as the row spacer.
    * @param item           the type item we search for depending on ATTACK or DEFENSE.
    * @return               the index in the item option table. This is same as spacer in links.
    */
-  uint64_t findOptionIndex( Type_encoding option ) const;
+  uint64_t find_option_index( Type_encoding option ) const;
 
   /**
-   * @brief hideItem     hiding an item in the links means we simply tag its column header with a
+   * @brief hide_item     hiding an item in the links means we simply tag its column header with a
    *                     special value that tells our algorithms to ignore items. O(1).
-   * @param headerIndex  the index in the column header of the links that dance.
+   * @param header_index  the index in the column header of the links that dance.
    */
-  void hideItem( uint64_t headerIndex );
+  void hide_item( uint64_t header_index );
 
   /**
-   * @brief unhideItem   unhiding items means we reset tag to indicate is back in the world. O(1).
-   * @param headerIndex  the index of the column header for the dancing links array.
+   * @brief unhide_item   unhiding items means we reset tag to indicate is back in the world. O(1).
+   * @param header_index  the index of the column header for the dancing links array.
    */
-  void unhideItem( uint64_t headerIndex );
+  void unhide_item( uint64_t header_index );
 
   /**
-   * @brief hideOption  hiding an option involves splicing it out of the up-down linked list. We
+   * @brief hide_option  hiding an option involves splicing it out of the up-down linked list. We
    *                    remove all items in this option from the world so the option is hidden.
-   * @param rowIndex    the spacer row index in the row within the dancing links array.
+   * @param row_index    the spacer row index in the row within the dancing links array.
    */
-  void hideOption( uint64_t rowIndex );
+  void hide_option( uint64_t row_index );
 
   /**
-   * @brief unhideOption  unhiding an option undoes the splicing operation. Undoing an option
+   * @brief unhide_option  unhiding an option undoes the splicing operation. Undoing an option
    *                      must be done in last in first out order. User is expected to manage
    *                      hidden options in a stack.
-   * @param rowIndex      the spacer row index in the row within the dancing links array.
+   * @param row_index      the spacer row index in the row within the dancing links array.
    */
-  void unhideOption( uint64_t rowIndex );
+  void unhide_option( uint64_t row_index );
 
   /* * * * * * * * * * *   Dancing Links Instantiation and Building     * * * * * * * * * * * * */
 
   /**
-   * @brief buildDefenseLinks  defensive links have all typings for a generation as options and
+   * @brief build_defense_links  defensive links have all typings for a generation as options and
    *                           all single attack types as items. We will build these links along
    *                           with auxillary vectors that help control recursion and record the
    *                           names of the items and options.
-   * @param typeInteractions   the map of interactions and resistances between types in a gen.
+   * @param type_interactions   the map of interactions and resistances between types in a gen.
    */
-  void buildDefenseLinks( const std::map<Type_encoding, std::set<Resistance>>& typeInteractions );
+  void build_defense_links( const std::map<Type_encoding, std::set<Resistance>>& type_interactions );
 
   /**
-   * @brief buildAttackLinks  attack links have all single attack types for a generation as
+   * @brief build_attack_links  attack links have all single attack types for a generation as
    *                          options and all possible Pokemon typings as items in the links.
-   * @param typeInteractions  the map of interactions and resistances between types in a gen.
+   * @param type_interactions  the map of interactions and resistances between types in a gen.
    */
-  void buildAttackLinks( const std::map<Type_encoding, std::set<Resistance>>& typeInteractions );
+  void build_attack_links( const std::map<Type_encoding, std::set<Resistance>>& type_interactions );
 
   /**
-   * @brief initializeColumns  helper to build the options in our links and the appearances of the
+   * @brief initialize_columns  helper to build the options in our links and the appearances of the
    *                           items across these options.
-   * @param typeInteractions   the map of interactions and resistances between types in a gen.
-   * @param columnBuilder      the helper data structure to build the columns.
-   * @param requestedCoverage  requested coverage to know which multipliers to pay attention to.
+   * @param type_interactions   the map of interactions and resistances between types in a gen.
+   * @param column_builder      the helper data structure to build the columns.
+   * @param requested_coverage  requested coverage to know which multipliers to pay attention to.
    */
-  void initializeColumns( const std::map<Type_encoding, std::set<Resistance>>& typeInteractions,
-                          std::unordered_map<Type_encoding, uint64_t>& columnBuilder,
-                          Coverage_type requestedCoverage );
+  void initialize_columns( const std::map<Type_encoding, std::set<Resistance>>& type_interactions,
+                          std::unordered_map<Type_encoding, uint64_t>& column_builder,
+                          Coverage_type requested_coverage );
 
   /* * * * * * * * * * *    Operators for Test Harness Functionality    * * * * * * * * * * * * */
 
@@ -394,8 +394,8 @@ private:
   friend std::ostream& operator<<( std::ostream& os, const Type_name& type );
   friend bool operator==( const Encoding_index& lhs, const Encoding_index& rhs );
   friend bool operator!=( const Encoding_index& lhs, const Encoding_index& rhs );
-  friend std::ostream& operator<<( std::ostream& os, const Encoding_index& nN );
-  friend std::ostream& operator<<( std::ostream& os, const std::vector<Encoding_index>& nN );
+  friend std::ostream& operator<<( std::ostream& os, const Encoding_index& n_n );
+  friend std::ostream& operator<<( std::ostream& os, const std::vector<Encoding_index>& n_n );
   friend bool operator==( const std::vector<Encoding_index>& lhs, const std::vector<Encoding_index>& rhs );
   friend bool operator!=( const std::vector<Encoding_index>& lhs, const std::vector<Encoding_index>& rhs );
   friend bool operator==( const std::vector<Poke_link>& lhs, const std::vector<Poke_link>& rhs );

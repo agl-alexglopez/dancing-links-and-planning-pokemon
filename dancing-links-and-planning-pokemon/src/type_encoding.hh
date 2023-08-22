@@ -81,7 +81,7 @@ public:
   // If encoding cannot be found encoding_ is set the falsey value 0.
   Type_encoding( std::string_view type ); // NOLINT
   uint32_t encoding() const;
-  std::pair<std::string_view, std::string_view> decodeType() const;
+  std::pair<std::string_view, std::string_view> decode_type() const;
 
   bool operator==( Type_encoding rhs ) const;
   bool operator!=( Type_encoding rhs ) const;
@@ -92,7 +92,7 @@ public:
 
 private:
   uint32_t encoding_;
-  static uint8_t binsearchBitIndex( std::string_view type );
+  static uint8_t binsearch_bit_index( std::string_view type );
   // Any and all Type_encodings will have one global string_view of the type strings for decoding.
   static constexpr std::array<std::string_view, 18> type_encoding_table_ = {
     // lexicographicly organized table. 17th index is the first lexicographic order Bug.
