@@ -21,16 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "Resistance.h"
+#include "resistance.hh"
 #include <utility>
 
-namespace DancingLinks {
+namespace Dancing_links {
 
 
 /* * * * * * * * * *      Free Functions for TypeResistance.h       * * * * * * * * * * * * * * * */
 
 
-TypeEncoding type(const Resistance& res) {
+Type_encoding type(const Resistance& res) {
     return res.type();
 }
 
@@ -42,7 +42,7 @@ Multiplier multiplier(const Resistance& res) {
 /* * * * * * * * * * * * *     Resistance Helper Class      * * * * * * * * * * * * * * * * * * * */
 
 
-Resistance::Resistance(const TypeEncoding& type, const Multiplier& multiplier)
+Resistance::Resistance(const Type_encoding& type, const Multiplier& multiplier)
     : type_(type),
       multiplier_(multiplier) {
 }
@@ -53,11 +53,11 @@ Resistance::Resistance(const Resistance& other)
 }
 
 Resistance::Resistance(Resistance&& other) noexcept
-    : type_(std::move(other.type_)),
-      multiplier_(std::move(other.multiplier_)) {
+    : type_(other.type_),
+      multiplier_(other.multiplier_) {
 }
 
-TypeEncoding Resistance::type() const {
+Type_encoding Resistance::type() const {
     return type_;
 }
 
@@ -76,25 +76,25 @@ Resistance& Resistance::operator=(const Resistance& rhs) {
 std::ostream& operator<<(std::ostream& out, const Resistance& res) {
     out << res.type() << " x";
     switch(res.multiplier()) {
-        case EMPTY_:
+        case emp:
             out << "NIL";
         break;
-        case IMMUNE:
+        case imm:
             out << "0.0";
         break;
-        case FRAC14:
+        case f14:
             out << "0.25";
         break;
-        case FRAC12:
+        case f12:
             out << "0.5";
         break;
-        case NORMAL:
+        case nrm:
             out << "1.0";
         break;
-        case DOUBLE:
+        case dbl:
             out << "2.0";
         break;
-        case QUADRU:
+        case qdr:
             out << "4.0";
         break;
     }
@@ -105,29 +105,29 @@ std::ostream& operator<<(std::ostream& out, const Resistance& res) {
 std::ostream& operator<<(std::ostream& out, const Multiplier& mult) {
     out << "Resistance::";
     switch(mult) {
-        case EMPTY_:
-            out << "EMPTY_";
+        case emp:
+            out << "emp";
         break;
-        case IMMUNE:
-            out << "IMMUNE";
+        case imm:
+            out << "imm";
         break;
-        case FRAC14:
-            out << "FRAC14";
+        case f14:
+            out << "f14";
         break;
-        case FRAC12:
-            out << "FRAC12";
+        case f12:
+            out << "f12";
         break;
-        case NORMAL:
-            out << "NORMAL";
+        case nrm:
+            out << "nrm";
         break;
-        case DOUBLE:
-            out << "DOUBLE";
+        case dbl:
+            out << "dbl";
         break;
-        case QUADRU:
-            out << "QUADRU";
+        case qdr:
+            out << "qdr";
         break;
     }
     return out;
 }
 
-} // namespace DancingLinks
+} // namespace Dancing_links

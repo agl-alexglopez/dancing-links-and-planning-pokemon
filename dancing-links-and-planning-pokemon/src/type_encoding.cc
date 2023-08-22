@@ -22,9 +22,9 @@
  * SOFTWARE.
  *
  * Author: Alexander G. Lopez
- * File: TypeEncoding.cpp
+ * File: Type_encoding.cpp
  * --------------------------
- * This file contains the implementation behind the TypeEncoding type. Notable here is the use of
+ * This file contains the implementation behind the Type_encoding type. Notable here is the use of
  * binary search and bit shifting to acheive fast encoding and decoding. I chose to use a binary
  * search on an array of single types, combining them to create dual types if necessary, over a
  * large map that contains all possible combinations for two reasons: there are only 18 single types
@@ -35,20 +35,20 @@
  * balance of performance and space efficiency. We have at worst two binary searches to encode a
  * type string and at worst 16 bit shifts to decode the encoding back to a string. This is fine.
  */
-#include "TypeEncoding.h"
+#include "type_encoding.hh"
 
 
-namespace DancingLinks {
+namespace Dancing_links {
 
 
-TypeEncoding::TypeEncoding(std::string_view type)
+Type_encoding::Type_encoding(std::string_view type)
     : encoding_(0) {
-    if (type == "") {
+    if (type.empty()) {
         return;
     }
     size_t delim = type.find('-');
     uint8_t found = binsearchBitIndex(type.substr(0, delim));
-    if (found == TYPE_ENCODING_TABLE.size()) {
+    if (found == type_encoding_table_.size()) {
         return;
     }
     encoding_ = 1 << found;
@@ -56,11 +56,11 @@ TypeEncoding::TypeEncoding(std::string_view type)
         return;
     }
     found = binsearchBitIndex(type.substr(delim + 1));
-    if (found == TYPE_ENCODING_TABLE.size()) {
+    if (found == type_encoding_table_.size()) {
         encoding_ = 0;
         return;
     }
-    encoding_ |= (1 << found);
+    encoding_ |= (1U << found);
 }
 
 /* As the worst case, it takes a few condition checks and 16 bit shifts to fully decode this type.
@@ -69,34 +69,34 @@ TypeEncoding::TypeEncoding(std::string_view type)
  *       |    |-------------------------------------1
  *      Bug-Water = 0x20001 = 0b10000 0000 0000 00001
  */
-std::pair<std::string_view,std::string_view> TypeEncoding::decodeType() const {
+std::pair<std::string_view,std::string_view> Type_encoding::decodeType() const {
     if (!encoding_) {
         return {};
     }
     uint32_t shiftCopy = encoding_;
     uint8_t tableIndex = 0;
-    while (!(shiftCopy & 1)) {
-        shiftCopy >>= 1;
+    while (!(shiftCopy & 1U)) {
+        shiftCopy >>= 1U;
         tableIndex++;
     }
 
-    std::string_view firstFound = TYPE_ENCODING_TABLE.at( tableIndex );
+    std::string_view firstFound = type_encoding_table_.at( tableIndex );
     if (shiftCopy == 1) {
         return {firstFound, {}};
     }
 
     do {
         tableIndex++;
-        shiftCopy >>= 1;
-    } while (!(shiftCopy & 1));
+        shiftCopy >>= 1U;
+    } while (!(shiftCopy & 1U));
 
-    return {TYPE_ENCODING_TABLE.at( tableIndex ), firstFound};
+    return {type_encoding_table_.at( tableIndex ), firstFound};
 }
 
-uint8_t TypeEncoding::binsearchBitIndex(std::string_view type) const {
-    for (uint8_t remain = TYPE_ENCODING_TABLE.size(), base = 0; remain; remain >>= 1) {
+uint8_t Type_encoding::binsearchBitIndex(std::string_view type) {
+    for (uint8_t remain = type_encoding_table_.size(), base = 0; remain; remain >>= 1) {
         uint8_t index = base + (remain >> 1);
-        std::string_view found = TYPE_ENCODING_TABLE.at( index );
+        std::string_view found = type_encoding_table_.at( index );
         if (found == type) {
             return index;
         }
@@ -106,40 +106,40 @@ uint8_t TypeEncoding::binsearchBitIndex(std::string_view type) const {
             remain--;
         }
     }
-    return TYPE_ENCODING_TABLE.size();
+    return type_encoding_table_.size();
 }
 
-uint32_t TypeEncoding::encoding() const {
+uint32_t Type_encoding::encoding() const {
     return encoding_;
 }
 
-bool TypeEncoding::operator==(TypeEncoding rhs) const {
+bool Type_encoding::operator==(Type_encoding rhs) const {
     return this->encoding_ == rhs.encoding_;
 }
 
-bool TypeEncoding::operator!=(TypeEncoding rhs) const {
+bool Type_encoding::operator!=(Type_encoding rhs) const {
     return !(*this == rhs);
 }
 
 // Not a mistake! We want the bits in a uint32_t to be sorted like strings. See file header.
-bool TypeEncoding::operator<(TypeEncoding rhs) const {
+bool Type_encoding::operator<(Type_encoding rhs) const {
     return this->encoding_ > rhs.encoding_;
 }
 
-bool TypeEncoding::operator>(TypeEncoding rhs) const {
+bool Type_encoding::operator>(Type_encoding rhs) const {
     return rhs < *this;
 }
 
-bool TypeEncoding::operator<=(TypeEncoding rhs) const {
+bool Type_encoding::operator<=(Type_encoding rhs) const {
     return !(*this > rhs);
 }
 
-bool TypeEncoding::operator>=(TypeEncoding rhs) const {
+bool Type_encoding::operator>=(Type_encoding rhs) const {
     return !(*this < rhs);
 }
 
 // This operator is useful for the GUI application. I can make heap string methods when needed.
-std::ostream& operator<<(std::ostream& out, TypeEncoding tp) {
+std::ostream& operator<<(std::ostream& out, Type_encoding tp) {
     std::pair<std::string_view,std::string_view> toPrint = tp.decodeType();
     out << toPrint.first;
     if (!toPrint.second.empty()) {
@@ -149,4 +149,4 @@ std::ostream& operator<<(std::ostream& out, TypeEncoding tp) {
 }
 
 
-} // namespace DancingLinks
+} // namespace Dancing_links

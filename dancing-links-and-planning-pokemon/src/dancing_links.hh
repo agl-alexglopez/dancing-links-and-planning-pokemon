@@ -24,7 +24,7 @@
  * Author: Alexander G. Lopez
  * File: DancingLinks.h
  * --------------------------
- * This class defines how to interact with a PokemonLinks object to solve the Pokemon Type Coverage
+ * This class defines how to interact with a Pokemon_links object to solve the Pokemon Type Coverage
  * Problem with Donald Knuth's Algorithm X via Dancing Links. At the most abstract level, an exact
  * coverage is one in which we are able to cover each item in a set of items exactly once by
  * choosing options that contain those items. No two options that we pick can cover the same item.
@@ -100,12 +100,13 @@
  *      Pg.65-70,
  *      Knuth
  */
-#ifndef DANCINGLINKS_H
-#define DANCINGLINKS_H
-#include "Src/PokemonLinks.h"
+#ifndef DANCING_LINKS_HH
+#define DANCING_LINKS_HH
+#include "pokemon_links.hh"
+#include <cstdint>
 
-namespace DancingLinks {
-class PokemonLinks;
+namespace Dancing_links {
+class Pokemon_links;
 
 
 /* * * * * * * *        Free Functions for Client to Use with DLX Solvers       * * * * * * * * * */
@@ -140,7 +141,7 @@ class PokemonLinks;
  *
  * @return                 the set of Ranked Sets that form all solutions of exact cover.
  */
-std::set<RankedSet<TypeEncoding>> solveExactCover(PokemonLinks& dlx, int choiceLimit);
+std::set<Ranked_set<Type_encoding>> solveExactCover(Pokemon_links& dlx, int choiceLimit);
 
 /**
  * @brief solveOverlappingCover an overlapping coverage is when we cover every "item"
@@ -150,76 +151,76 @@ std::set<RankedSet<TypeEncoding>> solveExactCover(PokemonLinks& dlx, int choiceL
  *                              for generated sets is the same as described in the
  *                              exact cover version of the problem. Currently, this
  *                              solution is slow because it generates duplicate
- *                              RankedSet solutions. I filter out duplicates by using a
+ *                              Ranked_set solutions. I filter out duplicates by using a
  *                              set. I have not yet found a way to prevent generating
  *                              duplicate solutions with the Dancing Links method.
  * @return                      the set of Ranked Sets that form all overlapping covers.
  */
-std::set<RankedSet<TypeEncoding>> solveOverlappingCover(PokemonLinks& dlx, int choiceLimit);
+std::set<Ranked_set<Type_encoding>> solveOverlappingCover(Pokemon_links& dlx, int choiceLimit);
 
 /**
  * @brief hasMaxSolutions  exact and overlapping cover solutions are limited at a large number
  *                         for usability if entered into a GUI application. If we have
  *                         generated our maximum output the class will report this fact. This
  *                         means there may have been more solutions but they weren't generated.
- * @param dlx              the PokemonLinks object used to solve exact cover problems.
+ * @param dlx              the Pokemon_links object used to solve exact cover problems.
  * @return                 true if we reached the max limit false if not O(1).
  */
-bool hasMaxSolutions(const PokemonLinks& dlx);
+bool hasMaxSolutions(const Pokemon_links& dlx);
 
 /**
  * @brief items  reports the items in the cover problem as a vector of types. May be attack types
  *               or defense types depending on the requested cover solution on constructing class.
- * @param dlx    the PokemonLinks object that is instantiated with a requested cover solution.
+ * @param dlx    the Pokemon_links object that is instantiated with a requested cover solution.
  * @return       the vector of types that are our items we must cover in the problem.
  */
-std::vector<TypeEncoding> items(const PokemonLinks& dlx);
+std::vector<Type_encoding> items(const Pokemon_links& dlx);
 
 /**
- * @brief numItems  the number of items that need cover in the current PokemonLinks object.
- * @param dlx       the PokemonLinks object that uses options to cover items.
+ * @brief numItems  the number of items that need cover in the current Pokemon_links object.
+ * @param dlx       the Pokemon_links object that uses options to cover items.
  * @return          the int number of items to cover.
  */
-int numItems(const PokemonLinks& dlx);
+uint64_t numItems(const Pokemon_links& dlx);
 
 /**
  * @brief hasItem  returns true if an item is contained the object. An item that is hidden CANNOT
  *                 be found by a membership test, it is hidden. O(lgN) where N is items.
- * @param dlx      the PokemonLinks object we examine.
+ * @param dlx      the Pokemon_links object we examine.
  * @param item     the item we are trying to find.
  * @return         true if the item is present and not hidden false if not.
  */
-bool hasItem(const PokemonLinks& dlx, TypeEncoding item);
+bool hasItem(const Pokemon_links& dlx, Type_encoding item);
 
 /**
  * @brief options  reports the options available to us to cover our items in the cover problem.
- * @param dlx      the PokemonLinks object that is instantiated with a requested cover solution.
+ * @param dlx      the Pokemon_links object that is instantiated with a requested cover solution.
  * @return         the vector of types that are our options we can use to cover the items.
  */
-std::vector<TypeEncoding> options(const PokemonLinks& dlx);
+std::vector<Type_encoding> options(const Pokemon_links& dlx);
 
 /**
  * @brief numOptions  the number of options we can choose from to cover the total items.
- * @param dlx         the PokemonLinks object that uses options to cover items.
+ * @param dlx         the Pokemon_links object that uses options to cover items.
  * @return            the int number of options we can choose from.
  */
-int numOptions(const PokemonLinks& dlx);
+int numOptions(const Pokemon_links& dlx);
 
 /**
  * @brief hasOption  returns true if an option is contained in the object. An option that is hidden
  *                   CANNOT be found by a membership test. O(lgN) where N is options.
- * @param dlx        the PokemonLinks object we examine.
+ * @param dlx        the Pokemon_links object we examine.
  * @param option     the option we are searching for.
  * @return           true if found and not hidden false if not.
  */
-bool hasOption(const PokemonLinks& dlx, TypeEncoding option);
+bool hasOption(const Pokemon_links& dlx, Type_encoding option);
 
 /**
- * @brief coverageType  the coverage type the PokemonLinks is set to.
- * @param dlx           the PokemonLinks we have instantiated.
+ * @brief coverageType  the coverage type the Pokemon_links is set to.
+ * @param dlx           the Pokemon_links we have instantiated.
  * @return              ATTACK or DEFENSE, depeding on the request when building the class.
  */
-PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
+Pokemon_links::Coverage_type coverageType(const Pokemon_links& dlx);
 
 /**
  * @brief hideItem  removes an item from the dancing links so that it no longer exists in any cover
@@ -229,80 +230,80 @@ PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
  *                  into the world later if desired. Interact with hidden items as you would a
  *                  stack. We must unhide the top of the stack of hidden items first. In place,
  *                  O(lgN) guarantee.
- * @param dlx       the PokemonLinks object we alter in place.
+ * @param dlx       the Pokemon_links object we alter in place.
  * @param toHide    the type item representing the item to hide depending on ATTACK or DEFENSE.
  * @return          true if the item was hidden false if it was already hidden or not found.
  */
-bool hideItem(PokemonLinks& dlx, TypeEncoding toHide);
+bool hideItem(Pokemon_links& dlx, Type_encoding toHide);
 
 /**
  * @brief hideItem  hides all items specified from the vector as above. In place, O(NlgN) guarantee.
- * @param dlx       the PokemonLinks object we alter in place.
+ * @param dlx       the Pokemon_links object we alter in place.
  * @param toHide    the type item representing the item to hide depending on ATTACK or DEFENSE.
  * @return          true if all items were hidden false if at least one was not.
  */
-bool hideItem(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide);
+bool hideItem(Pokemon_links& dlx, const std::vector<Type_encoding>& toHide);
 
 /**
  * @brief hideItem      hides items specified from the vector as above. In place, O(NlgN) guarantee.
- * @param dlx           the PokemonLinks object we alter in place.
+ * @param dlx           the Pokemon_links object we alter in place.
  * @param toHide        the type representing the item to hide depending on ATTACK or DEFENSE.
  * @param failedToHide  an additional output parameter if user wants to see failures.
  * @return              true if all items were hidden false if at least one was not found.
  */
-bool hideItem(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
-              std::vector<TypeEncoding>& failedToHide);
+bool hideItem(Pokemon_links& dlx, const std::vector<Type_encoding>& toHide,
+              std::vector<Type_encoding>& failedToHide);
 
 /**
  * @brief hideItemsExcept  hides all items NOT included in the specified set. In place, O(NlgK)
  *                         N is the number of Items and K is the number of items to keep.
- * @param dlx              the PokemonLinks object we alter in place.
+ * @param dlx              the Pokemon_links object we alter in place.
  * @param toKeep           the items that remain the world as items we must cover.
  */
-void hideItemsExcept(PokemonLinks& dlx, const std::set<TypeEncoding>& toKeep);
+void hideItemsExcept(Pokemon_links& dlx, const std::set<Type_encoding>& toKeep);
 
 /**
  * @brief numHidItems  returns the number of items we are currently hiding from the world. O(1).
- * @param dlx          the PokemonLinks object we examine.
+ * @param dlx          the Pokemon_links object we examine.
  * @return             the int number of hidden items.
  */
-int numHidItems(const PokemonLinks& dlx);
+uint64_t numHidItems(const Pokemon_links& dlx);
 
 /**
  * @brief peekHidItem  hidden items act like a stack that must be unhidden Last-in-First-out.
  *                     check the most recently hid item without altering the stack. Throws an
  *                     exception is the stack is empty. O(1).
- * @param dlx          the PokemonLinks object we examine.
+ * @param dlx          the Pokemon_links object we examine.
  * @return             the most recently hidden item.
  */
-TypeEncoding peekHidItem(const PokemonLinks& dlx);
+Type_encoding peekHidItem(const Pokemon_links& dlx);
 
 /**
  * @brief popHidItem  pop the most recently hidden item from the stack altering the stack. Throws
  *                    an exception if attempt is made to pop from empty stack. O(1).
- * @param dlx         the PokemonLinks object we alter.
+ * @param dlx         the Pokemon_links object we alter.
  */
-void popHidItem(PokemonLinks& dlx);
+void popHidItem(Pokemon_links& dlx);
 
 /**
  * @brief hidItemsEmpty  reports if the stack of hidden items is empty.
- * @param dlx            the PokemonLinks object we examine.
+ * @param dlx            the Pokemon_links object we examine.
  * @return               true if empty false if not.
  */
-bool hidItemsEmpty(const PokemonLinks& dlx);
+bool hidItemsEmpty(const Pokemon_links& dlx);
 
 /**
  * @brief hidItems  view the currently hidden stack as a vector. The last item is the first out.
- * @param dlx       the PokemonLinks object we alter.
+ * @param dlx       the Pokemon_links object we alter.
  * @return          the vector of items in the order we hid them. Last is first out if popped.
  */
-std::vector<TypeEncoding> hidItems(const PokemonLinks& dlx);
+std::vector<Type_encoding> hidItems(const Pokemon_links& dlx);
 
 /**
  * @brief resetItems  restores the items in the world to their original state. O(H), H hidden items.
- * @param dlx         the PokemonLinks object we alter.
+ * @param dlx         the Pokemon_links object we alter.
  */
-void resetItems(PokemonLinks& dlx);
+void resetItems(Pokemon_links& dlx);
 
 /**
  * @brief hideOption  hides an option from the dancing links so that it no longer available to
@@ -313,97 +314,97 @@ void resetItems(PokemonLinks& dlx);
  *                    behaves as a stack and they must be unhidden in Last-in-First-out order to
  *                    restore the world to its original state. In place, O(lgN + I) where N is the
  *                    number of options and I is the number of Items in an option.
- * @param dlx         the PokemonLinks object we alter.
+ * @param dlx         the Pokemon_links object we alter.
  * @param toHide      the option we must hide from the world.
  * @return            true if option was hidden false if it was hidden or could not be found.
  */
-bool hideOption(PokemonLinks& dlx, TypeEncoding toHide);
+bool hideOption(Pokemon_links& dlx, Type_encoding toHide);
 
 /**
  * @brief hideOption  hides all options specified in the vector from the world. Uses the same
  *                    process as hideOption() for each option making an O(HlgNI) where H is the
  *                    number of options to hide, N is the number of options and I is the number of
  *                    items in an option. In practice, I is often small in sparse links.
- * @param dlx         the PokemonLinks object we alter.
+ * @param dlx         the Pokemon_links object we alter.
  * @param toHide      the options we must hide from the world.
  * @return            true if all options were hidden false if at least one was not.
  */
-bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide);
+bool hideOption(Pokemon_links& dlx, const std::vector<Type_encoding>& toHide);
 
 /**
  * @brief hideOption    hides all options specified in the vector from the world. Uses the same
  *                      process as hideOption() for each option making an O(HlgNI) where H is the
  *                      number of options to hide, N is the number of options and I is the number of
  *                      items in an option. In practice, I is often small in sparse links.
- * @param dlx           the PokemonLinks object we alter.
+ * @param dlx           the Pokemon_links object we alter.
  * @param toHide        the options we must hide from the world.
  * @param failedToHide  an additional output showing the options that could not be found.
  * @return              true if all options were hidden false if at least one failed.
  */
-bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
-                std::vector<TypeEncoding>& failedToHide);
+bool hideOption(Pokemon_links& dlx, const std::vector<Type_encoding>& toHide,
+                std::vector<Type_encoding>& failedToHide);
 
 /**
  * @brief hideOptionsExcept  hides all options NOT specified in the given set. In place O(NlgKI)
  *                           where N is the number of options, K the number of options to keep, and
  *                           I the number of Items covered by each option. In practice I is small in
- *                           sparse PokemonLinks grids.
- * @param dlx                the PokemonLinks object we alter.
+ *                           sparse Pokemon_links grids.
+ * @param dlx                the Pokemon_links object we alter.
  * @param toKeep             the options we will keep available to choose from for the problem.
  */
-void hideOptionsExcept(PokemonLinks& dlx, const std::set<TypeEncoding>& toKeep);
+void hideOptionsExcept(Pokemon_links& dlx, const std::set<Type_encoding>& toKeep);
 
 /**
  * @brief numHidOptions  num options currently hidden in the stack. The last is first out. O(1).
- * @param dlx            the PokemonLinks object we examine.
+ * @param dlx            the Pokemon_links object we examine.
  * @return               the int representing number of hidden options in the stack.
  */
-int numHidOptions(const PokemonLinks& dlx);
+uint64_t numHidOptions(const Pokemon_links& dlx);
 
 /**
  * @brief peekHidOption  hidden items act like a stack that must be unhidden Last-in-First-out.
  *                       check the most recently hid item without altering the stack. O(1).
- * @param dlx            the PokemonLinks object we examine.
+ * @param dlx            the Pokemon_links object we examine.
  * @return               the most recently hidden option.
  */
-TypeEncoding peekHidOption(const PokemonLinks& dlx);
+Type_encoding peekHidOption(const Pokemon_links& dlx);
 
 /**
  * @brief popHidOption  pop the most recently hidden item from stack altering the stack. O(1).
- * @param dlx           the PokemonLinks object we alter.
+ * @param dlx           the Pokemon_links object we alter.
  */
-void popHidOption(PokemonLinks& dlx);
+void popHidOption(Pokemon_links& dlx);
 
 /**
  * @brief hidOptionsEmpty  reports if the stack of hidden options is empty.
- * @param dlx              the PokemonLinks object we examine.
+ * @param dlx              the Pokemon_links object we examine.
  * @return                 true if empty false if not.
  */
-bool hidOptionsEmpty(const PokemonLinks& dlx);
+bool hidOptionsEmpty(const Pokemon_links& dlx);
 
 /**
  * @brief hidOptions  view the currently hidden stack as a vector. The last item is first-out.
- * @param dlx         the PokemonLinks object we alter.
+ * @param dlx         the Pokemon_links object we alter.
  * @return            the vector of options in order we hid them. Last is first out if popped.
  */
-std::vector<TypeEncoding> hidOptions(const PokemonLinks& dlx);
+std::vector<Type_encoding> hidOptions(const Pokemon_links& dlx);
 
 /**
  * @brief resetOptions  restore the options in the world to original state. O(H), H hidden items.
- * @param dlx           the PokemonLinks object we alter.
+ * @param dlx           the Pokemon_links object we alter.
  */
-void resetOptions(PokemonLinks& dlx);
+void resetOptions(Pokemon_links& dlx);
 
 /**
  * @brief resetAll  completely restore the items and options to original state. O(I + (PC)) where
  *                  I is the number of hidden items, P is the number of hidden options and C is the
  *                  number of items covered by each option.
- * @param dlx       the PokemonLinks object we alter.
+ * @param dlx       the Pokemon_links object we alter.
  */
-void resetAll(PokemonLinks& dlx);
+void resetAll(Pokemon_links& dlx);
 
 
-} // namespace DancingLinks
+} // namespace Dancing_links
 
 
-#endif // DANCINGLINKS_H
+#endif // DANCING_LINKS_HH

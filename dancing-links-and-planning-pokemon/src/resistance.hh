@@ -28,42 +28,42 @@
  * these resistances to be associated with keys. The keys should either be attack types or defensive
  * types, so this is not a generic class.
  */
-#ifndef RESISTANCE_H
-#define RESISTANCE_H
-#include <string>
+#ifndef RESISTANCE_HH
+#define RESISTANCE_HH
+#include "type_encoding.hh"
 #include <ostream>
-#include "../TypeEncoding.h"
+#include <string>
 
-namespace DancingLinks {
+namespace Dancing_links {
 
 enum Multiplier {
     /* It would not make sense for someone to let a multiplier in a Resistance default to
      * IMMUNE, because that is a valuable multiplier to have for a Pokemon. Make sure you
      * initialize multipliers unless you want an EMPTY_ placeholder.
      */
-    EMPTY_=0,
-    IMMUNE,
-    FRAC14,  // x0.25 damage aka the fraction 1/4
-    FRAC12,  // x0.5 damage aka the fraction 1/2
-    NORMAL,
-    DOUBLE,
-    QUADRU
+    emp=0,
+    imm,
+    f14,  // x0.25 damage aka the fraction 1/4
+    f12,  // x0.5 damage aka the fraction 1/2
+    nrm,
+    dbl,
+    qdr
 };
 
 class Resistance {
 public:
 
-    Resistance(const TypeEncoding& type, const Multiplier& multiplier);
+    Resistance(const Type_encoding& type, const Multiplier& multiplier);
 
-    Resistance(const Resistance& other);
+    Resistance(const Resistance& other) = default;
+    Resistance(Resistance&& other) noexcept = default;
+    Resistance& operator=(Resistance&& other) = default;
+    Resistance& operator=(const Resistance& other) = default;
+    ~Resistance() = default;
 
-    Resistance(Resistance&& other) noexcept;
-
-    TypeEncoding type() const;
+    Type_encoding type() const;
 
     Multiplier multiplier() const;
-
-    Resistance& operator=(const Resistance& rhs);
 
     bool operator< (const Resistance& rhs) const {
         return this->type() < rhs.type();
@@ -84,7 +84,7 @@ public:
         return !(*this == rhs);
     }
 private:
-    TypeEncoding type_;
+    Type_encoding type_;
     Multiplier multiplier_;
 
 };
@@ -93,6 +93,6 @@ private:
 std::ostream& operator<<(std::ostream& out, const Resistance& res);
 std::ostream& operator<<(std::ostream& out, const Multiplier& mult);
 
-}// namespace DancingLinks
+}// namespace Dancing_links
 
-#endif // RESISTANCE_H
+#endif // RESISTANCE_HH

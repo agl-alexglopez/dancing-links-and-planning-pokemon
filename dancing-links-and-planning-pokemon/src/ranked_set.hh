@@ -22,58 +22,46 @@
  * SOFTWARE.
  *
  * Author: Alexander Lopez
- * File: RankedSet.h
+ * File: Ranked_set.h
  * -----------------------
  * This template class is a simple wrapper for a set so that I can implement my scoring method for
  * the exact and overlapping covers I find for Pokemon. However, this could be used for any case
  * in which I need a set to carry a numeric rank that defines its natural order. The order goes as
- * follows: RankedSets are ordered first by their numeric rank in ascending order. If two ranks
- * are the same the RankedSet is then organized by the natural ordering of std::set and behaves
+ * follows: Ranked_sets are ordered first by their numeric rank in ascending order. If two ranks
+ * are the same the Ranked_set is then organized by the natural ordering of std::set and behaves
  * exactly as you would expect the C++ std::set to behave when compared. The rank component of
  * the set is a simple integer, allowing for both positive and negative weights.
  *
  * Initially, my purpose in using this was to create the same data structure as a priority queue.
  * I found that the C++ priority queue was inconvenient because iteration through a priority queue
  * of Sets required me to pop from the queue, destroying it. This gives me less flexibility with
- * how I store and illustrate solutions to cover problems in the Pokemon GUI. Putting RankedSets
+ * how I store and illustrate solutions to cover problems in the Pokemon GUI. Putting Ranked_sets
  * in a set acheives the same ordering as I wanted in a priority queue and allows for more
  * flexibility.
  */
-#ifndef RANKEDSET_H
-#define RANKEDSET_H
+#ifndef RANKED_SET_HH
+#define RANKED_SET_HH
 #include <iterator>
 #include <ostream>
 #include <set>
 #include <string>
 #include <utility>
 
-template<class valueType>
-class RankedSet {
+template<class Value_type>
+class Ranked_set {
 public:
-    RankedSet() = default;
 
-    RankedSet(int rank, const std::set<valueType>& set)
+    Ranked_set() = default;
+    Ranked_set(int rank, const std::set<Value_type>& set)
         : rank_(rank),
           set_(set) {
     }
 
-    RankedSet(const RankedSet& other)
-        : rank_(other.rank_),
-          set_(other.set_) {
-    }
-
-    RankedSet(RankedSet&& other)
-        : rank_(std::move(other.rank_)),
-          set_(std::move(other.set_)){
-    }
-
-    RankedSet& operator=(const RankedSet& rhs) {
-        if (this != rhs) {
-            this->rank_ = rhs.rank_;
-            this->set_ = rhs.set_;
-        }
-        return *this;
-    }
+    Ranked_set(const Ranked_set& other) = default;
+    Ranked_set(Ranked_set&& other) noexcept = default;
+    Ranked_set& operator=(Ranked_set&& other) noexcept = default;
+    Ranked_set& operator=(const Ranked_set& rhs) = default;
+    ~Ranked_set() = default;
 
     std::size_t size() const {
         return set_.size();
@@ -83,21 +71,21 @@ public:
         return rank_;
     }
 
-    void insert(const valueType& elem) {
+    void insert(const Value_type& elem) {
         set_.insert(elem);
     }
 
-    void insert(const int rank, const valueType& elem) {
+    void insert(const int rank, const Value_type& elem) {
         if (set_.insert(elem).second) {
             rank_ += rank;
         }
     }
 
-    void erase(const valueType& elem) {
+    void erase(const Value_type& elem) {
         set_.erase(elem);
     }
 
-    void erase(const int rank, const valueType& elem) {
+    void erase(const int rank, const Value_type& elem) {
         if (set_.erase(elem)) {
             rank_ -= rank;
         }
@@ -111,7 +99,7 @@ public:
         rank_ -= rankChange;
     }
 
-    using container = typename std::set<valueType>;
+    using container = typename std::set<Value_type>;
     using iterator = typename container::iterator;
     using const_iterator = typename container::const_iterator;
 
@@ -131,7 +119,7 @@ public:
         return set_.cend();
     }
 
-    friend std::ostream& operator<<(std::ostream& out, const RankedSet<valueType>& rs) {
+    friend std::ostream& operator<<(std::ostream& out, const Ranked_set<Value_type>& rs) {
         out << "{" << rs.rank_ << ",{";
         for (const auto& s : rs.set_) {
             out << "\"" << s << "\",";
@@ -140,31 +128,31 @@ public:
         return out;
     }
 
-    bool operator< (const RankedSet& rhs) const {
+    bool operator< (const Ranked_set& rhs) const {
         return rhs.rank_ == rank_ ? this->set_ < rhs.set_ : this->rank_ < rhs.rank_;
     }
     explicit operator bool() const {
         return this->rank_ != 0 || this->cover_.size() != 0;
     }
-    bool operator== (const RankedSet<valueType>& rhs) const {
+    bool operator== (const Ranked_set<Value_type>& rhs) const {
         return this->rank_ == rhs.rank_ && this->set_ == rhs.set_;
     }
-    bool operator> (const RankedSet<valueType>& rhs) const {
+    bool operator> (const Ranked_set<Value_type>& rhs) const {
         return rhs < *this;
     }
-    bool operator>= (const RankedSet<valueType>& rhs) const {
+    bool operator>= (const Ranked_set<Value_type>& rhs) const {
         return !(*this < rhs);
     }
-    bool operator<= (const RankedSet<valueType>& rhs) const {
+    bool operator<= (const Ranked_set<Value_type>& rhs) const {
         return !(*this > rhs);
     }
-    bool operator!= (const RankedSet<valueType>& rhs) const {
+    bool operator!= (const Ranked_set<Value_type>& rhs) const {
         return !(*this == rhs);
     }
 
 private:
-    int rank_;
-    std::set<valueType> set_;
+    int rank_ {0};
+    std::set<Value_type> set_ {};
 };
 
-#endif // RANKEDSET_H
+#endif // RANKED_SET_HH

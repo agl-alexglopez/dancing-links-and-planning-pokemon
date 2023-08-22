@@ -22,7 +22,7 @@
  * SOFTWARE.
  *
  * Author: Alexander G. Lopez
- * File: TypeEncoding.h
+ * File: Type_encoding.h
  * --------------------------
  * This file contains a simple type used to encode Pokemon types into a 32 bit unsigned integer.
  * These algorithms may generate many solutions. Instead of storing strings with the type names
@@ -39,7 +39,7 @@
  * typing that starts with "Bug" will always be a larger number than one that starts with "Dark,"
  * for example. In the same way, any string that starts wit "Bug", would always be sorted
  * lexicographicly before one that starts with "Dark." Then, we simply reverse the less than
- * operator for the TypeEncoding and we can use this type as keys in sets, in maps, or elements in
+ * operator for the Type_encoding and we can use this type as keys in sets, in maps, or elements in
  * binary searches and they will behave as if they are strings, but all comparisons are much more
  * efficient. Consider why this would NOT work if we put the "Bug" bit at the Least Significant Bit
  * position, the 0th index
@@ -60,69 +60,64 @@
  * somewhere to do our initial encoding we will just provide a string_view of the table entries
  * that make up our types. We dont have to create any heap strings.
  */
-#ifndef TYPEENCODING_H
-#define TYPEENCODING_H
+#ifndef TYPEENCODING_HH
+#define TYPEENCODING_HH
 #include <array>
-#include <string_view>
-#include <utility>
 #include <cstdint>
 #include <ostream>
-#include "GUI/SimpleTest.h"
+#include <string_view>
+#include <utility>
+
+namespace Dancing_links {
 
 
-namespace DancingLinks {
-
-
-class TypeEncoding {
+class Type_encoding {
 
 public:
 
-    TypeEncoding() = default;
+    Type_encoding() = default;
     // If encoding cannot be found encoding_ is set the falsey value 0.
-    TypeEncoding(std::string_view type);
+    explicit Type_encoding(std::string_view type);
     uint32_t encoding() const;
     std::pair<std::string_view,std::string_view> decodeType() const;
 
-    bool operator==(TypeEncoding rhs) const;
-    bool operator!=(TypeEncoding rhs) const;
-    bool operator<(TypeEncoding rhs) const;
-    bool operator>(TypeEncoding rhs) const;
-    bool operator<=(TypeEncoding rhs) const;
-    bool operator>=(TypeEncoding rhs) const;
+    bool operator==(Type_encoding rhs) const;
+    bool operator!=(Type_encoding rhs) const;
+    bool operator<(Type_encoding rhs) const;
+    bool operator>(Type_encoding rhs) const;
+    bool operator<=(Type_encoding rhs) const;
+    bool operator>=(Type_encoding rhs) const;
 
 private:
 
     uint32_t encoding_;
-    uint8_t binsearchBitIndex(std::string_view type) const;
-    // Any and all TypeEncodings will have one global string_view of the type strings for decoding.
-    static constexpr std::array<std::string_view,18> TYPE_ENCODING_TABLE = {
+    static uint8_t binsearchBitIndex(std::string_view type);
+    // Any and all Type_encodings will have one global string_view of the type strings for decoding.
+    static constexpr std::array<std::string_view,18> type_encoding_table_ = {
         // lexicographicly organized table. 17th index is the first lexicographic order Bug.
         "Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass",
         "Ghost","Flying","Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
     };
-    // See Tests/Tests.cpp for some fun runtime testing for encode/decode.
-    ALLOW_TEST_ACCESS();
-
 };
 
 
 /* * * * * * * * * *      Overloaded Operator for a String View       * * * * * * * * * * * * * * */
 
 
-std::ostream& operator<<(std::ostream& out, TypeEncoding tp);
+std::ostream& operator<<(std::ostream& out, Type_encoding tp);
 
 
-} // namespace DancingLinks
+} // namespace Dancing_links
 
 
-/* * * * * * * * * *          TypeEncodings Should be Hashable          * * * * * * * * * * * * * */
+/* * * * * * * * * *          Type_encodings Should be Hashable          * * * * * * * * * * * * * */
 
 
 namespace std {
 
 template<>
-struct hash<DancingLinks::TypeEncoding> {
-    size_t operator()(DancingLinks::TypeEncoding type) const noexcept {
+struct hash<Dancing_links::Type_encoding> {
+    size_t operator()(Dancing_links::Type_encoding type) const noexcept {
         return std::hash<uint32_t>{}(type.encoding());
     }
 };
@@ -130,4 +125,4 @@ struct hash<DancingLinks::TypeEncoding> {
 } // namespace std
 
 
-#endif // TYPEENCODING_H
+#endif // TYPEENCODING_HH

@@ -44,12 +44,12 @@
  * representation of our string type. It can be easily converted to a pair conaining a string_view
  * of the single or dual type if needed. See the TypeEncoding header file for more info.
  */
-#ifndef TYPERESISTANCE_H
-#define TYPERESISTANCE_H
-#include "Src/Resistance.h"
-#include "TypeEncoding.h"
+#ifndef TYPE_RESISTANCE_HH
+#define TYPE_RESISTANCE_HH
+#include "resistance.hh"
+#include "type_encoding.hh"
 
-namespace DancingLinks {
+namespace Dancing_links {
 class Resistance;
 
 /**
@@ -57,7 +57,7 @@ class Resistance;
  * @param res   the Resistance instance.
  * @return      the TypeEncoding, an efficient representation of a type. May be printed as a string.
  */
-TypeEncoding type(const Resistance& res);
+Type_encoding type(const Resistance& res);
 
 /**
  * @brief multiplier  returns the multiplier for a Resistance object.
@@ -67,6 +67,6 @@ TypeEncoding type(const Resistance& res);
 Multiplier multiplier(const Resistance& res);
 
 
-} // namespace DancingLinks
+} // namespace Dancing_links
 
-#endif // TYPERESISTANCE_H
+#endif // TYPE_RESISTANCE_H
