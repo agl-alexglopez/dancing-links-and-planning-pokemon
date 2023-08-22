@@ -98,3 +98,6 @@ compile_commands.json
 # ignore exported compile commands.
 .cache/
 build/
+
+# Clion ignores
+.idea/
