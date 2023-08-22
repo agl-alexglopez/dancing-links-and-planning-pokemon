@@ -8,7 +8,6 @@
  */
 #ifndef MapParser_Included
 #define MapParser_Included
-#include "gtypes.h"
 #include <map>
 #include <set>
 #include <string>
