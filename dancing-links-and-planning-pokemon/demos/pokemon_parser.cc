@@ -166,7 +166,7 @@ Pokemon_test load_pokemon_generation( std::istream& source )
 {
   Pokemon_test generation;
   generation.interactions = load_generation_from_json( source );
-  generation.gen_map = load_disaster( source );
+  generation.gen_map = load_map( source );
   return generation;
 }
 

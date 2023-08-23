@@ -33,6 +33,6 @@ struct Map_test
  * @return A test case from the file.
  * @throws ErrorException If an error occurs or the file is invalid.
  */
-Map_test load_disaster( std::istream& source );
+Map_test load_map( std::istream& source );
 
 #endif // MAP_PARSER_HH

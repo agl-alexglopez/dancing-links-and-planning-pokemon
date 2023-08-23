@@ -28,17 +28,20 @@
  * found it much easier to develop the algorithm quickly with internal testing rather than just
  * plain unit testing. You can learn a lot about how Dancing Links works by reading these tests.
  */
-#include "pokemon_links.hh"
-#include "ranked_set.hh"
-#include "type_encoding.hh"
 #include "map_parser.hh"
+#include "point.hh"
+#include "pokemon_links.hh"
 #include "pokemon_parser.hh"
+#include "ranked_set.hh"
+#include "resistance.hh"
+#include "type_encoding.hh"
 
 #include <gtest/gtest.h>
 
 #include <chrono>
 #include <cstdint>
 #include <ctime>
+#include <fstream>
 #include <random>
 #include <unordered_map>
 
@@ -208,21 +211,72 @@ std::ostream& operator<<( std::ostream& os, const std::vector<Pokemon_links::Enc
   return os << std::endl;
 }
 
+// NOLINTBEGIN
 
 /* * * * * * * * * * * * * * * * * * * * *    Parser Tests     * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-TEST( ParserTests, CheckParserInSimpleCase )
+TEST( ParserTests, CheckMapParserLoadsInMapCorrectly )
 {
-  // Open a input file stream from a dst map.
-  // Test the map formed when passed to load gen
-  EXPECT_EQ( true, true );
+  Pokemon_test expected = {
+    .interactions {},
+    .gen_map = {
+      .network = {
+        {"G1", {"G2", "G8"}},
+        {"G2", {"G1", "G6"}},
+        {"G3", {"G6", "G5"}},
+        {"G4", {"G6", "G5"}},
+        {"G5", {"G4", "G3"}},
+        {"G6", {"G2", "G4", "G3"}},
+        {"G7", {}},
+        {"G8", {"G1", "E4"}},
+        {"E4", {"G8"}},
+      },
+      .city_locations = {
+        {"G1", Gui::Point( 3.0, 4.0 )},
+        {"G2", Gui::Point( 8.0, 3.0 )},
+        {"G3", Gui::Point( 8.0, 7.0 )},
+        {"G4", Gui::Point( 6.0, 5.0 )},
+        {"G5", Gui::Point( 6.0, 10.0 )},
+        {"G6", Gui::Point( 8.0, 5.0 )},
+        {"G7", Gui::Point( 3.0, 11.0 )},
+        {"G8", Gui::Point( 3.0, 7.0 )},
+        {"E4", Gui::Point( 1.0, 3.0 )},
+      },
+    },
+  };
+  std::ifstream kanto_map( "data/dst/Gen-1-Kanto.dst" );
+  Pokemon_test load_gen_1 = load_pokemon_generation( kanto_map );
+  EXPECT_EQ( load_gen_1.gen_map.network, expected.gen_map.network );
+  EXPECT_EQ( load_gen_1.gen_map.city_locations, expected.gen_map.city_locations );
+}
+
+TEST( ParserTests, CheckLoadingMapTypingWorksCorrectly )
+{
+  // Gen 1 only has 33 types but it would still be a huge map to hard code by hand.
+  std::ifstream kanto_map( "data/dst/Gen-1-Kanto.dst" );
+  Pokemon_test load_gen_1 = load_pokemon_generation( kanto_map );
+  // If our parser picks up all the items we should be on the right track.
+  EXPECT_EQ( load_gen_1.interactions.size(), 33 );
+  for ( const auto& [_,resistances] : load_gen_1.interactions ) {
+    // And if our set of resistances is not empty the parser is picking up the nested data well.
+    EXPECT_EQ( resistances.size() >= 2, true );
+  }
+}
+
+TEST ( ParserTests, LoadTwoSubsetsOfGyms )
+{
+  std::string gen_1_map { "Gen-1-Kanto.dst" };
+  std::set<std::string> selected_gyms = { "G1", "G2" };
+  std::set<Dx::Type_encoding> g1_g2_attack = { Dx::Type_encoding( "Normal" ), Dx::Type_encoding( "Water" ) };
+  std::set<Dx::Type_encoding> g1_g2_defense = { Dx::Type_encoding( "Ground-Rock" ), Dx::Type_encoding( "Water" ) };
+
+  EXPECT_EQ( load_selected_gyms_attacks( gen_1_map,  selected_gyms ), g1_g2_attack );
+  EXPECT_EQ( load_selected_gyms_defenses( gen_1_map,  selected_gyms ), g1_g2_defense );
 }
 
 
 /* * * * * * * * * * *   Test the Type Encoding We Use To Represent Pokemon Types in Bits  * * * * * * * * * * * */
 
-
-// NOLINTBEGIN
 
 TEST( InternalTests, EasiestTypeEncodingLexographicallyIsBug )
 {

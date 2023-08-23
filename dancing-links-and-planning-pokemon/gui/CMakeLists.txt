@@ -1,1 +1,1 @@
-add_library(point INTERFACE point.hh)
+add_library(point point.hh point.cc)

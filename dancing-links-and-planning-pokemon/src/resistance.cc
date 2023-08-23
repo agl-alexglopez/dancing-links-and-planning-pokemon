@@ -80,7 +80,6 @@ std::ostream& operator<<( std::ostream& out, const Resistance& res )
       out << "4.0";
       break;
   }
-  out << std::endl;
   return out;
 }
 
