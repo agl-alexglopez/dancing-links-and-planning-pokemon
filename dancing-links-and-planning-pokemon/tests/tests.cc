@@ -31,6 +31,8 @@
 #include "pokemon_links.hh"
 #include "ranked_set.hh"
 #include "type_encoding.hh"
+#include "map_parser.hh"
+#include "pokemon_parser.hh"
 
 #include <gtest/gtest.h>
 
@@ -206,7 +208,19 @@ std::ostream& operator<<( std::ostream& os, const std::vector<Pokemon_links::Enc
   return os << std::endl;
 }
 
-/* * * * * * * *  Test the Type Encoding We Use To Represent Pokemon Types in Bits  * * * * * * * */
+
+/* * * * * * * * * * * * * * * * * * * * *    Parser Tests     * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+TEST( ParserTests, CheckParserInSimpleCase )
+{
+  // Open a input file stream from a dst map.
+  // Test the map formed when passed to load gen
+  EXPECT_EQ( true, true );
+}
+
+
+/* * * * * * * * * * *   Test the Type Encoding We Use To Represent Pokemon Types in Bits  * * * * * * * * * * * */
+
 
 // NOLINTBEGIN
 
