@@ -21,9 +21,13 @@ include(etc/cflags.cmake)
 include(etc/scanners.cmake)
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
+include_directories("${PROJECT_SOURCE_DIR}/demos")
+include_directories("${PROJECT_SOURCE_DIR}/gui")
 include_directories("${PROJECT_SOURCE_DIR}/tests")
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/src")
+add_subdirectory("${PROJECT_SOURCE_DIR}/demos")
+add_subdirectory("${PROJECT_SOURCE_DIR}/gui")
 add_subdirectory("${PROJECT_SOURCE_DIR}/tests")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

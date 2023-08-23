@@ -1,4 +1,4 @@
-file (GLOB_RECURSE PROJ_CC_FILES ${CMAKE_SOURCE_DIR}/src/*.cc ${CMAKE_SOURCE_DIR}/tests/*.cc)
+file (GLOB_RECURSE PROJ_CC_FILES ${CMAKE_SOURCE_DIR}/src/*.cc ${CMAKE_SOURCE_DIR}/tests/*.cc ${CMAKE_SOURCE_DIR}/gui/*.cc ${CMAKE_SOURCE_DIR}/demos/*.cc)
 
 file (GLOB_RECURSE ALL_SRC_FILES *.hh *.cc)
 

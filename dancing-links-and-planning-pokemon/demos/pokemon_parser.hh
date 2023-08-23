@@ -34,15 +34,15 @@
  */
 #ifndef POKEMONPARSER_H
 #define POKEMONPARSER_H
+#include "map_parser.hh"
+#include "type_encoding.hh"
+#include "type_resistance.hh"
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
-#include "MapParser.h"
-#include "TypeEncoding.h"
-#include "TypeResistance.h"
 
-namespace Dx = DancingLinks;
+namespace Dx = Dancing_links;
 
 /* Leave a comment at the first line of the Pokemon Generation .dst file you want to construct with
  * the pokemon generation in base 10 numbers. This will determine the types availabe for the given
@@ -64,17 +64,18 @@ namespace Dx = DancingLinks;
  * identifying info, even if there is not generation specification.
  */
 
-struct PokemonTest {
-    /* This map will hold all types--dual types included--and a map of defense multipliers ranging
-     * from x0.0,x0.25,x0.5,x1.0,x2.0,x4.0. In these maps will be the type as the key and
-     * all the single attack types that have that multiplier against the current type. There are
-     * 18 single attack types. The highest level map holds 162 type keys that exist in Pokemon as
-     * of December 2022. However, depending on which generation map you decide to draw some types
-     * might be missing. For example, generation one Pokemon did not have types like Fairy, Dark,
-     * or Steel.
-     */
-    std::map<Dx::TypeEncoding,std::set<Dx::Resistance>> interactions;
-    MapTest genMap;
+struct Pokemon_test
+{
+  /* This map will hold all types--dual types included--and a map of defense multipliers ranging
+   * from x0.0,x0.25,x0.5,x1.0,x2.0,x4.0. In these maps will be the type as the key and
+   * all the single attack types that have that multiplier against the current type. There are
+   * 18 single attack types. The highest level map holds 162 type keys that exist in Pokemon as
+   * of December 2022. However, depending on which generation map you decide to draw some types
+   * might be missing. For example, generation one Pokemon did not have types like Fairy, Dark,
+   * or Steel.
+   */
+  std::map<Dx::Type_encoding, std::set<Dx::Resistance>> interactions;
+  Map_test gen_map;
 };
 
 /**
@@ -83,7 +84,7 @@ struct PokemonTest {
  * @param source                 the file with the map that gives us info on which gen to build.
  * @return                       the completed pokemon test with map drawing and Pokemon info.
  */
-PokemonTest loadPokemonGeneration(std::istream& source);
+Pokemon_test load_pokemon_generation( std::istream& source );
 
 /**
  * @brief loadSelectedGymsDefenses  when interacting with the GUI, the user can choose subsets of
@@ -95,20 +96,20 @@ PokemonTest loadPokemonGeneration(std::istream& source);
  * @param selectedGyms              the gyms G1-E4 that we are considering attacking.
  * @return                          the set of all defensive types present in the selection of gyms.
  */
-std::set<Dx::TypeEncoding>
-loadSelectedGymsDefenses(const std::string& selectedMap, const std::set<std::string>& selectedGyms);
+std::set<Dx::Type_encoding> load_selected_gyms_defenses( const std::string& selected_map,
+                                                         const std::set<std::string>& selected_gyms );
 
 /**
- * @brief loadSelectedGymsAttacks  the user interacting with the GUI may want to defend themselves
- *                                 from only a selection of gyms. We will get the gym info for the
- *                                 selected map and return the types of attacks present across all
- *                                 of those selections. This set can then be passed to the
- *                                 PokemonLinks dancing links class as a second parameter.
- * @param selectedMap              the current map the user interacts with.
- * @param selected                 the gyms they have selected.
- * @return                         a set of all attack types present across those gyms.
+ * @brief load_selected_gyms_attacks  the user interacting with the GUI may want to defend themselves
+ *                                    from only a selection of gyms. We will get the gym info for the
+ *                                    selected map and return the types of attacks present across all
+ *                                    of those selections. This set can then be passed to the
+ *                                    PokemonLinks dancing links class as a second parameter.
+ * @param selected_map                the current map the user interacts with.
+ * @param selected                    the gyms they have selected.
+ * @return                            a set of all attack types present across those gyms.
  */
-std::set<Dx::TypeEncoding>
-loadSelectedGymsAttacks(const std::string& selectedMap, const std::set<std::string>& selected);
+std::set<Dx::Type_encoding> load_selected_gyms_attacks( const std::string& selected_map,
+                                                        const std::set<std::string>& selected );
 
 #endif // POKEMONPARSER_H
