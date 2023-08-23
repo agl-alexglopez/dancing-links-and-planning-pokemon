@@ -257,26 +257,24 @@ TEST( ParserTests, CheckLoadingMapTypingWorksCorrectly )
   Pokemon_test load_gen_1 = load_pokemon_generation( kanto_map );
   // If our parser picks up all the items we should be on the right track.
   EXPECT_EQ( load_gen_1.interactions.size(), 33 );
-  for ( const auto& [_,resistances] : load_gen_1.interactions ) {
+  for ( const auto& [_, resistances] : load_gen_1.interactions ) {
     // And if our set of resistances is not empty the parser is picking up the nested data well.
     EXPECT_EQ( resistances.size() >= 2, true );
   }
 }
 
-TEST ( ParserTests, LoadTwoSubsetsOfGyms )
+TEST( ParserTests, LoadTwoSubsetsOfGyms )
 {
   std::string gen_1_map { "Gen-1-Kanto.dst" };
   std::set<std::string> selected_gyms = { "G1", "G2" };
   std::set<Dx::Type_encoding> g1_g2_attack = { Dx::Type_encoding( "Normal" ), Dx::Type_encoding( "Water" ) };
   std::set<Dx::Type_encoding> g1_g2_defense = { Dx::Type_encoding( "Ground-Rock" ), Dx::Type_encoding( "Water" ) };
 
-  EXPECT_EQ( load_selected_gyms_attacks( gen_1_map,  selected_gyms ), g1_g2_attack );
-  EXPECT_EQ( load_selected_gyms_defenses( gen_1_map,  selected_gyms ), g1_g2_defense );
+  EXPECT_EQ( load_selected_gyms_attacks( gen_1_map, selected_gyms ), g1_g2_attack );
+  EXPECT_EQ( load_selected_gyms_defenses( gen_1_map, selected_gyms ), g1_g2_defense );
 }
 
-
 /* * * * * * * * * * *   Test the Type Encoding We Use To Represent Pokemon Types in Bits  * * * * * * * * * * * */
-
 
 TEST( InternalTests, EasiestTypeEncodingLexographicallyIsBug )
 {
