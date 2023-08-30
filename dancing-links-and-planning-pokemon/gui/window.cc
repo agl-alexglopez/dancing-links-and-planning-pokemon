@@ -1,6 +1,6 @@
 #include "window.hh"
-#include <GL/gl.h>
 #include "GLFW/glfw3.h"
+#include <GL/gl.h>
 
 #include <iostream>
 
@@ -62,10 +62,28 @@ bool Window::should_close() const
   return glfwWindowShouldClose( window_ );
 }
 
-void Window::poll( const Window& window )
+void Window::poll()
 {
+  glfwSwapBuffers( window_ );
   glfwPollEvents();
-  glfwSwapBuffers( window.window_ );
+}
+
+void Window::clear()
+{
+  glClear( GL_COLOR_BUFFER_BIT );
+}
+
+void Window::triangle_test()
+{
+  // Remember, this is not recommended use of old OpenGL. Just a test with colors and a shape.
+  glBegin( GL_TRIANGLES );
+  glColor3f( 1.0F, 0.0F, 0.0F );
+  glVertex2f( -0.75F, -0.75F );
+  glColor3f( 0.0F, 1.0F, 0.0F );
+  glVertex2f( 0.0F, 0.75F );
+  glColor3f( 0.0F, 0.0F, 1.0F );
+  glVertex2f( 0.75F, -0.75F );
+  glEnd();
 }
 
 } // namespace Gui

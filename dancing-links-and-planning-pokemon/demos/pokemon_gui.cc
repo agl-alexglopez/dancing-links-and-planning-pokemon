@@ -26,7 +26,9 @@ int main()
                             .monitor = nullptr,
                             .share = nullptr } );
       while ( !window.should_close() ) {
-        Gui::Window::poll( window );
+        Gui::Window::clear();
+        Gui::Window::triangle_test();
+        window.poll();
       }
   } catch ( const std::exception& e ) {
       std::cerr << "exception caught: " << e.what() << std::flush;

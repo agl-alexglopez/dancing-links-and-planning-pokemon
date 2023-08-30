@@ -20,25 +20,25 @@ public:
     GLFWwindow* share;
   };
 
-  explicit Window( const Window_args& args );
+  // Static functions usually for strictly glfw or GL code.
+  static void triangle_test();
+  static void clear();
 
+  explicit Window( const Window_args& args );
   Window( const Window& ) = delete;
   Window& operator=( const Window& ) = delete;
   Window( Window&& other ) noexcept = default;
   Window& operator=( Window&& other ) noexcept = default;
   ~Window();
+  void poll();
   bool error() const;
   bool should_close() const;
-
-  static void poll( const Window& window );
 
 private:
   bool error_ { false };
   GLFWwindow* window_;
   GLFWmonitor* monitor_;
   GLFWwindow* share_;
-
-  void swap_bufers( const Window& window );
 
 }; // class Window
 
