@@ -7,10 +7,10 @@
 
 namespace Gui {
 
-class Window {
+class Window
+{
 
 public:
-
   struct Window_args
   {
     int width;
@@ -22,20 +22,17 @@ public:
 
   explicit Window( const Window_args& args );
 
-  Window(const Window&) = delete;
-  Window& operator=(const Window&) = delete;
-  Window(Window&& other) noexcept = default;
-  Window& operator=(Window&& other) noexcept = default;
+  Window( const Window& ) = delete;
+  Window& operator=( const Window& ) = delete;
+  Window( Window&& other ) noexcept = default;
+  Window& operator=( Window&& other ) noexcept = default;
   ~Window();
   bool error() const;
   bool should_close() const;
 
-  inline static void poll() {
-    glfwPollEvents();
-  }
+  inline static void poll() { glfwPollEvents(); }
 
 private:
-
   bool error_ { false };
   GLFWwindow* window_;
   GLFWmonitor* monitor_;
@@ -44,6 +41,5 @@ private:
 }; // class Window
 
 } // namespace Gui
-
 
 #endif // WINDOW_HH

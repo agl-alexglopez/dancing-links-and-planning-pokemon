@@ -105,7 +105,7 @@ nlo::json get_json_object( std::string_view path_to_json )
 {
   std::ifstream json_file( std::string { path_to_json } );
   if ( !json_file.is_open() ) {
-    std::cerr << "Could not open json file: ."<< path_to_json << "\n";
+    std::cerr << "Could not open json file: ." << path_to_json << "\n";
     json_file.close();
     std::abort();
   }

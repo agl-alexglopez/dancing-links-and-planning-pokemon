@@ -4,7 +4,8 @@
 
 namespace Gui {
 
-Window::Window( const Window::Window_args& args ) {
+Window::Window( const Window::Window_args& args )
+{
   if ( !glfwInit() ) {
     error_ = true;
     return;
@@ -19,17 +20,19 @@ Window::Window( const Window::Window_args& args ) {
   }
 }
 
-Window::~Window() {
+Window::~Window()
+{
   glfwTerminate();
 }
 
-bool Window::error() const {
+bool Window::error() const
+{
   return error_;
 }
 
-bool Window::should_close() const {
+bool Window::should_close() const
+{
   return glfwWindowShouldClose( window_ );
 }
-
 
 } // namespace Gui
