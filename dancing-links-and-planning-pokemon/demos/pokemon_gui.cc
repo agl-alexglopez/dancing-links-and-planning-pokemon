@@ -11,7 +11,6 @@ namespace {} // namespace
 
 int main()
 {
-
   try {
     std::ifstream gen( std::string { "data/dst/Gen-1-Kanto.dst" } );
     const Dx::Type_encoding tester( "Fire" );
