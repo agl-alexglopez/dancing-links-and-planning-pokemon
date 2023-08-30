@@ -30,13 +30,15 @@ public:
   bool error() const;
   bool should_close() const;
 
-  inline static void poll() { glfwPollEvents(); }
+  static void poll( const Window& window );
 
 private:
   bool error_ { false };
   GLFWwindow* window_;
   GLFWmonitor* monitor_;
   GLFWwindow* share_;
+
+  void swap_bufers( const Window& window );
 
 }; // class Window
 

@@ -5,5 +5,7 @@ FetchContent_Declare(glfw
 )
 FetchContent_MakeAvailable(glfw)
 
+find_package(OpenGL REQUIRED)
+
 add_library(window window.hh window.cc)
-target_link_libraries(window glfw)
+target_link_libraries(window glfw OpenGL::GL)
