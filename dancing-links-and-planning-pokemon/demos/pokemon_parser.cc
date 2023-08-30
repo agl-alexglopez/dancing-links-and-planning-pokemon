@@ -125,7 +125,7 @@ void set_resistances( std::map<Dx::Type_encoding, std::set<Dx::Resistance>>& res
   for ( const auto& [multiplier, types_in_multiplier] : multipliers.items() ) {
     const Dx::Multiplier multiplier_tag = get_multiplier( multiplier );
     for ( const auto& t : types_in_multiplier ) {
-      std::string type = t;
+      const std::string& type = t;
       result[new_type].insert( { Dx::Type_encoding( type ), multiplier_tag } );
     }
   }
@@ -184,7 +184,7 @@ std::set<Dx::Type_encoding> load_selected_gyms_defenses( const std::string& sele
       continue;
     }
     for ( const auto& t : attack_defense_map.at( gym_defense_key ) ) {
-      std::string type = t;
+      const std::string& type = t;
       result.insert( Dx::Type_encoding( type ) );
     }
   }
@@ -204,7 +204,7 @@ std::set<Dx::Type_encoding> load_selected_gyms_attacks( const std::string& selec
       continue;
     }
     for ( const auto& t : attack_defense_map.at( gym_attacks_key ) ) {
-      std::string type = t;
+      const std::string& type = t;
       result.insert( Dx::Type_encoding( type ) );
     }
   }
