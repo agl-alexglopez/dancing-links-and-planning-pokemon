@@ -245,6 +245,7 @@ TEST( ParserTests, CheckMapParserLoadsInMapCorrectly )
     },
   };
   std::ifstream kanto_map( "data/dst/Gen-1-Kanto.dst" );
+  EXPECT_EQ( kanto_map.is_open(), true );
   Pokemon_test load_gen_1 = load_pokemon_generation( kanto_map );
   EXPECT_EQ( load_gen_1.gen_map.network, expected.gen_map.network );
   EXPECT_EQ( load_gen_1.gen_map.city_locations, expected.gen_map.city_locations );
@@ -254,6 +255,7 @@ TEST( ParserTests, CheckLoadingMapTypingWorksCorrectly )
 {
   // Gen 1 only has 33 types but it would still be a huge map to hard code by hand.
   std::ifstream kanto_map( "data/dst/Gen-1-Kanto.dst" );
+  EXPECT_EQ( kanto_map.is_open(), true );
   Pokemon_test load_gen_1 = load_pokemon_generation( kanto_map );
   // If our parser picks up all the items we should be on the right track.
   EXPECT_EQ( load_gen_1.interactions.size(), 33 );

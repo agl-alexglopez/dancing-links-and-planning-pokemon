@@ -14,12 +14,12 @@ bool operator==( const Point& p1, const Point& p2 )
 
 bool operator!=( const Point& p1, const Point& p2 )
 {
-  return !( p1.y == p2.y );
+  return !( p1 == p2 );
 }
 
 bool operator<( const Point& p1, const Point& p2 )
 {
-  return p1.x < p2.x || p1.y < p2.y;
+  return p1.x < p2.x || ( p1.x == p2.x && p1.y < p2.y );
 }
 
 bool operator<=( const Point& p1, const Point& p2 )

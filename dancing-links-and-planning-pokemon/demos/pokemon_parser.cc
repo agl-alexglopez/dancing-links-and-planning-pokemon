@@ -98,21 +98,21 @@ void print_generation_error( const std::exception& ex )
   std::cerr << "Could not choose the correct generation from first line of file.\n";
   std::cerr << "Comment first line as follows. Any other comment can start on the next line\n";
   std::cerr << "# 1\n";
-  std::cerr << "# Above, I want to load in this map as Generation One. Choose 1-9" << std::endl;
+  std::cerr << "# Above, I want to load in this map as Generation One. Choose 1-9\n";
 }
 
 nlo::json get_json_object( std::string_view path_to_json )
 {
   std::ifstream json_file( std::string { path_to_json } );
   if ( !json_file.is_open() ) {
-    std::cerr << "Could not open json file." << std::endl;
+    std::cerr << "Could not open json file: ."<< path_to_json << "\n";
     json_file.close();
     std::abort();
   }
   nlo::json map_data = nlo::json::parse( json_file );
   json_file.close();
   if ( map_data.is_discarded() ) {
-    std::cerr << "Error parsing all map data to json object." << std::endl;
+    std::cerr << "Error parsing all map data to json object.\n";
     std::abort();
   }
   return map_data;
@@ -123,20 +123,20 @@ void set_resistances( std::map<Dx::Type_encoding, std::set<Dx::Resistance>>& res
                       const nlo::json& multipliers )
 {
   for ( const auto& [multiplier, types_in_multiplier] : multipliers.items() ) {
-    Dx::Multiplier multiplier_tag = get_multiplier( multiplier );
+    const Dx::Multiplier multiplier_tag = get_multiplier( multiplier );
     for ( const auto& t : types_in_multiplier ) {
-      std::string resistance_type = t;
-      result[new_type].insert( { Dx::Type_encoding( resistance_type ), multiplier_tag } );
+      result[new_type].insert( { Dx::Type_encoding( t ), multiplier_tag } );
     }
   }
 }
 
 std::map<Dx::Type_encoding, std::set<Dx::Resistance>> from_json_to_map( int generation )
 {
-  const nlo::json json_types = get_json_object( generation_json_files.at( generation ) );
+  const std::string_view path_to_json = generation_json_files.at( generation );
+  const nlo::json json_types = get_json_object( path_to_json );
   std::map<Dx::Type_encoding, std::set<Dx::Resistance>> result = {};
   for ( const auto& [type, resistances] : json_types.items() ) {
-    Dx::Type_encoding encoded( type );
+    const Dx::Type_encoding encoded( type );
     result.insert( { encoded, {} } );
     set_resistances( result, encoded, resistances );
   }
@@ -183,8 +183,7 @@ std::set<Dx::Type_encoding> load_selected_gyms_defenses( const std::string& sele
       continue;
     }
     for ( const auto& type : attack_defense_map.at( gym_defense_key ) ) {
-      std::string std_version = type;
-      result.insert( Dx::Type_encoding( std_version ) );
+      result.insert( Dx::Type_encoding( type ) );
     }
   }
   // This will be a much smaller map.
@@ -203,8 +202,7 @@ std::set<Dx::Type_encoding> load_selected_gyms_attacks( const std::string& selec
       continue;
     }
     for ( const auto& type : attack_defense_map.at( gym_attacks_key ) ) {
-      std::string std_version = type;
-      result.insert( Dx::Type_encoding( std_version ) );
+      result.insert( Dx::Type_encoding( type ) );
     }
   }
   // Return a simple set rather than altering every type's resistances in a large map.
