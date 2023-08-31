@@ -8,17 +8,22 @@ namespace {
 
 void error_callback( int error, const char* description )
 {
-  std::cerr << "A window error occurred: " << description << "\n";
+  std::cerr << "A window error occurred with num : " << error << "\n";
+  std::cerr << "Description: " << description << "\n";
 }
 
-void key_callback( GLFWwindow* window, int key, int scancode, int action, int mods )
+void key_callback( GLFWwindow* window,
+                   int key, // NOLINT
+                   int scancode [[maybe_unused]], // NOLINT
+                   int action [[maybe_unused]], // NOLINT
+                   int mods [[maybe_unused]] ) // NOLINT
 {
   if ( key == GLFW_KEY_ESCAPE && action == GLFW_PRESS ) {
     glfwSetWindowShouldClose( window, GLFW_TRUE );
   }
 }
 
-void frame_buffer_resize_callback( GLFWwindow* window, int width, int height )
+void frame_buffer_resize_callback( GLFWwindow* window [[maybe_unused]], int width, int height )
 {
   glViewport( 0, 0, width, height );
 }

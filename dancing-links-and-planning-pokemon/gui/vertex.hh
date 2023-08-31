@@ -1,6 +1,7 @@
 #ifndef VERTEX_HH
 #define VERTEX_HH
 
+#include <cstdint>
 #include <vector>
 
 namespace Gui {
