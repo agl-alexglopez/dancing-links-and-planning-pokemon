@@ -327,8 +327,9 @@ TEST( InternalTests, TestEveryPossibleCombinationOfTypings )
 
     for ( uint64_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2-- ) {
 
+      std::string t2 = std::string( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
       std::string check_dual_type
-        = check_single_type + "-" + std::string( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
+        = check_single_type + "-" + t2;
       Dx::Type_encoding dual_type_encoding( check_dual_type );
       EXPECT_EQ( dual_type_encoding.encoding(), bit1 | bit2 );
       /* I discourage the use of methods that create heap strings whenever possible. I use
@@ -376,8 +377,9 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
     encode_map.insert( { check_single_type, single_type_encoding } );
     decode_map.insert( { single_type_encoding, check_single_type } );
     for ( uint64_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2-- ) {
+      std::string t2 = std::string( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
       std::string check_dual_type
-        = check_single_type + "-" + std::string( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
+        = check_single_type + "-" + t2;
       Dx::Type_encoding dual_type_encoding( check_dual_type );
       encode_map.insert( { check_dual_type, dual_type_encoding } );
       decode_map.insert( { dual_type_encoding, check_dual_type } );
