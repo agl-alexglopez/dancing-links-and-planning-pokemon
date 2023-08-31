@@ -1,10 +1,11 @@
 #include "dancing_links.hh"
 #include "pokemon_parser.hh"
+#include "triangle.hh"
 #include "type_resistance.hh"
 #include "window.hh"
 
 #include <fstream>
-#include <map>
+#include <vector>
 
 namespace Dx = Dancing_links;
 namespace {} // namespace
@@ -24,9 +25,14 @@ int main()
                           .title = std::string { "Pokemon Type Coverage" },
                           .monitor = nullptr,
                           .share = nullptr } );
+    if ( window.error() ) {
+      std::cerr << "window could not open\n";
+      return 1;
+    }
+    const Gui::Triangle triangle( { -0.75F, -0.75F, 0.0F, 0.75F, 0.75F, -0.75F } );
     while ( !window.should_close() ) {
       Gui::Window::clear();
-      Gui::Window::triangle_test();
+      Gui::Triangle::draw( { 0, 3 } );
       window.poll();
     }
   } catch ( const std::exception& e ) {

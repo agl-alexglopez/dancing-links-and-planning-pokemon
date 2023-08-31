@@ -25,6 +25,11 @@ include_directories("${PROJECT_SOURCE_DIR}/demos")
 include_directories("${PROJECT_SOURCE_DIR}/gui")
 include_directories("${PROJECT_SOURCE_DIR}/tests")
 
+if (WIN32)
+  include_directories("${PROJECT_SOURCE_DIR}/gui/glew-2.1.0/include")
+endif()
+
+
 add_subdirectory("${PROJECT_SOURCE_DIR}/src")
 add_subdirectory("${PROJECT_SOURCE_DIR}/demos")
 add_subdirectory("${PROJECT_SOURCE_DIR}/gui")

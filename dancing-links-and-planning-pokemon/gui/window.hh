@@ -1,9 +1,11 @@
 #ifndef WINDOW_HH
 #define WINDOW_HH
 
+#include <GL/glew.h> // NOLINT (glew must always come first!)
 #include <GLFW/glfw3.h>
 
 #include <string>
+#include <vector>
 
 namespace Gui {
 
@@ -21,7 +23,6 @@ public:
   };
 
   // Static functions usually for strictly glfw or GL code.
-  static void triangle_test();
   static void clear();
 
   explicit Window( const Window_args& args );

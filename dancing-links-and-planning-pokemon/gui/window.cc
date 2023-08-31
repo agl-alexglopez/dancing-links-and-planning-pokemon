@@ -1,6 +1,4 @@
 #include "window.hh"
-#include "GLFW/glfw3.h"
-#include <GL/gl.h>
 
 #include <iostream>
 
@@ -41,8 +39,14 @@ Window::Window( const Window::Window_args& args )
   if ( !window_ ) {
     error_ = true;
     glfwTerminate();
+    return;
   }
   glfwMakeContextCurrent( window_ );
+  if ( glewInit() != GLEW_OK ) {
+    error_ = true;
+    glfwTerminate();
+    return;
+  }
   glfwSetKeyCallback( window_, key_callback );
   glfwSetFramebufferSizeCallback( window_, frame_buffer_resize_callback );
 }
@@ -71,19 +75,6 @@ void Window::poll()
 void Window::clear()
 {
   glClear( GL_COLOR_BUFFER_BIT );
-}
-
-void Window::triangle_test()
-{
-  // Remember, this is not recommended use of old OpenGL. Just a test with colors and a shape.
-  glBegin( GL_TRIANGLES );
-  glColor3f( 1.0F, 0.0F, 0.0F );
-  glVertex2f( -0.75F, -0.75F );
-  glColor3f( 0.0F, 1.0F, 0.0F );
-  glVertex2f( 0.0F, 0.75F );
-  glColor3f( 0.0F, 0.0F, 1.0F );
-  glVertex2f( 0.75F, -0.75F );
-  glEnd();
 }
 
 } // namespace Gui
