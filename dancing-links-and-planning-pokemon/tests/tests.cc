@@ -403,7 +403,8 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
     std::string type( Dx::Type_encoding::type_encoding_table_.at( type1 ) );
     // This ensures we get a decent amount of single and dual types into the mix.
     if ( type2 < type1 ) {
-      type += "-" + std::string( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
+      std::string t2( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
+      type += "-" + t2;
       dual_type_total++;
       single_type_total--;
     }
