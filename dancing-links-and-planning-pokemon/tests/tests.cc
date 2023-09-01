@@ -147,24 +147,24 @@ bool operator!=( const std::vector<Pokemon_links::Type_name>& lhs,
 
 std::ostream& operator<<( std::ostream& os, const std::vector<Pokemon_links::Poke_link>& links )
 {
-  os << "DLX ARRAY" << std::endl;
+  os << "DLX ARRAY\n";
   for ( const auto& ln : links ) {
     if ( ln.top_or_len < 0 ) {
       os << "\n";
     }
     os << "{" << ln.top_or_len << "," << ln.up << "," << ln.down << "," << ln.multiplier << "," << ln.tag << "},";
   }
-  os << std::endl;
+  os << "\n";
   return os;
 }
 
 std::ostream& operator<<( std::ostream& os, const std::vector<Pokemon_links::Type_name>& items )
 {
-  os << "LOOKUP TABLE" << std::endl;
+  os << "LOOKUP TABLE\n";
   for ( const auto& item : items ) {
     os << "{\"" << item.name << "\"," << item.left << "," << item.right << "},\n";
   }
-  os << std::endl;
+  os << "\n";
   return os;
 }
 
@@ -208,7 +208,7 @@ std::ostream& operator<<( std::ostream& os, const std::vector<Pokemon_links::Enc
   for ( const auto& i : n_n ) {
     os << i;
   }
-  return os << std::endl;
+  return os << "\n";
 }
 
 // NOLINTBEGIN

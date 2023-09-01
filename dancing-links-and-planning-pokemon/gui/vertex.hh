@@ -2,6 +2,8 @@
 #define VERTEX_HH
 
 #include <cstdint>
+#include <optional>
+#include <string>
 #include <vector>
 
 namespace Gui {
@@ -28,7 +30,7 @@ public:
 
 private:
   std::vector<float> vertex_;
-  uint32_t id_ {};
+  uint32_t id_ { 0 };
 };
 
 } // namespace Gui

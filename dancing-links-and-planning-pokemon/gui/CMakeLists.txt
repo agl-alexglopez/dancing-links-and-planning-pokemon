@@ -1,4 +1,5 @@
 add_library(point point.hh point.cc)
+add_library(util INTERFACE util.hh)
 
 FetchContent_Declare(glfw
   GIT_REPOSITORY https://github.com/glfw/glfw
@@ -17,6 +18,10 @@ if (WIN32)
     add_library(vertex vertex.hh vertex.cc)
     target_compile_definitions(vertex PRIVATE GLEW_STATIC)
     target_link_libraries(vertex OpenGL::GL $<$<CONFIG:Debug>:${GLEW_LIB_DEBUG}> $<$<CONFIG:Release>:${GLEW_LIB_RELEASE}>)
+
+    add_library(shader shader.hh shader.cc)
+    target_compile_definitions(shader PRIVATE GLEW_STATIC)
+    target_link_libraries(shader OpenGL::GL $<$<CONFIG:Debug>:${GLEW_LIB_DEBUG}> $<$<CONFIG:Release>:${GLEW_LIB_RELEASE}> util)
 else()
     find_package(GLEW REQUIRED)
     add_library(window window.hh window.cc)
@@ -24,9 +29,12 @@ else()
 
     add_library(vertex vertex.hh vertex.cc)
     target_link_libraries(vertex OpenGL::GL GLEW::GLEW)
+
+    add_library(shader shader.hh shader.cc)
+    target_link_libraries(shader OpenGL::GL GLEW::GLEW util)
 endif()
 
 
 add_library(triangle triangle.hh triangle.cc)
-target_link_libraries(triangle PRIVATE vertex)
+target_link_libraries(triangle PRIVATE util shader vertex)
 

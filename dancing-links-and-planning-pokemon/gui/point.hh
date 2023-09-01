@@ -8,9 +8,10 @@ namespace Gui {
 class Point
 {
 public:
-  Point( double user_x, double user_y ) : x( user_x ), y( user_y ) {}
-  double x { 0 };
-  double y { 0 };
+  Point() = default;
+  Point( float user_x, float user_y ) : x( user_x ), y( user_y ) {}
+  float x { 0 };
+  float y { 0 };
 }; // class Point
 
 std::ostream& operator<<( std::ostream& out, const Point& p );
@@ -20,7 +21,7 @@ bool operator<( const Point& p1, const Point& p2 );
 bool operator<=( const Point& p1, const Point& p2 );
 bool operator>( const Point& p1, const Point& p2 );
 bool operator>=( const Point& p1, const Point& p2 );
-Point operator*( const Point& p1, double scale );
+Point operator*( const Point& p1, float scale );
 
 } // namespace Gui
 
@@ -30,7 +31,7 @@ struct hash<Gui::Point>
 {
   size_t operator()( const Gui::Point& p ) const noexcept
   {
-    return hash<double>()( p.x ) ^ ( hash<double>()( p.y ) << 1U );
+    return hash<float>()( p.x ) ^ ( hash<float>()( p.y ) << 1U );
   }
 };
 } // namespace std

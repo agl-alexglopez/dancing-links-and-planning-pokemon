@@ -37,7 +37,7 @@ bool operator>=( const Point& p1, const Point& p2 )
   return !( p1 < p2 );
 }
 
-Point operator*( const Point& p1, double scale )
+Point operator*( const Point& p1, float scale )
 {
   return { p1.x * scale, p1.y * scale };
 }

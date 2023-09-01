@@ -9,7 +9,6 @@
  * containers.
  */
 #include "map_parser.hh"
-#include <cstddef>
 #include <iostream>
 #include <ostream>
 #include <regex>
@@ -78,7 +77,7 @@ std::string parse_city( const std::string& city_info, Map_test& result )
   const std::string to_match = trim( city_info );
 
   if ( !regex_match( to_match, components, pattern ) ) {
-    std::cerr << "Can't parse this data; is it city info? " << city_info << std::endl;
+    std::cerr << "Can't parse this data; is it city info? " << city_info << "\n";
     std::abort();
   }
 
@@ -86,7 +85,7 @@ std::string parse_city( const std::string& city_info, Map_test& result )
    * plus each subexpression we care about.
    */
   if ( components.size() != num_components ) {
-    std::cerr << "Could not find all components?" << std::endl;
+    std::cerr << "Could not find all components?\n";
     std::abort();
   }
 
@@ -95,12 +94,12 @@ std::string parse_city( const std::string& city_info, Map_test& result )
    */
   std::string name = trim( components[city_name] );
   if ( name.empty() ) {
-    std::cerr << "City names can't be empty." << std::endl;
+    std::cerr << "City names can't be empty.\n";
     std::abort();
   }
 
   /* Insert the city location */
-  result.city_locations.insert( { name, { std::stod( components[x_coord] ), std::stod( components[y_coord] ) } } );
+  result.city_locations.insert( { name, { std::stof( components[x_coord] ), std::stof( components[y_coord] ) } } );
 
   /* Insert an entry for the city into the road network. */
   result.network[name] = {};

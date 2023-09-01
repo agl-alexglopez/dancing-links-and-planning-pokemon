@@ -2,9 +2,11 @@
 
 namespace Gui {
 
-Triangle::Triangle( const std::vector<float>& vertex ) : vertex_( vertex ) {}
+Triangle::Triangle( Vertex_fragment shaders, Triangle::Vertices points )
+  : vertex_ { { points.p1.x, points.p1.y, points.p2.x, points.p2.y, points.p3.x, points.p3.y } },
+    shaders_( shaders ) {}
 
-void Triangle::draw( Triangle::Index_count pos )
+void Triangle::draw( Index_count pos )
 {
   Vertex::draw( { Vertex::Primitive::triangle, pos.index, pos.count } );
 }
