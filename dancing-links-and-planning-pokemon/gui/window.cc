@@ -13,10 +13,10 @@ void error_callback( int error, const char* description )
 }
 
 void key_callback( GLFWwindow* window,
-                   int key, // NOLINT
+                   int key,                       // NOLINT
                    int scancode [[maybe_unused]], // NOLINT
-                   int action [[maybe_unused]], // NOLINT
-                   int mods [[maybe_unused]] ) // NOLINT
+                   int action [[maybe_unused]],   // NOLINT
+                   int mods [[maybe_unused]] )    // NOLINT
 {
   if ( key == GLFW_KEY_ESCAPE && action == GLFW_PRESS ) {
     glfwSetWindowShouldClose( window, GLFW_TRUE );

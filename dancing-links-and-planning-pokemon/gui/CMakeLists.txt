@@ -37,4 +37,6 @@ endif()
 
 add_library(triangle triangle.hh triangle.cc)
 target_link_libraries(triangle PRIVATE util shader vertex)
+add_library(quad quad.hh quad.cc)
+target_link_libraries(quad PRIVATE util shader vertex)
 

@@ -1,35 +1,35 @@
 #include "dancing_links.hh"
 #include "pokemon_parser.hh"
+#include "quad.hh"
 #include "triangle.hh"
+#include "type_encoding.hh"
 #include "type_resistance.hh"
 #include "window.hh"
 
+#include <array>
+#include <chrono>
+#include <cstdint>
+#include <exception>
 #include <fstream>
+#include <functional>
+#include <iostream>
+#include <sstream>
+#include <string>
 #include <string_view>
-#include <vector>
 
 namespace Dx = Dancing_links;
 namespace {
 
-constexpr std::string_view triangle_vert = R"glsl(
-#version 330 core
+constexpr std::string_view frag_file = "gui/frag/basic.frag";
+constexpr std::string_view vert_file = "gui/vert/basic.vert";
 
-layout(location = 0) in vec4 position;
-
-void main(){
-  gl_Position = position;
+std::string read_shader( std::string_view filename )
+{
+  const std::ifstream f( filename.data() );
+  std::stringstream s;
+  s << f.rdbuf();
+  return { s.str() };
 }
-)glsl";
-
-constexpr std::string_view triangle_frag = R"glsl(
-#version 330 core
-
-layout(location = 0) out vec4 color;
-
-void main(){
-  color = vec4(0.4, 0.3, 0.8, 0.7);
-}
-)glsl";
 
 } // namespace
 
@@ -52,11 +52,34 @@ int main()
       std::cerr << "window could not open\n";
       return 1;
     }
-    const Gui::Triangle triangle( { triangle_vert, triangle_frag },
-                                  { { -0.75F, -0.75F }, { 0.0F, 0.75F }, { 0.75F, -0.75F } } );
+    const std::string vert = read_shader( vert_file );
+    const std::string frag = read_shader( frag_file );
+    const Gui::Triangle tri( { vert, frag }, 
+                             {
+                               { -0.5F, -0.5F },
+                               { 0.5F, -0.5F },
+                               { 0.5F, 0.5F },
+                             } );
+    const Gui::Quad quad( { vert, frag },
+                          {
+                            { -0.5F, -0.5F },
+                            { 0.5F, -0.5F },
+                            { 0.5F, 0.5F },
+                            { -0.5F, 0.5F },
+                          } );
+    auto this_time = std::chrono::high_resolution_clock::now(); 
+    auto last_time = this_time;
+    std::array<std::function<void()>, 2> shapes = { Gui::Quad::draw, Gui::Triangle::draw };
+    uint64_t draw = 0;
     while ( !window.should_close() ) {
       Gui::Window::clear();
-      Gui::Triangle::draw( { 0, 3 } );
+      this_time = std::chrono::high_resolution_clock::now();
+      auto time_since_last =  std::chrono::duration_cast<std::chrono::seconds>( this_time - last_time );
+      if ( time_since_last >= std::chrono::seconds( 2 ) ) {
+        last_time = this_time;
+        ++draw %= shapes.size();
+      }
+      shapes.at( draw )();
       window.poll();
     }
   } catch ( const std::exception& e ) {

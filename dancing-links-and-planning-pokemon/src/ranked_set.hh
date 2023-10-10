@@ -104,7 +104,7 @@ public:
     for ( const auto& s : rs.set_ ) {
       out << "\"" << s << "\",";
     }
-    out << "}}" << std::endl;
+    out << "}}\n";
     return out;
   }
 

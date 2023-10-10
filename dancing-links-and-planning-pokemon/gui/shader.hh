@@ -14,7 +14,6 @@ class Shader
 {
 
 public:
-
   Shader() = default;
   explicit Shader( Vertex_fragment vf );
   Shader& operator=( const Shader& other ) = delete;
@@ -24,7 +23,6 @@ public:
   ~Shader();
 
 private:
-
   uint32_t program_ { 0 };
   uint32_t vertex_shader_ { 0 };
   uint32_t fragment_shader_ { 0 };

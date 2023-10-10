@@ -9,11 +9,18 @@
  * containers.
  */
 #include "map_parser.hh"
+#include "point.hh"
+
+#include <algorithm>
+#include <cstdlib>
 #include <iostream>
+#include <map>
 #include <ostream>
 #include <regex>
 #include <sstream>
+#include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 /* Everything in here is private to this file. */
@@ -124,13 +131,13 @@ void parse_links( const City_links& cl, Map_test& result )
      */
     const std::string clean_name = trim( dest );
     if ( clean_name.empty() ) {
-      std::cerr << "Blank name in list of outgoing cities?" << std::endl;
+      std::cerr << "Blank name in list of outgoing cities?\n";
       std::abort();
     }
 
     /* Confirm this isn't a dupe. */
     if ( result.network.at( cl.city ).contains( clean_name ) ) {
-      std::cerr << "City appears twice in outgoing list?" << std::endl;
+      std::cerr << "City appears twice in outgoing list?\n";
       std::abort();
     }
 
@@ -147,9 +154,9 @@ void parse_city_line( const std::string& line, Map_test& result )
   /* Search for a colon on the line. The split function will only return a
    * single component if there are no outgoing links specified.
    */
-  const auto num_colons = count( line.begin(), line.end(), ':' );
+  const auto num_colons = std::count( line.begin(), line.end(), ':' );
   if ( num_colons != 1 ) {
-    std::cerr << "Each data line should have exactly one colon on it." << std::endl;
+    std::cerr << "Each data line should have exactly one colon on it.\n";
     std::abort();
   }
 
@@ -158,7 +165,7 @@ void parse_city_line( const std::string& line, Map_test& result )
    */
   auto components = string_split( line, ':' );
   if ( components.empty() ) {
-    std::cerr << "Data line appears to have no city information." << std::endl;
+    std::cerr << "Data line appears to have no city information.\n";
     std::abort();
   }
 
@@ -180,7 +187,7 @@ void add_reverse_edges( Map_test& result )
   for ( const auto& source : result.network ) {
     for ( const std::string& dest : source.second ) {
       if ( result.network.find( dest ) == result.network.end() ) {
-        std::cerr << "Outgoing link found to nonexistent city '" + dest + "'" << std::endl;
+        std::cerr << "Outgoing link found to nonexistent city '" + dest + "'\n";
         std::abort();
       }
       result.network[dest].insert( source.first );
