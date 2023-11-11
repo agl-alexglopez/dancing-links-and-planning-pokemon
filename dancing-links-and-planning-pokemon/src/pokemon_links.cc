@@ -250,13 +250,14 @@ Pokemon_links::Encoding_score Pokemon_links::cover_type( uint64_t index_in_optio
 {
   Encoding_score result = {};
   uint64_t i = index_in_option;
-  do { // NOLINT
+  bool row_lap = false;
+  while( !row_lap ) {
     const int top = links_[i].top_or_len;
     /* This is the next spacer node for the next option. We now know how to find the title of
      * our current option if we go back to the start of the chosen option and go left.
      */
     if ( top <= 0 ) {
-      i = links_[i].up;
+      row_lap = ( i = links_[i].up ) == index_in_option;
       result.name = option_table_[std::abs( links_[i - 1].top_or_len )].name;
       continue;
     }
@@ -273,8 +274,8 @@ Pokemon_links::Encoding_score Pokemon_links::cover_type( uint64_t index_in_optio
        */
       result.score += links_[i].multiplier;
     }
-    i++;
-  } while ( i != index_in_option );
+    row_lap = ++i == index_in_option;
+  }
   return result;
 }
 
@@ -282,10 +283,11 @@ void Pokemon_links::uncover_type( uint64_t index_in_option )
 {
   // Go left first so the in place link restoration of the doubly linked lookup table works.
   uint64_t i = --index_in_option;
-  do { // NOLINT
+  bool row_lap = false;
+  while ( !row_lap ) {
     const int top = links_[i].top_or_len;
     if ( top <= 0 ) {
-      i = links_[i].down;
+      row_lap = ( i = links_[i].down ) == index_in_option;
       continue;
     }
     if ( !links_[top].tag ) {
@@ -294,8 +296,8 @@ void Pokemon_links::uncover_type( uint64_t index_in_option )
       item_table_[cur.right].left = top;
       unhide_options( i );
     }
-    i--;
-  } while ( i != index_in_option );
+    row_lap = --i == index_in_option;
+  }
 }
 
 /* The hide/unhide technique is what makes exact cover so much more restrictive and fast at
@@ -421,11 +423,12 @@ void Pokemon_links::fill_overlapping_coverages( std::set<Ranked_set<Type_encodin
 Pokemon_links::Encoding_score Pokemon_links::overlapping_cover_type( Pokemon_links::Cover_tag tag )
 {
   uint64_t i = tag.index;
+  bool row_lap = false;
   Encoding_score result = {};
-  do { // NOLINT
+  while ( !row_lap ) {
     const int top = links_[i].top_or_len;
     if ( top <= 0 ) {
-      i = links_[i].up;
+      row_lap = ( i = links_[i].up ) == tag.index;
       result.name = option_table_[std::abs( links_[i - 1].top_or_len )].name;
       continue;
     }
@@ -435,19 +438,22 @@ Pokemon_links::Encoding_score Pokemon_links::overlapping_cover_type( Pokemon_lin
       item_table_[item_table_[top].right].left = item_table_[top].left;
       result.score += links_[i].multiplier;
     }
-    links_[top].tag == hidden_ ? i++ : links_[i++].tag = tag.tag;
-  } while ( i != tag.index );
-
+    if ( links_[top].tag != hidden_ ) {
+      links_[i].tag = tag.tag;
+    } 
+    row_lap = ++i == tag.index;
+  }
   return result;
 }
 
 void Pokemon_links::overlapping_uncover_type( uint64_t index_in_option )
 {
   uint64_t i = --index_in_option;
-  do { // NOLINT
+  bool row_lap = false;
+  while ( !row_lap ) {
     const int top = links_[i].top_or_len;
     if ( top < 0 ) {
-      i = links_[i].down;
+      row_lap = ( i = links_[i].down ) == index_in_option;
       continue;
     }
     if ( links_[top].tag == links_[i].tag ) {
@@ -455,8 +461,11 @@ void Pokemon_links::overlapping_uncover_type( uint64_t index_in_option )
       item_table_[item_table_[top].left].right = top;
       item_table_[item_table_[top].right].left = top;
     }
-    links_[top].tag == hidden_ ? i-- : links_[i--].tag = 0;
-  } while ( i != index_in_option );
+    if ( links_[top].tag != hidden_ ) {
+      links_[i].tag = 0;
+    } 
+    row_lap = --i == index_in_option;
+  }
 }
 
 /* * * * * * * * * * * * * * * * *        Utility Functions             * * * * * * * * * * * * * */
