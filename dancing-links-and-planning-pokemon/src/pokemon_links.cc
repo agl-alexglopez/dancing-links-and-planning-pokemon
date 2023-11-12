@@ -251,7 +251,7 @@ Pokemon_links::Encoding_score Pokemon_links::cover_type( uint64_t index_in_optio
   Encoding_score result = {};
   uint64_t i = index_in_option;
   bool row_lap = false;
-  while( !row_lap ) {
+  while ( !row_lap ) {
     const int top = links_[i].top_or_len;
     /* This is the next spacer node for the next option. We now know how to find the title of
      * our current option if we go back to the start of the chosen option and go left.
@@ -440,7 +440,7 @@ Pokemon_links::Encoding_score Pokemon_links::overlapping_cover_type( Pokemon_lin
     }
     if ( links_[top].tag != hidden_ ) {
       links_[i].tag = tag.tag;
-    } 
+    }
     row_lap = ++i == tag.index;
   }
   return result;
@@ -463,7 +463,7 @@ void Pokemon_links::overlapping_uncover_type( uint64_t index_in_option )
     }
     if ( links_[top].tag != hidden_ ) {
       links_[i].tag = 0;
-    } 
+    }
     row_lap = --i == index_in_option;
   }
 }
