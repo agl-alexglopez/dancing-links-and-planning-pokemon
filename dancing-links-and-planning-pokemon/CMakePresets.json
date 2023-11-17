@@ -2,7 +2,7 @@
   "version": 1,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 19,
+    "minor": 20,
     "patch": 0
   },
   "configurePresets": [
@@ -14,9 +14,12 @@
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_CXX_STANDARD": "20",
         "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "g++",
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/debug",
-        "CMAKE_CXX_FLAGS": "-g3 -Wall -Wpedantic -Wextra -Werror -Wshadow -Wpointer-arith -Wcast-qual -Wformat=2 -Wno-unqualified-std-cast-call",
+        "CMAKE_CXX_FLAGS": "-g3 -Wall -Wpedantic -Wextra -Werror -Wshadow -Wpointer-arith -Wcast-qual -Wformat=2 -Wno-unqualified-std-cast-call -fno-sanitize-recover=all -fsanitize=undefined -fsanitize=address",
+        "CMAKE_EXE_LINKER_FLAGS": "-fno-sanitize-recover=all -fsanitize=undefined -fsanitize=address",
         "GLFW_BUILD_DOCS": "OFF",
         "GLFW_BUILD_TESTS": "OFF",
         "GLFW_BUILD_EXAMPLES": "OFF"
@@ -30,7 +33,9 @@
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_CXX_STANDARD": "20",
         "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "g++",
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/release",
         "CMAKE_CXX_FLAGS": "-Wall -Wpedantic -Wextra -Werror -Wshadow -Wpointer-arith -Wcast-qual -Wformat=2 -Wno-unqualified-std-cast-call",
         "GLFW_BUILD_DOCS": "OFF",
@@ -46,9 +51,12 @@
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_CXX_STANDARD": "20",
         "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "clang++",
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/debug",
-        "CMAKE_CXX_FLAGS": "-g3 -Wall -Wpedantic -Wextra -Werror -Wshadow -Wpointer-arith -Wcast-qual -Wformat=2 -Wno-unqualified-std-cast-call",
+        "CMAKE_CXX_FLAGS": "-g3 -Wall -Wpedantic -Wextra -Werror -Wshadow -Wpointer-arith -Wcast-qual -Wformat=2 -Wno-unqualified-std-cast-call -fno-sanitize-recover=all -fsanitize=undefined -fsanitize=address",
+        "CMAKE_EXE_LINKER_FLAGS": "-fno-sanitize-recover=all -fsanitize=undefined -fsanitize=address",
         "GLFW_BUILD_DOCS": "OFF",
         "GLFW_BUILD_TESTS": "OFF",
         "GLFW_BUILD_EXAMPLES": "OFF"
@@ -62,7 +70,9 @@
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_CXX_STANDARD": "20",
         "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "clang++",
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/release",
         "CMAKE_CXX_FLAGS": "-Wall -Wpedantic -Wextra -Werror -Wshadow -Wpointer-arith -Wcast-qual -Wformat=2 -Wno-unqualified-std-cast-call",
         "GLFW_BUILD_DOCS": "OFF",
