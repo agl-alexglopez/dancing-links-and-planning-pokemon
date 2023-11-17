@@ -1,4 +1,4 @@
-.PHONY: default release r debug d build format tidy clean
+.PHONY: default release debug build format tidy clean
 
 MAKE := $(MAKE)
 # Adjust parallel build jobs based on your available cores.
@@ -8,25 +8,14 @@ default: build
 
 release:
 	@cmake --preset=gcc-release
-	@$(MAKE) --no-print-directory -C build/release -j$(JOBS)
-
-r:
-	@$(MAKE) --no-print-directory -C build/release -j$(JOBS)
+	@$(MAKE) --no-print-directory -C build/ -j$(JOBS)
 
 debug:
 	@cmake --preset=gcc-debug
-	@$(MAKE) --no-print-directory -C build/debug -j$(JOBS)
-
-d:
-	@$(MAKE) --no-print-directory -C build/release -j$(JOBS)
+	@$(MAKE) --no-print-directory -C build/ -j$(JOBS)
 
 build:
-	@if [ -d build/debug ]; then \
-		$(MAKE) --no-print-directory -C build/debug -j$(JOBS) || true; \
-	fi
-	@if [ -d build/release ]; then \
-		$(MAKE) --no-print-directory -C build/release -j$(JOBS) || true; \
-	fi
+	@$(MAKE) --no-print-directory -C build/ -j$(JOBS)
 
 format:
 	@$(MAKE) --no-print-directory -C build/ format
