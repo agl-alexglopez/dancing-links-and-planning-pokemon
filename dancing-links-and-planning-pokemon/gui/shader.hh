@@ -1,10 +1,10 @@
+#pragma once
 #ifndef SHADER_HH
 #define SHADER_HH
 
 #include "util.hh"
 
 #include <GL/glew.h>
-
 #include <cstdint>
 #include <string_view>
 

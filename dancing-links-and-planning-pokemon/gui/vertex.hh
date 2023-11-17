@@ -2,10 +2,7 @@
 #define VERTEX_HH
 
 #include <cstdint>
-#include <optional>
 #include <span>
-#include <string>
-#include <vector>
 
 namespace Gui {
 
@@ -36,7 +33,7 @@ private:
   std::span<const uint32_t> index_;
   uint32_t id_ { 0 };
   uint32_t index_id_ { 0 };
-  static constexpr uint32_t quad_indices_ = 6;
+  static constexpr uint32_t quad_indices = 6;
 };
 
 } // namespace Gui

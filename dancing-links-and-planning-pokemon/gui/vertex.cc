@@ -1,12 +1,9 @@
 #include "vertex.hh"
 
 #include <GL/glew.h>
-
 #include <cstdint>
 #include <iostream>
 #include <span>
-#include <utility>
-#include <vector>
 
 namespace Gui {
 

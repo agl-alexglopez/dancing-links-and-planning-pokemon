@@ -1,4 +1,8 @@
 #include "quad.hh"
+#include "util.hh"
+#include "vertex.hh"
+
+#include <vector>
 
 namespace Gui {
 
@@ -11,7 +15,7 @@ Quad::Quad( Vertex_fragment shaders, Quad::Vertices points )
                    points.p3.y,
                    points.p4.x,
                    points.p4.y } }
-  , vertex_( { positions_ }, { indx_ } )
+  , vertex_( { positions_ }, { indx } )
   , shaders_( shaders )
 {}
 

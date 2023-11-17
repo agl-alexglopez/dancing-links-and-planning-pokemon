@@ -1,4 +1,5 @@
 #include "point.hh"
+#include <iostream>
 
 namespace Gui {
 

@@ -38,16 +38,21 @@
  */
 #include "pokemon_parser.hh"
 #include "map_parser.hh"
+#include "resistance.hh"
+#include "type_encoding.hh"
 
+#include <cstdlib>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 #include <array>
 #include <exception>
-#include <functional>
 #include <iostream>
 #include <map>
 #include <set>
+#include <stdexcept>
+#include <string>
 #include <string_view>
 #include <utility>
 

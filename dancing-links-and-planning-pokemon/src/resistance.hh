@@ -28,6 +28,7 @@
  * these resistances to be associated with keys. The keys should either be attack types or defensive
  * types, so this is not a generic class.
  */
+#pragma once
 #ifndef RESISTANCE_HH
 #define RESISTANCE_HH
 #include "type_encoding.hh"
@@ -46,9 +47,9 @@ enum Multiplier
   imm,
   f14, // x0.25 damage aka the fraction 1/4
   f12, // x0.5 damage aka the fraction 1/2
-  nrm,
-  dbl,
-  qdr
+  nrm, // normal
+  dbl, // double or 2x damage
+  qdr  // quadruple or 4x damage.
 };
 
 class Resistance

@@ -22,7 +22,8 @@
  * SOFTWARE.
  */
 #include "resistance.hh"
-#include <utility>
+#include "type_encoding.hh"
+#include <ostream>
 
 namespace Dancing_links {
 

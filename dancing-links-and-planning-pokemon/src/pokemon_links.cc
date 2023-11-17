@@ -32,9 +32,20 @@
  * the DancingLinks.h file and README.md in this repository.
  */
 #include "pokemon_links.hh"
+#include "ranked_set.hh"
+#include "resistance.hh"
+#include "type_encoding.hh"
 #include <climits>
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
+#include <iostream>
+#include <map>
+#include <set>
+#include <string_view>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 namespace Dancing_links {
 
@@ -438,7 +449,7 @@ Pokemon_links::Encoding_score Pokemon_links::overlapping_cover_type( Pokemon_lin
       item_table_[item_table_[top].right].left = item_table_[top].left;
       result.score += links_[i].multiplier;
     }
-    if ( links_[top].tag != hidden_ ) {
+    if ( links_[top].tag != hidden ) {
       links_[i].tag = tag.tag;
     }
     row_lap = ++i == tag.index;
@@ -461,7 +472,7 @@ void Pokemon_links::overlapping_uncover_type( uint64_t index_in_option )
       item_table_[item_table_[top].left].right = top;
       item_table_[item_table_[top].right].left = top;
     }
-    if ( links_[top].tag != hidden_ ) {
+    if ( links_[top].tag != hidden ) {
       links_[i].tag = 0;
     }
     row_lap = --i == index_in_option;
@@ -514,7 +525,7 @@ std::vector<Type_encoding> Pokemon_links::get_options() const
   std::vector<Type_encoding> result = {};
   // Hop from row title to row title, skip hidden options. Skip bookend node that is placeholder.
   for ( uint64_t i = item_table_.size(); i < links_.size() - 1; i = links_[i].down + 1 ) {
-    if ( links_[i].tag != hidden_ ) {
+    if ( links_[i].tag != hidden ) {
       result.push_back( option_table_[i].name );
     }
   }
@@ -535,7 +546,7 @@ bool Pokemon_links::hide_requested_item( Type_encoding to_hide )
 {
   const uint64_t lookup_index = find_item_index( to_hide );
   // Can't find or this item has already been hidden.
-  if ( lookup_index && links_[lookup_index].tag != hidden_ ) {
+  if ( lookup_index && links_[lookup_index].tag != hidden ) {
     hidden_items_.push_back( lookup_index );
     hide_item( lookup_index );
     return true;
@@ -580,7 +591,7 @@ void Pokemon_links::hide_all_items_except( const std::set<Type_encoding>& to_kee
 bool Pokemon_links::has_item( Type_encoding item ) const
 {
   const uint64_t found = find_item_index( item );
-  return found && links_[found].tag != hidden_;
+  return found && links_[found].tag != hidden;
 }
 
 void Pokemon_links::pop_hid_item()
@@ -625,7 +636,7 @@ bool Pokemon_links::hide_requested_option( Type_encoding to_hide )
 {
   const uint64_t lookup_index = find_option_index( to_hide );
   // Couldn't find or this option has already been hidden.
-  if ( lookup_index && links_[lookup_index].tag != hidden_ ) {
+  if ( lookup_index && links_[lookup_index].tag != hidden ) {
     hidden_options_.push_back( lookup_index );
     hide_option( lookup_index );
     return true;
@@ -661,7 +672,7 @@ void Pokemon_links::hide_all_options_except( const std::set<Type_encoding>& to_k
 {
   // We start i at the index of the first option spacer. This is after the column headers.
   for ( uint64_t i = item_table_.size(); i < links_.size() - 1; i = links_[i].down + 1 ) {
-    if ( links_[i].tag != hidden_ && !to_keep.contains( option_table_[std::abs( links_[i].top_or_len )].name ) ) {
+    if ( links_[i].tag != hidden && !to_keep.contains( option_table_[std::abs( links_[i].top_or_len )].name ) ) {
       hidden_options_.push_back( i );
       hide_option( i );
     }
@@ -671,7 +682,7 @@ void Pokemon_links::hide_all_options_except( const std::set<Type_encoding>& to_k
 bool Pokemon_links::has_option( Type_encoding option ) const
 {
   const uint64_t found = find_option_index( option );
-  return found && links_[found].tag != hidden_;
+  return found && links_[found].tag != hidden;
 }
 
 void Pokemon_links::pop_hid_option()
@@ -723,7 +734,7 @@ void Pokemon_links::hide_item( uint64_t header_index )
   const Type_name cur_item = item_table_[header_index];
   item_table_[cur_item.left].right = cur_item.right;
   item_table_[cur_item.right].left = cur_item.left;
-  links_[header_index].tag = hidden_;
+  links_[header_index].tag = hidden;
   num_items_--;
 }
 
@@ -738,7 +749,7 @@ void Pokemon_links::unhide_item( uint64_t header_index )
 
 void Pokemon_links::hide_option( uint64_t row_index )
 {
-  links_[row_index].tag = hidden_;
+  links_[row_index].tag = hidden;
   for ( uint64_t i = row_index + 1; links_[i].top_or_len > 0; i++ ) {
     const Poke_link cur = links_[i];
     links_[cur.up].down = cur.down;

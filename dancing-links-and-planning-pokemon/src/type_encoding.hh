@@ -60,6 +60,7 @@
  * somewhere to do our initial encoding we will just provide a string_view of the table entries
  * that make up our types. We dont have to create any heap strings.
  */
+#pragma once
 #ifndef TYPE_ENCODING_HH
 #define TYPE_ENCODING_HH
 
@@ -94,7 +95,7 @@ private:
   uint32_t encoding_;
   static uint64_t binsearch_bit_index( std::string_view type );
   // Any and all Type_encodings will have one global string_view of the type strings for decoding.
-  static constexpr std::array<std::string_view, 18> type_encoding_table_ = {
+  static constexpr std::array<std::string_view, 18> type_encoding_table = {
     // lexicographicly organized table. 17th index is the first lexicographic order Bug.
     "Water",
     "Steel",

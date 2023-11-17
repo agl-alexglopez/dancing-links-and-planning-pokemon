@@ -318,10 +318,10 @@ TEST( InternalTests, TestEveryPossibleCombinationOfTypings )
    * types order does not matter so Water-Bug is the same as Bug-Water and is only counted once.
    */
   const uint64_t BUG = 0x20000;
-  uint64_t table_size = Dx::Type_encoding::type_encoding_table_.size();
+  uint64_t table_size = Dx::Type_encoding::type_encoding_table.size();
   for ( uint64_t bit1 = BUG, type1 = table_size - 1; bit1 != 0; bit1 >>= 1, type1-- ) {
 
-    std::string check_single_type( Dx::Type_encoding::type_encoding_table_.at( type1 ) );
+    std::string check_single_type( Dx::Type_encoding::type_encoding_table.at( type1 ) );
     Dx::Type_encoding single_type_encoding( check_single_type );
     EXPECT_EQ( single_type_encoding.encoding(), bit1 );
     EXPECT_EQ( single_type_encoding.decode_type().first, check_single_type );
@@ -329,7 +329,7 @@ TEST( InternalTests, TestEveryPossibleCombinationOfTypings )
 
     for ( uint64_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2-- ) {
 
-      std::string t2 = std::string( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
+      std::string t2 = std::string( Dx::Type_encoding::type_encoding_table.at( type2 ) );
       std::string check_dual_type = check_single_type + "-" + t2;
       Dx::Type_encoding dual_type_encoding( check_dual_type );
       EXPECT_EQ( dual_type_encoding.encoding(), bit1 | bit2 );
@@ -371,14 +371,14 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
 
   // Generate all possible unique type combinations and place them in the maps.
   const uint64_t BUG = 0x20000;
-  const uint64_t table_size = Dx::Type_encoding::type_encoding_table_.size();
+  const uint64_t table_size = Dx::Type_encoding::type_encoding_table.size();
   for ( uint64_t bit1 = BUG, type1 = table_size - 1; bit1 != 0; bit1 >>= 1, type1-- ) {
-    std::string check_single_type( Dx::Type_encoding::type_encoding_table_.at( type1 ) );
+    std::string check_single_type( Dx::Type_encoding::type_encoding_table.at( type1 ) );
     Dx::Type_encoding single_type_encoding( check_single_type );
     encode_map.insert( { check_single_type, single_type_encoding } );
     decode_map.insert( { single_type_encoding, check_single_type } );
     for ( uint64_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2-- ) {
-      std::string t2 = std::string( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
+      std::string t2 = std::string( Dx::Type_encoding::type_encoding_table.at( type2 ) );
       std::string check_dual_type = check_single_type + "-" + t2;
       Dx::Type_encoding dual_type_encoding( check_dual_type );
       encode_map.insert( { check_dual_type, dual_type_encoding } );
@@ -402,10 +402,10 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
     int type1 = first_type( gen );
     int type2 = second_type( gen );
     single_type_total++;
-    std::string type( Dx::Type_encoding::type_encoding_table_.at( type1 ) );
+    std::string type( Dx::Type_encoding::type_encoding_table.at( type1 ) );
     // This ensures we get a decent amount of single and dual types into the mix.
     if ( type2 < type1 ) {
-      std::string t2( Dx::Type_encoding::type_encoding_table_.at( type2 ) );
+      std::string t2( Dx::Type_encoding::type_encoding_table.at( type2 ) );
       type += "-" + t2;
       dual_type_total++;
       single_type_total--;
@@ -2077,7 +2077,7 @@ TEST( InternalTests, TestHidingAnItemFromTheWorld )
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
-  const int8_t HD = Dx::Pokemon_links::hidden_;
+  const int8_t HD = Dx::Pokemon_links::hidden;
   const std::vector<Dx::Pokemon_links::Poke_link> dlxHideFire = {
     // 0               1Electric     2Fire            3Grass        4Ice           5Normal        6Water
     { 0, 0, 0, EM, 0 },
@@ -2233,7 +2233,7 @@ TEST( InternalTests, TestHidingGrassAndIceAndThenResetTheLinks )
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   EXPECT_EQ( true, links.hide_requested_option( { { "Grass" }, { "Ice" } } ) );
-  const int HD = Dx::Pokemon_links::hidden_;
+  const int HD = Dx::Pokemon_links::hidden;
   const std::vector<Dx::Pokemon_links::Poke_link> dlxHideOptionIceGrass = {
     // 0               1Electric     2Fire           3Grass        4Ice         5Normal        6Water
     { 0, 0, 0, EM, 0 },
@@ -2384,7 +2384,7 @@ TEST( InternalTests, TestHidingAnOptionFromTheWorld )
   EXPECT_EQ( false, links.hide_requested_option( { fire, flipper }, failed_to_hide ) );
   EXPECT_EQ( failed_to_hide, fire_flipper );
 
-  const int HD = Dx::Pokemon_links::hidden_;
+  const int HD = Dx::Pokemon_links::hidden;
   const std::vector<Dx::Pokemon_links::Poke_link> dlxHideOptionFire = {
     // 0              1Electric     2Fire         3Grass          4Ice          5Normal        6Water
     { 0, 0, 0, EM, 0 },
@@ -2554,7 +2554,7 @@ TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover 
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
-  const int HD = Dx::Pokemon_links::hidden_;
+  const int HD = Dx::Pokemon_links::hidden;
   const std::vector<Dx::Pokemon_links::Poke_link> dlxHideElectric = {
     // 0               1Electric     2Fire         3Grass         4Ice          5Normal         6Water
     { 0, 0, 0, EM, 0 },
@@ -2727,7 +2727,7 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
-  const int HD = Dx::Pokemon_links::hidden_;
+  const int HD = Dx::Pokemon_links::hidden;
   const std::vector<Dx::Pokemon_links::Poke_link> dlxHideElectricAndGrass = {
     // 0               1Electric    2Fire         3Grass         4Ice          5Normal         6Water
     { 0, 0, 0, EM, 0 },
@@ -2889,7 +2889,7 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
     { { "Normal" }, 0, 6 },
     { { "Water" }, 0, 0 },
   };
-  const int HD = Dx::Pokemon_links::hidden_;
+  const int HD = Dx::Pokemon_links::hidden;
   const std::vector<Dx::Pokemon_links::Poke_link> dlx_hide_except_water = {
     // 0               1Electric      2Fire           3Grass          4Ice           5Normal         6Water
     { 0, 0, 0, EM, 0 },
@@ -3076,7 +3076,7 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
     { { "Normal" }, 0, 6 },
     { { "Water" }, 0, 0 },
   };
-  const int8_t HD = Dx::Pokemon_links::hidden_;
+  const int8_t HD = Dx::Pokemon_links::hidden;
   const std::vector<Dx::Pokemon_links::Poke_link> dlx_hide_except_water = {
     // 0               1Electric        2Fire         3Grass         4Ice         5Normal       6Water
     { 0, 0, 0, EM, 0 },

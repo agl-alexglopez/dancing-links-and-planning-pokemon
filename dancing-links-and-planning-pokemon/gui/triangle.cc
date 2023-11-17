@@ -1,4 +1,10 @@
 #include "triangle.hh"
+#include "point.hh"
+#include "shader.hh"
+#include "util.hh"
+#include "vertex.hh"
+
+#include <vector>
 
 namespace Gui {
 

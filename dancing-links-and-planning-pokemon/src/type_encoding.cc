@@ -37,7 +37,13 @@
  */
 #include "type_encoding.hh"
 
+#include <array>
 #include <bit>
+#include <cstdint>
+#include <ostream>
+#include <string>
+#include <string_view>
+#include <utility>
 
 namespace Dancing_links {
 
@@ -48,7 +54,7 @@ Type_encoding::Type_encoding( std::string_view type ) : encoding_( 0 )
   }
   const uint64_t delim = type.find( '-' );
   uint64_t found = binsearch_bit_index( type.substr( 0, delim ) );
-  if ( found == type_encoding_table_.size() ) {
+  if ( found == type_encoding_table.size() ) {
     return;
   }
   encoding_ = 1 << found;
@@ -56,7 +62,7 @@ Type_encoding::Type_encoding( std::string_view type ) : encoding_( 0 )
     return;
   }
   found = binsearch_bit_index( type.substr( delim + 1 ) );
-  if ( found == type_encoding_table_.size() ) {
+  if ( found == type_encoding_table.size() ) {
     encoding_ = 0;
     return;
   }
@@ -75,20 +81,20 @@ std::pair<std::string_view, std::string_view> Type_encoding::decode_type() const
     return {};
   }
   uint32_t shift_copy = encoding_;
-  int table_index = std::countr_zero( shift_copy );
-  const std::string_view first_found = type_encoding_table_.at( table_index );
+  const uint32_t table_index = std::countr_zero( shift_copy );
+  const std::string_view first_found = type_encoding_table.at( table_index );
   shift_copy &= ~( 1U << table_index );
   if ( shift_copy == 0 ) {
     return { first_found, {} };
   }
-  return { type_encoding_table_.at( std::countr_zero( shift_copy ) ), first_found };
+  return { type_encoding_table.at( std::countr_zero( shift_copy ) ), first_found };
 }
 
 uint64_t Type_encoding::binsearch_bit_index( std::string_view type )
 {
-  for ( uint64_t remain = type_encoding_table_.size(), base = 0; remain; remain >>= 1 ) {
+  for ( uint64_t remain = type_encoding_table.size(), base = 0; remain; remain >>= 1 ) {
     const uint64_t index = base + ( remain >> 1 );
-    const std::string_view found = type_encoding_table_.at( index );
+    const std::string_view found = type_encoding_table.at( index );
     if ( found == type ) {
       return index;
     }
@@ -98,7 +104,7 @@ uint64_t Type_encoding::binsearch_bit_index( std::string_view type )
       remain--;
     }
   }
-  return type_encoding_table_.size();
+  return type_encoding_table.size();
 }
 
 uint32_t Type_encoding::encoding() const

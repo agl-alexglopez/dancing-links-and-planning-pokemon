@@ -1,6 +1,5 @@
 file (GLOB_RECURSE PROJ_CC_FILES 
   ${CMAKE_SOURCE_DIR}/src/*.cc
-  ${CMAKE_SOURCE_DIR}/tests/*.cc
   ${CMAKE_SOURCE_DIR}/gui/*.cc
   ${CMAKE_SOURCE_DIR}/demos/*.cc)
 
@@ -12,7 +11,7 @@ foreach (tidy_target ${PROJ_CC_FILES})
   get_filename_component (dirname ${tidy_target} DIRECTORY)
   get_filename_component (basedir ${dirname} NAME)
   set (tidy_target_name "${basedir}__${basename}")
-  set (tidy_command clang-tidy --quiet -header-filter=.* -p=${PROJECT_BINARY_DIR} ${tidy_target})
+  set (tidy_command clang-tidy --quiet -p=${PROJECT_BINARY_DIR} ${tidy_target})
   add_custom_target (tidy_${tidy_target_name} ${tidy_command})
   if (${tidy_target} IN_LIST PROJ_CC_FILES)
     list (APPEND PROJ_TIDY_TARGETS tidy_${tidy_target_name})

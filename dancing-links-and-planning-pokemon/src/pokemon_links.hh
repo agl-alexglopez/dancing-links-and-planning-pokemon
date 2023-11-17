@@ -29,6 +29,7 @@
  * comment in the DancingLinks.h free function file for this class. Also the README.md for the
  * repository has a detailed writeup with images.
  */
+#pragma once
 #ifndef POKEMON_LINKS_HH
 #define POKEMON_LINKS_HH
 #include "ranked_set.hh"
@@ -207,7 +208,7 @@ private:
   uint64_t num_options_ { 0 };                  // Options we can choose from to cover items.
   Coverage_type requested_cover_solution_ {};   // The user is asking for ATTACK or DEFENSE
 
-  static constexpr int8_t hidden_ = -1;
+  static constexpr int8_t hidden = -1;
 
   /**
    * @brief fill_exact_coverages  fills the output parameters with every exact cover that can be

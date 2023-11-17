@@ -29,7 +29,7 @@ public:
   static void draw();
 
 private:
-  static constexpr std::array<uint32_t, 6> indx_ { 0, 1, 2, 2, 3, 0 };
+  static constexpr std::array<uint32_t, 6> indx { 0, 1, 2, 2, 3, 0 };
   std::vector<float> positions_ {};
   Vertex vertex_ {};
   Shader shaders_ {};

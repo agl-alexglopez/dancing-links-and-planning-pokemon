@@ -1,9 +1,7 @@
-#include "dancing_links.hh"
 #include "pokemon_parser.hh"
 #include "quad.hh"
 #include "triangle.hh"
 #include "type_encoding.hh"
-#include "type_resistance.hh"
 #include "window.hh"
 
 #include <array>
@@ -54,7 +52,7 @@ int main()
     }
     const std::string vert = read_shader( vert_file );
     const std::string frag = read_shader( frag_file );
-    const Gui::Triangle tri( { vert, frag }, 
+    const Gui::Triangle tri( { vert, frag },
                              {
                                { -0.5F, -0.5F },
                                { 0.5F, -0.5F },
@@ -67,14 +65,14 @@ int main()
                             { 0.5F, 0.5F },
                             { -0.5F, 0.5F },
                           } );
-    auto this_time = std::chrono::high_resolution_clock::now(); 
+    auto this_time = std::chrono::high_resolution_clock::now();
     auto last_time = this_time;
     std::array<std::function<void()>, 2> shapes = { Gui::Quad::draw, Gui::Triangle::draw };
     uint64_t draw = 0;
     while ( !window.should_close() ) {
       Gui::Window::clear();
       this_time = std::chrono::high_resolution_clock::now();
-      auto time_since_last =  std::chrono::duration_cast<std::chrono::seconds>( this_time - last_time );
+      auto time_since_last = std::chrono::duration_cast<std::chrono::seconds>( this_time - last_time );
       if ( time_since_last >= std::chrono::seconds( 2 ) ) {
         last_time = this_time;
         ++draw %= shapes.size();
