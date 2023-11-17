@@ -68,16 +68,16 @@ int main()
     auto this_time = std::chrono::high_resolution_clock::now();
     auto last_time = this_time;
     std::array<std::function<void()>, 2> shapes = { Gui::Quad::draw, Gui::Triangle::draw };
-    uint64_t draw = 0;
+    bool toggle_index = false;
     while ( !window.should_close() ) {
       Gui::Window::clear();
       this_time = std::chrono::high_resolution_clock::now();
       auto time_since_last = std::chrono::duration_cast<std::chrono::seconds>( this_time - last_time );
       if ( time_since_last >= std::chrono::seconds( 2 ) ) {
         last_time = this_time;
-        ++draw %= shapes.size();
+        toggle_index = !toggle_index;
       }
-      shapes.at( draw )();
+      shapes.at( toggle_index )();
       window.poll();
     }
   } catch ( const std::exception& e ) {

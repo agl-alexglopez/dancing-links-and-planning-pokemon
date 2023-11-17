@@ -39,6 +39,7 @@
  * in a set acheives the same ordering as I wanted in a priority queue and allows for more
  * flexibility.
  */
+#pragma once
 #ifndef RANKED_SET_HH
 #define RANKED_SET_HH
 #include <iterator>

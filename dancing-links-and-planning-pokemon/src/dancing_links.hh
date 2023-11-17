@@ -100,6 +100,7 @@
  *      Pg.65-70,
  *      Knuth
  */
+#pragma once
 #ifndef DANCING_LINKS_HH
 #define DANCING_LINKS_HH
 #include "pokemon_links.hh"

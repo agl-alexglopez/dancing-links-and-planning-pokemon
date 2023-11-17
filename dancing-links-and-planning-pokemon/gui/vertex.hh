@@ -1,3 +1,4 @@
+#pragma once
 #ifndef VERTEX_HH
 #define VERTEX_HH
 

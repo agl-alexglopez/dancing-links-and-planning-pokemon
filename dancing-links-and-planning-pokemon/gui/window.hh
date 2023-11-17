@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WINDOW_HH
 #define WINDOW_HH
 

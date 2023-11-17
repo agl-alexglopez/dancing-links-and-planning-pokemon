@@ -44,6 +44,7 @@
  * representation of our string type. It can be easily converted to a pair conaining a string_view
  * of the single or dual type if needed. See the TypeEncoding header file for more info.
  */
+#pragma once
 #ifndef TYPE_RESISTANCE_HH
 #define TYPE_RESISTANCE_HH
 #include "resistance.hh"
