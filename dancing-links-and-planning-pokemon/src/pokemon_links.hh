@@ -35,14 +35,15 @@
 #include "ranked_set.hh"
 #include "resistance.hh"
 #include "type_encoding.hh"
+
+#include <gtest/gtest_prod.h>
+
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <map>
 #include <set>
-#include <string>
-#include <string_view>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 namespace Dancing_links {
@@ -100,17 +101,17 @@ public:
 
   void hide_all_items_except( const std::set<Type_encoding>& to_keep );
 
-  bool has_item( Type_encoding item ) const;
+  [[nodiscard]] bool has_item( Type_encoding item ) const;
 
-  Type_encoding peek_hid_item() const;
+  [[nodiscard]] Type_encoding peek_hid_item() const;
 
   void pop_hid_item();
 
-  bool hid_items_empty() const;
+  [[nodiscard]] bool hid_items_empty() const;
 
-  std::vector<Type_encoding> get_hid_items() const;
+  [[nodiscard]] std::vector<Type_encoding> get_hid_items() const;
 
-  uint64_t get_num_hid_items() const;
+  [[nodiscard]] uint64_t get_num_hid_items() const;
 
   void reset_items();
 
@@ -123,33 +124,33 @@ public:
 
   void hide_all_options_except( const std::set<Type_encoding>& to_keep );
 
-  bool has_option( Type_encoding option ) const;
+  [[nodiscard]] bool has_option( Type_encoding option ) const;
 
-  Type_encoding peek_hid_option() const;
+  [[nodiscard]] Type_encoding peek_hid_option() const;
 
   void pop_hid_option();
 
-  bool hid_options_empty() const;
+  [[nodiscard]] bool hid_options_empty() const;
 
-  std::vector<Type_encoding> get_hid_options() const;
+  [[nodiscard]] std::vector<Type_encoding> get_hid_options() const;
 
-  uint64_t get_num_hid_options() const;
+  [[nodiscard]] uint64_t get_num_hid_options() const;
 
   void reset_options();
 
   void reset_items_options();
 
-  bool reached_output_limit() const;
+  [[nodiscard]] bool reached_output_limit() const;
 
-  std::vector<Type_encoding> get_items() const;
+  [[nodiscard]] std::vector<Type_encoding> get_items() const;
 
-  uint64_t get_num_items() const;
+  [[nodiscard]] uint64_t get_num_items() const;
 
-  std::vector<Type_encoding> get_options() const;
+  [[nodiscard]] std::vector<Type_encoding> get_options() const;
 
-  uint64_t get_num_options() const;
+  [[nodiscard]] uint64_t get_num_options() const;
 
-  Coverage_type get_links_type() const;
+  [[nodiscard]] Coverage_type get_links_type() const;
 
 private:
   /* * * * * * * * * * *   Dancing Links Internals and Implementation   * * * * * * * * * * * * */
@@ -245,7 +246,7 @@ private:
    *                    returning 0. That branch should fail at that point.
    * @return            the index in the lookup table and headers of links_ of the item to cover.
    */
-  uint64_t choose_item() const;
+  [[nodiscard]] uint64_t choose_item() const;
 
   /**
    * @brief cover_type      perform an exact cover as described by Donald Knuth, eliminating the
@@ -310,7 +311,7 @@ private:
    * @param item           the type item we search for depending on ATTACK or DEFENSE.
    * @return               the index in the item lookup table. This is same as header in links.
    */
-  uint64_t find_item_index( Type_encoding item ) const;
+  [[nodiscard]] uint64_t find_item_index( Type_encoding item ) const;
 
   /**
    * @brief find_item_index  performs binary search on the sorted option array to find its index in
@@ -318,7 +319,7 @@ private:
    * @param item           the type item we search for depending on ATTACK or DEFENSE.
    * @return               the index in the item option table. This is same as spacer in links.
    */
-  uint64_t find_option_index( Type_encoding option ) const;
+  [[nodiscard]] uint64_t find_option_index( Type_encoding option ) const;
 
   /**
    * @brief hide_item     hiding an item in the links means we simply tag its column header with a

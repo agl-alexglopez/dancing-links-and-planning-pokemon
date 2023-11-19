@@ -37,10 +37,10 @@
 #include "map_parser.hh"
 #include "type_encoding.hh"
 #include "type_resistance.hh"
+#include <istream>
 #include <map>
 #include <set>
 #include <string>
-#include <vector>
 
 namespace Dx = Dancing_links;
 

@@ -4,9 +4,7 @@
 
 #include "util.hh"
 
-#include <GL/glew.h>
 #include <cstdint>
-#include <string_view>
 
 namespace Gui {
 

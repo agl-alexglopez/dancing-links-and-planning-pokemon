@@ -6,7 +6,6 @@
 #include <GLFW/glfw3.h>
 
 #include <string>
-#include <vector>
 
 namespace Gui {
 
@@ -33,8 +32,8 @@ public:
   Window& operator=( Window&& other ) noexcept = default;
   ~Window();
   void poll();
-  bool error() const;
-  bool should_close() const;
+  [[nodiscard]] bool error() const;
+  [[nodiscard]] bool should_close() const;
 
 private:
   bool error_ { false };

@@ -104,7 +104,11 @@
 #ifndef DANCING_LINKS_HH
 #define DANCING_LINKS_HH
 #include "pokemon_links.hh"
+#include "ranked_set.hh"
+#include "type_encoding.hh"
 #include <cstdint>
+#include <set>
+#include <vector>
 
 namespace Dancing_links {
 class Pokemon_links;

@@ -67,7 +67,9 @@
 #include <gtest/gtest_prod.h>
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <ostream>
 #include <string_view>
 #include <utility>
@@ -81,8 +83,8 @@ public:
   Type_encoding() = default;
   // If encoding cannot be found encoding_ is set the falsey value 0.
   Type_encoding( std::string_view type ); // NOLINT
-  uint32_t encoding() const;
-  std::pair<std::string_view, std::string_view> decode_type() const;
+  [[nodiscard]] uint32_t encoding() const;
+  [[nodiscard]] std::pair<std::string_view, std::string_view> decode_type() const;
 
   bool operator==( Type_encoding rhs ) const;
   bool operator!=( Type_encoding rhs ) const;

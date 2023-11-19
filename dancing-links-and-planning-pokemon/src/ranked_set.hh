@@ -42,10 +42,9 @@
 #pragma once
 #ifndef RANKED_SET_HH
 #define RANKED_SET_HH
-#include <iterator>
+#include <cstddef>
 #include <ostream>
 #include <set>
-#include <string>
 #include <utility>
 
 template<class Value_type>
@@ -61,9 +60,9 @@ public:
   Ranked_set& operator=( const Ranked_set& rhs ) = default;
   ~Ranked_set() = default;
 
-  std::size_t size() const { return set_.size(); }
+  [[nodiscard]] std::size_t size() const { return set_.size(); }
 
-  int rank() const { return rank_; }
+  [[nodiscard]] int rank() const { return rank_; }
 
   void insert( const Value_type& elem ) { set_.insert( elem ); }
 

@@ -33,7 +33,6 @@
 #define RESISTANCE_HH
 #include "type_encoding.hh"
 #include <ostream>
-#include <string>
 
 namespace Dancing_links {
 
@@ -63,9 +62,9 @@ public:
   Resistance& operator=( const Resistance& other ) = default;
   ~Resistance() = default;
 
-  Type_encoding type() const;
+  [[nodiscard]] Type_encoding type() const;
 
-  Multiplier multiplier() const;
+  [[nodiscard]] Multiplier multiplier() const;
 
   bool operator<( const Resistance& rhs ) const { return this->type() < rhs.type(); }
   bool operator==( const Resistance& rhs ) const
