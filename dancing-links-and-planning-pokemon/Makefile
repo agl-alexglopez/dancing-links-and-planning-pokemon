@@ -30,7 +30,7 @@ format:
 	@$(MAKE) --no-print-directory -C $(BUILD_DIR) format
 
 tidy:
-	@$(MAKE) --no-print-directory -C $(BUILD_DIR) tidy
+	@$(MAKE) --no-print-directory -C $(BUILD_DIR) tidy $(JOBS)
 
 debug-tests:
 	$(MAKE) --no-print-directory -C $(BUILD_DIR) $(JOBS)
