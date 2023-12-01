@@ -12,7 +12,8 @@ class Point
 {
 public:
   Point() = default;
-  Point( float user_x, float user_y ) : x( user_x ), y( user_y ) {}
+  Point( float user_x, float user_y ) : x( user_x ), y( user_y )
+  {}
   float x { 0 };
   float y { 0 };
 }; // class Point

@@ -513,22 +513,18 @@ TEST( InternalTests, InitializeSmallDefensiveLinks )
     { { "Normal" }, 1, 3 },
     { { "Water" }, 2, 0 },
   };
+  // clang-format off
   std::vector<Dx::Pokemon_links::Poke_link> dlx = {
-    //   0           1Fire        2Normal      3Water
-    { 0, 0, 0, EM, 0 },
-    { 1, 7, 7, EM, 0 },
-    { 1, 5, 5, EM, 0 },
-    { 1, 8, 8, EM, 0 },
-    //  4Ghost                    5Zero
-    { -1, 0, 5, EM, 0 },
-    { 2, 2, 2, IM, 0 },
-    //  6Water       7Half                     8Half
-    { -2, 5, 8, EM, 0 },
-    { 1, 1, 1, F2, 0 },
-    { 3, 3, 3, F2, 0 },
+    //   0                   1Fire               2Normal             3Water
+    { 0, 0, 0, EM, 0 },  { 1, 7, 7, EM, 0 }, { 1, 5, 5, EM, 0 }, { 1, 8, 8, EM, 0 },    
+    //  4Ghost               5Zero
+    { -1, 0, 5, EM, 0 }, { 2, 2, 2, IM, 0 },
+    //  6Water               7Half               8Half
+    { -2, 5, 8, EM, 0 }, { 1, 1, 1, F2, 0 }, { 3, 3, 3, F2, 0 }, 
     //     9
     { INT_MIN, 7, UINT64_MAX, EM, 0 },
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   EXPECT_EQ( option_table, links.option_table_ );
   EXPECT_EQ( item_table, links.item_table_ );
@@ -547,34 +543,42 @@ TEST( InternalTests, InitializeAWorldWhereThereAreOnlySingleTypes )
    *
    */
   const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
-    { { "Dragon" },
+    {
+      { "Dragon" },
       { { { "Normal" }, NM },
         { { "Fire" }, F2 },
         { { "Water" }, F2 },
         { { "Electric" }, F2 },
         { { "Grass" }, F2 },
-        { { "Ice" }, DB } } },
-    { { "Electric" },
+        { { "Ice" }, DB } },
+    },
+    {
+      { "Electric" },
       { { { "Normal" }, NM },
         { { "Fire" }, NM },
         { { "Water" }, NM },
         { { "Electric" }, F2 },
         { { "Grass" }, NM },
-        { { "Ice" }, NM } } },
-    { { "Ghost" },
+        { { "Ice" }, NM } },
+    },
+    {
+      { "Ghost" },
       { { { "Normal" }, IM },
         { { "Fire" }, NM },
         { { "Water" }, NM },
         { { "Electric" }, NM },
         { { "Grass" }, NM },
-        { { "Ice" }, NM } } },
-    { { "Ice" },
+        { { "Ice" }, NM } },
+    },
+    {
+      { "Ice" },
       { { { "Normal" }, NM },
         { { "Fire" }, NM },
         { { "Water" }, NM },
         { { "Electric" }, NM },
         { { "Grass" }, NM },
-        { { "Ice" }, F2 } } },
+        { { "Ice" }, F2 } },
+    },
   };
 
   std::vector<Dx::Pokemon_links::Encoding_index> option_table
@@ -588,33 +592,22 @@ TEST( InternalTests, InitializeAWorldWhereThereAreOnlySingleTypes )
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   std::vector<Dx::Pokemon_links::Poke_link> dlx = {
-    //  0             1Electric       2Fire       3Grass          4Ice           5Normal        6Water
-    { 0, 0, 0, EM, 0 },
-    { 2, 13, 8, EM, 0 },
-    { 1, 9, 9, EM, 0 },
-    { 1, 10, 10, EM, 0 },
-    { 1, 17, 17, EM, 0 },
-    { 1, 15, 15, EM, 0 },
-    { 1, 11, 11, EM, 0 },
-    //  7Dragon        8half          9half       10half                                        11half
-    { -1, 0, 11, EM, 0 },
-    { 1, 1, 13, F2, 0 },
-    { 2, 2, 2, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    { 6, 6, 6, F2, 0 },
+    //    0           1Electric       2Fire        3Grass          4Ice          5Normal        6Water
+    {0,0,0,EM,0},   {2,13,8,EM,0}, {1,9,9,EM,0}, {1,10,10,EM,0},{1,17,17,EM,0},{1,15,15,EM,0},{1,11,11,EM,0},
+    //  7Dragon        8half          9half        10half                                       11half
+    {-1,0,11,EM,0}, {1,1,13,F2,0}, {2,2,2,F2,0}, {3,3,3,F2,0},                                {6,6,6,F2,0}, 
     //  12Electric     13half
-    { -2, 8, 13, EM, 0 },
-    { 1, 8, 1, F2, 0 },
+    {-2,8,13,EM,0}, {1,8,1,F2,0},   
     //  14Ghost                                                                  15immune
-    { -3, 13, 15, EM, 0 },
-    { 5, 5, 5, IM, 0 },
+    {-3,13,15,EM,0},                                                           {5,5,5,IM,0},    
     //  16Ice                                                     17half
-    { -4, 15, 17, EM, 0 },
-    { 4, 4, 4, F2, 0 },
+    {-4,15,17,EM,0},                                           {4,4,4,F2,0},    
     //  18
     { INT_MIN, 17, UINT64_MAX, EM, 0 },
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   EXPECT_EQ( option_table, links.option_table_ );
   EXPECT_EQ( item_table, links.item_table_ );
@@ -635,34 +628,42 @@ TEST( InternalTests, CoverElectricWithDragonEliminatesElectricOptionUncoverReset
    *
    */
   const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
-    { { "Dragon" },
+    {
+      { "Dragon" },
       { { { "Normal" }, NM },
         { { "Fire" }, F2 },
         { { "Water" }, F2 },
         { { "Electric" }, F2 },
         { { "Grass" }, F2 },
-        { { "Ice" }, DB } } },
-    { { "Electric" },
+        { { "Ice" }, DB } },
+    },
+    {
+      { "Electric" },
       { { { "Normal" }, NM },
         { { "Fire" }, NM },
         { { "Water" }, NM },
         { { "Electric" }, F2 },
         { { "Grass" }, NM },
-        { { "Ice" }, NM } } },
-    { { "Ghost" },
+        { { "Ice" }, NM } },
+    },
+    {
+      { "Ghost" },
       { { { "Normal" }, IM },
         { { "Fire" }, NM },
         { { "Water" }, NM },
         { { "Electric" }, NM },
         { { "Grass" }, NM },
-        { { "Ice" }, NM } } },
-    { { "Ice" },
+        { { "Ice" }, NM } },
+    },
+    {
+      { "Ice" },
       { { { "Normal" }, NM },
         { { "Fire" }, NM },
         { { "Water" }, NM },
         { { "Electric" }, NM },
         { { "Grass" }, NM },
-        { { "Ice" }, F2 } } },
+        { { "Ice" }, F2 } },
+    },
   };
 
   std::vector<Dx::Pokemon_links::Encoding_index> option_table
@@ -676,33 +677,22 @@ TEST( InternalTests, CoverElectricWithDragonEliminatesElectricOptionUncoverReset
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   std::vector<Dx::Pokemon_links::Poke_link> dlx = {
-    //   0            1Electric       2Fire       3Grass          4Ice         5Normal         6Water
-    { 0, 0, 0, EM, 0 },
-    { 2, 13, 8, EM, 0 },
-    { 1, 9, 9, EM, 0 },
-    { 1, 10, 10, EM, 0 },
-    { 1, 17, 17, EM, 0 },
-    { 1, 15, 15, EM, 0 },
-    { 1, 11, 11, EM, 0 },
-    //   7Dragon       8half          9half       10half                                       11half
-    { -1, 0, 11, EM, 0 },
-    { 1, 1, 13, F2, 0 },
-    { 2, 2, 2, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    { 6, 6, 6, F2, 0 },
+    //   0             1Electric       2Fire       3Grass          4Ice          5Normal          6Water
+    {0,0,0,EM,0},   {2,13,8,EM,0}, {1,9,9,EM,0}, {1,10,10,EM,0}, {1,17,17,EM,0},{1,15,15,EM,0}, {1,11,11,EM,0},
+    //   7Dragon       8half          9half       10half                                          11half
+    {-1,0,11,EM,0}, {1,1,13,F2,0}, {2,2,2,F2,0},  {3,3,3,F2,0},                                 {6,6,6,F2,0},
     //   12Electric    13half
-    { -2, 8, 13, EM, 0 },
-    { 1, 8, 1, F2, 0 },
-    //   14Ghost                                                               15immune
-    { -3, 13, 15, EM, 0 },
-    { 5, 5, 5, IM, 0 },
-    //   16Ice                                                   17half
-    { -4, 15, 17, EM, 0 },
-    { 4, 4, 4, F2, 0 },
+    {-2,8,13,EM,0}, {1,8,1,F2,0},
+    //   14Ghost                                                                 15immune
+    {-3,13,15,EM,0},                                                            {5,5,5,IM,0},
+    //   16Ice                                                    17half
+    {-4,15,17,EM,0},                                             {4,4,4,F2,0},    
     //   18
-    { INT_MIN, 17, UINT64_MAX, EM, 0 },
+    {INT_MIN,17,UINT64_MAX,EM,0},
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   EXPECT_EQ( option_table, links.option_table_ );
   EXPECT_EQ( item_table, links.item_table_ );
@@ -717,6 +707,7 @@ TEST( InternalTests, CoverElectricWithDragonEliminatesElectricOptionUncoverReset
     { { "Normal" }, 4, 0 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   /*
    *             Ice   Normal
    *  Ghost             x0.0
@@ -724,39 +715,25 @@ TEST( InternalTests, CoverElectricWithDragonEliminatesElectricOptionUncoverReset
    *
    */
   std::vector<Dx::Pokemon_links::Poke_link> dlx_cover_electric = {
-    //  0             1Electric     2Fire        3Grass           4Ice         5Normal         6Water
-    { 0, 0, 0, EM, 0 },
-    { 2, 13, 8, EM, 0 },
-    { 1, 9, 9, EM, 0 },
-    { 1, 10, 10, EM, 0 },
-    { 1, 17, 17, EM, 0 },
-    { 1, 15, 15, EM, 0 },
-    { 1, 11, 11, EM, 0 },
-    //  7Dragon       8half         9half        10half                                        11half
-    { -1, 0, 11, EM, 0 },
-    { 1, 1, 13, F2, 0 },
-    { 2, 2, 2, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    { 6, 6, 6, F2, 0 },
+    //  0             1Electric       2Fire        3Grass           4Ice           5Normal          6Water
+    {0,0,0,EM,0},    {2,13,8,EM,0}, {1,9,9,EM,0}, {1,10,10,EM,0}, {1,17,17,EM,0}, {1,15,15,EM,0}, {1,11,11,EM,0}, 
+    //  7Dragon       8half          9half         10half                                          11half
+    {-1,0,11,EM,0},  {1,1,13,F2,0}, {2,2,2,F2,0}, {3,3,3,F2,0},                                   {6,6,6,F2,0}, 
     //  12Electric    13half
-    { -2, 8, 13, EM, 0 },
-    { 1, 8, 1, F2, 0 },
-    //  14Ghost                                                                15immune
-    { -3, 13, 15, EM, 0 },
-    { 5, 5, 5, IM, 0 },
-    //  16Ice                                                   17half
-    { -4, 15, 17, EM, 0 },
-    { 4, 4, 4, F2, 0 },
+    {-2,8,13,EM,0},  {1,8,1,F2,0}, 
+    //  14Ghost                                                                    15immune
+    {-3,13,15,EM,0},                                                              {5,5,5,IM,0},
+    //  16Ice                                                       17half
+    {-4,15,17,EM,0},                                              {4,4,4,F2,0}, 
     //  18
-    { INT_MIN, 17, UINT64_MAX, EM, 0 },
+    {INT_MIN,17,UINT64_MAX,EM,0},
   };
-
+  // clang-format on
   Dx::Pokemon_links::Encoding_score pick = links.cover_type( 8 );
   EXPECT_EQ( pick.score, 12 );
   EXPECT_EQ( pick.name.decode_type().first, "Dragon" );
   EXPECT_EQ( item_cover_electric, links.item_table_ );
   EXPECT_EQ( dlx_cover_electric, links.links_ );
-
   links.uncover_type( 8 );
   EXPECT_EQ( item_table, links.item_table_ );
   EXPECT_EQ( dlx, links.links_ );
@@ -784,41 +761,51 @@ TEST( InternalTests, CoverElectricWithElectricToCauseHidingOfManyOptions )
         { { "Ice" }, NM },
         { { "Normal" }, NM },
         { { "Water" }, NM } } },
-    { { "Fire" },
+    {
+      { "Fire" },
       { { { "Electric" }, F2 },
         { { "Fire" }, NM },
         { { "Grass" }, F2 },
         { { "Ice" }, NM },
         { { "Normal" }, NM },
-        { { "Water" }, F2 } } },
-    { { "Grass" },
+        { { "Water" }, F2 } },
+    },
+    {
+      { "Grass" },
       { { { "Electric" }, NM },
         { { "Fire" }, F2 },
         { { "Grass" }, NM },
         { { "Ice" }, NM },
         { { "Normal" }, NM },
-        { { "Water" }, F2 } } },
-    { { "Ice" },
+        { { "Water" }, F2 } },
+    },
+    {
+      { "Ice" },
       { { { "Electric" }, NM },
         { { "Fire" }, NM },
         { { "Grass" }, NM },
         { { "Ice" }, F2 },
         { { "Normal" }, NM },
-        { { "Water" }, F2 } } },
-    { { "Normal" },
+        { { "Water" }, F2 } },
+    },
+    {
+      { "Normal" },
       { { { "Electric" }, F2 },
         { { "Fire" }, NM },
         { { "Grass" }, NM },
         { { "Ice" }, NM },
         { { "Normal" }, F2 },
-        { { "Water" }, NM } } },
-    { { "Water" },
+        { { "Water" }, NM } },
+    },
+    {
+      { "Water" },
       { { { "Electric" }, NM },
         { { "Fire" }, F2 },
         { { "Grass" }, NM },
         { { "Ice" }, NM },
         { { "Normal" }, NM },
-        { { "Water" }, F2 } } },
+        { { "Water" }, F2 } },
+    },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   std::vector<Dx::Pokemon_links::Type_name> headers = {
@@ -830,42 +817,25 @@ TEST( InternalTests, CoverElectricWithElectricToCauseHidingOfManyOptions )
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   std::vector<Dx::Pokemon_links::Poke_link> dlx = {
-    // 0              1Electric      2Fire         3Grass         4Ice            5Normal       6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 21, 8, EM, 0 },
-    { 3, 24, 9, EM, 0 },
-    { 1, 12, 12, EM, 0 },
-    { 1, 18, 18, EM, 0 },
-    { 1, 22, 22, EM, 0 },
-    { 4, 25, 13, EM, 0 },
-    // 7Electric      8              9
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 15, F2, 0 },
-    // 10Fire         11                           12                                           13
-    { -2, 8, 13, EM, 0 },
-    { 1, 8, 21, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    { 6, 6, 16, F2, 0 },
-    // 14Grass                       15                                                         16
-    { -3, 11, 16, EM, 0 },
-    { 2, 9, 24, F2, 0 },
-    { 6, 13, 19, F2, 0 },
-    // 17Ice                                                      18                            19
-    { -4, 15, 19, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 16, 25, F2, 0 },
-    // 20Normal       21                                                          22
-    { -5, 18, 22, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
-    // 23Water                       24                                                         25
-    { -6, 21, 25, EM, 0 },
-    { 2, 15, 2, F2, 0 },
-    { 6, 19, 6, F2, 0 },
-    { INT_MIN, 24, UINT64_MAX, EM, 0 },
+    // 0              1Electric      2Fire          3Grass          4Ice            5Normal        6Water
+    {0,0,0,EM,0},   {3,21,8,EM,0}, {3,24,9,EM,0}, {1,12,12,EM,0}, {1,18,18,EM,0}, {1,22,22,EM,0}, {4,25,13,EM,0},    
+    // 7Electric       8              9
+    {-1,0,9,EM,0},  {1,1,11,F2,0}, {2,2,15,F2,0},    
+    // 10Fire         11                               12                                           13
+    {-2,8,13,EM,0}, {1,8,21,F2,0},                {3,3,3,F2,0},                                   {6,6,16,F2,0},    
+    // 14Grass                       15                                                              16
+    {-3,11,16,EM,0},               {2,9,24,F2,0},                                                 {6,13,19,F2,0},    
+    // 17Ice                                                        18                               19
+    {-4,15,19,EM,0},                                              {4,4,4,F2,0},                   {6,16,25,F2,0},    
+    // 20Normal       21                                                             22
+    {-5,18,22,EM,0},{1,11,1,F2,0},                                                {5,5,5,F2,0},    
+    // 23Water                       24                                                               25
+    {-6,21,25,EM,0},               {2,15,2,F2,0},                                                 {6,19,6,F2,0},
+    {INT_MIN,24,UINT64_MAX,EM,0},  
   };
+  // clang-format on
   EXPECT_EQ( headers, links.item_table_ );
   EXPECT_EQ( dlx, links.links_ );
 
@@ -878,6 +848,7 @@ TEST( InternalTests, CoverElectricWithElectricToCauseHidingOfManyOptions )
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   std::vector<Dx::Pokemon_links::Poke_link> dlx_cover_electric = {
     /*
      *
@@ -886,42 +857,23 @@ TEST( InternalTests, CoverElectricWithElectricToCauseHidingOfManyOptions )
      *
      *
      */
-    // 0              1Electric     2Fire           3Grass      4Ice           5Normal        6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 21, 8, EM, 0 },
-    { 3, 24, 9, EM, 0 },
-    { 0, 3, 3, EM, 0 },
-    { 1, 18, 18, EM, 0 },
-    { 0, 5, 5, EM, 0 },
-    { 1, 19, 19, EM, 0 },
-    // 7Electric      8             9
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 15, F2, 0 },
-    // 10Fire         11                            12                                        13
-    { -2, 8, 13, EM, 0 },
-    { 1, 8, 21, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    { 6, 6, 16, F2, 0 },
-    // 14Grass                        15                                                      16
-    { -3, 11, 16, EM, 0 },
-    { 2, 9, 24, F2, 0 },
-    { 6, 6, 19, F2, 0 },
-    // 17Ice                                                    18                            19
-    { -4, 15, 19, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 6, 6, F2, 0 },
-    // 20Normal       21                                                         22
-    { -5, 18, 22, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
-    // 23Water                        24                                                      25
-    { -6, 21, 25, EM, 0 },
-    { 2, 15, 2, F2, 0 },
-    { 6, 19, 6, F2, 0 },
-    { INT_MIN, 24, UINT64_MAX, EM, 0 },
+    // 0              1Electric       2Fire           3Grass        4Ice           5Normal        6Water
+    {0,0,0,EM,0},    {3,21,8,EM,0}, {3,24,9,EM,0}, {0,3,3,EM,0}, {1,18,18,EM,0}, {0,5,5,EM,0}, {1,19,19,EM,0}, 
+    // 7Electric        8             9
+    {-1,0,9,EM,0},   {1,1,11,F2,0}, {2,2,15,F2,0}, 
+    // 10Fire           11                            12                                           13
+    {-2,8,13,EM,0},  {1,8,21,F2,0},                {3,3,3,F2,0},                               {6,6,16,F2,0}, 
+    // 14Grass                        15                                                           16
+    {-3,11,16,EM,0},                {2,9,24,F2,0},                                             {6,6,19,F2,0}, 
+    // 17Ice                                                        18                            19
+    {-4,15,19,EM,0},                                             {4,4,4,F2,0},                 {6,6,6,F2,0}, 
+    // 20Normal        21                                                            22
+    {-5,18,22,EM,0}, {1,11,1,F2,0},                                               {5,5,5,F2,0}, 
+    // 23Water                        24                                                            25
+    {-6,21,25,EM,0},                {2,15,2,F2,0},                                             {6,19,6,F2,0},
+    {INT_MIN,24,UINT64_MAX,EM,0},
   };
-
+  // clang-format on
   Dx::Pokemon_links::Encoding_score pick = links.cover_type( 8 );
   EXPECT_EQ( pick.score, 6 );
   EXPECT_EQ( pick.name.decode_type().first, "Electric" );
@@ -952,42 +904,30 @@ TEST( InternalTests, ThereAreTwoExactCoversForThisTypingCombo )
    *
    */
   const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
-    { { "Electric" },
-      { { { "Electric" }, F2 },
-        { { "Grass" }, NM },
-        { { "Ice" }, NM },
-        { { "Normal" }, NM },
-        { { "Water" }, NM } } },
-    { { "Ghost" },
-      { { { "Electric" }, NM },
-        { { "Grass" }, NM },
-        { { "Ice" }, NM },
-        { { "Normal" }, IM },
-        { { "Water" }, NM } } },
-    { { "Ground" },
-      { { { "Electric" }, IM },
-        { { "Grass" }, NM },
-        { { "Ice" }, NM },
-        { { "Normal" }, NM },
-        { { "Water" }, NM } } },
-    { { "Ice" },
-      { { { "Electric" }, NM },
-        { { "Grass" }, NM },
-        { { "Ice" }, F2 },
-        { { "Normal" }, NM },
-        { { "Water" }, NM } } },
-    { { "Poison" },
-      { { { "Electric" }, NM },
-        { { "Grass" }, F2 },
-        { { "Ice" }, NM },
-        { { "Normal" }, NM },
-        { { "Water" }, NM } } },
-    { { "Water" },
-      { { { "Electric" }, NM },
-        { { "Grass" }, DB },
-        { { "Ice" }, F2 },
-        { { "Normal" }, NM },
-        { { "Water" }, F2 } } },
+    {
+      { "Electric" },
+      { { { "Electric" }, F2 }, { { "Grass" }, NM }, { { "Ice" }, NM }, { { "Normal" }, NM }, { { "Water" }, NM } },
+    },
+    {
+      { "Ghost" },
+      { { { "Electric" }, NM }, { { "Grass" }, NM }, { { "Ice" }, NM }, { { "Normal" }, IM }, { { "Water" }, NM } },
+    },
+    {
+      { "Ground" },
+      { { { "Electric" }, IM }, { { "Grass" }, NM }, { { "Ice" }, NM }, { { "Normal" }, NM }, { { "Water" }, NM } },
+    },
+    {
+      { "Ice" },
+      { { { "Electric" }, NM }, { { "Grass" }, NM }, { { "Ice" }, F2 }, { { "Normal" }, NM }, { { "Water" }, NM } },
+    },
+    {
+      { "Poison" },
+      { { { "Electric" }, NM }, { { "Grass" }, F2 }, { { "Ice" }, NM }, { { "Normal" }, NM }, { { "Water" }, NM } },
+    },
+    {
+      { "Water" },
+      { { { "Electric" }, NM }, { { "Grass" }, DB }, { { "Ice" }, F2 }, { { "Normal" }, NM }, { { "Water" }, F2 } },
+    },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   std::set<Ranked_set<Dx::Type_encoding>> correct
@@ -1018,18 +958,52 @@ TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst 
      * of my implementation and will just enter all types for the first key to make entering
      * the rest of the test cases easier.
      */
-    { { "Bug-Ghost" },
-      { { { "Electric" }, NM },
+    {
+      { "Bug-Ghost" },
+      {
+        { { "Electric" }, NM },
         { { "Fire" }, NM },
         { { "Grass" }, F2 },
         { { "Ice" }, NM },
         { { "Normal" }, IM },
-        { { "Water" }, NM } } },
-    { { "Electric-Grass" }, { { { "Electric" }, F4 }, { { "Grass" }, F2 }, { { "Water" }, F2 } } },
-    { { "Fire-Flying" }, { { { "Fire" }, F2 }, { { "Grass" }, F4 } } },
-    { { "Ground-Water" }, { { { "Electric" }, IM }, { { "Fire" }, F2 } } },
-    { { "Ice-Psychic" }, { { { "Ice" }, F2 } } },
-    { { "Ice-Water" }, { { { "Ice" }, F4 }, { { "Water" }, F2 } } },
+        { { "Water" }, NM },
+      },
+    },
+    {
+      { "Electric-Grass" },
+      {
+        { { "Electric" }, F4 },
+        { { "Grass" }, F2 },
+        { { "Water" }, F2 },
+      },
+    },
+    {
+      { "Fire-Flying" },
+      {
+        { { "Fire" }, F2 },
+        { { "Grass" }, F4 },
+      },
+    },
+    {
+      { "Ground-Water" },
+      {
+        { { "Electric" }, IM },
+        { { "Fire" }, F2 },
+      },
+    },
+    {
+      { "Ice-Psychic" },
+      {
+        { { "Ice" }, F2 },
+      },
+    },
+    {
+      { "Ice-Water" },
+      {
+        { { "Ice" }, F4 },
+        { { "Water" }, F2 },
+      },
+    },
   };
   const std::vector<Dx::Pokemon_links::Encoding_index> options = {
     { { "" }, 0 },
@@ -1049,53 +1023,33 @@ TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst 
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
     // 0                 1Electric       2Fire          3Grass         4Ice          5Normal       6Water
-    { 0, 0, 0, EM, 0 },
-    { 2, 18, 11, EM, 0 },
-    { 2, 19, 15, EM, 0 },
-    { 3, 16, 8, EM, 0 },
-    { 2, 23, 21, EM, 0 },
-    { 1, 9, 9, EM, 0 },
-    { 2, 24, 13, EM, 0 },
+    {0,0,0,EM,0},    {2,18,11,EM,0}, {2,19,15,EM,0}, {3,16,8,EM,0}, {2,23,21,EM,0}, {1,9,9,EM,0}, {2,24,13,EM,0}, 
     // 7Bug-Ghost                                         8                            9
-    { -1, 0, 9, EM, 0 },
-    { 3, 3, 12, F2, 0 },
-    { 5, 5, 5, IM, 0 },
-    // 10Electric-Grass     11                            12                                         13
-    { -2, 8, 13, EM, 0 },
-    { 1, 1, 18, F4, 0 },
-    { 3, 8, 16, F2, 0 },
-    { 6, 6, 24, F2, 0 },
-    // 14Fire-Flying                       15             16
-    { -3, 11, 16, EM, 0 },
-    { 2, 2, 19, F2, 0 },
-    { 3, 12, 3, F4, 0 },
-    // 17Ground-Water       18             19
-    { -4, 15, 19, EM, 0 },
-    { 1, 11, 1, IM, 0 },
-    { 2, 15, 2, F2, 0 },
+    {-1,0,9,EM,0},                                   {3,3,12,F2,0},                 {5,5,5,IM,0}, 
+    // 10Electric-Grass   11                             12                                         13
+    {-2,8,13,EM,0},  {1,1,18,F4,0},                  {3,8,16,F2,0},                               {6,6,24,F2,0}, 
+    // 14Fire-Flying                      15             16
+    {-3,11,16,EM,0},                 {2,2,19,F2,0},  {3,12,3,F4,0}, 
+    // 17Ground-Water       18            19
+    {-4,15,19,EM,0}, {1,11,1,IM,0},  {2,15,2,F2,0}, 
     // 20Ice-Psychic                                                     21
-    { -5, 18, 21, EM, 0 },
-    { 4, 4, 23, F2, 0 },
+    {-5,18,21,EM,0},                                                {4,4,23,F2,0}, 
     // 22Ice-Water                                                       23                          24
-    { -6, 21, 24, EM, 0 },
-    { 4, 21, 4, F4, 0 },
-    { 6, 13, 6, F2, 0 },
+    {-6,21,24,EM,0},                                                {4,21,4,F4,0},                {6,13,6,F2,0}, 
     // 25
-    { INT_MIN, 23, UINT64_MAX, EM, 0 },
+    {INT_MIN,23,UINT64_MAX,EM,0},
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   EXPECT_EQ( links.option_table_, options );
   EXPECT_EQ( links.item_table_, items );
   EXPECT_EQ( links.links_, dlx );
   std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages( 6 );
-  std::set<Ranked_set<Dx::Type_encoding>> correct = { { 13,
-                                                        {
-                                                          { "Bug-Ghost" },
-                                                          { "Ground-Water" },
-                                                          { "Ice-Water" },
-                                                        } } };
+  std::set<Ranked_set<Dx::Type_encoding>> correct
+    = { { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } } };
   EXPECT_EQ( correct, result );
 }
 
@@ -1121,18 +1075,35 @@ TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestore
      * of my implementation and will just enter all types for the first key to make entering
      * the rest of the test cases easier.
      */
-    { { "Bug-Ghost" },
+    {
+      { "Bug-Ghost" },
       { { { "Electric" }, NM },
         { { "Fire" }, NM },
         { { "Grass" }, F2 },
         { { "Ice" }, NM },
         { { "Normal" }, IM },
-        { { "Water" }, NM } } },
-    { { "Electric-Grass" }, { { { "Electric" }, F4 }, { { "Grass" }, F2 }, { { "Water" }, F2 } } },
-    { { "Fire-Flying" }, { { { "Fire" }, F2 }, { { "Grass" }, F4 } } },
-    { { "Ground-Water" }, { { { "Electric" }, IM }, { { "Fire" }, F2 } } },
-    { { "Ice-Psychic" }, { { { "Ice" }, F2 } } },
-    { { "Ice-Water" }, { { { "Ice" }, F4 }, { { "Water" }, F2 } } },
+        { { "Water" }, NM } },
+    },
+    {
+      { "Electric-Grass" },
+      { { { "Electric" }, F4 }, { { "Grass" }, F2 }, { { "Water" }, F2 } },
+    },
+    {
+      { "Fire-Flying" },
+      { { { "Fire" }, F2 }, { { "Grass" }, F4 } },
+    },
+    {
+      { "Ground-Water" },
+      { { { "Electric" }, IM }, { { "Fire" }, F2 } },
+    },
+    {
+      { "Ice-Psychic" },
+      { { { "Ice" }, F2 } },
+    },
+    {
+      { "Ice-Water" },
+      { { { "Ice" }, F4 }, { { "Water" }, F2 } },
+    },
   };
   const std::vector<Dx::Pokemon_links::Encoding_index> options = {
     { { "" }, 0 },
@@ -1152,53 +1123,33 @@ TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestore
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
-    // 0                 1Electric       2Fire          3Grass         4Ice          5Normal       6Water
-    { 0, 0, 0, EM, 0 },
-    { 2, 18, 11, EM, 0 },
-    { 2, 19, 15, EM, 0 },
-    { 3, 16, 8, EM, 0 },
-    { 2, 23, 21, EM, 0 },
-    { 1, 9, 9, EM, 0 },
-    { 2, 24, 13, EM, 0 },
+    // 0                1Electric       2Fire          3Grass         4Ice            5Normal       6Water
+    {0,0,0,EM,0},    {2,18,11,EM,0}, {2,19,15,EM,0}, {3,16,8,EM,0}, {2,23,21,EM,0}, {1,9,9,EM,0}, {2,24,13,EM,0}, 
     // 7Bug-Ghost                                         8                            9
-    { -1, 0, 9, EM, 0 },
-    { 3, 3, 12, F2, 0 },
-    { 5, 5, 5, IM, 0 },
+    {-1,0,9,EM,0},                                   {3,3,12,F2,0},                 {5,5,5,IM,0}, 
     // 10Electric-Grass     11                            12                                         13
-    { -2, 8, 13, EM, 0 },
-    { 1, 1, 18, F4, 0 },
-    { 3, 8, 16, F2, 0 },
-    { 6, 6, 24, F2, 0 },
+    {-2,8,13,EM,0},  {1,1,18,F4,0},                  {3,8,16,F2,0},                               {6,6,24,F2,0}, 
     // 14Fire-Flying                       15             16
-    { -3, 11, 16, EM, 0 },
-    { 2, 2, 19, F2, 0 },
-    { 3, 12, 3, F4, 0 },
+    {-3,11,16,EM,0},                 {2,2,19,F2,0},  {3,12,3,F4,0}, 
     // 17Ground-Water       18             19
-    { -4, 15, 19, EM, 0 },
-    { 1, 11, 1, IM, 0 },
-    { 2, 15, 2, F2, 0 },
+    {-4,15,19,EM,0}, {1,11,1,IM,0},  {2,15,2,F2,0}, 
     // 20Ice-Psychic                                                     21
-    { -5, 18, 21, EM, 0 },
-    { 4, 4, 23, F2, 0 },
+    {-5,18,21,EM,0},                                                {4,4,23,F2,0}, 
     // 22Ice-Water                                                       23                          24
-    { -6, 21, 24, EM, 0 },
-    { 4, 21, 4, F4, 0 },
-    { 6, 13, 6, F2, 0 },
+    {-6,21,24,EM,0},                                                {4,21,4,F4,0},                {6,13,6,F2,0}, 
     // 25
     { INT_MIN, 23, UINT64_MAX, EM, 0 },
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   EXPECT_EQ( links.option_table_, options );
   EXPECT_EQ( links.item_table_, items );
   EXPECT_EQ( links.links_, dlx );
   std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages( 6 );
-  std::set<Ranked_set<Dx::Type_encoding>> correct = { { 13,
-                                                        {
-                                                          { "Bug-Ghost" },
-                                                          { "Ground-Water" },
-                                                          { "Ice-Water" },
-                                                        } } };
+  std::set<Ranked_set<Dx::Type_encoding>> correct
+    = { { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } } };
   EXPECT_EQ( correct, result );
   // Did we cleanup correctly when the algorithm was done?
   EXPECT_EQ( links.option_table_, options );
@@ -1236,24 +1187,19 @@ TEST( InternalTests, InitializationOfAttackDancingLinks )
     { { "Ground-Grass" }, 1, 3 },
     { { "Ground-Rock" }, 2, 0 },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx {
     // 0           1Fire-Flying   2Ground-Grass   3Ground-Rock
-    { 0, 0, 0, EM, 0 },
-    { 2, 9, 5, EM, 0 },
-    { 1, 7, 7, EM, 0 },
-    { 1, 10, 10, EM, 0 },
+    {0,0,0,EM,0},  {2,9,5,EM,0},  {1,7,7,EM,0},  {1,10,10,EM,0},  
     // 4Electric     5Double
-    { -1, 0, 5, EM, 0 },
-    { 1, 1, 9, DB, 0 },
+    {-1,0,5,EM,0}, {1,1,9,DB,0},  
     // 6Fire                        7Double
-    { -2, 5, 7, EM, 0 },
-    { 2, 2, 2, DB, 0 },
+    {-2,5,7,EM,0},                {2,2,2,DB,0},  
     // 8Water        9Double                       10Quadru
-    { -3, 7, 10, EM, 0 },
-    { 1, 5, 1, DB, 0 },
-    { 3, 3, 3, QD, 0 },
-    { INT_MIN, 9, UINT64_MAX, EM, 0 },
+    {-3,7,10,EM,0},{1,5,1,DB,0},                  {3,3,3,QD,0},
+    {INT_MIN,9,UINT64_MAX,EM,0},
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
   EXPECT_EQ( links.option_table_, option_table );
   EXPECT_EQ( links.item_table_, item_table );
@@ -1309,57 +1255,64 @@ TEST( InternalTests, ThereIsOneExactCoverHere )
    *
    */
   const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types = {
-    { { "Bug-Ghost" },
+    {
+      { "Bug-Ghost" },
       { { { "Electric" }, NM },
         { { "Fire" }, DB },
         { { "Grass" }, F2 },
         { { "Ice" }, NM },
         { { "Normal" }, IM },
-        { { "Water" }, NM } } },
-    { { "Electric-Grass" },
+        { { "Water" }, NM } },
+    },
+    {
+      { "Electric-Grass" },
       { { { "Electric" }, F4 },
         { { "Fire" }, DB },
         { { "Grass" }, F2 },
         { { "Ice" }, F2 },
         { { "Normal" }, NM },
-        { { "Water" }, F2 } } },
-    { { "Fire-Flying" },
+        { { "Water" }, F2 } },
+    },
+    {
+      { "Fire-Flying" },
       { { { "Electric" }, DB },
         { { "Fire" }, F2 },
         { { "Grass" }, F4 },
         { { "Ice" }, F2 },
         { { "Normal" }, NM },
-        { { "Water" }, DB } } },
-    { { "Ground-Water" },
+        { { "Water" }, DB } },
+    },
+    {
+      { "Ground-Water" },
       { { { "Electric" }, IM },
         { { "Fire" }, F2 },
         { { "Grass" }, QD },
         { { "Ice" }, NM },
         { { "Normal" }, NM },
-        { { "Water" }, NM } } },
-    { { "Ice-Psychic" },
+        { { "Water" }, NM } },
+    },
+    {
+      { "Ice-Psychic" },
       { { { "Electric" }, NM },
         { { "Fire" }, DB },
         { { "Grass" }, NM },
         { { "Ice" }, F2 },
         { { "Normal" }, NM },
-        { { "Water" }, NM } } },
-    { { "Ice-Water" },
+        { { "Water" }, NM } },
+    },
+    {
+      { "Ice-Water" },
       { { { "Electric" }, DB },
         { { "Fire" }, NM },
         { { "Grass" }, DB },
         { { "Ice" }, F2 },
         { { "Normal" }, NM },
-        { { "Water" }, F2 } } },
+        { { "Water" }, F2 } },
+    },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
   std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages( 24 );
-  std::set<Ranked_set<Dx::Type_encoding>> correct = { { 31,
-                                                        {
-                                                          { "Fire" },
-                                                          { "Grass" },
-                                                          { "Water" },
-                                                        } } };
+  std::set<Ranked_set<Dx::Type_encoding>> correct = { { 31, { { "Fire" }, { "Grass" }, { "Water" } } } };
   EXPECT_EQ( result, correct );
 }
 
@@ -1380,48 +1333,60 @@ TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
    *
    */
   const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
-    { { "Electric" },
+    {
+      { "Electric" },
       { { { "Electric" }, F2 },
         { { "Fire" }, F2 },
         { { "Grass" }, NM },
         { { "Ice" }, NM },
         { { "Normal" }, NM },
-        { { "Water" }, NM } } },
-    { { "Fire" },
+        { { "Water" }, NM } },
+    },
+    {
+      { "Fire" },
       { { { "Electric" }, F2 },
         { { "Fire" }, NM },
         { { "Grass" }, F2 },
         { { "Ice" }, NM },
         { { "Normal" }, NM },
-        { { "Water" }, F2 } } },
-    { { "Grass" },
+        { { "Water" }, F2 } },
+    },
+    {
+      { "Grass" },
       { { { "Electric" }, NM },
         { { "Fire" }, F2 },
         { { "Grass" }, NM },
         { { "Ice" }, NM },
         { { "Normal" }, NM },
-        { { "Water" }, F2 } } },
-    { { "Ice" },
+        { { "Water" }, F2 } },
+    },
+    {
+      { "Ice" },
       { { { "Electric" }, NM },
         { { "Fire" }, NM },
         { { "Grass" }, NM },
         { { "Ice" }, F2 },
         { { "Normal" }, NM },
-        { { "Water" }, F2 } } },
-    { { "Normal" },
+        { { "Water" }, F2 } },
+    },
+    {
+      { "Normal" },
       { { { "Electric" }, F2 },
         { { "Fire" }, NM },
         { { "Grass" }, NM },
         { { "Ice" }, NM },
         { { "Normal" }, F2 },
-        { { "Water" }, NM } } },
-    { { "Water" },
+        { { "Water" }, NM } },
+    },
+    {
+      { "Water" },
       { { { "Electric" }, NM },
         { { "Fire" }, F2 },
         { { "Grass" }, NM },
         { { "Ice" }, NM },
         { { "Normal" }, NM },
-        { { "Water" }, F2 } } },
+        { { "Water" }, F2 } },
+    },
   };
 
   const std::vector<Dx::Pokemon_links::Type_name> headers {
@@ -1433,43 +1398,26 @@ TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
-    //  0            1Electric      2Fire           3Grass        4Ice           5Normal        6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 21, 8, EM, 0 },
-    { 3, 24, 9, EM, 0 },
-    { 1, 12, 12, EM, 0 },
-    { 1, 18, 18, EM, 0 },
-    { 1, 22, 22, EM, 0 },
-    { 4, 25, 13, EM, 0 },
-    // 7Electric      8             9
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 15, F2, 0 },
-    // 10Fire         11                            12                                          13
-    { -2, 8, 13, EM, 0 },
-    { 1, 8, 21, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    { 6, 6, 16, F2, 0 },
-    // 14Grass                      15                                                          16
-    { -3, 11, 16, EM, 0 },
-    { 2, 9, 24, F2, 0 },
-    { 6, 13, 19, F2, 0 },
-    // 17Ice                                                      18                            19
-    { -4, 15, 19, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 16, 25, F2, 0 },
-    // 20Normal       21                                                         22
-    { -5, 18, 22, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
-    // 23Water                      24                                                          25
-    { -6, 21, 25, EM, 0 },
-    { 2, 15, 2, F2, 0 },
-    { 6, 19, 6, F2, 0 },
+    //  0              1Electric       2Fire           3Grass        4Ice           5Normal          6Water
+    {0,0,0,EM,0},    {3,21,8,EM,0}, {3,24,9,EM,0}, {1,12,12,EM,0}, {1,18,18,EM,0}, {1,22,22,EM,0}, {4,25,13,EM,0}, 
+    // 7Electric          8             9
+    {-1,0,9,EM,0},   {1,1,11,F2,0}, {2,2,15,F2,0}, 
+    // 10Fire         11                               12                                            13
+    {-2,8,13,EM,0},  {1,8,21,F2,0},                {3,3,3,F2,0},                                   {6,6,16,F2,0}, 
+    // 14Grass                          15                                                           16
+    {-3,11,16,EM,0},                {2,9,24,F2,0},                                                 {6,13,19,F2,0}, 
+    // 17Ice                                                          18                            19
+    {-4,15,19,EM,0},                                               {4,4,4,F2,0},                   {6,16,25,F2,0}, 
+    // 20Normal          21                                                           22
+    {-5,18,22,EM,0}, {1,11,1,F2,0},                                                {5,5,5,F2,0}, 
+    // 23Water                         24                                                            25
+    {-6,21,25,EM,0},                {2,15,2,F2,0},                                                 {6,19,6,F2,0}, 
     //       26
     { INT_MIN, 24, UINT64_MAX, EM, 0 },
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   EXPECT_EQ( links.links_, dlx );
   EXPECT_EQ( links.item_table_, headers );
@@ -1486,6 +1434,7 @@ TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx_cover_electric = {
     /*
      *
@@ -1497,42 +1446,24 @@ TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
      *  Water                           x0.5
      *
      */
-    // 0              1Electric      2Fire        3Grass         4Ice            5Normal        6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 21, 8, EM, 6 },
-    { 3, 24, 9, EM, 6 },
-    { 1, 12, 12, EM, 0 },
-    { 1, 18, 18, EM, 0 },
-    { 1, 22, 22, EM, 0 },
-    { 4, 25, 13, EM, 0 },
-    // 7Electric      8              9
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 6 },
-    { 2, 2, 15, F2, 6 },
-    // 10Fire         11                          12                                            13
-    { -2, 8, 13, EM, 0 },
-    { 1, 8, 21, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    { 6, 6, 16, F2, 0 },
-    // 14Grass                       15                                                         16
-    { -3, 11, 16, EM, 0 },
-    { 2, 9, 24, F2, 0 },
-    { 6, 13, 19, F2, 0 },
-    // 17Ice                                                     18                             19
-    { -4, 15, 19, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 16, 25, F2, 0 },
-    // 20Normal       21                                                         22
-    { -5, 18, 22, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
-    // 23Water                       24                                                         25
-    { -6, 21, 25, EM, 0 },
-    { 2, 15, 2, F2, 0 },
-    { 6, 19, 6, F2, 0 },
+    // 0              1Electric        2Fire          3Grass         4Ice            5Normal        6Water
+    {0,0,0,EM,0},    {3,21,8,EM,6}, {3,24,9,EM,6}, {1,12,12,EM,0}, {1,18,18,EM,0}, {1,22,22,EM,0}, {4,25,13,EM,0}, 
+    // 7Electric         8              9
+    {-1,0,9,EM,0},   {1,1,11,F2,6}, {2,2,15,F2,6}, 
+    // 10Fire            11                          12                                               13
+    {-2,8,13,EM,0},  {1,8,21,F2,0},                {3,3,3,F2,0},                                   {6,6,16,F2,0}, 
+    // 14Grass                        15                                                             16
+    {-3,11,16,EM,0},                {2,9,24,F2,0},                                                 {6,13,19,F2,0}, 
+    // 17Ice                                                          18                             19
+    {-4,15,19,EM,0},                                               {4,4,4,F2,0},                   {6,16,25,F2,0}, 
+    // 20Normal       21                                                              22
+    {-5,18,22,EM,0}, {1,11,1,F2,0},                                                 {5,5,5,F2,0}, 
+    // 23Water                         24                                                            25
+    {-6,21,25,EM,0},                {2,15,2,F2,0},                                                 {6,19,6,F2,0}, 
     // 26
     { INT_MIN, 24, UINT64_MAX, EM, 0 },
   };
+  // clang-format on
   EXPECT_EQ( links.item_table_, headers_cover_electric );
   EXPECT_EQ( links.links_, dlx_cover_electric );
 
@@ -1548,6 +1479,7 @@ TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
     { { "Normal" }, 4, 0 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx_cover_grass = {
     /*
      *
@@ -1558,42 +1490,24 @@ TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
      *  Water
      *
      */
-    // 0              1Electric     2Fire           3Grass         4Ice          5Normal        6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 21, 8, EM, 6 },
-    { 3, 24, 9, EM, 6 },
-    { 1, 12, 12, EM, 5 },
-    { 1, 18, 18, EM, 0 },
-    { 1, 22, 22, EM, 0 },
-    { 4, 25, 13, EM, 5 },
-    // 7Electric      8             9
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 6 },
-    { 2, 2, 15, F2, 6 },
-    // 10Fire         11                             12                                         13
-    { -2, 8, 13, EM, 0 },
-    { 1, 8, 21, F2, 5 },
-    { 3, 3, 3, F2, 5 },
-    { 6, 6, 16, F2, 5 },
-    // 14Grass                      15                                                          16
-    { -3, 11, 16, EM, 0 },
-    { 2, 9, 24, F2, 0 },
-    { 6, 13, 19, F2, 0 },
-    // 17Ice                                                       18                           19
-    { -4, 15, 19, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 16, 25, F2, 0 },
-    // 20Normal                     21                                           22
-    { -5, 18, 22, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
-    // 23Water                      24                                                          25
-    { -6, 21, 25, EM, 0 },
-    { 2, 15, 2, F2, 0 },
-    { 6, 19, 6, F2, 0 },
+    // 0              1Electric         2Fire           3Grass         4Ice          5Normal        6Water
+    {0,0,0,EM,0},    {3,21,8,EM,6}, {3,24,9,EM,6}, {1,12,12,EM,5}, {1,18,18,EM,0}, {1,22,22,EM,0}, {4,25,13,EM,5}, 
+    // 7Electric         8             9
+    {-1,0,9,EM,0},   {1,1,11,F2,6}, {2,2,15,F2,6}, 
+    // 10Fire           11                             12                                             13
+    {-2,8,13,EM,0},  {1,8,21,F2,5},                {3,3,3,F2,5},                                   {6,6,16,F2,5}, 
+    // 14Grass                         15                                                             16
+    {-3,11,16,EM,0},                {2,9,24,F2,0},                                                 {6,13,19,F2,0}, 
+    // 17Ice                                                          18                              19
+    {-4,15,19,EM,0},                                               {4,4,4,F2,0},                   {6,16,25,F2,0}, 
+    // 20Normal         21                                                             22
+    {-5,18,22,EM,0}, {1,11,1,F2,0},                                                {5,5,5,F2,0}, 
+    // 23Water                          24                                                             25
+    {-6,21,25,EM,0},                {2,15,2,F2,0},                                                 {6,19,6,F2,0}, 
     // 26
     { INT_MIN, 24, UINT64_MAX, EM, 0 },
   };
+  // clang-format on
   EXPECT_EQ( links.item_table_, headers_cover_grass );
   EXPECT_EQ( links.links_, dlx_cover_grass );
   links.overlapping_uncover_type( 12 );

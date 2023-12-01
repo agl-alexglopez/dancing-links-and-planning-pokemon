@@ -66,15 +66,30 @@ public:
 
   [[nodiscard]] Multiplier multiplier() const;
 
-  bool operator<( const Resistance& rhs ) const { return this->type() < rhs.type(); }
+  bool operator<( const Resistance& rhs ) const
+  {
+    return this->type() < rhs.type();
+  }
   bool operator==( const Resistance& rhs ) const
   {
     return this->type() == rhs.type() && this->multiplier() == rhs.multiplier();
   }
-  bool operator>( const Resistance& rhs ) const { return rhs < *this; }
-  bool operator>=( const Resistance& rhs ) const { return !( *this < rhs ); }
-  bool operator<=( const Resistance& rhs ) const { return !( *this > rhs ); }
-  bool operator!=( const Resistance& rhs ) const { return !( *this == rhs ); }
+  bool operator>( const Resistance& rhs ) const
+  {
+    return rhs < *this;
+  }
+  bool operator>=( const Resistance& rhs ) const
+  {
+    return !( *this < rhs );
+  }
+  bool operator<=( const Resistance& rhs ) const
+  {
+    return !( *this > rhs );
+  }
+  bool operator!=( const Resistance& rhs ) const
+  {
+    return !( *this == rhs );
+  }
 
 private:
   Type_encoding type_;

@@ -8,10 +8,13 @@ AlwaysBreakAfterDefinitionReturnType: None
 SpaceBeforeCpp11BracedList: true
 BreakBeforeBinaryOperators: All
 Cpp11BracedListStyle: true
-AllowShortBlocksOnASingleLine: Always
-BreakBeforeBraces: Custom
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: None
 AlignTrailingComments: Always
+BinPackArguments: false
+BinPackParameters: false
 NamespaceIndentation: None
+BreakBeforeBraces: Custom
 BraceWrapping:
   AfterClass: true
   AfterControlStatement: Never
