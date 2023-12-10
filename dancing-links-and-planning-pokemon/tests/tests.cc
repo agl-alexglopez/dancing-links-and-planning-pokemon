@@ -1629,42 +1629,26 @@ TEST( InternalTests, ThereAreAFewOverlappingCoversHere )
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
-    // 0             1Electric       2Fire            3Grass        4Ice          5Normal       6Water
-    { 0, 0, 0, EM, 0 },
-    { 2, 18, 11, EM, 0 },
-    { 2, 19, 15, EM, 0 },
-    { 3, 16, 8, EM, 0 },
-    { 2, 23, 21, EM, 0 },
-    { 1, 9, 9, EM, 0 },
-    { 2, 24, 13, EM, 0 },
-    // 7Bug-Ghost                                      8                            9
-    { -1, 0, 9, EM, 0 },
-    { 3, 3, 12, F2, 0 },
-    { 5, 5, 5, IM, 0 },
-    // 10Elec-Fly      11                              12                                        13
-    { -2, 8, 13, EM, 0 },
-    { 1, 1, 18, F4, 0 },
-    { 3, 8, 16, F2, 0 },
-    { 6, 6, 24, F2, 0 },
-    // 14Fire-Fly                     15               16
-    { -3, 11, 16, EM, 0 },
-    { 2, 2, 19, F2, 0 },
-    { 3, 12, 3, F4, 0 },
-    // 17Ground-Wat    18             19
-    { -4, 15, 19, EM, 0 },
-    { 1, 11, 1, IM, 0 },
-    { 2, 15, 2, F2, 0 },
-    // 20Ice-Psych                                                  21
-    { -5, 18, 21, EM, 0 },
-    { 4, 4, 23, F2, 0 },
-    // 22Ice-Water                                                  23                           24
-    { -6, 21, 24, EM, 0 },
-    { 4, 21, 4, F4, 0 },
-    { 6, 13, 6, F2, 0 },
+    // 0               1Electric       2Fire            3Grass        4Ice             5Normal       6Water
+    {0,0,0,EM,0},    {2,18,11,EM,0}, {2,19,15,EM,0}, {3,16,8,EM,0}, {2,23,21,EM,0}, {1,9,9,EM,0}, {2,24,13,EM,0}, 
+    // 7Bug-Ghost                                         8                            9
+    {-1,0,9,EM,0},                                   {3,3,12,F2,0},                 {5,5,5,IM,0}, 
+    // 10Elec-Fly        11                                 12                                          13
+    {-2,8,13,EM,0},  {1,1,18,F4,0},                  {3,8,16,F2,0},                               {6,6,24,F2,0}, 
+    // 14Fire-Fly                        15               16
+    {-3,11,16,EM,0},                 {2,2,19,F2,0},  {3,12,3,F4,0}, 
+    // 17Ground-Water    18                19
+    {-4,15,19,EM,0}, {1,11,1,IM,0},  {2,15,2,F2,0}, 
+    // 20Ice-Psych                                                      21
+    {-5,18,21,EM,0},                                                {4,4,23,F2,0}, 
+    // 22Ice-Water                                                      23                           24
+    {-6,21,24,EM,0},                                                {4,21,4,F4,0},                {6,13,6,F2,0}, 
     // 25
-    { INT_MIN, 23, UINT64_MAX, EM, 0 },
+    {INT_MIN,23,UINT64_MAX,EM,0},
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   std::set<Ranked_set<Dx::Type_encoding>> result = links.get_overlapping_coverages( 6 );
   std::set<Ranked_set<Dx::Type_encoding>> correct
@@ -1827,43 +1811,26 @@ TEST( InternalTests, TestBinarySearchOnTheOptionTable )
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
     // 0             1Electric      2Fire           3Grass        4Ice           5Normal        6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 21, 8, EM, 0 },
-    { 3, 24, 9, EM, 0 },
-    { 1, 12, 12, EM, 0 },
-    { 1, 18, 18, EM, 0 },
-    { 1, 22, 22, EM, 0 },
-    { 4, 25, 13, EM, 0 },
-    // 7Electric      8             9
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 15, F2, 0 },
-    // 10Fire         11                            12                                          13
-    { -2, 8, 13, EM, 0 },
-    { 1, 8, 21, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    { 6, 6, 16, F2, 0 },
-    // 14Grass                      15                                                         16
-    { -3, 11, 16, EM, 0 },
-    { 2, 9, 24, F2, 0 },
-    { 6, 13, 19, F2, 0 },
-    // 17Ice                                                      18                           19
-    { -4, 15, 19, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 16, 25, F2, 0 },
-    // 20Normal                     21                                            22
-    { -5, 18, 22, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
-    // 23Water                      24                                                         25
-    { -6, 21, 25, EM, 0 },
-    { 2, 15, 2, F2, 0 },
-    { 6, 19, 6, F2, 0 },
+    {0,0,0,EM,0},   {3,21,8,EM,0},{3,24,9,EM,0},{1,12,12,EM,0},{1,18,18,EM,0},{1,22,22,EM,0},{4,25,13,EM,0},
+    // 7Electric       8             9
+    {-1,0,9,EM,0},  {1,1,11,F2,0},{2,2,15,F2,0},
+    // 10Fire          11                            12                                          13
+    {-2,8,13,EM,0}, {1,8,21,F2,0},              {3,3,3,F2,0},                                {6,6,16,F2,0},
+    // 14Grass                      15                                                           16
+    {-3,11,16,EM,0},              {2,9,24,F2,0},                                             {6,13,19,F2,0},
+    // 17Ice                                                      18                             19
+    {-4,15,19,EM,0},                                           {4,4,4,F2,0},                 {6,16,25,F2,0},
+    // 20Normal        21                                                          22
+    {-5,18,22,EM,0},{1,11,1,F2,0},                                             {5,5,5,F2,0},
+    // 23Water                      24                                                           25
+    {-6,21,25,EM,0},              {2,15,2,F2,0},                                             {6,19,6,F2,0},
     //       26
-    { INT_MIN, 24, UINT64_MAX, EM, 0 },
+    {INT_MIN,24,UINT64_MAX,EM,0},
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   EXPECT_EQ( links.find_option_index( Dx::Type_encoding( std::string( "Electric" ) ) ), 7 );
   EXPECT_EQ( links.find_option_index( Dx::Type_encoding( std::string( "Fire" ) ) ), 10 );
@@ -1943,43 +1910,26 @@ TEST( InternalTests, TestHidingAnItemFromTheWorld )
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
-    // 0             1Electric     2Fire         3Grass          4Ice          5Normal        6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 21, 8, EM, 0 },
-    { 3, 24, 9, EM, 0 },
-    { 1, 12, 12, EM, 0 },
-    { 1, 18, 18, EM, 0 },
-    { 1, 22, 22, EM, 0 },
-    { 4, 25, 13, EM, 0 },
-    // 7Electric     8             9
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 15, F2, 0 },
-    // 10Fire        11                          12                                           13
-    { -2, 8, 13, EM, 0 },
-    { 1, 8, 21, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    { 6, 6, 16, F2, 0 },
-    // 14Grass                    15                                                          16
-    { -3, 11, 16, EM, 0 },
-    { 2, 9, 24, F2, 0 },
-    { 6, 13, 19, F2, 0 },
-    // 17Ice                                                     18                           19
-    { -4, 15, 19, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 16, 25, F2, 0 },
-    // 20Normal      21                                                        22
-    { -5, 18, 22, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
-    // 23Water                    24                                                          25
-    { -6, 21, 25, EM, 0 },
-    { 2, 15, 2, F2, 0 },
-    { 6, 19, 6, F2, 0 },
+    // 0              1Electric     2Fire         3Grass          4Ice          5Normal        6Water
+    {0,0,0,EM,0},   {3,21,8,EM,0},{3,24,9,EM,0},{1,12,12,EM,0},{1,18,18,EM,0},{1,22,22,EM,0},{4,25,13,EM,0},
+    // 7Electric       8             9
+    {-1,0,9,EM,0},  {1,1,11,F2,0},{2,2,15,F2,0},
+    // 10Fire         11                          12                                             13
+    {-2,8,13,EM,0}, {1,8,21,F2,0},              {3,3,3,F2,0},                                {6,6,16,F2,0},
+    // 14Grass                      15                                                          16
+    {-3,11,16,EM,0},              {2,9,24,F2,0},                                             {6,13,19,F2,0},
+    // 17Ice                                                     18                              19
+    {-4,15,19,EM,0},                                           {4,4,4,F2,0},                 {6,16,25,F2,0},
+    // 20Normal        21                                                        22
+    {-5,18,22,EM,0},{1,11,1,F2,0},                                            {5,5,5,F2,0},
+    // 23Water                       24                                                          25
+    {-6,21,25,EM,0},              {2,15,2,F2,0},                                             {6,19,6,F2,0},
     //       26
-    { INT_MIN, 24, UINT64_MAX, EM, 0 },
+    {INT_MIN,24,UINT64_MAX,EM,0},
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   EXPECT_EQ( true, links.hide_requested_item( Dx::Type_encoding( std::string( "Fire" ) ) ) );
   const std::vector<Dx::Pokemon_links::Type_name> headersHideFire {
@@ -1992,50 +1942,32 @@ TEST( InternalTests, TestHidingAnItemFromTheWorld )
     { { "Water" }, 5, 0 },
   };
   const int8_t HD = Dx::Pokemon_links::hidden;
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlxHideFire = {
-    // 0               1Electric     2Fire            3Grass        4Ice           5Normal        6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 21, 8, EM, 0 },
-    { 3, 24, 9, EM, HD },
-    { 1, 12, 12, EM, 0 },
-    { 1, 18, 18, EM, 0 },
-    { 1, 22, 22, EM, 0 },
-    { 4, 25, 13, EM, 0 },
+    // 0              1Electric      2Fire            3Grass        4Ice           5Normal        6Water
+    {0,0,0,EM,0},   {3,21,8,EM,0},{3,24,9,EM,HD},{1,12,12,EM,0},{1,18,18,EM,0},{1,22,22,EM,0},{4,25,13,EM,0},
     // 7Electric       8             9
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 15, F2, 0 },
+    {-1,0,9,EM,0},  {1,1,11,F2,0},{2,2,15,F2,0},
     // 10Fire          11                             12                                          13
-    { -2, 8, 13, EM, 0 },
-    { 1, 8, 21, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    { 6, 6, 16, F2, 0 },
+    {-2,8,13,EM,0}, {1,8,21,F2,0},               {3,3,3,F2,0},                                {6,6,16,F2,0},
     // 14Grass                       15                                                           16
-    { -3, 11, 16, EM, 0 },
-    { 2, 9, 24, F2, 0 },
-    { 6, 13, 19, F2, 0 },
+    {-3,11,16,EM,0},              {2,9,24,F2,0},                                              {6,13,19,F2,0},
     // 17Ice                                                        18                            19
-    { -4, 15, 19, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 16, 25, F2, 0 },
+    {-4,15,19,EM,0},                                            {4,4,4,F2,0},                 {6,16,25,F2,0},
     // 20Normal        21                                                          22
-    { -5, 18, 22, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
+    {-5,18,22,EM,0},{1,11,1,F2,0},                                             {5,5,5,F2,0},
     // 23Water                       24                                                           25
-    { -6, 21, 25, EM, 0 },
-    { 2, 15, 2, F2, 0 },
-    { 6, 19, 6, F2, 0 },
+    {-6,21,25,EM,0},              {2,15,2,F2,0},                                              {6,19,6,F2,0},
     // 26
-    { INT_MIN, 24, UINT64_MAX, EM, 0 },
+    {INT_MIN,24,UINT64_MAX,EM,0},
   };
+  // clang-format on
   EXPECT_EQ( links.links_, dlxHideFire );
   EXPECT_EQ( links.item_table_, headersHideFire );
   EXPECT_EQ( false, links.hide_requested_item( Dx::Type_encoding( std::string( "Fire" ) ) ) );
   EXPECT_EQ( links.links_, dlxHideFire );
   EXPECT_EQ( links.peek_hid_item().decode_type().first, "Fire" );
   EXPECT_EQ( links.get_num_hid_items(), 1 );
-
   // Test our unhide and reset functions.
   links.pop_hid_item();
   EXPECT_EQ( links.links_, dlx );
@@ -2108,83 +2040,49 @@ TEST( InternalTests, TestHidingGrassAndIceAndThenResetTheLinks )
         { { "Normal" }, NM },
         { { "Water" }, F2 } } },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
     // 0             1Electric     2Fire         3Grass          4Ice          5Normal        6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 21, 8, EM, 0 },
-    { 3, 24, 9, EM, 0 },
-    { 1, 12, 12, EM, 0 },
-    { 1, 18, 18, EM, 0 },
-    { 1, 22, 22, EM, 0 },
-    { 4, 25, 13, EM, 0 },
-    // 7Electric     8             9
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 15, F2, 0 },
-    // 10Fire        11                          12                                           13
-    { -2, 8, 13, EM, 0 },
-    { 1, 8, 21, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    { 6, 6, 16, F2, 0 },
-    // 14Grass                    15                                                          16
-    { -3, 11, 16, EM, 0 },
-    { 2, 9, 24, F2, 0 },
-    { 6, 13, 19, F2, 0 },
-    // 17Ice                                                     18                           19
-    { -4, 15, 19, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 16, 25, F2, 0 },
-    // 20Normal      21                                                        22
-    { -5, 18, 22, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
-    // 23Water                    24                                                          25
-    { -6, 21, 25, EM, 0 },
-    { 2, 15, 2, F2, 0 },
-    { 6, 19, 6, F2, 0 },
+    {0,0,0,EM,0},   {3,21,8,EM,0},{3,24,9,EM,0},{1,12,12,EM,0},{1,18,18,EM,0},{1,22,22,EM,0},{4,25,13,EM,0},
+    // 7Electric        8             9
+    {-1,0,9,EM,0},  {1,1,11,F2,0},{2,2,15,F2,0},
+    // 10Fire         11                          12                                           13
+    {-2,8,13,EM,0}, {1,8,21,F2,0},              {3,3,3,F2,0},                                {6,6,16,F2,0},
+    // 14Grass                       15                                                        16
+    {-3,11,16,EM,0},              {2,9,24,F2,0},                                             {6,13,19,F2,0},
+    // 17Ice                                                     18                            19
+    {-4,15,19,EM,0},                                           {4,4,4,F2,0},                 {6,16,25,F2,0},
+    // 20Normal        21                                                        22
+    {-5,18,22,EM,0},{1,11,1,F2,0},                                            {5,5,5,F2,0},
+    // 23Water                       24                                                          25
+    {-6,21,25,EM,0},              {2,15,2,F2,0},                                             {6,19,6,F2,0},
     //       26
-    { INT_MIN, 24, UINT64_MAX, EM, 0 },
+    {INT_MIN,24,UINT64_MAX,EM,0},
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   EXPECT_EQ( true, links.hide_requested_option( { { "Grass" }, { "Ice" } } ) );
   const int HD = Dx::Pokemon_links::hidden;
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlxHideOptionIceGrass = {
     // 0               1Electric     2Fire           3Grass        4Ice         5Normal        6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 21, 8, EM, 0 },
-    { 2, 24, 9, EM, 0 },
-    { 1, 12, 12, EM, 0 },
-    { 0, 4, 4, EM, 0 },
-    { 1, 22, 22, EM, 0 },
-    { 2, 25, 13, EM, 0 },
+    {0,0,0,EM,0},    {3,21,8,EM,0},{2,24,9,EM,0},{1,12,12,EM,0},{0,4,4,EM,0},{1,22,22,EM,0},{2,25,13,EM,0},
     // 7Electric       8             9
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 24, F2, 0 },
+    {-1,0,9,EM,0},   {1,1,11,F2,0},{2,2,24,F2,0},
     // 10Fire          11                            12                                        13
-    { -2, 8, 13, EM, 0 },
-    { 1, 8, 21, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    { 6, 6, 25, F2, 0 },
+    {-2,8,13,EM,0},  {1,8,21,F2,0},              {3,3,3,F2,0},                              {6,6,25,F2,0},
     // 14Grass                       15                                                        16
-    { -3, 11, 16, EM, HD },
-    { 2, 9, 24, F2, 0 },
-    { 6, 13, 19, F2, 0 },
+    {-3,11,16,EM,HD},              {2,9,24,F2,0},                                           {6,13,19,F2,0},
     // 17Ice                                                       18                          19
-    { -4, 15, 19, EM, HD },
-    { 4, 4, 4, F2, 0 },
-    { 6, 13, 25, F2, 0 },
+    {-4,15,19,EM,HD},                                           {4,4,4,F2,0},               {6,13,25,F2,0},
     // 20Normal        21                                                       22
-    { -5, 18, 22, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
-    // 23Water                                       24                                        25
-    { -6, 21, 25, EM, 0 },
-    { 2, 9, 2, F2, 0 },
-    { 6, 13, 6, F2, 0 },
+    {-5,18,22,EM,0}, {1,11,1,F2,0},                                          {5,5,5,F2,0},
+    // 23Water                         24                                                       25
+    {-6,21,25,EM,0},               {2,9,2,F2,0},                                            {6,13,6,F2,0},
     // 26
-    { INT_MIN, 24, UINT64_MAX, EM, 0 },
+    {INT_MIN,24,UINT64_MAX,EM,0},
   };
+  // clang-format on
   EXPECT_EQ( links.links_, dlxHideOptionIceGrass );
   links.reset_options();
   EXPECT_EQ( links.links_, dlx );
@@ -2250,43 +2148,26 @@ TEST( InternalTests, TestHidingAnOptionFromTheWorld )
         { { "Normal" }, NM },
         { { "Water" }, F2 } } },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
-    // 0             1Electric     2Fire         3Grass          4Ice          5Normal        6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 21, 8, EM, 0 },
-    { 3, 24, 9, EM, 0 },
-    { 1, 12, 12, EM, 0 },
-    { 1, 18, 18, EM, 0 },
-    { 1, 22, 22, EM, 0 },
-    { 4, 25, 13, EM, 0 },
-    // 7Electric     8             9
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 15, F2, 0 },
-    // 10Fire        11                          12                                           13
-    { -2, 8, 13, EM, 0 },
-    { 1, 8, 21, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    { 6, 6, 16, F2, 0 },
-    // 14Grass                    15                                                          16
-    { -3, 11, 16, EM, 0 },
-    { 2, 9, 24, F2, 0 },
-    { 6, 13, 19, F2, 0 },
-    // 17Ice                                                     18                           19
-    { -4, 15, 19, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 16, 25, F2, 0 },
-    // 20Normal      21                                                        22
-    { -5, 18, 22, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
-    // 23Water                    24                                                          25
-    { -6, 21, 25, EM, 0 },
-    { 2, 15, 2, F2, 0 },
-    { 6, 19, 6, F2, 0 },
+    // 0              1Electric     2Fire         3Grass          4Ice          5Normal        6Water
+    {0,0,0,EM,0},   {3,21,8,EM,0},{3,24,9,EM,0},{1,12,12,EM,0},{1,18,18,EM,0},{1,22,22,EM,0},{4,25,13,EM,0},
+    // 7Electric       8             9
+    {-1,0,9,EM,0},  {1,1,11,F2,0},{2,2,15,F2,0},
+    // 10Fire          11                          12                                           13
+    {-2,8,13,EM,0}, {1,8,21,F2,0},              {3,3,3,F2,0},                                {6,6,16,F2,0},
+    // 14Grass                       15                                                          16
+    {-3,11,16,EM,0},              {2,9,24,F2,0},                                             {6,13,19,F2,0},
+    // 17Ice                                                     18                             19
+    {-4,15,19,EM,0},                                           {4,4,4,F2,0},                 {6,16,25,F2,0},
+    // 20Normal         21                                                        22
+    {-5,18,22,EM,0},{1,11,1,F2,0},                                            {5,5,5,F2,0},
+    // 23Water                       24                                                          25
+    {-6,21,25,EM,0},              {2,15,2,F2,0},                                             {6,19,6,F2,0},
     //       26
-    { INT_MIN, 24, UINT64_MAX, EM, 0 },
+    {INT_MIN,24,UINT64_MAX,EM,0},
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
 
   EXPECT_EQ( true, links.hide_requested_option( Dx::Type_encoding( std::string( "Fire" ) ) ) );
@@ -2299,49 +2180,31 @@ TEST( InternalTests, TestHidingAnOptionFromTheWorld )
   EXPECT_EQ( failed_to_hide, fire_flipper );
 
   const int HD = Dx::Pokemon_links::hidden;
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlxHideOptionFire = {
     // 0              1Electric     2Fire         3Grass          4Ice          5Normal        6Water
-    { 0, 0, 0, EM, 0 },
-    { 2, 21, 8, EM, 0 },
-    { 3, 24, 9, EM, 0 },
-    { 0, 3, 3, EM, 0 },
-    { 1, 18, 18, EM, 0 },
-    { 1, 22, 22, EM, 0 },
-    { 3, 25, 16, EM, 0 },
-    // 7Electric      8             9
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 21, F2, 0 },
-    { 2, 2, 15, F2, 0 },
-    // 10Fire         11                          12                                           13
-    { -2, 8, 13, EM, HD },
-    { 1, 8, 21, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    { 6, 6, 16, F2, 0 },
+    {0,0,0,EM,0},   {2,21,8,EM,0},{3,24,9,EM,0},{0,3,3,EM,0},{1,18,18,EM,0},{1,22,22,EM,0},{3,25,16,EM,0},
+    // 7Electric        8             9
+    {-1,0,9,EM,0},  {1,1,21,F2,0},{2,2,15,F2,0},
+    // 10Fire          11                          12                                           13
+    {-2,8,13,EM,HD},{1,8,21,F2,0},              {3,3,3,F2,0},                              {6,6,16,F2,0},
     // 14Grass                      15                                                         16
-    { -3, 11, 16, EM, 0 },
-    { 2, 9, 24, F2, 0 },
-    { 6, 6, 19, F2, 0 },
+    {-3,11,16,EM,0},              {2,9,24,F2,0},                                           {6,6,19,F2,0},
     // 17Ice                                                     18                            19
-    { -4, 15, 19, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 16, 25, F2, 0 },
+    {-4,15,19,EM,0},                                         {4,4,4,F2,0},                 {6,16,25,F2,0},
     // 20Normal       21                                                        22
-    { -5, 18, 22, EM, 0 },
-    { 1, 8, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
+    {-5,18,22,EM,0},{1,8,1,F2,0},                                           {5,5,5,F2,0},
     // 23Water                      24                                                         25
-    { -6, 21, 25, EM, 0 },
-    { 2, 15, 2, F2, 0 },
-    { 6, 19, 6, F2, 0 },
+    {-6,21,25,EM,0},              {2,15,2,F2,0},                                           {6,19,6,F2,0},
     //       26
-    { INT_MIN, 24, UINT64_MAX, EM, 0 },
+    {INT_MIN,24,UINT64_MAX,EM,0},
   };
+  // clang-format on
   EXPECT_EQ( links.links_, dlxHideOptionFire );
   EXPECT_EQ( false, links.hide_requested_option( fire ) );
   EXPECT_EQ( links.links_, dlxHideOptionFire );
   EXPECT_EQ( links.peek_hid_option(), fire );
   EXPECT_EQ( links.get_num_hid_options(), 1 );
-
   links.pop_hid_option();
   EXPECT_EQ( links.links_, dlx );
   EXPECT_EQ( true, links.hid_items_empty() );
@@ -2420,42 +2283,26 @@ TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover 
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
     // 0               1Electric    2Fire         3Grass         4Ice          5Normal         6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 20, 8, EM, 0 },
-    { 3, 23, 9, EM, 0 },
-    { 1, 12, 12, EM, 0 },
-    { 1, 17, 17, EM, 0 },
-    { 1, 21, 21, EM, 0 },
-    { 3, 24, 15, EM, 0 },
+    {0,0,0,EM,0},   {3,20,8,EM,0},{3,23,9,EM,0},{1,12,12,EM,0},{1,17,17,EM,0},{1,21,21,EM,0},{3,24,15,EM,0},
     // 7Electric
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 14, F2, 0 },
+    {-1,0,9,EM,0},  {1,1,11,F2,0},{2,2,14,F2,0},
     // 10Fire
-    { -2, 8, 12, EM, 0 },
-    { 1, 8, 20, F2, 0 },
-    { 3, 3, 3, F2, 0 },
+    {-2,8,12,EM,0}, {1,8,20,F2,0},              {3,3,3,F2,0},
     // 13Grass
-    { -3, 11, 15, EM, 0 },
-    { 2, 9, 23, F2, 0 },
-    { 6, 6, 18, F2, 0 },
+    {-3,11,15,EM,0},              {2,9,23,F2,0},                                             {6,6,18,F2,0},
     // 16Ice
-    { -4, 14, 18, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 15, 24, F2, 0 },
+    {-4,14,18,EM,0},                                           {4,4,4,F2,0},                 {6,15,24,F2,0},
     // 19Normal
-    { -5, 17, 21, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
+    {-5,17,21,EM,0},{1,11,1,F2,0},                                            {5,5,5,F2,0},
     // 22Water
-    { -6, 20, 24, EM, 0 },
-    { 2, 14, 2, F2, 0 },
-    { 6, 18, 6, F2, 0 },
+    {-6,20,24,EM,0},              {2,14,2,F2,0},                                             {6,18,6,F2,0},
     // 25
-    { INT_MIN, 23, UINT64_MAX, EM, 0 },
+    {INT_MIN,23,UINT64_MAX,EM,0},
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   Dx::Type_encoding electric( "Electric" );
   EXPECT_EQ( true, links.hide_requested_item( electric ) );
@@ -2469,42 +2316,26 @@ TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover 
     { { "Water" }, 5, 0 },
   };
   const int HD = Dx::Pokemon_links::hidden;
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlxHideElectric = {
-    // 0               1Electric     2Fire         3Grass         4Ice          5Normal         6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 20, 8, EM, HD },
-    { 3, 23, 9, EM, 0 },
-    { 1, 12, 12, EM, 0 },
-    { 1, 17, 17, EM, 0 },
-    { 1, 21, 21, EM, 0 },
-    { 3, 24, 15, EM, 0 },
-    // 7Electric
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 14, F2, 0 },
-    // 10Fire
-    { -2, 8, 12, EM, 0 },
-    { 1, 8, 20, F2, 0 },
-    { 3, 3, 3, F2, 0 },
-    // 13Grass
-    { -3, 11, 15, EM, 0 },
-    { 2, 9, 23, F2, 0 },
-    { 6, 6, 18, F2, 0 },
-    // 16Ice
-    { -4, 14, 18, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 15, 24, F2, 0 },
-    // 19Normal
-    { -5, 17, 21, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
-    // 22Water
-    { -6, 20, 24, EM, 0 },
-    { 2, 14, 2, F2, 0 },
-    { 6, 18, 6, F2, 0 },
+    // 0             1Electric     2Fire         3Grass         4Ice          5Normal         6Water
+    {0,0,0,EM,0},  {3,20,8,EM,HD},{3,23,9,EM,0},{1,12,12,EM,0},{1,17,17,EM,0},{1,21,21,EM,0},{3,24,15,EM,0},    
+    //7Electric
+    {-1,0,9,EM,0}, {1,1,11,F2,0}, {2,2,14,F2,0},
+    //10Fire
+    {-2,8,12,EM,0},{1,8,20,F2,0},               {3,3,3,F2,0},
+    //13Grass
+    {-3,11,15,EM,0},              {2,9,23,F2,0},                                             {6,6,18,F2,0},
+    //16Ice
+    {-4,14,18,EM,0},                                           {4,4,4,F2,0},                 {6,15,24,F2,0},
+    //19Normal
+    {-5,17,21,EM,0},{1,11,1,F2,0},                                            {5,5,5,F2,0},
+    //22Water
+    {-6,20,24,EM,0},              {2,14,2,F2,0},                                             {6,18,6,F2,0},
     // 25
-    { INT_MIN, 23, UINT64_MAX, EM, 0 },
+    {INT_MIN,23,UINT64_MAX,EM,0},
   };
+  // clang-format on
   std::set<Ranked_set<Type_encoding>> exact { { 15, { { "Electric" }, { "Fire" }, { "Ice" }, { "Normal" } } } };
   std::set<Ranked_set<Type_encoding>> overlapping { { 15, { { "Electric" }, { "Fire" }, { "Ice" }, { "Normal" } } },
                                                     { 15, { { "Fire" }, { "Grass" }, { "Ice" }, { "Normal" } } },
@@ -2583,42 +2414,26 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
     // 0               1Electric    2Fire         3Grass         4Ice          5Normal         6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 20, 8, EM, 0 },
-    { 3, 23, 9, EM, 0 },
-    { 1, 12, 12, EM, 0 },
-    { 1, 17, 17, EM, 0 },
-    { 1, 21, 21, EM, 0 },
-    { 3, 24, 15, EM, 0 },
+    {0,0,0,EM,0},   {3,20,8,EM,0},{3,23,9,EM,0},{1,12,12,EM,0},{1,17,17,EM,0},{1,21,21,EM,0},{3,24,15,EM,0},
     // 7Electric
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 14, F2, 0 },
+    {-1,0,9,EM,0},  {1,1,11,F2,0},{2,2,14,F2,0},
     // 10Fire
-    { -2, 8, 12, EM, 0 },
-    { 1, 8, 20, F2, 0 },
-    { 3, 3, 3, F2, 0 },
+    {-2,8,12,EM,0}, {1,8,20,F2,0},              {3,3,3,F2,0},
     // 13Grass
-    { -3, 11, 15, EM, 0 },
-    { 2, 9, 23, F2, 0 },
-    { 6, 6, 18, F2, 0 },
+    {-3,11,15,EM,0},              {2,9,23,F2,0},                                             {6,6,18,F2,0},
     // 16Ice
-    { -4, 14, 18, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 15, 24, F2, 0 },
+    {-4,14,18,EM,0},                                           {4,4,4,F2,0},                 {6,15,24,F2,0},
     // 19Normal
-    { -5, 17, 21, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
+    {-5,17,21,EM,0},{1,11,1,F2,0},                                            {5,5,5,F2,0},
     // 22Water
-    { -6, 20, 24, EM, 0 },
-    { 2, 14, 2, F2, 0 },
-    { 6, 18, 6, F2, 0 },
+    {-6,20,24,EM,0},              {2,14,2,F2,0},                                             {6,18,6,F2,0},
     // 25
-    { INT_MIN, 23, UINT64_MAX, EM, 0 },
+    {INT_MIN,23,UINT64_MAX,EM,0},
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   Dx::Type_encoding electric( "Electric" );
   EXPECT_EQ( true, links.hide_requested_item( electric ) );
@@ -2631,7 +2446,6 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
   std::vector<Dx::Type_encoding> should_fail { electric, grassy, cloudy, rainy };
   EXPECT_EQ( false, links.hide_requested_item( hide_request, failOutput ) );
   EXPECT_EQ( failOutput, should_fail );
-
   const std::vector<Dx::Pokemon_links::Type_name> headersHideElectricAndGrass {
     { { "" }, 6, 2 },
     { { "Electric" }, 0, 2 },
@@ -2642,42 +2456,26 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
     { { "Water" }, 5, 0 },
   };
   const int HD = Dx::Pokemon_links::hidden;
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlxHideElectricAndGrass = {
-    // 0               1Electric    2Fire         3Grass         4Ice          5Normal         6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 20, 8, EM, HD },
-    { 3, 23, 9, EM, 0 },
-    { 1, 12, 12, EM, HD },
-    { 1, 17, 17, EM, 0 },
-    { 1, 21, 21, EM, 0 },
-    { 3, 24, 15, EM, 0 },
+    // 0               1Electric    2Fire         3Grass            4Ice          5Normal         6Water
+    {0,0,0,EM,0},   {3,20,8,EM,HD},{3,23,9,EM,0},{1,12,12,EM,HD},{1,17,17,EM,0},{1,21,21,EM,0},{3,24,15,EM,0},
     // 7Electric
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 14, F2, 0 },
+    {-1,0,9,EM,0},  {1,1,11,F2,0},{2,2,14,F2,0},
     // 10Fire
-    { -2, 8, 12, EM, 0 },
-    { 1, 8, 20, F2, 0 },
-    { 3, 3, 3, F2, 0 },
+    {-2,8,12,EM,0}, {1,8,20,F2,0},               {3,3,3,F2,0},
     // 13Grass
-    { -3, 11, 15, EM, 0 },
-    { 2, 9, 23, F2, 0 },
-    { 6, 6, 18, F2, 0 },
+    {-3,11,15,EM,0},              {2,9,23,F2,0},                                               {6,6,18,F2,0},
     // 16Ice
-    { -4, 14, 18, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 15, 24, F2, 0 },
+    {-4,14,18,EM,0},                                             {4,4,4,F2,0},                 {6,15,24,F2,0},
     // 19Normal
-    { -5, 17, 21, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
+    {-5,17,21,EM,0},{1,11,1,F2,0},                                              {5,5,5,F2,0},
     // 22Water
-    { -6, 20, 24, EM, 0 },
-    { 2, 14, 2, F2, 0 },
-    { 6, 18, 6, F2, 0 },
+    {-6,20,24,EM,0},              {2,14,2,F2,0},                                               {6,18,6,F2,0},
     // 25
-    { INT_MIN, 23, UINT64_MAX, EM, 0 },
+    {INT_MIN,23,UINT64_MAX,EM,0},
   };
+  // clang-format on
   std::set<Ranked_set<Type_encoding>> exact { { 12, { { "Electric" }, { "Ice" }, { "Normal" } } } };
   std::set<Ranked_set<Type_encoding>> overlapping { { 12, { { "Electric" }, { "Ice" }, { "Normal" } } },
                                                     { 12, { { "Grass" }, { "Ice" }, { "Normal" } } },
@@ -2756,42 +2554,26 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
     // 0               1Electric    2Fire         3Grass         4Ice          5Normal         6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 20, 8, EM, 0 },
-    { 3, 23, 9, EM, 0 },
-    { 1, 12, 12, EM, 0 },
-    { 1, 17, 17, EM, 0 },
-    { 1, 21, 21, EM, 0 },
-    { 3, 24, 15, EM, 0 },
+    {0,0,0,EM,0},   {3,20,8,EM,0},{3,23,9,EM,0},{1,12,12,EM,0},{1,17,17,EM,0},{1,21,21,EM,0},{3,24,15,EM,0},
     // 7Electric
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 14, F2, 0 },
+    {-1,0,9,EM,0},  {1,1,11,F2,0},{2,2,14,F2,0},
     // 10Fire
-    { -2, 8, 12, EM, 0 },
-    { 1, 8, 20, F2, 0 },
-    { 3, 3, 3, F2, 0 },
+    {-2,8,12,EM,0}, {1,8,20,F2,0},              {3,3,3,F2,0},
     // 13Grass
-    { -3, 11, 15, EM, 0 },
-    { 2, 9, 23, F2, 0 },
-    { 6, 6, 18, F2, 0 },
+    {-3,11,15,EM,0},              {2,9,23,F2,0},                                             {6,6,18,F2,0},
     // 16Ice
-    { -4, 14, 18, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 15, 24, F2, 0 },
+    {-4,14,18,EM,0},                                           {4,4,4,F2,0},                 {6,15,24,F2,0},
     // 19Normal
-    { -5, 17, 21, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
+    {-5,17,21,EM,0},{1,11,1,F2,0},                                            {5,5,5,F2,0},
     // 22Water
-    { -6, 20, 24, EM, 0 },
-    { 2, 14, 2, F2, 0 },
-    { 6, 18, 6, F2, 0 },
+    {-6,20,24,EM,0},              {2,14,2,F2,0},                                             {6,18,6,F2,0},
     // 25
-    { INT_MIN, 23, UINT64_MAX, EM, 0 },
+    {INT_MIN,23,UINT64_MAX,EM,0},
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   links.hide_all_items_except( { Dx::Type_encoding( "Water" ) } );
   const std::vector<Dx::Pokemon_links::Type_name> headers_hide_except_water {
@@ -2804,42 +2586,26 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
     { { "Water" }, 0, 0 },
   };
   const int HD = Dx::Pokemon_links::hidden;
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx_hide_except_water = {
     // 0               1Electric      2Fire           3Grass          4Ice           5Normal         6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 20, 8, EM, HD },
-    { 3, 23, 9, EM, HD },
-    { 1, 12, 12, EM, HD },
-    { 1, 17, 17, EM, HD },
-    { 1, 21, 21, EM, HD },
-    { 3, 24, 15, EM, 0 },
+    {0,0,0,EM,0},   {3,20,8,EM,HD},{3,23,9,EM,HD},{1,12,12,EM,HD},{1,17,17,EM,HD},{1,21,21,EM,HD},{3,24,15,EM,0},
     // 7Electric
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 14, F2, 0 },
+    {-1,0,9,EM,0},  {1,1,11,F2,0}, {2,2,14,F2,0},
     // 10Fire
-    { -2, 8, 12, EM, 0 },
-    { 1, 8, 20, F2, 0 },
-    { 3, 3, 3, F2, 0 },
+    {-2,8,12,EM,0}, {1,8,20,F2,0},                {3,3,3,F2,0},
     // 13Grass
-    { -3, 11, 15, EM, 0 },
-    { 2, 9, 23, F2, 0 },
-    { 6, 6, 18, F2, 0 },
+    {-3,11,15,EM,0},               {2,9,23,F2,0},                                                 {6,6,18,F2,0},
     // 16Ice
-    { -4, 14, 18, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 15, 24, F2, 0 },
+    {-4,14,18,EM,0},                                              {4,4,4,F2,0},                   {6,15,24,F2,0},
     // 19Normal
-    { -5, 17, 21, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
+    {-5,17,21,EM,0},{1,11,1,F2,0},                                                {5,5,5,F2,0},
     // 22Water
-    { -6, 20, 24, EM, 0 },
-    { 2, 14, 2, F2, 0 },
-    { 6, 18, 6, F2, 0 },
+    {-6,20,24,EM,0},               {2,14,2,F2,0},                                                 {6,18,6,F2,0},
     // 25
-    { INT_MIN, 23, UINT64_MAX, EM, 0 },
+    {INT_MIN,23,UINT64_MAX,EM,0},
   };
+  // clang-format on
   std::set<Ranked_set<Dx::Type_encoding>> exact {
     { 3, { { "Grass" } } }, { 3, { { "Ice" } } }, { 3, { { "Water" } } } };
   std::set<Ranked_set<Dx::Type_encoding>> overlapping {
@@ -2922,42 +2688,26 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
     // 0               1Electric    2Fire         3Grass         4Ice          5Normal         6Water
-    { 0, 0, 0, EM, 0 },
-    { 3, 20, 8, EM, 0 },
-    { 3, 23, 9, EM, 0 },
-    { 1, 12, 12, EM, 0 },
-    { 1, 17, 17, EM, 0 },
-    { 1, 21, 21, EM, 0 },
-    { 3, 24, 15, EM, 0 },
+    {0,0,0,EM,0},   {3,20,8,EM,0},{3,23,9,EM,0},{1,12,12,EM,0},{1,17,17,EM,0},{1,21,21,EM,0},{3,24,15,EM,0},
     // 7Electric
-    { -1, 0, 9, EM, 0 },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 14, F2, 0 },
+    {-1,0,9,EM,0},  {1,1,11,F2,0},{2,2,14,F2,0},
     // 10Fire
-    { -2, 8, 12, EM, 0 },
-    { 1, 8, 20, F2, 0 },
-    { 3, 3, 3, F2, 0 },
+    {-2,8,12,EM,0}, {1,8,20,F2,0},              {3,3,3,F2,0},
     // 13Grass
-    { -3, 11, 15, EM, 0 },
-    { 2, 9, 23, F2, 0 },
-    { 6, 6, 18, F2, 0 },
+    {-3,11,15,EM,0},              {2,9,23,F2,0},                                             {6,6,18,F2,0},
     // 16Ice
-    { -4, 14, 18, EM, 0 },
-    { 4, 4, 4, F2, 0 },
-    { 6, 15, 24, F2, 0 },
+    {-4,14,18,EM,0},                                           {4,4,4,F2,0},                 {6,15,24,F2,0},
     // 19Normal
-    { -5, 17, 21, EM, 0 },
-    { 1, 11, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
+    {-5,17,21,EM,0},{1,11,1,F2,0},                                            {5,5,5,F2,0},
     // 22Water
-    { -6, 20, 24, EM, 0 },
-    { 2, 14, 2, F2, 0 },
-    { 6, 18, 6, F2, 0 },
+    {-6,20,24,EM,0},              {2,14,2,F2,0},                                             {6,18,6,F2,0},
     // 25
-    { INT_MIN, 23, UINT64_MAX, EM, 0 },
+    {INT_MIN,23,UINT64_MAX,EM,0},
   };
+  // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   Dx::Type_encoding water( "Water" );
   Dx::Type_encoding grass( "Grass" );
@@ -2991,42 +2741,26 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
     { { "Water" }, 0, 0 },
   };
   const int8_t HD = Dx::Pokemon_links::hidden;
+  // clang-format off
   const std::vector<Dx::Pokemon_links::Poke_link> dlx_hide_except_water = {
     // 0               1Electric        2Fire         3Grass         4Ice         5Normal       6Water
-    { 0, 0, 0, EM, 0 },
-    { 0, 1, 1, EM, HD },
-    { 1, 14, 14, EM, HD },
-    { 0, 3, 3, EM, HD },
-    { 0, 4, 4, EM, HD },
-    { 0, 5, 5, EM, HD },
-    { 1, 15, 15, EM, 0 },
+    {0,0,0,EM,0},    {0,1,1,EM,HD},{1,14,14,EM,HD},{0,3,3,EM,HD},{0,4,4,EM,HD},{0,5,5,EM,HD},{1,15,15,EM,0},
     // 7Electric
-    { -1, 0, 9, EM, HD },
-    { 1, 1, 11, F2, 0 },
-    { 2, 2, 14, F2, 0 },
+    {-1,0,9,EM,HD},  {1,1,11,F2,0},{2,2,14,F2,0},
     // 10Fire
-    { -2, 8, 12, EM, HD },
-    { 1, 1, 20, F2, 0 },
-    { 3, 3, 3, F2, 0 },
+    {-2,8,12,EM,HD}, {1,1,20,F2,0},                {3,3,3,F2,0},
     // 13Grass
-    { -3, 11, 15, EM, 0 },
-    { 2, 2, 2, F2, 0 },
-    { 6, 6, 6, F2, 0 },
+    {-3,11,15,EM,0},               {2,2,2,F2,0},                                             {6,6,6,F2,0},
     // 16Ice
-    { -4, 14, 18, EM, HD },
-    { 4, 4, 4, F2, 0 },
-    { 6, 15, 24, F2, 0 },
+    {-4,14,18,EM,HD},                                            {4,4,4,F2,0},               {6,15,24,F2,0},
     // 19Normal
-    { -5, 17, 21, EM, HD },
-    { 1, 1, 1, F2, 0 },
-    { 5, 5, 5, F2, 0 },
+    {-5,17,21,EM,HD},{1,1,1,F2,0},                                             {5,5,5,F2,0},
     // 22Water
-    { -6, 20, 24, EM, HD },
-    { 2, 14, 2, F2, 0 },
-    { 6, 15, 6, F2, 0 },
+    {-6,20,24,EM,HD},              {2,14,2,F2,0},                                            {6,15,6,F2,0},
     // 25
-    { INT_MIN, 23, UINT64_MAX, EM, 0 },
+    {INT_MIN,23,UINT64_MAX,EM,0},
   };
+  // clang-format on
   std::set<Ranked_set<Dx::Type_encoding>> answer { { 3, { { "Grass" } } } };
   EXPECT_EQ( links.links_, dlx_hide_except_water );
   EXPECT_EQ( links.item_table_, headers_hide_except_water );
