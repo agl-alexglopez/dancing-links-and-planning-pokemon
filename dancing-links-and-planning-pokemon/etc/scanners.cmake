@@ -4,7 +4,8 @@ file (GLOB_RECURSE PROJ_CC_FILES
   ${CMAKE_SOURCE_DIR}/demos/*.hh
   ${CMAKE_SOURCE_DIR}/src/*.cc
   ${CMAKE_SOURCE_DIR}/gui/*.cc
-  ${CMAKE_SOURCE_DIR}/demos/*.cc)
+  ${CMAKE_SOURCE_DIR}/demos/*.cc
+)
 
 
 add_custom_target (format "clang-format" -i ${PROJ_CC_FILES}  COMMENT "Formatting source code...")

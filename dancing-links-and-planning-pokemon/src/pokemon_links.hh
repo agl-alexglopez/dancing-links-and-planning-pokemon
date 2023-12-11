@@ -209,7 +209,7 @@ private:
   uint64_t num_options_ { 0 };                  // Options we can choose from to cover items.
   Coverage_type requested_cover_solution_ {};   // The user is asking for ATTACK or DEFENSE
 
-  static constexpr int8_t hidden = -1;
+  static constexpr int hidden = -1;
 
   /**
    * @brief fill_exact_coverages  fills the output parameters with every exact cover that can be
