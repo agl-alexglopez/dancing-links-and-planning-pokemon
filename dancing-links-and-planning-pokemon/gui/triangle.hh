@@ -27,7 +27,7 @@ public:
 
 private:
   std::vector<float> positions_;
-  Vertex vertex_ {};
+  Vertex vertex_;
   Shader shaders_ {};
 };
 

@@ -30,7 +30,7 @@ std::string read_shader( std::string_view filename )
 
 } // namespace
 
-int main()
+int run()
 {
   try {
     std::ifstream gen( std::string { "data/dst/Gen-1-Kanto.dst" } );
@@ -79,9 +79,14 @@ int main()
       shapes.at( toggle_index )();
       window.poll();
     }
+    return 0;
   } catch ( const std::exception& e ) {
     std::cerr << "exception caught: " << e.what() << std::flush;
     return 1;
   }
-  return 0;
+}
+
+int main()
+{
+  return run();
 }
