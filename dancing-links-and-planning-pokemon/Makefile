@@ -1,4 +1,4 @@
-.PHONY: default gcc-rel gcc-deb arm-rel arm-deb clang-rel clang-deb build format tidy clean
+.PHONY: default ngcc-rel ngcc-deb arm-rel arm-deb nclang-rel nclang-deb build format tidy clean
 
 MAKE := $(MAKE)
 MAKEFLAGS += --no-print-directory
@@ -8,12 +8,12 @@ JOBS ?= $(shell (command -v nproc > /dev/null 2>&1 && echo "-j$$(nproc)") || (co
 
 default: build
 
-gcc-rel:
-	cmake --preset=gcc-rel
+ngcc-rel:
+	cmake --preset=ngcc-rel
 	cmake --build build/ $(JOBS)
 
-gcc-deb:
-	cmake --preset=gcc-deb
+ngcc-deb:
+	cmake --preset=ngcc-deb
 	cmake --build build/ $(JOBS)
 
 arm-rel:
@@ -24,12 +24,12 @@ arm-deb:
 	cmake --preset=arm-deb
 	cmake --build build/ $(JOBS)
 
-clang-rel:
-	cmake --preset=clang-rel
+nclang-rel:
+	cmake --preset=nclang-rel
 	cmake --build build/ $(JOBS)
 
-clang-deb:
-	cmake --preset=clang-deb
+nclang-deb:
+	cmake --preset=nclang-deb
 	cmake --build build/ $(JOBS)
 
 build:
