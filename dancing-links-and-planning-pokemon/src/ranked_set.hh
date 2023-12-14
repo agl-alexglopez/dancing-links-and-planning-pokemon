@@ -43,7 +43,7 @@
 #ifndef RANKED_SET_HH
 #define RANKED_SET_HH
 #include <algorithm>
-#include <compare> // NOLINT
+#include <compare>
 #include <cstddef>
 #include <ostream>
 #include <utility>
@@ -176,7 +176,7 @@ public:
   {
     return this->rank_ == rhs.rank_ && this->flat_set_ == rhs.flat_set_;
   }
-  auto operator<=>( const Ranked_set<T>& rhs ) const
+  std::weak_ordering operator<=>( const Ranked_set<T>& rhs ) const
   {
     return this->rank_ == rhs.rank_ ? this->flat_set_ <=> rhs.flat_set_ : this->rank_ <=> rhs.rank_;
   }
