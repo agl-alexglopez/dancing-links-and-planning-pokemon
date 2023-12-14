@@ -240,7 +240,7 @@ void Pokemon_links::fill_exact_coverages( std::set<Ranked_set<Type_encoding>>& c
   }
   for ( uint64_t cur = links_[item_to_cover].down; cur != item_to_cover; cur = links_[cur].down ) {
     const Encoding_score score = cover_type( cur );
-    coverage.insert( score.score, score.name );
+    static_cast<void>( coverage.insert( score.score, score.name ) );
 
     fill_exact_coverages( coverages, coverage, static_cast<int8_t>( depth_limit - 1 ) );
 
@@ -252,7 +252,7 @@ void Pokemon_links::fill_exact_coverages( std::set<Ranked_set<Type_encoding>>& c
       uncover_type( cur );
       return;
     }
-    coverage.erase( score.score, score.name );
+    static_cast<void>( coverage.erase( score.score, score.name ) );
     uncover_type( cur );
   }
 }
@@ -408,7 +408,7 @@ void Pokemon_links::fill_overlapping_coverages( std::set<Ranked_set<Type_encodin
 
   for ( uint64_t cur = links_[item_to_cover].down; cur != item_to_cover; cur = links_[cur].down ) {
     const Encoding_score score = overlapping_cover_type( { cur, depth_tag } );
-    coverage.insert( score.score, score.name );
+    static_cast<void>( coverage.insert( score.score, score.name ) );
 
     fill_overlapping_coverages( coverages, coverage, static_cast<int8_t>( depth_tag - 1 ) );
 
@@ -420,7 +420,7 @@ void Pokemon_links::fill_overlapping_coverages( std::set<Ranked_set<Type_encodin
       overlapping_uncover_type( cur );
       return;
     }
-    coverage.erase( score.score, score.name );
+    static_cast<void>( coverage.erase( score.score, score.name ) );
     overlapping_uncover_type( cur );
   }
 }

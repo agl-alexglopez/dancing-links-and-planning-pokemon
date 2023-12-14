@@ -42,18 +42,23 @@
 #pragma once
 #ifndef RANKED_SET_HH
 #define RANKED_SET_HH
+#include <algorithm>
+#include <compare> // NOLINT
 #include <cstddef>
 #include <ostream>
-#include <set>
 #include <utility>
+#include <vector>
 
-template<class Value_type>
+/// Implemented as a flat set meaning you should reserve known sizes ahead of time when possible.
+template<class T>
 class Ranked_set
 {
 public:
   Ranked_set() = default;
-  Ranked_set( int rank, std::set<Value_type> set ) : rank_( rank ), set_( std::move( set ) )
-  {}
+  Ranked_set( int rank, std::vector<T> set ) : rank_( rank ), flat_set_( std::move( set ) )
+  {
+    std::sort( flat_set_.begin(), flat_set_.end() );
+  }
 
   Ranked_set( const Ranked_set& other ) = default;
   Ranked_set( Ranked_set&& other ) noexcept = default;
@@ -63,7 +68,7 @@ public:
 
   [[nodiscard]] std::size_t size() const
   {
-    return set_.size();
+    return flat_set_.size();
   }
 
   [[nodiscard]] int rank() const
@@ -71,28 +76,52 @@ public:
     return rank_;
   }
 
-  void insert( const Value_type& elem )
+  /// Recommended to use if you know how many elements you will store at max. Makes flat set faster.
+  void reserve( size_t size )
   {
-    set_.insert( elem );
+    flat_set_.reserve( size );
   }
 
-  void insert( const int rank, const Value_type& elem )
+  [[nodiscard]] bool insert( const T& elem )
   {
-    if ( set_.insert( elem ).second ) {
+    if ( !std::binary_search( flat_set_.cbegin(), flat_set_.cend(), elem ) ) {
+      flat_set_.push_back( elem );
+      std::sort( flat_set_.begin(), flat_set_.end() );
+      return true;
+    }
+    return false;
+  }
+
+  [[nodiscard]] bool insert( const int rank, const T& elem )
+  {
+    if ( !std::binary_search( flat_set_.cbegin(), flat_set_.cend(), elem ) ) {
+      flat_set_.push_back( elem );
       rank_ += rank;
+      std::sort( flat_set_.begin(), flat_set_.end() );
+      return true;
     }
+    return false;
   }
 
-  void erase( const Value_type& elem )
+  [[nodiscard]] bool erase( const T& elem )
   {
-    set_.erase( elem );
+    auto found = std::lower_bound( flat_set_.cbegin(), flat_set_.cend(), elem );
+    if ( found != flat_set_.end() && *found == elem ) {
+      static_cast<void>( flat_set_.erase( found ) );
+      return true;
+    }
+    return false;
   }
 
-  void erase( const int rank, const Value_type& elem )
+  [[nodiscard]] bool erase( const int rank, const T& elem )
   {
-    if ( set_.erase( elem ) ) {
+    auto found = std::lower_bound( flat_set_.cbegin(), flat_set_.cend(), elem );
+    if ( found != flat_set_.end() && *found == elem ) {
       rank_ -= rank;
+      static_cast<void>( flat_set_.erase( found ) );
+      return true;
     }
+    return false;
   }
 
   void add( const int rank_change )
@@ -105,72 +134,56 @@ public:
     rank_ -= rank_change;
   }
 
-  using container = typename std::set<Value_type>;
+  using container = typename std::vector<T>;
   using iterator = typename container::iterator;
   using const_iterator = typename container::const_iterator;
 
-  iterator begin() const
+  iterator begin()
   {
-    return set_.begin();
+    return flat_set_.begin();
   }
 
   const_iterator cbegin() const
   {
-    return set_.cbegin();
+    return flat_set_.cbegin();
   }
 
-  iterator end() const
+  iterator end()
   {
-    return set_.end();
+    return flat_set_.end();
   }
 
   const_iterator cend() const
   {
-    return set_.cend();
+    return flat_set_.cend();
   }
 
-  friend std::ostream& operator<<( std::ostream& out, const Ranked_set<Value_type>& rs )
+  friend std::ostream& operator<<( std::ostream& out, const Ranked_set<T>& rs )
   {
     out << "{" << rs.rank_ << ",{";
-    for ( const auto& s : rs.set_ ) {
+    for ( const auto& s : rs.flat_set_ ) {
       out << "\"" << s << "\",";
     }
     out << "}}\n";
     return out;
   }
 
-  bool operator<( const Ranked_set& rhs ) const
-  {
-    return rhs.rank_ == rank_ ? this->set_ < rhs.set_ : this->rank_ < rhs.rank_;
-  }
   explicit operator bool() const
   {
     return this->rank_ != 0 || this->cover_.size() != 0;
   }
-  bool operator==( const Ranked_set<Value_type>& rhs ) const
+  bool operator==( const Ranked_set<T>& rhs ) const
   {
-    return this->rank_ == rhs.rank_ && this->set_ == rhs.set_;
+    return this->rank_ == rhs.rank_ && this->flat_set_ == rhs.flat_set_;
   }
-  bool operator>( const Ranked_set<Value_type>& rhs ) const
+  auto operator<=>( const Ranked_set<T>& rhs ) const
   {
-    return rhs < *this;
-  }
-  bool operator>=( const Ranked_set<Value_type>& rhs ) const
-  {
-    return !( *this < rhs );
-  }
-  bool operator<=( const Ranked_set<Value_type>& rhs ) const
-  {
-    return !( *this > rhs );
-  }
-  bool operator!=( const Ranked_set<Value_type>& rhs ) const
-  {
-    return !( *this == rhs );
+    return this->rank_ == rhs.rank_ ? this->flat_set_ <=> rhs.flat_set_ : this->rank_ <=> rhs.rank_;
   }
 
 private:
   int rank_ { 0 };
-  std::set<Value_type> set_ {};
+  std::vector<T> flat_set_ {};
 };
 
 #endif // RANKED_SET_HH
