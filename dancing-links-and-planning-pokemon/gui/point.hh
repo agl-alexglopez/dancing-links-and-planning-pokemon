@@ -1,9 +1,10 @@
 #pragma once
-#include <cstddef>
-#include <functional>
 #ifndef POINT_HH
 #define POINT_HH
 
+#include <compare>
+#include <cstddef>
+#include <functional>
 #include <iostream>
 
 namespace Gui {
@@ -19,12 +20,8 @@ public:
 }; // class Point
 
 std::ostream& operator<<( std::ostream& out, const Point& p );
-bool operator==( const Point& p1, const Point& p2 );
-bool operator!=( const Point& p1, const Point& p2 );
-bool operator<( const Point& p1, const Point& p2 );
-bool operator<=( const Point& p1, const Point& p2 );
-bool operator>( const Point& p1, const Point& p2 );
-bool operator>=( const Point& p1, const Point& p2 );
+bool operator==( const Point& lhs, const Point& rhs );
+std::partial_ordering operator<=>( const Point& lhs, const Point& rhs );
 Point operator*( const Point& p1, float scale );
 
 } // namespace Gui

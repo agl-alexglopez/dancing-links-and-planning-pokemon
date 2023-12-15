@@ -1,4 +1,5 @@
 #include "point.hh"
+#include <compare>
 #include <iostream>
 
 namespace Gui {
@@ -8,34 +9,15 @@ std::ostream& operator<<( std::ostream& out, const Point& p )
   return out << "{" << p.x << "," << p.y << "}";
 }
 
-bool operator==( const Point& p1, const Point& p2 )
+bool operator==( const Point& lhs, const Point& rhs )
 {
-  return p1.x == p2.x && p1.y == p2.y;
+  return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
-bool operator!=( const Point& p1, const Point& p2 )
+std::partial_ordering operator<=>( const Point& lhs, const Point& rhs )
 {
-  return !( p1 == p2 );
-}
-
-bool operator<( const Point& p1, const Point& p2 )
-{
-  return p1.x < p2.x || ( p1.x == p2.x && p1.y < p2.y );
-}
-
-bool operator<=( const Point& p1, const Point& p2 )
-{
-  return !( p2 < p1 );
-}
-
-bool operator>( const Point& p1, const Point& p2 )
-{
-  return p2 < p1;
-}
-
-bool operator>=( const Point& p1, const Point& p2 )
-{
-  return !( p1 < p2 );
+  const auto cmp = lhs.x <=> rhs.x;
+  return cmp == std::partial_ordering::equivalent ? lhs.y <=> rhs.y : cmp;
 }
 
 Point operator*( const Point& p1, float scale )
