@@ -114,7 +114,7 @@ uint32_t Type_encoding::encoding() const
   return encoding_;
 }
 
-const std::array<std::string_view, 18>& Type_encoding::type_table()
+std::span<const std::string_view> Type_encoding::type_table()
 {
   return type_encoding_table;
 }

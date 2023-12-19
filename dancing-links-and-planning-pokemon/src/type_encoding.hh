@@ -87,7 +87,7 @@ public:
   Type_encoding( std::string_view type ); // NOLINT
   [[nodiscard]] uint32_t encoding() const;
   [[nodiscard]] std::pair<std::string_view, std::string_view> decode_type() const;
-  [[nodiscard]] static const std::array<std::string_view, 18>& type_table();
+  [[nodiscard]] static std::span<const std::string_view> type_table();
 
   bool operator==( Type_encoding rhs ) const;
   std::strong_ordering operator<=>( Type_encoding rhs ) const;
