@@ -61,12 +61,14 @@
  * that make up our types. We dont have to create any heap strings.
  */
 #pragma once
+#include <span>
 #ifndef TYPE_ENCODING_HH
 #define TYPE_ENCODING_HH
 
 #include <gtest/gtest_prod.h>
 
 #include <array>
+#include <compare>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -85,13 +87,10 @@ public:
   Type_encoding( std::string_view type ); // NOLINT
   [[nodiscard]] uint32_t encoding() const;
   [[nodiscard]] std::pair<std::string_view, std::string_view> decode_type() const;
+  [[nodiscard]] static const std::array<std::string_view, 18>& type_table();
 
   bool operator==( Type_encoding rhs ) const;
-  bool operator!=( Type_encoding rhs ) const;
-  bool operator<( Type_encoding rhs ) const;
-  bool operator>( Type_encoding rhs ) const;
-  bool operator<=( Type_encoding rhs ) const;
-  bool operator>=( Type_encoding rhs ) const;
+  std::strong_ordering operator<=>( Type_encoding rhs ) const;
 
 private:
   uint32_t encoding_;
@@ -116,16 +115,14 @@ private:
     "Electric",
     "Dragon",
     "Dark",
-    "Bug" };
-
-  // I know, internal tests are bad but these were for my own curiosity. I will try to delete internal tests.
-  FRIEND_TEST( InternalTests, TestEveryPossibleCombinationOfTypings );
-  FRIEND_TEST( InternalTests, CompareMyEncodingDecodingSpeed );
+    "Bug",
+  };
 };
 
 /* * * * * * * * * *      Overloaded Operator for a String View       * * * * * * * * * * * * * * */
 
 std::ostream& operator<<( std::ostream& out, Type_encoding tp );
+std::string to_string( Type_encoding tp );
 
 } // namespace Dancing_links
 

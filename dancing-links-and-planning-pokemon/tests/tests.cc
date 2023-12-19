@@ -38,6 +38,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <ctime>
 #include <fstream>
@@ -310,6 +311,38 @@ TEST( InternalTests, TestForOffByOneErrorsWithFirstAndLastIndexTypeBugWater )
   EXPECT_EQ( std::string_view( "Water" ), code.decode_type().second );
 }
 
+TEST( InternalTests, TestLexicographicOrderIsEquivalentBetweenStringsAndTypeEncodings )
+{
+  std::array<std::string_view, 16> rand_types {
+    "Fire-Flying",
+    "Bug-Dark",
+    "Ghost-Ground",
+    "Ice",
+    "Bug",
+    "Grass",
+    "Normal",
+    "Fighting",
+    "Electric-Steel",
+    "Ice-Psychic",
+    "Psychic-Water",
+    "Dark",
+    "Dragon-Flying",
+    "Poison",
+    "Fairy-Flying",
+    "Ground-Rock",
+  };
+  std::array<Dx::Type_encoding, 16> encodings {};
+  for ( size_t i = 0; i < rand_types.size(); ++i ) {
+    encodings.at( i ) = Dx::Type_encoding( rand_types.at( i ) );
+  }
+  // We should expect the same sorting as string representation for use in any container or algorithm.
+  std::sort( rand_types.begin(), rand_types.end() );
+  std::sort( encodings.begin(), encodings.end() );
+  for ( size_t i = 0; i < encodings.size(); ++i ) {
+    EXPECT_EQ( Dx::to_string( encodings.at( i ) ), rand_types.at( i ) );
+  }
+}
+
 TEST( InternalTests, TestEveryPossibleCombinationOfTypings )
 {
   /* Not all of these type combinations exist yet in Pokemon and that's ok. It sounds like there
@@ -317,10 +350,10 @@ TEST( InternalTests, TestEveryPossibleCombinationOfTypings )
    * types order does not matter so Water-Bug is the same as Bug-Water and is only counted once.
    */
   const uint64_t bug = 0x20000;
-  const uint64_t table_size = Dx::Type_encoding::type_encoding_table.size();
+  const uint64_t table_size = Dx::Type_encoding::type_table().size();
   for ( uint64_t bit1 = bug, type1 = table_size - 1; bit1 != 0; bit1 >>= 1, type1-- ) {
 
-    const std::string check_single_type( Dx::Type_encoding::type_encoding_table.at( type1 ) );
+    const std::string check_single_type( Dx::Type_encoding::type_table().at( type1 ) );
     const Dx::Type_encoding single_type_encoding( check_single_type );
     EXPECT_EQ( single_type_encoding.encoding(), bit1 );
     EXPECT_EQ( single_type_encoding.decode_type().first, check_single_type );
@@ -328,7 +361,7 @@ TEST( InternalTests, TestEveryPossibleCombinationOfTypings )
 
     for ( uint64_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2-- ) {
 
-      const auto t2 = std::string( Dx::Type_encoding::type_encoding_table.at( type2 ) );
+      const auto t2 = std::string( Dx::Type_encoding::type_table().at( type2 ) );
       const auto check_dual_type = std::string( check_single_type ).append( "-" ).append( t2 );
       Dx::Type_encoding dual_type_encoding( check_dual_type );
       EXPECT_EQ( dual_type_encoding.encoding(), bit1 | bit2 );
@@ -370,14 +403,14 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
 
   // Generate all possible unique type combinations and place them in the maps.
   const uint64_t bug = 0x20000;
-  const uint64_t table_size = Dx::Type_encoding::type_encoding_table.size();
+  const uint64_t table_size = Dx::Type_encoding::type_table().size();
   for ( uint64_t bit1 = bug, type1 = table_size - 1; bit1 != 0; bit1 >>= 1, type1-- ) {
-    const std::string check_single_type( Dx::Type_encoding::type_encoding_table.at( type1 ) );
+    const std::string check_single_type( Dx::Type_encoding::type_table().at( type1 ) );
     const Dx::Type_encoding single_type_encoding( check_single_type );
     encode_map.insert( { check_single_type, single_type_encoding } );
     decode_map.insert( { single_type_encoding, check_single_type } );
     for ( uint64_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2-- ) {
-      const auto t2 = std::string( Dx::Type_encoding::type_encoding_table.at( type2 ) );
+      const auto t2 = std::string( Dx::Type_encoding::type_table().at( type2 ) );
       const auto check_dual_type = std::string( check_single_type ).append( "-" ).append( t2 );
       const Dx::Type_encoding dual_type_encoding( check_dual_type );
       encode_map.insert( { check_dual_type, dual_type_encoding } );
@@ -401,10 +434,10 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
     const int type1 = first_type( gen );
     const int type2 = second_type( gen );
     single_type_total++;
-    std::string type( Dx::Type_encoding::type_encoding_table.at( type1 ) );
+    std::string type( Dx::Type_encoding::type_table().at( type1 ) );
     // This ensures we get a decent amount of single and dual types into the mix.
     if ( type2 < type1 ) {
-      std::string t2( Dx::Type_encoding::type_encoding_table.at( type2 ) );
+      std::string t2( Dx::Type_encoding::type_table().at( type2 ) );
       type += "-" + t2;
       dual_type_total++;
       single_type_total--;

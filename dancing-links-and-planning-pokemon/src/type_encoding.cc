@@ -39,8 +39,10 @@
 
 #include <array>
 #include <bit>
+#include <compare>
 #include <cstdint>
 #include <ostream>
+#include <span>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -112,35 +114,33 @@ uint32_t Type_encoding::encoding() const
   return encoding_;
 }
 
+const std::array<std::string_view, 18>& Type_encoding::type_table()
+{
+  return type_encoding_table;
+}
+
 bool Type_encoding::operator==( Type_encoding rhs ) const
 {
   return this->encoding_ == rhs.encoding_;
 }
 
-bool Type_encoding::operator!=( Type_encoding rhs ) const
+std::strong_ordering Type_encoding::operator<=>( Type_encoding rhs ) const
 {
-  return !( *this == rhs );
-}
-
-// Not a mistake! We want the bits in a uint32_t to be sorted like strings. See file header.
-bool Type_encoding::operator<( Type_encoding rhs ) const
-{
-  return this->encoding_ > rhs.encoding_;
-}
-
-bool Type_encoding::operator>( Type_encoding rhs ) const
-{
-  return rhs < *this;
-}
-
-bool Type_encoding::operator<=( Type_encoding rhs ) const
-{
-  return !( *this > rhs );
-}
-
-bool Type_encoding::operator>=( Type_encoding rhs ) const
-{
-  return !( *this < rhs );
+  const auto result = std::countl_zero( this->encoding_ ) <=> std::countl_zero( rhs.encoding_ );
+  if ( result != std::strong_ordering::equal ) {
+    return result;
+  }
+  // A single type that tied for the high bit will be sorted correctly as well as any two dual types.
+  // For example this check ensures that "Bug" comes before "Bug-Dark" while also sorting any two dual types.
+  const auto second_result = std::countr_zero( this->encoding_ ) <=> std::countr_zero( rhs.encoding_ );
+  // Not a mistake! We want the bits in a uint32_t to be sorted like strings. See file header.
+  if ( second_result == std::strong_ordering::less ) {
+    return std::strong_ordering::greater;
+  }
+  if ( second_result == std::strong_ordering::greater ) {
+    return std::strong_ordering::less;
+  }
+  return second_result;
 }
 
 // This operator is useful for the GUI application. I can make heap string methods when needed.
@@ -152,6 +152,15 @@ std::ostream& operator<<( std::ostream& out, Type_encoding tp )
     out << '-' << to_print.second;
   }
   return out;
+}
+
+std::string to_string( Type_encoding tp )
+{
+  const std::pair<std::string_view, std::string_view> types = tp.decode_type();
+  if ( types.second.empty() ) {
+    return std::string( types.first );
+  }
+  return std::string( types.first ).append( "-" ).append( types.second );
 }
 
 } // namespace Dancing_links
