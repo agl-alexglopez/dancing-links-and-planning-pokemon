@@ -127,6 +127,9 @@ bool Type_encoding::operator==( Type_encoding rhs ) const
 
 std::strong_ordering Type_encoding::operator<=>( Type_encoding rhs ) const
 {
+  if ( this->encoding_ == rhs.encoding_ ) {
+    return std::strong_ordering::equal;
+  }
   const auto rightmost_bit_cmp = std::countr_zero( this->encoding_ ) <=> std::countr_zero( rhs.encoding_ );
   if ( rightmost_bit_cmp != std::strong_ordering::equal ) {
     return rightmost_bit_cmp;
