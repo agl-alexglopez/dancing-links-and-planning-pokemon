@@ -77,13 +77,15 @@ std::pair<std::string_view, std::string_view> Type_encoding::decode_type() const
     return {};
   }
   const uint32_t width = 31;
-  const uint32_t rightmost_bit_index = std::countr_zero( encoding_ );
-  const uint32_t leftmost_bit_index = width - std::countl_zero( encoding_ );
-  if ( rightmost_bit_index == leftmost_bit_index ) {
-    return { type_encoding_table.at( rightmost_bit_index ), {} };
+  const uint32_t least_significant_bit_index = std::countr_zero( encoding_ );
+  const uint32_t most_significant_bit_index = width - std::countl_zero( encoding_ );
+  if ( least_significant_bit_index == most_significant_bit_index ) {
+    return { type_encoding_table.at( least_significant_bit_index ), {} };
   }
-  // Odd flip has to occur here because lower lexicographic order comes first when reading dual types.
-  return { type_encoding_table.at( rightmost_bit_index ), type_encoding_table.at( leftmost_bit_index ) };
+  return {
+    type_encoding_table.at( least_significant_bit_index ),
+    type_encoding_table.at( most_significant_bit_index ),
+  };
 }
 
 uint64_t Type_encoding::type_bit_index( std::string_view type )
