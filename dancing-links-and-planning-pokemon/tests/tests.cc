@@ -282,7 +282,7 @@ TEST( ParserTests, LoadTwoSubsetsOfGyms )
 
 TEST( InternalTests, EasiestTypeEncodingLexographicallyIsBug )
 {
-  const uint32_t hex_type = 0x20000;
+  const uint32_t hex_type = 0x1;
   const std::string_view str_type = "Bug";
   const Dx::Type_encoding code( str_type );
   EXPECT_EQ( hex_type, code.encoding() );
@@ -293,7 +293,7 @@ TEST( InternalTests, EasiestTypeEncodingLexographicallyIsBug )
 
 TEST( InternalTests, TestTheNextSimplistDualTypeBugDark )
 {
-  const uint32_t hex_type = 0x30000;
+  const uint32_t hex_type = 0x3;
   const std::string_view str_type = "Bug-Dark";
   const Dx::Type_encoding code( str_type );
   EXPECT_EQ( hex_type, code.encoding() );
@@ -339,7 +339,7 @@ TEST( InternalTests, TestLexicographicOrderIsEquivalentBetweenStringsAndTypeEnco
   std::sort( rand_types.begin(), rand_types.end() );
   std::sort( encodings.begin(), encodings.end() );
   for ( size_t i = 0; i < encodings.size(); ++i ) {
-    EXPECT_EQ( Dx::to_string( encodings.at( i ) ), rand_types.at( i ) );
+    EXPECT_EQ( encodings.at( i ).to_string(), rand_types.at( i ) );
   }
 }
 
@@ -349,9 +349,9 @@ TEST( InternalTests, TestEveryPossibleCombinationOfTypings )
    * would be alot but it only comes out to 171 unique combinations. Unique here means that
    * types order does not matter so Water-Bug is the same as Bug-Water and is only counted once.
    */
-  const uint64_t bug = 0x20000;
-  const uint64_t table_size = Dx::Type_encoding::type_table().size();
-  for ( uint64_t bit1 = bug, type1 = table_size - 1; bit1 != 0; bit1 >>= 1, type1-- ) {
+  const uint64_t bug = 0x1;
+  const uint64_t end = 1ULL << Dx::Type_encoding::type_table().size();
+  for ( uint64_t bit1 = bug, type1 = 0; bit1 != end; bit1 <<= 1, ++type1 ) {
 
     const std::string check_single_type( Dx::Type_encoding::type_table()[type1] );
     const Dx::Type_encoding single_type_encoding( check_single_type );
@@ -359,22 +359,13 @@ TEST( InternalTests, TestEveryPossibleCombinationOfTypings )
     EXPECT_EQ( single_type_encoding.decode_type().first, check_single_type );
     EXPECT_EQ( single_type_encoding.decode_type().second, std::string_view {} );
 
-    for ( uint64_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2-- ) {
+    for ( uint64_t bit2 = bit1 << 1, type2 = type1 + 1; bit2 != end; bit2 <<= 1, ++type2 ) {
 
       const auto t2 = std::string( Dx::Type_encoding::type_table()[type2] );
       const auto check_dual_type = std::string( check_single_type ).append( "-" ).append( t2 );
       Dx::Type_encoding dual_type_encoding( check_dual_type );
       EXPECT_EQ( dual_type_encoding.encoding(), bit1 | bit2 );
-      /* I discourage the use of methods that create heap strings whenever possible. I use
-       * string_views internally to report back typing for human readability when requested
-       * in a GUI via ostream. This way I only need to create one character "-" on the heap to
-       * join the two string_views of the lookup table in the stream. I don't have a use case
-       * for creating strings yet but will add it if needed.
-       */
-      std::ostringstream capture_type;
-      capture_type << dual_type_encoding;
-      const std::string dual_type_string( capture_type.str() );
-      EXPECT_EQ( dual_type_string, check_dual_type );
+      EXPECT_EQ( dual_type_encoding.to_string(), check_dual_type );
     }
   }
 }
@@ -385,31 +376,27 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
   /* I was curious to see the how stashing all possible encodings and decodings we could encounter
    * in hash tables would stack up against my current encoding method. As expected the hash table
    * performs consistently well, especially becuase both encoding directions are precomputed and
-   * thus have the same lookup time. Run the test to see for yourself, but my encoding method
-   * is definitely slower than the hashing method, but I think it is competitive coming in at
-   * around twice as slow as hashing. Surprisingly, I make up for that loss in speed in the
-   * decoding phase by halving the time it takes a hash table to decode a type encoding. So, this
-   * helps balance out the impact of slower encoding. However, the major benefit is that the
-   * information I need to perform my encoding and decoding is trivially small compared to the
+   * thus have the same lookup time. Run the test to see for yourself, but my encoding and decoding
+   * methods are consistently faster than the hash table when compiled in release mode. The major benefit
+   * is that the information I need to perform my encoding and decoding is trivially small compared to the
    * hash maps that require 177 entries which consist of one string and one encoding. So each
    * map contains 177 strings and 177 Type_encodings for a total across two maps of 708 individual
-   * pieces of information we need to store. In contrast, my method only needs an array size
-   * variable and an array of 18 stack strings that the compiler will likely place in the
-   * read-only memory segment, much less wasteful.
+   * pieces of information we need to store. In contrast, my method only needs a static constexpr array
+   * of 18 stack strings that the compiler will likely place in the read-only memory segment, much less wasteful.
    */
 
   std::unordered_map<std::string, Dx::Type_encoding> encode_map;
   std::unordered_map<Dx::Type_encoding, std::string> decode_map;
 
   // Generate all possible unique type combinations and place them in the maps.
-  const uint64_t bug = 0x20000;
-  const uint64_t table_size = Dx::Type_encoding::type_table().size();
-  for ( uint64_t bit1 = bug, type1 = table_size - 1; bit1 != 0; bit1 >>= 1, type1-- ) {
+  const uint64_t bug = 0x1;
+  const uint64_t bit_end = 1ULL << Dx::Type_encoding::type_table().size();
+  for ( uint64_t bit1 = bug, type1 = 0; bit1 != bit_end; bit1 <<= 1, ++type1 ) {
     const std::string check_single_type( Dx::Type_encoding::type_table()[type1] );
     const Dx::Type_encoding single_type_encoding( check_single_type );
     encode_map.insert( { check_single_type, single_type_encoding } );
     decode_map.insert( { single_type_encoding, check_single_type } );
-    for ( uint64_t bit2 = bit1 >> 1, type2 = type1 - 1; bit2 != 0; bit2 >>= 1, type2-- ) {
+    for ( uint64_t bit2 = bit1 << 1, type2 = type1 + 1; bit2 != bit_end; bit2 <<= 1, ++type2 ) {
       const auto t2 = std::string( Dx::Type_encoding::type_table()[type2] );
       const auto check_dual_type = std::string( check_single_type ).append( "-" ).append( t2 );
       const Dx::Type_encoding dual_type_encoding( check_dual_type );
