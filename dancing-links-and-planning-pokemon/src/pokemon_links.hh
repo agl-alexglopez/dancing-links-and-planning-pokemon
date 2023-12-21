@@ -212,20 +212,22 @@ private:
   static constexpr int hidden = -1;
 
   /**
-   * @brief fill_exact_coverages  fills the output parameters with every exact cover that can be
+   * @brief exact_dlx_recursive fills the output parameters with every exact cover that can be
    *                            determined for defending against attack types or attacking
    *                            defensive types. Exact covers use options to cover every item
    *                            exactly once.
    * @param coverages           the output parameter that serves as the final solution.
    * @param coverage            the successfully coverages we find while the links dance.
-   * @param depth_limit          size of a pokemon team or the number of attacks a team can have.
+   * @param depth_limit         size of a pokemon team or the number of attacks a team can have.
    */
-  void fill_exact_coverages( std::set<Ranked_set<Type_encoding>>& coverages,
-                             Ranked_set<Type_encoding>& coverage,
-                             int8_t depth_limit );
+  void exact_dlx_recursive( std::set<Ranked_set<Type_encoding>>& coverages,
+                            Ranked_set<Type_encoding>& coverage,
+                            int8_t depth_limit );
+
+  std::set<Ranked_set<Type_encoding>> exact_dlx_iterative( int8_t depth_limit );
 
   /**
-   * @brief fill_overlapping_coverages  fills the output parameter with every overlapping cover that
+   * @brief overlapping_dlx_recursive fills the output parameter with every overlapping cover that
    *                                  can be determined for defending against attack types or
    *                                  attacking defensive types. Overlapping covers use any
    *                                  number of options within their depth limit to cover all
@@ -236,9 +238,9 @@ private:
    * @param coverage                  the helper set that fills the output parameter.
    * @param depth_tag                  a tag used to signify the recursive depth. Used internally.
    */
-  void fill_overlapping_coverages( std::set<Ranked_set<Type_encoding>>& coverages,
-                                   Ranked_set<Type_encoding>& coverage,
-                                   int8_t depth_tag );
+  void overlapping_dlx_recursive( std::set<Ranked_set<Type_encoding>>& coverages,
+                                  Ranked_set<Type_encoding>& coverage,
+                                  int8_t depth_tag );
 
   /**
    * @brief choose_item  choose an item to cover that appears the least across all options. If an

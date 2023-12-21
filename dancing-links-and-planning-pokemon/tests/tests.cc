@@ -90,7 +90,8 @@ bool operator!=( const Pokemon_links::Poke_link& lhs, const Pokemon_links::Poke_
 
 std::ostream& operator<<( std::ostream& os, const Pokemon_links::Poke_link& link )
 {
-  return os << "{" << link.top_or_len << ", " << link.up << ", " << link.down << ", " << link.multiplier << "},";
+  return os << "{" << link.top_or_len << ", " << link.up << ", " << link.down << ", " << link.multiplier << ", "
+            << static_cast<int>( link.tag ) << "},";
 }
 
 bool operator==( const Pokemon_links::Type_name& lhs, const Pokemon_links::Type_name& rhs )
@@ -2628,9 +2629,15 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
   };
   // clang-format on
   const std::set<Ranked_set<Dx::Type_encoding>> exact {
-    { 3, { { "Grass" } } }, { 3, { { "Ice" } } }, { 3, { { "Water" } } } };
+    { 3, { { "Grass" } } },
+    { 3, { { "Ice" } } },
+    { 3, { { "Water" } } },
+  };
   const std::set<Ranked_set<Dx::Type_encoding>> overlapping {
-    { 3, { { "Grass" } } }, { 3, { { "Ice" } } }, { 3, { { "Water" } } } };
+    { 3, { { "Grass" } } },
+    { 3, { { "Ice" } } },
+    { 3, { { "Water" } } },
+  };
   EXPECT_EQ( links.links_, dlx_hide_except_water );
   EXPECT_EQ( links.item_table_, headers_hide_except_water );
   EXPECT_EQ( links.get_num_items(), 1 );

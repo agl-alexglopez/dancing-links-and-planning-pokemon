@@ -212,18 +212,30 @@ void reset_all( Pokemon_links& dlx )
 
 /* * * * * * * * * * * * * * * *    Algorithm X via Dancing Links   * * * * * * * * * * * * * * * */
 
+namespace {
+
+/// This is the way we can acheive an iterative dancing links algorithm.
+struct dlx_state
+{
+  uint64_t item;
+  uint64_t option;
+  int8_t limit;
+};
+
+} // namespace
+
 std::set<Ranked_set<Type_encoding>> Pokemon_links::get_exact_coverages( int8_t choice_limit )
 {
   std::set<Ranked_set<Type_encoding>> coverages = {};
   Ranked_set<Type_encoding> coverage {};
   hit_limit_ = false;
-  fill_exact_coverages( coverages, coverage, choice_limit );
+  exact_dlx_recursive( coverages, coverage, choice_limit );
   return coverages;
 }
 
-void Pokemon_links::fill_exact_coverages( std::set<Ranked_set<Type_encoding>>& coverages, // NOLINT
-                                          Ranked_set<Type_encoding>& coverage,
-                                          int8_t depth_limit )
+void Pokemon_links::exact_dlx_recursive( std::set<Ranked_set<Type_encoding>>& coverages, // NOLINT
+                                         Ranked_set<Type_encoding>& coverage,
+                                         int8_t depth_limit )
 {
   if ( item_table_[0].right == 0 && depth_limit >= 0 ) {
     coverages.insert( coverage );
@@ -242,7 +254,7 @@ void Pokemon_links::fill_exact_coverages( std::set<Ranked_set<Type_encoding>>& c
     const Encoding_score score = cover_type( cur );
     static_cast<void>( coverage.insert( score.score, score.name ) );
 
-    fill_exact_coverages( coverages, coverage, static_cast<int8_t>( depth_limit - 1 ) );
+    exact_dlx_recursive( coverages, coverage, static_cast<int8_t>( depth_limit - 1 ) );
 
     /* It is possible for these algorithms to produce many many sets. To make the Pokemon
      * Planner GUI more usable I cut off recursion if we are generating too many sets.
@@ -255,6 +267,63 @@ void Pokemon_links::fill_exact_coverages( std::set<Ranked_set<Type_encoding>>& c
     static_cast<void>( coverage.erase( score.score, score.name ) );
     uncover_type( cur );
   }
+}
+
+// This function needs better testing before being used. Find more exact coverages for a solution
+// that will force use to find multiple solutions while at a certain depth in the recursion.
+// I think we may be missing some solutions but don't have tests to prove it.
+std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_dlx_iterative( int8_t depth_limit )
+{
+  hit_limit_ = false;
+  if ( depth_limit <= 0 ) {
+    return {};
+  }
+  std::set<Ranked_set<Type_encoding>> coverages = {};
+  Ranked_set<Type_encoding> coverage {};
+  const uint64_t start = choose_item();
+  std::vector<dlx_state> state_stack { { start, start, depth_limit } };
+  while ( !state_stack.empty() ) {
+    dlx_state& cur_state = state_stack.back();
+    bool pop = true;
+    for ( uint64_t cur = links_[cur_state.option].down; cur != cur_state.item; cur = links_[cur].down ) {
+      cur_state.option = cur;
+      const Encoding_score score = cover_type( cur );
+      static_cast<void>( coverage.insert( score.score, score.name ) );
+      if ( item_table_[0].right == 0 && cur_state.limit - 1 >= 0 ) {
+        coverages.insert( coverage );
+        uncover_type( cur );
+        static_cast<void>( coverage.erase( score.score, score.name ) );
+        if ( coverages.size() == max_output_ ) {
+          hit_limit_ = true;
+          state_stack.pop_back();
+          while ( !state_stack.empty() ) {
+            uncover_type( state_stack.back().option );
+            state_stack.pop_back();
+          }
+          return coverages;
+        }
+        continue;
+      }
+      if ( cur_state.limit - 1 <= 0 ) {
+        break;
+      }
+      const uint64_t next_item_to_cover = choose_item();
+      if ( !next_item_to_cover ) {
+        uncover_type( cur );
+        static_cast<void>( coverage.erase( score.score, score.name ) );
+        break;
+      }
+      state_stack.emplace_back( next_item_to_cover, next_item_to_cover, cur_state.limit - 1 );
+      pop = false;
+      break;
+    }
+    if ( pop ) {
+      // Cleanup process as in the recursive version.
+      uncover_type( cur_state.option );
+      state_stack.pop_back();
+    }
+  }
+  return coverages;
 }
 
 Pokemon_links::Encoding_score Pokemon_links::cover_type( uint64_t index_in_option )
@@ -281,7 +350,7 @@ Pokemon_links::Encoding_score Pokemon_links::cover_type( uint64_t index_in_optio
        * be the place to change it. I just give points based on how good the resistance or
        * attack strength is. Immunity is better than quarter is better than half damage if
        * we are building defense. Quad is better than double damage if we are building
-       * attack types. Points only change by increments of one.
+       * attack types. Points only change by increments of one. Seems fine?
        */
       result.score += links_[i].multiplier;
     }
@@ -329,11 +398,14 @@ void Pokemon_links::hide_options( uint64_t index_in_option )
         col = links_[col].up;
         continue;
       }
-      const Poke_link cur = links_[col];
-      links_[cur.up].down = cur.down;
-      links_[cur.down].up = cur.up;
-      links_[top].top_or_len--;
-      col++;
+      // Some items may be hidden at any point by the user.
+      if ( !links_[top].tag ) {
+        const Poke_link cur = links_[col];
+        links_[cur.up].down = cur.down;
+        links_[cur.down].up = cur.up;
+        --links_[top].top_or_len;
+      }
+      ++col;
     }
   }
 }
@@ -350,11 +422,14 @@ void Pokemon_links::unhide_options( uint64_t index_in_option )
         col = links_[col].down;
         continue;
       }
-      const Poke_link cur = links_[col];
-      links_[cur.up].down = col;
-      links_[cur.down].up = col;
-      links_[top].top_or_len++;
-      col--;
+      // Some items may be hidden at any point by the user.
+      if ( !links_[top].tag ) {
+        const Poke_link cur = links_[col];
+        links_[cur.up].down = col;
+        links_[cur.down].up = col;
+        ++links_[top].top_or_len;
+      }
+      --col;
     }
   }
 }
@@ -385,13 +460,13 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::get_overlapping_coverages( in
   std::set<Ranked_set<Type_encoding>> coverages = {};
   Ranked_set<Type_encoding> coverage = {};
   hit_limit_ = false;
-  fill_overlapping_coverages( coverages, coverage, choice_limit );
+  overlapping_dlx_recursive( coverages, coverage, choice_limit );
   return coverages;
 }
 
-void Pokemon_links::fill_overlapping_coverages( std::set<Ranked_set<Type_encoding>>& coverages, // NOLINT
-                                                Ranked_set<Type_encoding>& coverage,
-                                                int8_t depth_tag )
+void Pokemon_links::overlapping_dlx_recursive( std::set<Ranked_set<Type_encoding>>& coverages, // NOLINT
+                                               Ranked_set<Type_encoding>& coverage,
+                                               int8_t depth_tag )
 {
   if ( item_table_[0].right == 0 && depth_tag >= 0 ) {
     coverages.insert( coverage );
@@ -410,7 +485,7 @@ void Pokemon_links::fill_overlapping_coverages( std::set<Ranked_set<Type_encodin
     const Encoding_score score = overlapping_cover_type( { cur, depth_tag } );
     static_cast<void>( coverage.insert( score.score, score.name ) );
 
-    fill_overlapping_coverages( coverages, coverage, static_cast<int8_t>( depth_tag - 1 ) );
+    overlapping_dlx_recursive( coverages, coverage, static_cast<int8_t>( depth_tag - 1 ) );
 
     /* It is possible for these algorithms to produce many many sets. To make the Pokemon
      * Planner GUI more usable I cut off recursion if we are generating too many sets.
@@ -750,7 +825,7 @@ void Pokemon_links::unhide_item( uint64_t header_index )
 void Pokemon_links::hide_option( uint64_t row_index )
 {
   links_[row_index].tag = hidden;
-  for ( uint64_t i = row_index + 1; links_[i].top_or_len > 0; i++ ) {
+  for ( uint64_t i = row_index + 1; links_[i].top_or_len > 0; ++i ) {
     const Poke_link cur = links_[i];
     links_[cur.up].down = cur.down;
     links_[cur.down].up = cur.up;
@@ -762,13 +837,13 @@ void Pokemon_links::hide_option( uint64_t row_index )
 void Pokemon_links::unhide_option( uint64_t row_index )
 {
   links_[row_index].tag = 0;
-  for ( uint64_t i = row_index + 1; links_[i].top_or_len > 0; i++ ) {
+  for ( uint64_t i = row_index + 1; links_[i].top_or_len > 0; ++i ) {
     const Poke_link cur = links_[i];
     links_[cur.up].down = i;
     links_[cur.down].up = i;
-    links_[cur.top_or_len].top_or_len++;
+    ++links_[cur.top_or_len].top_or_len;
   }
-  num_options_++;
+  ++num_options_;
 }
 
 uint64_t Pokemon_links::find_item_index( Type_encoding item ) const
@@ -865,12 +940,12 @@ void Pokemon_links::build_defense_links( const std::map<Type_encoding, std::set<
     column_builder[type] = index;
 
     item_table_.push_back( { type, index - 1, index + 1 } );
-    item_table_[0].left++;
+    ++item_table_[0].left;
 
     links_.push_back( { 0, index, index, emp, 0 } );
 
-    num_items_++;
-    index++;
+    ++num_items_;
+    ++index;
   }
   item_table_[item_table_.size() - 1].right = 0;
 
@@ -905,12 +980,12 @@ void Pokemon_links::initialize_columns( const std::map<Type_encoding, std::set<R
        */
 
       if ( ( requested_coverage == defense ? single_type.multiplier() < nrm : nrm < single_type.multiplier() ) ) {
-        current_links_index++;
-        links_[type_title].down++;
-        set_size++;
+        ++current_links_index;
+        ++links_[type_title].down;
+        ++set_size;
 
         const Type_encoding s_type = single_type.type();
-        links_[links_[column_builder[s_type]].down].top_or_len++;
+        ++links_[links_[column_builder[s_type]].down].top_or_len;
 
         // A single item in a circular doubly linked list points to itself.
         links_.push_back( { static_cast<int>( links_[column_builder[s_type]].down ),
@@ -930,9 +1005,9 @@ void Pokemon_links::initialize_columns( const std::map<Type_encoding, std::set<R
         column_builder[s_type] = current_links_index;
       }
     }
-    type_lookup_index++;
-    current_links_index++;
-    num_options_++;
+    ++type_lookup_index;
+    ++current_links_index;
+    ++num_options_;
     previous_set_size = set_size;
   }
   links_.push_back( { INT_MIN, current_links_index - previous_set_size, UINT64_MAX, emp, 0 } );
@@ -954,10 +1029,10 @@ void Pokemon_links::build_attack_links( const std::map<Type_encoding, std::set<R
   for ( const auto& interaction : type_interactions ) {
     column_builder[interaction.first] = index;
     item_table_.push_back( { interaction.first, index - 1, index + 1 } );
-    item_table_[0].left++;
+    ++item_table_[0].left;
     links_.push_back( { 0, index, index, emp, 0 } );
-    num_items_++;
-    index++;
+    ++num_items_;
+    ++index;
     for ( const Resistance& atk : interaction.second ) {
       inverted_map[atk.type()].insert( { interaction.first, atk.multiplier() } );
     }
