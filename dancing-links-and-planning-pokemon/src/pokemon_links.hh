@@ -226,12 +226,6 @@ private:
 
   std::set<Ranked_set<Type_encoding>> exact_dlx_iterative( int8_t depth_limit );
 
-  template<typename T>
-  void pcout( const T& t );
-
-  template<typename T>
-  void pcerr( const T& t );
-
   /**
    * @brief overlapping_dlx_recursive fills the output parameter with every overlapping cover that
    *                                  can be determined for defending against attack types or

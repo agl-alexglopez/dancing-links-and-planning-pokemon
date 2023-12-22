@@ -53,18 +53,6 @@
 namespace Dancing_links {
 namespace Dx = Dancing_links;
 
-template<typename T>
-void pcout( const T& t )
-{
-  std::cout << t;
-}
-
-template<typename T>
-void pcerr( const T& t )
-{
-  std::cerr << t;
-}
-
 std::ostream& operator<<( std::ostream& os, const std::set<Ranked_set<Type_encoding>>& solution )
 {
   for ( const auto& i : solution ) {
