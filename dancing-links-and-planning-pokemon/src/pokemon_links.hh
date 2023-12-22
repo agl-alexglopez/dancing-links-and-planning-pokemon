@@ -89,7 +89,9 @@ public:
 
   /* * * * * * * * * * * *  See Dancing_links.h for Documented Free Functions  * * * * * * * * * */
 
-  std::set<Ranked_set<Type_encoding>> get_exact_coverages( int8_t choice_limit );
+  std::set<Ranked_set<Type_encoding>> get_exact_coverages_recursive( int8_t choice_limit );
+
+  std::set<Ranked_set<Type_encoding>> get_exact_coverages_iterative( int8_t choice_limit );
 
   std::set<Ranked_set<Type_encoding>> get_overlapping_coverages( int8_t choice_limit );
 
@@ -189,6 +191,15 @@ private:
   {
     uint64_t index;
     int8_t tag;
+  };
+
+  /// This is the way we can acheive an iterative dancing links algorithm.
+  struct dlx_state
+  {
+    uint64_t item;
+    uint64_t option;
+    int8_t limit;
+    Encoding_score score;
   };
 
   /* These data structures contain the core logic of Algorithm X via dancing links. For more

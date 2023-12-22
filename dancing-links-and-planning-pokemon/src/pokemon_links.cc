@@ -53,7 +53,7 @@ namespace Dancing_links {
 
 std::set<Ranked_set<Type_encoding>> solve_exact_cover( Pokemon_links& dlx, int8_t choice_limit )
 {
-  return dlx.get_exact_coverages( choice_limit );
+  return dlx.get_exact_coverages_recursive( choice_limit );
 }
 
 std::set<Ranked_set<Type_encoding>> solve_overlapping_cover( Pokemon_links& dlx, int8_t choice_limit )
@@ -212,25 +212,18 @@ void reset_all( Pokemon_links& dlx )
 
 /* * * * * * * * * * * * * * * *    Algorithm X via Dancing Links   * * * * * * * * * * * * * * * */
 
-namespace {
-
-/// This is the way we can acheive an iterative dancing links algorithm.
-struct dlx_state
-{
-  uint64_t item;
-  uint64_t option;
-  int8_t limit;
-};
-
-} // namespace
-
-std::set<Ranked_set<Type_encoding>> Pokemon_links::get_exact_coverages( int8_t choice_limit )
+std::set<Ranked_set<Type_encoding>> Pokemon_links::get_exact_coverages_recursive( int8_t choice_limit )
 {
   std::set<Ranked_set<Type_encoding>> coverages = {};
   Ranked_set<Type_encoding> coverage {};
   hit_limit_ = false;
   exact_dlx_recursive( coverages, coverage, choice_limit );
   return coverages;
+}
+
+std::set<Ranked_set<Type_encoding>> Pokemon_links::get_exact_coverages_iterative( int8_t choice_limit )
+{
+  return exact_dlx_iterative( choice_limit );
 }
 
 void Pokemon_links::exact_dlx_recursive( std::set<Ranked_set<Type_encoding>>& coverages, // NOLINT
@@ -282,36 +275,35 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_dlx_iterative( int8_t d
   std::set<Ranked_set<Type_encoding>> coverages = {};
   Ranked_set<Type_encoding> coverage {};
   const uint64_t start = choose_item();
-  std::vector<dlx_state> state_stack { { start, start, depth_limit } };
+  std::vector<dlx_state> state_stack { { start, start, depth_limit, {} } };
   while ( !state_stack.empty() ) {
     dlx_state& cur_state = state_stack.back();
     bool pop = true;
+    if ( cur_state.option != cur_state.item ) {
+      uncover_type( cur_state.option );
+      static_cast<void>( coverage.erase( cur_state.score.score, cur_state.score.name ) );
+    }
     for ( uint64_t cur = links_[cur_state.option].down; cur != cur_state.item; cur = links_[cur].down ) {
       cur_state.option = cur;
-      const Encoding_score score = cover_type( cur );
-      static_cast<void>( coverage.insert( score.score, score.name ) );
+      cur_state.score = cover_type( cur );
+      static_cast<void>( coverage.insert( cur_state.score.score, cur_state.score.name ) );
       if ( item_table_[0].right == 0 && cur_state.limit - 1 >= 0 ) {
         coverages.insert( coverage );
         uncover_type( cur );
-        static_cast<void>( coverage.erase( score.score, score.name ) );
-        continue;
-      }
-      if ( cur_state.limit - 1 <= 0 ) {
-        uncover_type( cur );
-        static_cast<void>( coverage.erase( score.score, score.name ) );
+        static_cast<void>( coverage.erase( cur_state.score.score, cur_state.score.name ) );
         continue;
       }
       const uint64_t next_item_to_cover = choose_item();
-      if ( !next_item_to_cover ) {
-        break;
+      if ( !next_item_to_cover || cur_state.limit - 1 <= 0 ) {
+        uncover_type( cur );
+        static_cast<void>( coverage.erase( cur_state.score.score, cur_state.score.name ) );
+        continue;
       }
       state_stack.emplace_back( next_item_to_cover, next_item_to_cover, cur_state.limit - 1 );
       pop = false;
       break;
     }
     if ( pop ) {
-      // Cleanup process as in the recursive version.
-      uncover_type( cur_state.option );
       state_stack.pop_back();
     }
   }

@@ -970,7 +970,7 @@ TEST( InternalTests, ThereAreTwoExactCoversForThisTypingCombo )
   const std::set<Ranked_set<Dx::Type_encoding>> correct
     = { { 11, { { "Ghost" }, { "Ground" }, { "Poison" }, { "Water" } } },
         { 13, { { "Electric" }, { "Ghost" }, { "Poison" }, { "Water" } } } };
-  EXPECT_EQ( links.get_exact_coverages( 6 ), correct );
+  EXPECT_EQ( links.get_exact_coverages_recursive( 6 ), correct );
 }
 
 TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst )
@@ -1083,7 +1083,7 @@ TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst 
   EXPECT_EQ( links.option_table_, options );
   EXPECT_EQ( links.item_table_, items );
   EXPECT_EQ( links.links_, dlx );
-  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages( 6 );
+  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages_recursive( 6 );
   const std::set<Ranked_set<Dx::Type_encoding>> correct
     = { { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } } };
   EXPECT_EQ( correct, result );
@@ -1182,7 +1182,7 @@ TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestore
   EXPECT_EQ( links.option_table_, options );
   EXPECT_EQ( links.item_table_, items );
   EXPECT_EQ( links.links_, dlx );
-  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages( 6 );
+  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages_recursive( 6 );
   const std::set<Ranked_set<Dx::Type_encoding>> correct
     = { { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } } };
   EXPECT_EQ( correct, result );
@@ -1274,7 +1274,7 @@ TEST( InternalTests, AtLeastTestThatWeCanRecognizeASuccessfulAttackCoverage )
     = { { 30, { { "Fighting" }, { "Grass" }, { "Ground" }, { "Ice" } } },
         { 30, { { "Fighting" }, { "Grass" }, { "Ground" }, { "Poison" } } } };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
-  EXPECT_EQ( links.get_exact_coverages( 24 ), solutions );
+  EXPECT_EQ( links.get_exact_coverages_recursive( 24 ), solutions );
 }
 
 TEST( InternalTests, ThereIsOneExactCoverHere )
@@ -1351,7 +1351,7 @@ TEST( InternalTests, ThereIsOneExactCoverHere )
     },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
-  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages( 24 );
+  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages_recursive( 24 );
   const std::set<Ranked_set<Dx::Type_encoding>> correct = { { 31, { { "Fire" }, { "Grass" }, { "Water" } } } };
   EXPECT_EQ( result, correct );
 }
@@ -1489,7 +1489,7 @@ TEST( InternalTests, ThereAreMultipleExactCoversHere )
     },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
-  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages( 24 );
+  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages_recursive( 24 );
   const std::set<Ranked_set<Dx::Type_encoding>> correct = {
     { 30, { { "Bug" }, { "Electric" }, { "Fire" } } },
     { 30, { { "Bug" }, { "Fire" }, { "Steel" }, { "Water" } } },
@@ -1498,6 +1498,152 @@ TEST( InternalTests, ThereAreMultipleExactCoversHere )
     { 31, { { "Grass" }, { "Psychic" }, { "Rock" } } },
   };
   EXPECT_EQ( result, correct );
+}
+
+TEST( InternalTests, RecursiveAndIterativeSolutionsAreEquivalent )
+{
+  /*
+   * Typing information may not be accurate. Just testing solution generation.
+   *
+   *            Bug-Ghost   Electric-Grass   Fire-Flying   Ground-Water   Ice-Psychic   Ice-Water
+   * Electric                                    x2                                        x2
+   * ----------------------------------------------------------------------------------------
+   * Fire          x2               x2                                       x2
+   * ----------------------------------------------------------------------------------------
+   * Grass                                                      x4                         x2
+   * ----------------------------------------------------------------------------------------
+   * Ice                            x2
+   * ----------------------------------------------------------------------------------------
+   * Normal
+   * ----------------------------------------------------------------------------------------
+   * Water                                       x2
+   * ----------------------------------------------------------------------------------------
+   * Fighting                                                                x2            x2
+   * ----------------------------------------------------------------------------------------
+   * Bug                                                        x2
+   * ----------------------------------------------------------------------------------------
+   * Psychic                        x2           x2
+   * ----------------------------------------------------------------------------------------
+   * Rock          x2                                                        x2
+   * ----------------------------------------------------------------------------------------
+   * Steel                                                                                 x2
+   *
+   * { 30, { { "Bug" }, { "Electric" }, { "Fire" } } },
+   * { 30, { { "Bug" }, { "Fire" }, { "Steel" }, { "Water" } } },
+   * { 30, { { "Bug" }, { "Psychic" }, { "Rock" }, { "Steel" } } },
+   * { 31, { { "Fire" }, { "Grass" }, { "Water" } } },
+   * { 31, { { "Grass" }, { "Psychic" }, { "Rock" } } },
+   */
+  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types = {
+    {
+      { "Bug-Ghost" },
+      {
+        { { "Electric" }, nm },
+        { { "Fire" }, db },
+        { { "Grass" }, f2 },
+        { { "Ice" }, nm },
+        { { "Normal" }, im },
+        { { "Water" }, nm },
+        { { "Fighting" }, nm },
+        { { "Bug" }, nm },
+        { { "Psychic" }, nm },
+        { { "Rock" }, db },
+        { { "Steel" }, nm },
+      },
+    },
+    {
+      { "Electric-Grass" },
+      {
+        { { "Electric" }, f4 },
+        { { "Fire" }, db },
+        { { "Grass" }, f2 },
+        { { "Ice" }, f2 },
+        { { "Normal" }, nm },
+        { { "Water" }, f2 },
+        { { "Fighting" }, nm },
+        { { "Bug" }, nm },
+        { { "Psychic" }, db },
+        { { "Rock" }, nm },
+        { { "Steel" }, nm },
+      },
+    },
+    {
+      { "Fire-Flying" },
+      {
+        { { "Electric" }, db },
+        { { "Fire" }, f2 },
+        { { "Grass" }, f4 },
+        { { "Ice" }, f2 },
+        { { "Normal" }, nm },
+        { { "Water" }, db },
+        { { "Fighting" }, nm },
+        { { "Bug" }, nm },
+        { { "Psychic" }, db },
+        { { "Rock" }, nm },
+        { { "Steel" }, nm },
+      },
+    },
+    {
+      { "Ground-Water" },
+      {
+        { { "Electric" }, im },
+        { { "Fire" }, f2 },
+        { { "Grass" }, qd },
+        { { "Ice" }, nm },
+        { { "Normal" }, nm },
+        { { "Water" }, nm },
+        { { "Fighting" }, nm },
+        { { "Bug" }, db },
+        { { "Psychic" }, nm },
+        { { "Rock" }, nm },
+        { { "Steel" }, nm },
+      },
+    },
+    {
+      { "Ice-Psychic" },
+      {
+        { { "Electric" }, nm },
+        { { "Fire" }, db },
+        { { "Grass" }, nm },
+        { { "Ice" }, f2 },
+        { { "Normal" }, nm },
+        { { "Water" }, nm },
+        { { "Fighting" }, db },
+        { { "Bug" }, nm },
+        { { "Psychic" }, nm },
+        { { "Rock" }, db },
+        { { "Steel" }, nm },
+      },
+    },
+    {
+      { "Ice-Water" },
+      {
+        { { "Electric" }, db },
+        { { "Fire" }, nm },
+        { { "Grass" }, db },
+        { { "Ice" }, f2 },
+        { { "Normal" }, nm },
+        { { "Water" }, f2 },
+        { { "Fighting" }, db },
+        { { "Bug" }, nm },
+        { { "Psychic" }, nm },
+        { { "Rock" }, nm },
+        { { "Steel" }, db },
+      },
+    },
+  };
+  Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
+  const std::set<Ranked_set<Dx::Type_encoding>> result_rec = links.get_exact_coverages_recursive( 24 );
+  const std::set<Ranked_set<Dx::Type_encoding>> result_iter = links.get_exact_coverages_iterative( 24 );
+  const std::set<Ranked_set<Dx::Type_encoding>> correct = {
+    { 30, { { "Bug" }, { "Electric" }, { "Fire" } } },
+    { 30, { { "Bug" }, { "Fire" }, { "Steel" }, { "Water" } } },
+    { 30, { { "Bug" }, { "Psychic" }, { "Rock" }, { "Steel" } } },
+    { 31, { { "Fire" }, { "Grass" }, { "Water" } } },
+    { 31, { { "Grass" }, { "Psychic" }, { "Rock" } } },
+  };
+  EXPECT_EQ( result_rec, correct );
+  EXPECT_EQ( result_iter, correct );
 }
 
 /* * * * * * * * * * *    Finding a Weak Coverage that Allows Overlap     * * * * * * * * * * * * */
@@ -2619,7 +2765,7 @@ TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover 
   EXPECT_EQ( links.links_, dlx_hide_electric );
   EXPECT_EQ( links.item_table_, headers_hide_electric );
   EXPECT_EQ( links.get_num_items(), 5 );
-  EXPECT_EQ( links.get_exact_coverages( 6 ), exact );
+  EXPECT_EQ( links.get_exact_coverages_recursive( 6 ), exact );
   EXPECT_EQ( links.get_overlapping_coverages( 6 ), overlapping );
 }
 
@@ -2764,7 +2910,7 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
   EXPECT_EQ( links.links_, dlx_hide_electric_and_grass );
   EXPECT_EQ( links.item_table_, headers_hide_electric_and_grass );
   EXPECT_EQ( links.get_num_items(), 4 );
-  EXPECT_EQ( links.get_exact_coverages( 6 ), exact );
+  EXPECT_EQ( links.get_exact_coverages_recursive( 6 ), exact );
   EXPECT_EQ( links.get_overlapping_coverages( 6 ), overlapping );
 }
 
@@ -2905,7 +3051,7 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
   EXPECT_EQ( links.links_, dlx_hide_except_water );
   EXPECT_EQ( links.item_table_, headers_hide_except_water );
   EXPECT_EQ( links.get_num_items(), 1 );
-  EXPECT_EQ( links.get_exact_coverages( 6 ), exact );
+  EXPECT_EQ( links.get_exact_coverages_recursive( 6 ), exact );
   EXPECT_EQ( links.get_overlapping_coverages( 6 ), overlapping );
   links.reset_items();
   EXPECT_EQ( links.links_, dlx );
@@ -3063,7 +3209,7 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
   EXPECT_EQ( links.item_table_, headers_hide_except_water );
   EXPECT_EQ( links.get_num_items(), 1 );
   EXPECT_EQ( links.get_num_options(), 1 );
-  EXPECT_EQ( links.get_exact_coverages( 6 ), answer );
+  EXPECT_EQ( links.get_exact_coverages_recursive( 6 ), answer );
   EXPECT_EQ( links.get_overlapping_coverages( 6 ), answer );
   links.reset_items();
   links.reset_options();
