@@ -51,12 +51,12 @@ namespace Dancing_links {
 
 /* * * * * * * * * * * * *       Convenience Callers for Encapsulation      * * * * * * * * * * * */
 
-std::set<Ranked_set<Type_encoding>> solve_exact_cover( Pokemon_links& dlx, int8_t choice_limit )
+std::set<Ranked_set<Type_encoding>> solve_exact_cover( Pokemon_links& dlx, int choice_limit )
 {
   return dlx.get_exact_coverages_recursive( choice_limit );
 }
 
-std::set<Ranked_set<Type_encoding>> solve_overlapping_cover( Pokemon_links& dlx, int8_t choice_limit )
+std::set<Ranked_set<Type_encoding>> solve_overlapping_cover( Pokemon_links& dlx, int choice_limit )
 {
   return dlx.get_overlapping_coverages( choice_limit );
 }
@@ -212,7 +212,7 @@ void reset_all( Pokemon_links& dlx )
 
 /* * * * * * * * * * * * * * * *    Algorithm X via Dancing Links   * * * * * * * * * * * * * * * */
 
-std::set<Ranked_set<Type_encoding>> Pokemon_links::get_exact_coverages_recursive( int8_t choice_limit )
+std::set<Ranked_set<Type_encoding>> Pokemon_links::get_exact_coverages_recursive( int choice_limit )
 {
   std::set<Ranked_set<Type_encoding>> coverages = {};
   Ranked_set<Type_encoding> coverage {};
@@ -221,14 +221,14 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::get_exact_coverages_recursive
   return coverages;
 }
 
-std::set<Ranked_set<Type_encoding>> Pokemon_links::get_exact_coverages_iterative( int8_t choice_limit )
+std::set<Ranked_set<Type_encoding>> Pokemon_links::get_exact_coverages_iterative( int choice_limit )
 {
   return exact_dlx_iterative( choice_limit );
 }
 
 void Pokemon_links::exact_dlx_recursive( std::set<Ranked_set<Type_encoding>>& coverages, // NOLINT
                                          Ranked_set<Type_encoding>& coverage,
-                                         int8_t depth_limit )
+                                         int depth_limit )
 {
   if ( item_table_[0].right == 0 && depth_limit >= 0 ) {
     coverages.insert( coverage );
@@ -247,7 +247,7 @@ void Pokemon_links::exact_dlx_recursive( std::set<Ranked_set<Type_encoding>>& co
     const Encoding_score score = cover_type( cur );
     static_cast<void>( coverage.insert( score.score, score.name ) );
 
-    exact_dlx_recursive( coverages, coverage, static_cast<int8_t>( depth_limit - 1 ) );
+    exact_dlx_recursive( coverages, coverage, static_cast<int>( depth_limit - 1 ) );
 
     /* It is possible for these algorithms to produce many many sets. To make the Pokemon
      * Planner GUI more usable I cut off recursion if we are generating too many sets.
@@ -266,7 +266,7 @@ void Pokemon_links::exact_dlx_recursive( std::set<Ranked_set<Type_encoding>>& co
 // that will force use to find multiple solutions while at a certain depth in the recursion.
 // I think we may be missing some solutions but don't have tests to prove it.
 // Currently failing broken code.
-std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_dlx_iterative( int8_t depth_limit )
+std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_dlx_iterative( int depth_limit )
 {
   hit_limit_ = false;
   if ( depth_limit <= 0 ) {
@@ -279,6 +279,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_dlx_iterative( int8_t d
   while ( !state_stack.empty() ) {
     dlx_state& cur_state = state_stack.back();
     bool pop = true;
+    // This is trickiest part. If we return to any element in the stack multiple times, we try other options.
     if ( cur_state.option != cur_state.item ) {
       uncover_type( cur_state.option );
       static_cast<void>( coverage.erase( cur_state.score.score, cur_state.score.name ) );
@@ -299,7 +300,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_dlx_iterative( int8_t d
         static_cast<void>( coverage.erase( cur_state.score.score, cur_state.score.name ) );
         continue;
       }
-      state_stack.emplace_back( next_item_to_cover, next_item_to_cover, cur_state.limit - 1 );
+      state_stack.push_back( { next_item_to_cover, next_item_to_cover, cur_state.limit - 1, {} } );
       pop = false;
       break;
     }
@@ -439,7 +440,7 @@ uint64_t Pokemon_links::choose_item() const
 
 /* * * * * * * * * * * *   Overlapping Coverage via Dancing Links   * * * * * * * * * * * * * * * */
 
-std::set<Ranked_set<Type_encoding>> Pokemon_links::get_overlapping_coverages( int8_t choice_limit )
+std::set<Ranked_set<Type_encoding>> Pokemon_links::get_overlapping_coverages( int choice_limit )
 {
   std::set<Ranked_set<Type_encoding>> coverages = {};
   Ranked_set<Type_encoding> coverage = {};
@@ -450,7 +451,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::get_overlapping_coverages( in
 
 void Pokemon_links::overlapping_dlx_recursive( std::set<Ranked_set<Type_encoding>>& coverages, // NOLINT
                                                Ranked_set<Type_encoding>& coverage,
-                                               int8_t depth_tag )
+                                               int depth_tag )
 {
   if ( item_table_[0].right == 0 && depth_tag >= 0 ) {
     coverages.insert( coverage );
@@ -469,7 +470,7 @@ void Pokemon_links::overlapping_dlx_recursive( std::set<Ranked_set<Type_encoding
     const Encoding_score score = overlapping_cover_type( { cur, depth_tag } );
     static_cast<void>( coverage.insert( score.score, score.name ) );
 
-    overlapping_dlx_recursive( coverages, coverage, static_cast<int8_t>( depth_tag - 1 ) );
+    overlapping_dlx_recursive( coverages, coverage, static_cast<int>( depth_tag - 1 ) );
 
     /* It is possible for these algorithms to produce many many sets. To make the Pokemon
      * Planner GUI more usable I cut off recursion if we are generating too many sets.

@@ -1182,11 +1182,15 @@ TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestore
   EXPECT_EQ( links.option_table_, options );
   EXPECT_EQ( links.item_table_, items );
   EXPECT_EQ( links.links_, dlx );
-  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages_recursive( 6 );
   const std::set<Ranked_set<Dx::Type_encoding>> correct
     = { { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } } };
-  EXPECT_EQ( correct, result );
-  // Did we cleanup correctly when the algorithm was done?
+  const std::set<Ranked_set<Dx::Type_encoding>> result_rec = links.get_exact_coverages_recursive( 6 );
+  EXPECT_EQ( correct, result_rec );
+  EXPECT_EQ( links.option_table_, options );
+  EXPECT_EQ( links.item_table_, items );
+  EXPECT_EQ( links.links_, dlx );
+  const std::set<Ranked_set<Dx::Type_encoding>> result_iter = links.get_exact_coverages_iterative( 6 );
+  EXPECT_EQ( correct, result_iter );
   EXPECT_EQ( links.option_table_, options );
   EXPECT_EQ( links.item_table_, items );
   EXPECT_EQ( links.links_, dlx );

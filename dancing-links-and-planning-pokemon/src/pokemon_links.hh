@@ -89,11 +89,11 @@ public:
 
   /* * * * * * * * * * * *  See Dancing_links.h for Documented Free Functions  * * * * * * * * * */
 
-  std::set<Ranked_set<Type_encoding>> get_exact_coverages_recursive( int8_t choice_limit );
+  std::set<Ranked_set<Type_encoding>> get_exact_coverages_recursive( int choice_limit );
 
-  std::set<Ranked_set<Type_encoding>> get_exact_coverages_iterative( int8_t choice_limit );
+  std::set<Ranked_set<Type_encoding>> get_exact_coverages_iterative( int choice_limit );
 
-  std::set<Ranked_set<Type_encoding>> get_overlapping_coverages( int8_t choice_limit );
+  std::set<Ranked_set<Type_encoding>> get_overlapping_coverages( int choice_limit );
 
   bool hide_requested_item( Type_encoding to_hide );
 
@@ -164,7 +164,7 @@ private:
     uint64_t up;
     uint64_t down;
     Multiplier multiplier; // x0.0, x0.25, x0.5, x1.0, x2, or x4 damage multipliers.
-    int8_t tag;            // We use this to efficiently generate overlapping sets.
+    int tag;               // We use this to efficiently generate overlapping sets.
   };
 
   // This type, in a seperate vector, controls the base case of our recursion.
@@ -190,7 +190,7 @@ private:
   struct Cover_tag
   {
     uint64_t index;
-    int8_t tag;
+    int tag;
   };
 
   /// This is the way we can acheive an iterative dancing links algorithm.
@@ -198,7 +198,7 @@ private:
   {
     uint64_t item;
     uint64_t option;
-    int8_t limit;
+    int limit;
     Encoding_score score;
   };
 
@@ -233,9 +233,9 @@ private:
    */
   void exact_dlx_recursive( std::set<Ranked_set<Type_encoding>>& coverages,
                             Ranked_set<Type_encoding>& coverage,
-                            int8_t depth_limit );
+                            int depth_limit );
 
-  std::set<Ranked_set<Type_encoding>> exact_dlx_iterative( int8_t depth_limit );
+  std::set<Ranked_set<Type_encoding>> exact_dlx_iterative( int depth_limit );
 
   /**
    * @brief overlapping_dlx_recursive fills the output parameter with every overlapping cover that
@@ -251,7 +251,7 @@ private:
    */
   void overlapping_dlx_recursive( std::set<Ranked_set<Type_encoding>>& coverages,
                                   Ranked_set<Type_encoding>& coverage,
-                                  int8_t depth_tag );
+                                  int depth_tag );
 
   /**
    * @brief choose_item  choose an item to cover that appears the least across all options. If an
