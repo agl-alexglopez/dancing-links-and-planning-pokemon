@@ -53,6 +53,18 @@
 namespace Dancing_links {
 namespace Dx = Dancing_links;
 
+template<typename T>
+void pcout( const T& t )
+{
+  std::cout << t;
+}
+
+template<typename T>
+void pcerr( const T& t )
+{
+  std::cerr << t;
+}
+
 std::ostream& operator<<( std::ostream& os, const std::set<Ranked_set<Type_encoding>>& solution )
 {
   for ( const auto& i : solution ) {
@@ -64,7 +76,7 @@ std::ostream& operator<<( std::ostream& os, const std::set<Ranked_set<Type_encod
 std::ostream& operator<<( std::ostream& os, const std::vector<Type_encoding>& types )
 {
   for ( const auto& t : types ) {
-    os << t << ',';
+    os << t.to_string() << ',';
   }
   return os;
 }
@@ -72,7 +84,7 @@ std::ostream& operator<<( std::ostream& os, const std::vector<Type_encoding>& ty
 std::ostream& operator<<( std::ostream& os, const std::set<Type_encoding>& types )
 {
   for ( const auto& t : types ) {
-    os << t << ',';
+    os << t.to_string() << ',';
   }
   return os;
 }
@@ -517,6 +529,7 @@ TEST( InternalTests, InitializeSmallDefensiveLinks )
    *
    *          Fire   Normal    Water   <-Attack
    *  Ghost          x0.0              <-Defense
+   * ----------------------------------------------------------------------------------------
    *  Water   x0.5             x0.5
    *
    */
@@ -557,8 +570,11 @@ TEST( InternalTests, InitializeAWorldWhereThereAreOnlySingleTypes )
    *
    *            Electric  Fire  Grass  Ice   Normal  Water
    *  Dragon     x0.5     x0.5  x0.5                 x0.5
+   * ----------------------------------------------------------------------------------------
    *  Electric   x0.5
+   * ----------------------------------------------------------------------------------------
    *  Ghost                                  x0.0
+   * ----------------------------------------------------------------------------------------
    *  Ice                              x0.5
    *
    */
@@ -642,8 +658,11 @@ TEST( InternalTests, CoverElectricWithDragonEliminatesElectricOptionUncoverReset
    *
    *            Electric  Fire  Grass  Ice   Normal  Water
    *  Dragon     x0.5     x0.5  x0.5                 x0.5
+   * ----------------------------------------------------------------------------------------
    *  Electric   x0.5
+   * ----------------------------------------------------------------------------------------
    *  Ghost                                  x0.0
+   * ----------------------------------------------------------------------------------------
    *  Ice                              x0.5
    *
    */
@@ -766,10 +785,15 @@ TEST( InternalTests, CoverElectricWithElectricToCauseHidingOfManyOptions )
    *
    *            Electric  Fire  Grass  Ice   Normal  Water
    *  Electric   x0.5     x0.5
+   * ----------------------------------------------------------------------------------------
    *  Fire       x0.5           x0.5                 x0.5
+   * ----------------------------------------------------------------------------------------
    *  Grass               x0.5                       x0.5
+   * ----------------------------------------------------------------------------------------
    *  Ice                              x0.5          x0.5
+   * ----------------------------------------------------------------------------------------
    *  Normal     x0.5                        x0.5
+   * ----------------------------------------------------------------------------------------
    *  Water              x0.5                        x0.5
    *
    */
@@ -912,10 +936,15 @@ TEST( InternalTests, ThereAreTwoExactCoversForThisTypingCombo )
   /*
    *              Electric   Grass   Ice   Normal   Water
    *   Electric    x0.5
+   * ----------------------------------------------------------------------------------------
    *   Ghost                               x0.0
+   * ----------------------------------------------------------------------------------------
    *   Ground      x0.0
+   * ----------------------------------------------------------------------------------------
    *   Ice                           x0.5
+   * ----------------------------------------------------------------------------------------
    *   Poison                x0.5
+   * ----------------------------------------------------------------------------------------
    *   Water                         x0.5           x0.5
    *
    *   Exact Defensive Type Covers. 1 is better because Ground is immune to electric.
@@ -960,17 +989,16 @@ TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst 
 {
   /*
    *                     Electric    Fire    Grass    Ice    Normal    Water
-   *
    *   Bug-Ghost                              x.5             x0
-   *
+   * ----------------------------------------------------------------------------------------
    *   Electric-Grass     x.25                x.5                       x.5
-   *
+   * ----------------------------------------------------------------------------------------
    *   Fire-Flying                   x.5      x.25
-   *
+   * ----------------------------------------------------------------------------------------
    *   Ground-Water       x0         x.5
-   *
+   * ----------------------------------------------------------------------------------------
    *   Ice-Psychic                                    x.5
-   *
+   * ----------------------------------------------------------------------------------------
    *   Ice-Water                                      x.25              x.5
    */
   const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types = {
@@ -1077,17 +1105,16 @@ TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestore
 {
   /*
    *                     Electric    Fire    Grass    Ice    Normal    Water
-   *
    *   Bug-Ghost                              x.5             x0
-   *
+   * ----------------------------------------------------------------------------------------
    *   Electric-Grass     x.25                x.5                       x.5
-   *
+   * ----------------------------------------------------------------------------------------
    *   Fire-Flying                   x.5      x.25
-   *
+   * ----------------------------------------------------------------------------------------
    *   Ground-Water       x0         x.5
-   *
+   * ----------------------------------------------------------------------------------------
    *   Ice-Psychic                                    x.5
-   *
+   * ----------------------------------------------------------------------------------------
    *   Ice-Water                                      x.25              x.5
    */
   const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types = {
@@ -1190,7 +1217,9 @@ TEST( InternalTests, InitializationOfAttackDancingLinks )
    *
    *                    Fire-Flying   Ground-Grass   Ground-Rock   <-Defense
    *         Electric       2X
+   * ----------------------------------------------------------------------------------------
    *         Fire                         2x
+   * ----------------------------------------------------------------------------------------
    *         Water          2x                         4x          <-Attack
    *
    */
@@ -1232,9 +1261,13 @@ TEST( InternalTests, AtLeastTestThatWeCanRecognizeASuccessfulAttackCoverage )
    *
    *               Normal   Fire   Water   Electric   Grass   Ice     <- Defensive Types
    *    Fighting     x2                                        x2
+   * ----------------------------------------------------------------------------------------
    *    Grass                       x2                                <- Attack Types
+   * ----------------------------------------------------------------------------------------
    *    Ground               x2               x2
+   * ----------------------------------------------------------------------------------------
    *    Ice                                            x2
+   * ----------------------------------------------------------------------------------------
    *    Poison                                         x2
    *
    * There are two attack coverage schemes:
@@ -1262,17 +1295,16 @@ TEST( InternalTests, ThereIsOneExactCoverHere )
    *            Bug-Ghost   Electric-Grass   Fire-Flying   Ground-Water   Ice-Psychic   Ice-Water
    *
    * Electric                                    x2                                        x2
-   *
+   * ----------------------------------------------------------------------------------------
    * Fire          x2               x2                                       x2
-   *
+   * ----------------------------------------------------------------------------------------
    * Grass                                                      x4                         x2
-   *
+   * ----------------------------------------------------------------------------------------
    * Ice                            x2
-   *
+   * ----------------------------------------------------------------------------------------
    * Normal
-   *
+   * ----------------------------------------------------------------------------------------
    * Water                                       x2
-   *
    */
   const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types = {
     {
@@ -1336,6 +1368,150 @@ TEST( InternalTests, ThereIsOneExactCoverHere )
   EXPECT_EQ( result, correct );
 }
 
+TEST( InternalTests, ThereAreMultipleExactCoversHere )
+{
+  /*
+   * Typing information may not be accurate. Just testing solution generation.
+   *
+   *            Bug-Ghost   Electric-Grass   Fire-Flying   Ground-Water   Ice-Psychic   Ice-Water
+   * Electric                                    x2                                        x2
+   * ----------------------------------------------------------------------------------------
+   * Fire          x2               x2                                       x2
+   * ----------------------------------------------------------------------------------------
+   * Grass                                                      x4                         x2
+   * ----------------------------------------------------------------------------------------
+   * Ice                            x2
+   * ----------------------------------------------------------------------------------------
+   * Normal
+   * ----------------------------------------------------------------------------------------
+   * Water                                       x2
+   * ----------------------------------------------------------------------------------------
+   * Fighting                                                                x2            x2
+   * ----------------------------------------------------------------------------------------
+   * Bug                                                        x2
+   * ----------------------------------------------------------------------------------------
+   * Psychic                        x2           x2
+   * ----------------------------------------------------------------------------------------
+   * Rock          x2                                                        x2
+   * ----------------------------------------------------------------------------------------
+   * Steel                                                                                 x2
+   *
+   * { 30, { { "Bug" }, { "Electric" }, { "Fire" } } },
+   * { 30, { { "Bug" }, { "Fire" }, { "Steel" }, { "Water" } } },
+   * { 30, { { "Bug" }, { "Psychic" }, { "Rock" }, { "Steel" } } },
+   * { 31, { { "Fire" }, { "Grass" }, { "Water" } } },
+   * { 31, { { "Grass" }, { "Psychic" }, { "Rock" } } },
+   */
+  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types = {
+    {
+      { "Bug-Ghost" },
+      {
+        { { "Electric" }, nm },
+        { { "Fire" }, db },
+        { { "Grass" }, f2 },
+        { { "Ice" }, nm },
+        { { "Normal" }, im },
+        { { "Water" }, nm },
+        { { "Fighting" }, nm },
+        { { "Bug" }, nm },
+        { { "Psychic" }, nm },
+        { { "Rock" }, db },
+        { { "Steel" }, nm },
+      },
+    },
+    {
+      { "Electric-Grass" },
+      {
+        { { "Electric" }, f4 },
+        { { "Fire" }, db },
+        { { "Grass" }, f2 },
+        { { "Ice" }, f2 },
+        { { "Normal" }, nm },
+        { { "Water" }, f2 },
+        { { "Fighting" }, nm },
+        { { "Bug" }, nm },
+        { { "Psychic" }, db },
+        { { "Rock" }, nm },
+        { { "Steel" }, nm },
+      },
+    },
+    {
+      { "Fire-Flying" },
+      {
+        { { "Electric" }, db },
+        { { "Fire" }, f2 },
+        { { "Grass" }, f4 },
+        { { "Ice" }, f2 },
+        { { "Normal" }, nm },
+        { { "Water" }, db },
+        { { "Fighting" }, nm },
+        { { "Bug" }, nm },
+        { { "Psychic" }, db },
+        { { "Rock" }, nm },
+        { { "Steel" }, nm },
+      },
+    },
+    {
+      { "Ground-Water" },
+      {
+        { { "Electric" }, im },
+        { { "Fire" }, f2 },
+        { { "Grass" }, qd },
+        { { "Ice" }, nm },
+        { { "Normal" }, nm },
+        { { "Water" }, nm },
+        { { "Fighting" }, nm },
+        { { "Bug" }, db },
+        { { "Psychic" }, nm },
+        { { "Rock" }, nm },
+        { { "Steel" }, nm },
+      },
+    },
+    {
+      { "Ice-Psychic" },
+      {
+        { { "Electric" }, nm },
+        { { "Fire" }, db },
+        { { "Grass" }, nm },
+        { { "Ice" }, f2 },
+        { { "Normal" }, nm },
+        { { "Water" }, nm },
+        { { "Fighting" }, db },
+        { { "Bug" }, nm },
+        { { "Psychic" }, nm },
+        { { "Rock" }, db },
+        { { "Steel" }, nm },
+      },
+    },
+    {
+      { "Ice-Water" },
+      {
+        { { "Electric" }, db },
+        { { "Fire" }, nm },
+        { { "Grass" }, db },
+        { { "Ice" }, f2 },
+        { { "Normal" }, nm },
+        { { "Water" }, f2 },
+        { { "Fighting" }, db },
+        { { "Bug" }, nm },
+        { { "Psychic" }, nm },
+        { { "Rock" }, nm },
+        { { "Steel" }, db },
+      },
+    },
+  };
+  Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
+  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages( 24 );
+  const std::set<Ranked_set<Dx::Type_encoding>> correct = {
+    { 30, { { "Bug" }, { "Electric" }, { "Fire" } } },
+    { 30, { { "Bug" }, { "Fire" }, { "Steel" }, { "Water" } } },
+    { 30, { { "Bug" }, { "Psychic" }, { "Rock" }, { "Steel" } } },
+    { 31, { { "Fire" }, { "Grass" }, { "Water" } } },
+    { 31, { { "Grass" }, { "Psychic" }, { "Rock" } } },
+  };
+  EXPECT_EQ( result, correct );
+}
+
 /* * * * * * * * * * *    Finding a Weak Coverage that Allows Overlap     * * * * * * * * * * * * */
 
 TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
@@ -1345,10 +1521,15 @@ TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
    *
    *            Electric  Fire  Grass  Ice   Normal  Water
    *  Electric   x0.5     x0.5
+   * ----------------------------------------------------------------------------------------
    *  Fire       x0.5           x0.5                 x0.5
+   * ----------------------------------------------------------------------------------------
    *  Grass               x0.5                       x0.5
+   * ----------------------------------------------------------------------------------------
    *  Ice                              x0.5          x0.5
+   * ----------------------------------------------------------------------------------------
    *  Normal     x0.5                        x0.5
+   * ----------------------------------------------------------------------------------------
    *  Water              x0.5                        x0.5
    *
    */
@@ -1460,9 +1641,13 @@ TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
      *
      *            Grass   Ice   Normal  Water
      *  Fire       x0.5                 x0.5
+     * ----------------------------------------------------------------------------------------
      *  Grass                           x0.5
+     * ----------------------------------------------------------------------------------------
      *  Ice               x0.5          x0.5
+     * ----------------------------------------------------------------------------------------
      *  Normal                  x0.5
+     * ----------------------------------------------------------------------------------------
      *  Water                           x0.5
      *
      */
@@ -1505,8 +1690,11 @@ TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage )
      *
      *            Ice   Normal
      *  Grass
+     * ----------------------------------------------------------------------------------------
      *  Ice       x0.5
+     * ----------------------------------------------------------------------------------------
      *  Normal          x0.5
+     * ----------------------------------------------------------------------------------------
      *  Water
      *
      */
@@ -1545,10 +1733,15 @@ TEST( InternalTests, OverlappingAllowsTwoTypesToCoverSameOpposingTypeIEFireAndEl
    *
    *            Electric  Fire  Grass  Ice   Normal  Water
    *  Electric   x0.5     x0.5
+   * ----------------------------------------------------------------------------------------
    *  Fire       x0.5           x0.5                 x0.5
+   * ----------------------------------------------------------------------------------------
    *  Grass               x0.5                       x0.5
+   * ----------------------------------------------------------------------------------------
    *  Ice                              x0.5          x0.5
+   * ----------------------------------------------------------------------------------------
    *  Normal     x0.5                        x0.5
+   * ----------------------------------------------------------------------------------------
    *  Water              x0.5                        x0.5
    *
    */
@@ -1611,34 +1804,76 @@ TEST( InternalTests, ThereAreAFewOverlappingCoversHere )
    *                     Electric    Fire    Grass    Ice    Normal    Water
    *
    *   Bug-Ghost                              x.5             x0
-   *
+   * ----------------------------------------------------------------------------------------
    *   Electric-Grass     x.25                x.5                       x.5
-   *
+   * ----------------------------------------------------------------------------------------
    *   Fire-Flying                   x.5      x.25
-   *
+   * ----------------------------------------------------------------------------------------
    *   Ground-Water       x0         x.5
-   *
+   * ----------------------------------------------------------------------------------------
    *   Ice-Psychic                                    x.5
-   *
+   * ----------------------------------------------------------------------------------------
    *   Ice-Water                                      x.25              x.5
+   *
+   * { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } },
+   * { 14, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Fire-Flying" }, { "Ice-Water" } } },
+   * { 14, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Ground-Water" }, { "Ice-Psychic" } } },
+   * { 14, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Ground-Water" }, { "Ice-Water" } } },
+   * { 14, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Psychic" }, { "Ice-Water" } } },
+   * { 15, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Fire-Flying" }, { "Ice-Psychic" } } },
+   * { 15, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Ground-Water" }, { "Ice-Psychic" } } },
    */
   const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types = {
     /* In reality maps will have every type present in every key. But I know the internals
      * of my implementation and will just enter all types for the first key to make entering
      * the rest of the test cases easier.
      */
-    { { "Bug-Ghost" },
-      { { { "Electric" }, nm },
+    {
+      { "Bug-Ghost" },
+      {
+        { { "Electric" }, nm },
         { { "Fire" }, nm },
         { { "Grass" }, f2 },
         { { "Ice" }, nm },
         { { "Normal" }, im },
-        { { "Water" }, nm } } },
-    { { "Electric-Grass" }, { { { "Electric" }, f4 }, { { "Grass" }, f2 }, { { "Water" }, f2 } } },
-    { { "Fire-Flying" }, { { { "Fire" }, f2 }, { { "Grass" }, f4 } } },
-    { { "Ground-Water" }, { { { "Electric" }, im }, { { "Fire" }, f2 } } },
-    { { "Ice-Psychic" }, { { { "Ice" }, f2 } } },
-    { { "Ice-Water" }, { { { "Ice" }, f4 }, { { "Water" }, f2 } } },
+        { { "Water" }, nm },
+      },
+    },
+    {
+      { "Electric-Grass" },
+      {
+        { { "Electric" }, f4 },
+        { { "Grass" }, f2 },
+        { { "Water" }, f2 },
+      },
+    },
+    {
+      { "Fire-Flying" },
+      {
+        { { "Fire" }, f2 },
+        { { "Grass" }, f4 },
+      },
+    },
+    {
+      { "Ground-Water" },
+      {
+        { { "Electric" }, im },
+        { { "Fire" }, f2 },
+      },
+    },
+    {
+      { "Ice-Psychic" },
+      {
+        { { "Ice" }, f2 },
+      },
+    },
+    {
+      { "Ice-Water" },
+      {
+        { { "Ice" }, f4 },
+        { { "Water" }, f2 },
+      },
+    },
   };
   const std::vector<Dx::Pokemon_links::Type_name> headers = {
     { { "" }, 6, 1 },
@@ -1671,14 +1906,15 @@ TEST( InternalTests, ThereAreAFewOverlappingCoversHere )
   // clang-format on
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
   const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_overlapping_coverages( 6 );
-  const std::set<Ranked_set<Dx::Type_encoding>> correct
-    = { { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } },
-        { 14, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Fire-Flying" }, { "Ice-Water" } } },
-        { 14, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Ground-Water" }, { "Ice-Psychic" } } },
-        { 14, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Ground-Water" }, { "Ice-Water" } } },
-        { 14, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Psychic" }, { "Ice-Water" } } },
-        { 15, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Fire-Flying" }, { "Ice-Psychic" } } },
-        { 15, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Ground-Water" }, { "Ice-Psychic" } } } };
+  const std::set<Ranked_set<Dx::Type_encoding>> correct = {
+    { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } },
+    { 14, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Fire-Flying" }, { "Ice-Water" } } },
+    { 14, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Ground-Water" }, { "Ice-Psychic" } } },
+    { 14, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Ground-Water" }, { "Ice-Water" } } },
+    { 14, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Psychic" }, { "Ice-Water" } } },
+    { 15, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Fire-Flying" }, { "Ice-Psychic" } } },
+    { 15, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Ground-Water" }, { "Ice-Psychic" } } },
+  };
   EXPECT_EQ( correct, result );
   // Make sure the overlapping algorithms clean up the tables when done.
   EXPECT_EQ( links.item_table_, headers );
@@ -1694,10 +1930,15 @@ TEST( InternalTests, TestBinarySearchOnTheItemTable )
    *
    *            Electric  Fire  Grass  Ice   Normal  Water
    *  Electric   x0.5     x0.5
+   * ----------------------------------------------------------------------------------------
    *  Fire       x0.5           x0.5                 x0.5
+   * ----------------------------------------------------------------------------------------
    *  Grass               x0.5                       x0.5
+   * ----------------------------------------------------------------------------------------
    *  Ice                              x0.5          x0.5
+   * ----------------------------------------------------------------------------------------
    *  Normal     x0.5                        x0.5
+   * ----------------------------------------------------------------------------------------
    *  Water              x0.5                        x0.5
    *
    */
@@ -1771,10 +2012,15 @@ TEST( InternalTests, TestBinarySearchOnTheOptionTable )
    *
    *            Electric  Fire  Grass  Ice   Normal  Water
    *  Electric   x0.5     x0.5
+   * ----------------------------------------------------------------------------------------
    *  Fire       x0.5           x0.5                 x0.5
+   * ----------------------------------------------------------------------------------------
    *  Grass               x0.5                       x0.5
+   * ----------------------------------------------------------------------------------------
    *  Ice                              x0.5          x0.5
+   * ----------------------------------------------------------------------------------------
    *  Normal     x0.5                        x0.5
+   * ----------------------------------------------------------------------------------------
    *  Water              x0.5                        x0.5
    *
    */
@@ -1870,10 +2116,15 @@ TEST( InternalTests, TestHidingAnItemFromTheWorld )
    *
    *            Electric  Fire  Grass  Ice   Normal  Water
    *  Electric   x0.5     x0.5
+   * ----------------------------------------------------------------------------------------
    *  Fire       x0.5           x0.5                 x0.5
+   * ----------------------------------------------------------------------------------------
    *  Grass               x0.5                       x0.5
+   * ----------------------------------------------------------------------------------------
    *  Ice                              x0.5          x0.5
+   * ----------------------------------------------------------------------------------------
    *  Normal     x0.5                        x0.5
+   * ----------------------------------------------------------------------------------------
    *  Water              x0.5                        x0.5
    *
    */
@@ -2009,10 +2260,15 @@ TEST( InternalTests, TestHidingGrassAndIceAndThenResetTheLinks )
    *
    *            Electric  Fire  Grass  Ice   Normal  Water
    *  Electric   x0.5     x0.5
+   * ----------------------------------------------------------------------------------------
    *  Fire       x0.5           x0.5                 x0.5
+   * ----------------------------------------------------------------------------------------
    *  Grass               x0.5                       x0.5
+   * ----------------------------------------------------------------------------------------
    *  Ice                              x0.5          x0.5
+   * ----------------------------------------------------------------------------------------
    *  Normal     x0.5                        x0.5
+   * ----------------------------------------------------------------------------------------
    *  Water              x0.5                        x0.5
    *
    */
@@ -2117,10 +2373,15 @@ TEST( InternalTests, TestHidingAnOptionFromTheWorld )
    *
    *            Electric  Fire  Grass  Ice   Normal  Water
    *  Electric   x0.5     x0.5
+   * ----------------------------------------------------------------------------------------
    *  Fire       x0.5           x0.5                 x0.5
+   * ----------------------------------------------------------------------------------------
    *  Grass               x0.5                       x0.5
+   * ----------------------------------------------------------------------------------------
    *  Ice                              x0.5          x0.5
+   * ----------------------------------------------------------------------------------------
    *  Normal     x0.5                        x0.5
+   * ----------------------------------------------------------------------------------------
    *  Water              x0.5                        x0.5
    *
    */
@@ -2243,10 +2504,15 @@ TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover 
    *
    *            Electric  Fire  Grass  Ice   Normal  Water
    *  Electric   x0.5     x0.5
+   * ----------------------------------------------------------------------------------------
    *  Fire       x0.5           x0.5
+   * ----------------------------------------------------------------------------------------
    *  Grass               x0.5                       x0.5
+   * ----------------------------------------------------------------------------------------
    *  Ice                              x0.5          x0.5
+   * ----------------------------------------------------------------------------------------
    *  Normal     x0.5                        x0.5
+   * ----------------------------------------------------------------------------------------
    *  Water              x0.5                        x0.5
    *
    */
@@ -2376,10 +2642,15 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
    *
    *            Electric  Fire  Grass  Ice   Normal  Water
    *  Electric   x0.5     x0.5
+   * ----------------------------------------------------------------------------------------
    *  Fire       x0.5           x0.5                 x0.5
+   * ----------------------------------------------------------------------------------------
    *  Grass               x0.5                       x0.5
+   * ----------------------------------------------------------------------------------------
    *  Ice                              x0.5          x0.5
+   * ----------------------------------------------------------------------------------------
    *  Normal     x0.5                        x0.5
+   * ----------------------------------------------------------------------------------------
    *  Water              x0.5                        x0.5
    *
    */
@@ -2516,10 +2787,15 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
    *
    *            Electric  Fire  Grass  Ice   Normal  Water
    *  Electric   x0.5     x0.5
+   * ----------------------------------------------------------------------------------------
    *  Fire       x0.5           x0.5
+   * ----------------------------------------------------------------------------------------
    *  Grass               x0.5                       x0.5
+   * ----------------------------------------------------------------------------------------
    *  Ice                              x0.5          x0.5
+   * ----------------------------------------------------------------------------------------
    *  Normal     x0.5                        x0.5
+   * ----------------------------------------------------------------------------------------
    *  Water              x0.5                        x0.5
    *
    */
@@ -2656,10 +2932,15 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
    *
    *            Electric  Fire  Grass  Ice   Normal  Water
    *  Electric   x0.5     x0.5
+   * ----------------------------------------------------------------------------------------
    *  Fire       x0.5           x0.5
+   * ----------------------------------------------------------------------------------------
    *  Grass               x0.5                       x0.5
+   * ----------------------------------------------------------------------------------------
    *  Ice                              x0.5          x0.5
+   * ----------------------------------------------------------------------------------------
    *  Normal     x0.5                        x0.5
+   * ----------------------------------------------------------------------------------------
    *  Water              x0.5                        x0.5
    *
    */

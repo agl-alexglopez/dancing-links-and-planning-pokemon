@@ -272,6 +272,7 @@ void Pokemon_links::exact_dlx_recursive( std::set<Ranked_set<Type_encoding>>& co
 // This function needs better testing before being used. Find more exact coverages for a solution
 // that will force use to find multiple solutions while at a certain depth in the recursion.
 // I think we may be missing some solutions but don't have tests to prove it.
+// Currently failing broken code.
 std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_dlx_iterative( int8_t depth_limit )
 {
   hit_limit_ = false;
@@ -293,24 +294,15 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_dlx_iterative( int8_t d
         coverages.insert( coverage );
         uncover_type( cur );
         static_cast<void>( coverage.erase( score.score, score.name ) );
-        if ( coverages.size() == max_output_ ) {
-          hit_limit_ = true;
-          state_stack.pop_back();
-          while ( !state_stack.empty() ) {
-            uncover_type( state_stack.back().option );
-            state_stack.pop_back();
-          }
-          return coverages;
-        }
         continue;
       }
       if ( cur_state.limit - 1 <= 0 ) {
-        break;
+        uncover_type( cur );
+        static_cast<void>( coverage.erase( score.score, score.name ) );
+        continue;
       }
       const uint64_t next_item_to_cover = choose_item();
       if ( !next_item_to_cover ) {
-        uncover_type( cur );
-        static_cast<void>( coverage.erase( score.score, score.name ) );
         break;
       }
       state_stack.emplace_back( next_item_to_cover, next_item_to_cover, cur_state.limit - 1 );
