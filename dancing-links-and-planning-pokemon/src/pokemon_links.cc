@@ -241,13 +241,13 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
       uncover_type( cur_state.option );
       static_cast<void>( coverage.erase( cur_state.score.value().score, cur_state.score.value().name ) );
     }
+    // This is a caching mechanism so that if we return to this level of recursion we will know how
+    // many options we have tried already. We also know when we are done because list is circular.
     cur_state.option = links_[cur_state.option].down;
     if ( cur_state.option == cur_state.item ) {
       dfs.pop_back();
       continue;
     }
-    // This is a caching mechanism so that if we return to this level of recursion we will know how
-    // many options we have tried already. We also know when we are done because list is circular.
     cur_state.score = cover_type( cur_state.option );
     const Encoding_score& score = cur_state.score.value();
     static_cast<void>( coverage.insert( score.score, score.name ) );
@@ -457,13 +457,13 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
       overlapping_uncover_type( cur_state.option );
       static_cast<void>( coverage.erase( cur_state.score.value().score, cur_state.score.value().name ) );
     }
+    // This is a caching mechanism so that if we return to this level of recursion we will know how
+    // many options we have tried already. We also know when we are done because list is circular.
     cur_state.option = links_[cur_state.option].down;
     if ( cur_state.option == cur_state.item ) {
       dfs.pop_back();
       continue;
     }
-    // This is a caching mechanism so that if we return to this level of recursion we will know how
-    // many options we have tried already. We also know when we are done because list is circular.
     cur_state.score = overlapping_cover_type( { cur_state.option, cur_state.limit } );
     const Encoding_score& score = cur_state.score.value();
     static_cast<void>( coverage.insert( score.score, score.name ) );
