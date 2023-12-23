@@ -200,8 +200,9 @@ private:
   {
     uint64_t item;
     uint64_t option;
-    int limit;
+    int32_t limit;
     Encoding_score score;
+    bool seen;
   };
 
   /* These data structures contain the core logic of Algorithm X via dancing links. For more
