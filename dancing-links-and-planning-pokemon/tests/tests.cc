@@ -970,7 +970,8 @@ TEST( InternalTests, ThereAreTwoExactCoversForThisTypingCombo )
   const std::set<Ranked_set<Dx::Type_encoding>> correct
     = { { 11, { { "Ghost" }, { "Ground" }, { "Poison" }, { "Water" } } },
         { 13, { { "Electric" }, { "Ghost" }, { "Poison" }, { "Water" } } } };
-  EXPECT_EQ( links.get_exact_coverages_recursive( 6 ), correct );
+  EXPECT_EQ( links.exact_coverages_functional( 6 ), correct );
+  EXPECT_EQ( links.exact_coverages_stack( 6 ), correct );
 }
 
 TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst )
@@ -1083,10 +1084,10 @@ TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst 
   EXPECT_EQ( links.option_table_, options );
   EXPECT_EQ( links.item_table_, items );
   EXPECT_EQ( links.links_, dlx );
-  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages_recursive( 6 );
   const std::set<Ranked_set<Dx::Type_encoding>> correct
     = { { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } } };
-  EXPECT_EQ( correct, result );
+  EXPECT_EQ( correct, links.exact_coverages_functional( 6 ) );
+  EXPECT_EQ( correct, links.exact_coverages_stack( 6 ) );
 }
 
 TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestoreStateAfter )
@@ -1184,12 +1185,12 @@ TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestore
   EXPECT_EQ( links.links_, dlx );
   const std::set<Ranked_set<Dx::Type_encoding>> correct
     = { { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } } };
-  const std::set<Ranked_set<Dx::Type_encoding>> result_rec = links.get_exact_coverages_recursive( 6 );
+  const std::set<Ranked_set<Dx::Type_encoding>> result_rec = links.exact_coverages_functional( 6 );
   EXPECT_EQ( correct, result_rec );
   EXPECT_EQ( links.option_table_, options );
   EXPECT_EQ( links.item_table_, items );
   EXPECT_EQ( links.links_, dlx );
-  const std::set<Ranked_set<Dx::Type_encoding>> result_iter = links.get_exact_coverages_iterative( 6 );
+  const std::set<Ranked_set<Dx::Type_encoding>> result_iter = links.exact_coverages_stack( 6 );
   EXPECT_EQ( correct, result_iter );
   EXPECT_EQ( links.option_table_, options );
   EXPECT_EQ( links.item_table_, items );
@@ -1278,7 +1279,7 @@ TEST( InternalTests, AtLeastTestThatWeCanRecognizeASuccessfulAttackCoverage )
     = { { 30, { { "Fighting" }, { "Grass" }, { "Ground" }, { "Ice" } } },
         { 30, { { "Fighting" }, { "Grass" }, { "Ground" }, { "Poison" } } } };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
-  EXPECT_EQ( links.get_exact_coverages_recursive( 24 ), solutions );
+  EXPECT_EQ( links.exact_coverages_functional( 24 ), solutions );
 }
 
 TEST( InternalTests, ThereIsOneExactCoverHere )
@@ -1355,9 +1356,9 @@ TEST( InternalTests, ThereIsOneExactCoverHere )
     },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
-  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages_recursive( 24 );
   const std::set<Ranked_set<Dx::Type_encoding>> correct = { { 31, { { "Fire" }, { "Grass" }, { "Water" } } } };
-  EXPECT_EQ( result, correct );
+  EXPECT_EQ( links.exact_coverages_functional( 24 ), correct );
+  EXPECT_EQ( links.exact_coverages_stack( 24 ), correct );
 }
 
 TEST( InternalTests, ThereAreMultipleExactCoversHere )
@@ -1493,7 +1494,6 @@ TEST( InternalTests, ThereAreMultipleExactCoversHere )
     },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
-  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_exact_coverages_recursive( 24 );
   const std::set<Ranked_set<Dx::Type_encoding>> correct = {
     { 30, { { "Bug" }, { "Electric" }, { "Fire" } } },
     { 30, { { "Bug" }, { "Fire" }, { "Steel" }, { "Water" } } },
@@ -1501,7 +1501,8 @@ TEST( InternalTests, ThereAreMultipleExactCoversHere )
     { 31, { { "Fire" }, { "Grass" }, { "Water" } } },
     { 31, { { "Grass" }, { "Psychic" }, { "Rock" } } },
   };
-  EXPECT_EQ( result, correct );
+  EXPECT_EQ( links.exact_coverages_functional( 24 ), correct );
+  EXPECT_EQ( links.exact_coverages_stack( 24 ), correct );
 }
 
 TEST( InternalTests, RecursiveAndIterativeSolutionsAreEquivalent )
@@ -1637,8 +1638,6 @@ TEST( InternalTests, RecursiveAndIterativeSolutionsAreEquivalent )
     },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
-  const std::set<Ranked_set<Dx::Type_encoding>> result_rec = links.get_exact_coverages_recursive( 24 );
-  const std::set<Ranked_set<Dx::Type_encoding>> result_iter = links.get_exact_coverages_iterative( 24 );
   const std::set<Ranked_set<Dx::Type_encoding>> correct = {
     { 30, { { "Bug" }, { "Electric" }, { "Fire" } } },
     { 30, { { "Bug" }, { "Fire" }, { "Steel" }, { "Water" } } },
@@ -1646,8 +1645,8 @@ TEST( InternalTests, RecursiveAndIterativeSolutionsAreEquivalent )
     { 31, { { "Fire" }, { "Grass" }, { "Water" } } },
     { 31, { { "Grass" }, { "Psychic" }, { "Rock" } } },
   };
-  EXPECT_EQ( result_rec, correct );
-  EXPECT_EQ( result_iter, correct );
+  EXPECT_EQ( links.exact_coverages_functional( 24 ), correct );
+  EXPECT_EQ( links.exact_coverages_stack( 24 ), correct );
 }
 
 /* * * * * * * * * * *    Finding a Weak Coverage that Allows Overlap     * * * * * * * * * * * * */
@@ -1928,12 +1927,14 @@ TEST( InternalTests, OverlappingAllowsTwoTypesToCoverSameOpposingTypeIEFireAndEl
         { { "Water" }, f2 } } },
   };
   Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_overlapping_coverages( 6 );
+  const std::set<Ranked_set<Dx::Type_encoding>> result_rec = links.overlapping_coverages_functional( 6 );
+  const std::set<Ranked_set<Dx::Type_encoding>> result_iter = links.overlapping_coverages_stack( 6 );
   const std::set<Ranked_set<Dx::Type_encoding>> correct
     = { { 18, { { "Electric" }, { "Fire" }, { "Ice" }, { "Normal" } } },
         { 18, { { "Fire" }, { "Grass" }, { "Ice" }, { "Normal" } } },
         { 18, { { "Fire" }, { "Ice" }, { "Normal" }, { "Water" } } } };
-  EXPECT_EQ( correct, result );
+  EXPECT_EQ( correct, result_rec );
+  EXPECT_EQ( correct, result_iter );
 }
 
 TEST( InternalTests, ThereAreAFewOverlappingCoversHere )
@@ -2042,8 +2043,6 @@ TEST( InternalTests, ThereAreAFewOverlappingCoversHere )
     {INT_MIN,23,UINT64_MAX,em,0},
   };
   // clang-format on
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  const std::set<Ranked_set<Dx::Type_encoding>> result = links.get_overlapping_coverages( 6 );
   const std::set<Ranked_set<Dx::Type_encoding>> correct = {
     { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } },
     { 14, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Fire-Flying" }, { "Ice-Water" } } },
@@ -2053,8 +2052,15 @@ TEST( InternalTests, ThereAreAFewOverlappingCoversHere )
     { 15, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Fire-Flying" }, { "Ice-Psychic" } } },
     { 15, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Ground-Water" }, { "Ice-Psychic" } } },
   };
-  EXPECT_EQ( correct, result );
+  Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
+  const std::set<Ranked_set<Dx::Type_encoding>> result_rec = links.overlapping_coverages_functional( 6 );
+  EXPECT_EQ( correct, result_rec );
   // Make sure the overlapping algorithms clean up the tables when done.
+  EXPECT_EQ( links.item_table_, headers );
+  EXPECT_EQ( links.links_, dlx );
+  // Test the iterative version.
+  const std::set<Ranked_set<Dx::Type_encoding>> result_iter = links.overlapping_coverages_stack( 6 );
+  EXPECT_EQ( correct, result_iter );
   EXPECT_EQ( links.item_table_, headers );
   EXPECT_EQ( links.links_, dlx );
 }
@@ -2769,8 +2775,8 @@ TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover 
   EXPECT_EQ( links.links_, dlx_hide_electric );
   EXPECT_EQ( links.item_table_, headers_hide_electric );
   EXPECT_EQ( links.get_num_items(), 5 );
-  EXPECT_EQ( links.get_exact_coverages_recursive( 6 ), exact );
-  EXPECT_EQ( links.get_overlapping_coverages( 6 ), overlapping );
+  EXPECT_EQ( links.exact_coverages_functional( 6 ), exact );
+  EXPECT_EQ( links.overlapping_coverages_functional( 6 ), overlapping );
 }
 
 TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCover )
@@ -2914,8 +2920,8 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
   EXPECT_EQ( links.links_, dlx_hide_electric_and_grass );
   EXPECT_EQ( links.item_table_, headers_hide_electric_and_grass );
   EXPECT_EQ( links.get_num_items(), 4 );
-  EXPECT_EQ( links.get_exact_coverages_recursive( 6 ), exact );
-  EXPECT_EQ( links.get_overlapping_coverages( 6 ), overlapping );
+  EXPECT_EQ( links.exact_coverages_functional( 6 ), exact );
+  EXPECT_EQ( links.overlapping_coverages_functional( 6 ), overlapping );
 }
 
 TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep )
@@ -3055,8 +3061,8 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
   EXPECT_EQ( links.links_, dlx_hide_except_water );
   EXPECT_EQ( links.item_table_, headers_hide_except_water );
   EXPECT_EQ( links.get_num_items(), 1 );
-  EXPECT_EQ( links.get_exact_coverages_recursive( 6 ), exact );
-  EXPECT_EQ( links.get_overlapping_coverages( 6 ), overlapping );
+  EXPECT_EQ( links.exact_coverages_functional( 6 ), exact );
+  EXPECT_EQ( links.overlapping_coverages_functional( 6 ), overlapping );
   links.reset_items();
   EXPECT_EQ( links.links_, dlx );
   EXPECT_EQ( links.item_table_, headers );
@@ -3213,8 +3219,8 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
   EXPECT_EQ( links.item_table_, headers_hide_except_water );
   EXPECT_EQ( links.get_num_items(), 1 );
   EXPECT_EQ( links.get_num_options(), 1 );
-  EXPECT_EQ( links.get_exact_coverages_recursive( 6 ), answer );
-  EXPECT_EQ( links.get_overlapping_coverages( 6 ), answer );
+  EXPECT_EQ( links.exact_coverages_functional( 6 ), answer );
+  EXPECT_EQ( links.overlapping_coverages_functional( 6 ), answer );
   links.reset_items();
   links.reset_options();
   EXPECT_EQ( links.links_, dlx );

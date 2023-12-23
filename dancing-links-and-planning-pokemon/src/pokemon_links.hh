@@ -89,11 +89,13 @@ public:
 
   /* * * * * * * * * * * *  See Dancing_links.h for Documented Free Functions  * * * * * * * * * */
 
-  std::set<Ranked_set<Type_encoding>> get_exact_coverages_recursive( int choice_limit );
+  std::set<Ranked_set<Type_encoding>> exact_coverages_functional( int choice_limit );
 
-  std::set<Ranked_set<Type_encoding>> get_exact_coverages_iterative( int choice_limit );
+  std::set<Ranked_set<Type_encoding>> exact_coverages_stack( int choice_limit );
 
-  std::set<Ranked_set<Type_encoding>> get_overlapping_coverages( int choice_limit );
+  std::set<Ranked_set<Type_encoding>> overlapping_coverages_functional( int choice_limit );
+
+  std::set<Ranked_set<Type_encoding>> overlapping_coverages_stack( int choice_limit );
 
   bool hide_requested_item( Type_encoding to_hide );
 
@@ -231,11 +233,9 @@ private:
    * @param coverage            the successfully coverages we find while the links dance.
    * @param depth_limit         size of a pokemon team or the number of attacks a team can have.
    */
-  void exact_dlx_recursive( std::set<Ranked_set<Type_encoding>>& coverages,
-                            Ranked_set<Type_encoding>& coverage,
-                            int depth_limit );
-
-  std::set<Ranked_set<Type_encoding>> exact_dlx_iterative( int depth_limit );
+  void exact_dlx_functional( std::set<Ranked_set<Type_encoding>>& coverages,
+                             Ranked_set<Type_encoding>& coverage,
+                             int depth_limit );
 
   /**
    * @brief overlapping_dlx_recursive fills the output parameter with every overlapping cover that
