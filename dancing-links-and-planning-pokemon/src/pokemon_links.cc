@@ -251,8 +251,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
       continue;
     }
     cur_state.score = cover_type( cur_state.option );
-    const Encoding_score& score = cur_state.score.value();
-    static_cast<void>( coverage.insert( score.score, score.name ) );
+    static_cast<void>( coverage.insert( cur_state.score.value().score, cur_state.score.value().name ) );
     if ( item_table_[0].right == 0 && cur_state.limit - 1 >= 0 ) {
       coverages.insert( coverage );
       continue;
@@ -469,8 +468,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
       continue;
     }
     cur_state.score = overlapping_cover_type( { cur_state.option, cur_state.limit } );
-    const Encoding_score& score = cur_state.score.value();
-    static_cast<void>( coverage.insert( score.score, score.name ) );
+    static_cast<void>( coverage.insert( cur_state.score.value().score, cur_state.score.value().name ) );
     if ( item_table_[0].right == 0 && cur_state.limit - 1 >= 0 ) {
       coverages.insert( coverage );
       continue;
