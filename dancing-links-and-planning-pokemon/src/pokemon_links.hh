@@ -272,7 +272,7 @@ private:
    *                       it becomes a part of. Return the strength contribution to the set
    *                       and the name of the option we chose.
    */
-  Encoding_score cover_type( uint64_t index_in_option );
+  [[nodiscard]] Encoding_score cover_type( uint64_t index_in_option );
 
   /**
    * @brief uncover_type    undoes the work of the exact cover operation returning the option,
@@ -309,7 +309,7 @@ private:
    *                              need coverage.
    * @return                      the score our option contributes to its Ranked_set and name.
    */
-  Encoding_score overlapping_cover_type( Cover_tag tag );
+  [[nodiscard]] Encoding_score overlapping_cover_type( Cover_tag tag );
 
   /**
    * @brief overlapping_uncover_type  undoes the work of the loos cover operation. It uncovers items
