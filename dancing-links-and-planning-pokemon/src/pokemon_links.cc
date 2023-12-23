@@ -257,9 +257,13 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
 
     if ( item_table_[0].right == 0 && cur_state.limit - 1 >= 0 ) {
       coverages.insert( coverage );
-      if ( coverages.size() == max_output_ ) {
-        break;
+      if ( coverages.size() != max_output_ ) {
+        continue;
       }
+      for ( const auto& i : dfs | std::views::reverse ) {
+        uncover_type( i.option );
+      }
+      return coverages;
     }
 
     const uint64_t next_to_cover = choose_item();
@@ -268,9 +272,6 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
     }
     // We will know we encountered this state for the first time if it does not have a score.
     dfs.emplace_back( next_to_cover, next_to_cover, cur_state.limit - 1, std::optional<Encoding_score> {} );
-  }
-  for ( const auto& i : dfs | std::views::reverse ) {
-    uncover_type( i.option );
   }
   return coverages;
 }
@@ -482,9 +483,13 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
 
     if ( item_table_[0].right == 0 && cur_state.limit - 1 >= 0 ) {
       coverages.insert( coverage );
-      if ( coverages.size() == max_output_ ) {
-        break;
+      if ( coverages.size() != max_output_ ) {
+        continue;
       }
+      for ( const auto& i : dfs | std::views::reverse ) {
+        overlapping_uncover_type( i.option );
+      }
+      return coverages;
     }
 
     const uint64_t next_to_cover = choose_item();
@@ -493,9 +498,6 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
     }
     // We will know we encountered this state for the first time if it does not have a score.
     dfs.emplace_back( next_to_cover, next_to_cover, cur_state.limit - 1, std::optional<Encoding_score> {} );
-  }
-  for ( const auto& i : dfs | std::views::reverse ) {
-    overlapping_uncover_type( i.option );
   }
   return coverages;
 }
