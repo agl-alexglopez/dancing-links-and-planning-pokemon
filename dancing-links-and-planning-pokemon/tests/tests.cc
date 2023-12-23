@@ -2776,7 +2776,9 @@ TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover 
   EXPECT_EQ( links.item_table_, headers_hide_electric );
   EXPECT_EQ( links.get_num_items(), 5 );
   EXPECT_EQ( links.exact_coverages_functional( 6 ), exact );
+  EXPECT_EQ( links.exact_coverages_stack( 6 ), exact );
   EXPECT_EQ( links.overlapping_coverages_functional( 6 ), overlapping );
+  EXPECT_EQ( links.overlapping_coverages_stack( 6 ), overlapping );
 }
 
 TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCover )
@@ -2922,6 +2924,8 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
   EXPECT_EQ( links.get_num_items(), 4 );
   EXPECT_EQ( links.exact_coverages_functional( 6 ), exact );
   EXPECT_EQ( links.overlapping_coverages_functional( 6 ), overlapping );
+  EXPECT_EQ( links.exact_coverages_stack( 6 ), exact );
+  EXPECT_EQ( links.overlapping_coverages_stack( 6 ), overlapping );
 }
 
 TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep )
@@ -3063,6 +3067,8 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
   EXPECT_EQ( links.get_num_items(), 1 );
   EXPECT_EQ( links.exact_coverages_functional( 6 ), exact );
   EXPECT_EQ( links.overlapping_coverages_functional( 6 ), overlapping );
+  EXPECT_EQ( links.exact_coverages_stack( 6 ), exact );
+  EXPECT_EQ( links.overlapping_coverages_stack( 6 ), overlapping );
   links.reset_items();
   EXPECT_EQ( links.links_, dlx );
   EXPECT_EQ( links.item_table_, headers );
@@ -3221,6 +3227,8 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
   EXPECT_EQ( links.get_num_options(), 1 );
   EXPECT_EQ( links.exact_coverages_functional( 6 ), answer );
   EXPECT_EQ( links.overlapping_coverages_functional( 6 ), answer );
+  EXPECT_EQ( links.exact_coverages_stack( 6 ), answer );
+  EXPECT_EQ( links.overlapping_coverages_stack( 6 ), answer );
   links.reset_items();
   links.reset_options();
   EXPECT_EQ( links.links_, dlx );
