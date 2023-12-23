@@ -197,8 +197,8 @@ private:
     int tag;
   };
 
-  /// This is the way we can acheive an iterative dancing links algorithm.
-  struct dlx_state
+  /// This is the way we can acheive an explicit stack based dancing links algorithm.
+  struct Branch
   {
     uint64_t item {};
     uint64_t option {};

@@ -234,28 +234,28 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
   Ranked_set<Type_encoding> coverage {};
   coverage.reserve( choice_limit );
   const uint64_t start = choose_item();
-  // A true recursive stack. We will only have O(depth) states on the stack equivalent to current search path.
-  std::vector<dlx_state> dfs { { start, start, choice_limit, {} } };
+  // A true recursive stack. We will only have O(depth) branches on the stack equivalent to current search path.
+  std::vector<Branch> dfs { { start, start, choice_limit, {} } };
   dfs.reserve( choice_limit );
   while ( !dfs.empty() ) {
-    dlx_state& cur_state = dfs.back();
+    Branch& cur = dfs.back();
     // If we return down the stack to any state again, it is time to move on from this option.
     // This also ensures that proper cleanup happens when we are done with the entire search space.
-    if ( cur_state.score ) {
-      uncover_type( cur_state.option );
-      static_cast<void>( coverage.erase( cur_state.score.value().score, cur_state.score.value().name ) );
+    if ( cur.score ) {
+      uncover_type( cur.option );
+      static_cast<void>( coverage.erase( cur.score.value().score, cur.score.value().name ) );
     }
     // This is a caching mechanism so that if we return to this level of recursion we will know how
     // many options we have tried already. We also know when we are done because list is circular.
-    cur_state.option = links_[cur_state.option].down;
-    if ( cur_state.option == cur_state.item ) {
+    cur.option = links_[cur.option].down;
+    if ( cur.option == cur.item ) {
       dfs.pop_back();
       continue;
     }
-    cur_state.score = cover_type( cur_state.option );
-    static_cast<void>( coverage.insert( cur_state.score.value().score, cur_state.score.value().name ) );
+    cur.score = cover_type( cur.option );
+    static_cast<void>( coverage.insert( cur.score.value().score, cur.score.value().name ) );
 
-    if ( item_table_[0].right == 0 && cur_state.limit - 1 >= 0 ) {
+    if ( item_table_[0].right == 0 && cur.limit - 1 >= 0 ) {
       coverages.insert( coverage );
       if ( coverages.size() != max_output_ ) {
         continue;
@@ -267,11 +267,11 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
     }
 
     const uint64_t next_to_cover = choose_item();
-    if ( !next_to_cover || cur_state.limit - 1 <= 0 ) {
+    if ( !next_to_cover || cur.limit - 1 <= 0 ) {
       continue;
     }
-    // We will know we encountered this state for the first time if it does not have a score.
-    dfs.emplace_back( next_to_cover, next_to_cover, cur_state.limit - 1, std::optional<Encoding_score> {} );
+    // We will know we encountered this branch for the first time if it does not have a score.
+    dfs.emplace_back( next_to_cover, next_to_cover, cur.limit - 1, std::optional<Encoding_score> {} );
   }
   return coverages;
 }
@@ -460,28 +460,28 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
   Ranked_set<Type_encoding> coverage {};
   coverage.reserve( choice_limit );
   const uint64_t start = choose_item();
-  // A true recursive stack. We will only have O(depth) states on the stack equivalent to current search path.
-  std::vector<dlx_state> dfs { { start, start, choice_limit, {} } };
+  // A true recursive stack. We will only have O(depth) branches on the stack equivalent to current search path.
+  std::vector<Branch> dfs { { start, start, choice_limit, {} } };
   dfs.reserve( choice_limit );
   while ( !dfs.empty() ) {
-    dlx_state& cur_state = dfs.back();
+    Branch& cur = dfs.back();
     // If we return down the stack to any state again, it is time to move on from this option.
     // This also ensures that proper cleanup happens when we are done with the entire search space.
-    if ( cur_state.score ) {
-      overlapping_uncover_type( cur_state.option );
-      static_cast<void>( coverage.erase( cur_state.score.value().score, cur_state.score.value().name ) );
+    if ( cur.score ) {
+      overlapping_uncover_type( cur.option );
+      static_cast<void>( coverage.erase( cur.score.value().score, cur.score.value().name ) );
     }
     // This is a caching mechanism so that if we return to this level of recursion we will know how
     // many options we have tried already. We also know when we are done because list is circular.
-    cur_state.option = links_[cur_state.option].down;
-    if ( cur_state.option == cur_state.item ) {
+    cur.option = links_[cur.option].down;
+    if ( cur.option == cur.item ) {
       dfs.pop_back();
       continue;
     }
-    cur_state.score = overlapping_cover_type( { cur_state.option, cur_state.limit } );
-    static_cast<void>( coverage.insert( cur_state.score.value().score, cur_state.score.value().name ) );
+    cur.score = overlapping_cover_type( { cur.option, cur.limit } );
+    static_cast<void>( coverage.insert( cur.score.value().score, cur.score.value().name ) );
 
-    if ( item_table_[0].right == 0 && cur_state.limit - 1 >= 0 ) {
+    if ( item_table_[0].right == 0 && cur.limit - 1 >= 0 ) {
       coverages.insert( coverage );
       if ( coverages.size() != max_output_ ) {
         continue;
@@ -493,11 +493,11 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
     }
 
     const uint64_t next_to_cover = choose_item();
-    if ( !next_to_cover || cur_state.limit - 1 <= 0 ) {
+    if ( !next_to_cover || cur.limit - 1 <= 0 ) {
       continue;
     }
-    // We will know we encountered this state for the first time if it does not have a score.
-    dfs.emplace_back( next_to_cover, next_to_cover, cur_state.limit - 1, std::optional<Encoding_score> {} );
+    // We will know we encountered this branch for the first time if it does not have a score.
+    dfs.emplace_back( next_to_cover, next_to_cover, cur.limit - 1, std::optional<Encoding_score> {} );
   }
   return coverages;
 }
