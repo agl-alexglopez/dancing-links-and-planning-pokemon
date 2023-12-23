@@ -30,6 +30,7 @@
  * repository has a detailed writeup with images.
  */
 #pragma once
+#include <optional>
 #ifndef POKEMON_LINKS_HH
 #define POKEMON_LINKS_HH
 #include "ranked_set.hh"
@@ -198,11 +199,10 @@ private:
   /// This is the way we can acheive an iterative dancing links algorithm.
   struct dlx_state
   {
-    uint64_t item;
-    uint64_t option;
-    int32_t limit;
-    Encoding_score score;
-    bool seen;
+    uint64_t item {};
+    uint64_t option {};
+    int32_t limit {};
+    std::optional<Encoding_score> score {};
   };
 
   /* These data structures contain the core logic of Algorithm X via dancing links. For more

@@ -41,6 +41,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <map>
+#include <optional>
 #include <set>
 #include <string_view>
 #include <unordered_map>
@@ -221,13 +222,13 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
   std::set<Ranked_set<Type_encoding>> coverages = {};
   Ranked_set<Type_encoding> coverage {};
   const uint64_t start = choose_item();
-  std::vector<dlx_state> dfs { { start, start, choice_limit, {}, false } };
+  std::vector<dlx_state> dfs { { start, start, choice_limit, {} } };
   while ( !dfs.empty() ) {
     dlx_state& cur_state = dfs.back();
     // This is trickiest part. If we return to any element in the stack multiple times, we try other options.
-    if ( cur_state.seen ) {
+    if ( cur_state.score ) {
       uncover_type( cur_state.option );
-      static_cast<void>( coverage.erase( cur_state.score.score, cur_state.score.name ) );
+      static_cast<void>( coverage.erase( cur_state.score.value().score, cur_state.score.value().name ) );
     }
     const uint64_t cur = links_[cur_state.option].down;
     if ( cur == cur_state.item ) {
@@ -238,21 +239,18 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
     // many options we have tried already. We also know when we are done because list is circular.
     cur_state.option = cur;
     cur_state.score = cover_type( cur );
-    static_cast<void>( coverage.insert( cur_state.score.score, cur_state.score.name ) );
+    const Encoding_score& score = cur_state.score.value();
+    static_cast<void>( coverage.insert( score.score, score.name ) );
     if ( item_table_[0].right == 0 && cur_state.limit - 1 >= 0 ) {
       coverages.insert( coverage );
-      uncover_type( cur );
-      static_cast<void>( coverage.erase( cur_state.score.score, cur_state.score.name ) );
       continue;
     }
     const uint64_t next_item_to_cover = choose_item();
     if ( !next_item_to_cover || cur_state.limit - 1 <= 0 ) {
-      uncover_type( cur );
-      static_cast<void>( coverage.erase( cur_state.score.score, cur_state.score.name ) );
       continue;
     }
-    cur_state.seen = true;
-    dfs.push_back( { next_item_to_cover, next_item_to_cover, cur_state.limit - 1, {}, false } );
+    dfs.emplace_back(
+      next_item_to_cover, next_item_to_cover, cur_state.limit - 1, std::optional<Encoding_score> {} );
   }
   return coverages;
 }
@@ -440,13 +438,13 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
   std::set<Ranked_set<Type_encoding>> coverages = {};
   Ranked_set<Type_encoding> coverage {};
   const uint64_t start = choose_item();
-  std::vector<dlx_state> dfs { { start, start, choice_limit, {}, false } };
+  std::vector<dlx_state> dfs { { start, start, choice_limit, {} } };
   while ( !dfs.empty() ) {
     dlx_state& cur_state = dfs.back();
     // This is trickiest part. If we return to any element in the stack multiple times, we try other options.
-    if ( cur_state.seen ) {
+    if ( cur_state.score ) {
       overlapping_uncover_type( cur_state.option );
-      static_cast<void>( coverage.erase( cur_state.score.score, cur_state.score.name ) );
+      static_cast<void>( coverage.erase( cur_state.score.value().score, cur_state.score.value().name ) );
     }
     const uint64_t cur = links_[cur_state.option].down;
     if ( cur == cur_state.item ) {
@@ -457,21 +455,18 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
     // many options we have tried already. We also know when we are done because list is circular.
     cur_state.option = cur;
     cur_state.score = overlapping_cover_type( { cur, cur_state.limit } );
-    static_cast<void>( coverage.insert( cur_state.score.score, cur_state.score.name ) );
+    const Encoding_score& score = cur_state.score.value();
+    static_cast<void>( coverage.insert( score.score, score.name ) );
     if ( item_table_[0].right == 0 && cur_state.limit - 1 >= 0 ) {
       coverages.insert( coverage );
-      overlapping_uncover_type( cur );
-      static_cast<void>( coverage.erase( cur_state.score.score, cur_state.score.name ) );
       continue;
     }
     const uint64_t next_item_to_cover = choose_item();
     if ( !next_item_to_cover || cur_state.limit - 1 <= 0 ) {
-      overlapping_uncover_type( cur );
-      static_cast<void>( coverage.erase( cur_state.score.score, cur_state.score.name ) );
       continue;
     }
-    cur_state.seen = true;
-    dfs.push_back( { next_item_to_cover, next_item_to_cover, cur_state.limit - 1, {}, false } );
+    dfs.emplace_back(
+      next_item_to_cover, next_item_to_cover, cur_state.limit - 1, std::optional<Encoding_score> {} );
   }
   return coverages;
 }
