@@ -90,19 +90,20 @@ public:
 
   /* * * * * * * * * * * *  See Dancing_links.h for Documented Free Functions  * * * * * * * * * */
 
-  std::set<Ranked_set<Type_encoding>> exact_coverages_functional( int choice_limit );
+  [[nodiscard]] std::set<Ranked_set<Type_encoding>> exact_coverages_functional( int choice_limit );
 
-  std::set<Ranked_set<Type_encoding>> exact_coverages_stack( int choice_limit );
+  [[nodiscard]] std::set<Ranked_set<Type_encoding>> exact_coverages_stack( int choice_limit );
 
-  std::set<Ranked_set<Type_encoding>> overlapping_coverages_functional( int choice_limit );
+  [[nodiscard]] std::set<Ranked_set<Type_encoding>> overlapping_coverages_functional( int choice_limit );
 
-  std::set<Ranked_set<Type_encoding>> overlapping_coverages_stack( int choice_limit );
+  [[nodiscard]] std::set<Ranked_set<Type_encoding>> overlapping_coverages_stack( int choice_limit );
 
-  bool hide_requested_item( Type_encoding to_hide );
+  [[nodiscard]] bool hide_requested_item( Type_encoding to_hide );
 
-  bool hide_requested_item( const std::vector<Type_encoding>& to_hide );
+  [[nodiscard]] bool hide_requested_item( const std::vector<Type_encoding>& to_hide );
 
-  bool hide_requested_item( const std::vector<Type_encoding>& to_hide, std::vector<Type_encoding>& failed_to_hide );
+  [[nodiscard]] bool hide_requested_item( const std::vector<Type_encoding>& to_hide,
+                                          std::vector<Type_encoding>& failed_to_hide );
 
   void hide_all_items_except( const std::set<Type_encoding>& to_keep );
 
@@ -120,12 +121,12 @@ public:
 
   void reset_items();
 
-  bool hide_requested_option( Type_encoding to_hide );
+  [[nodiscard]] bool hide_requested_option( Type_encoding to_hide );
 
-  bool hide_requested_option( const std::vector<Type_encoding>& to_hide );
+  [[nodiscard]] bool hide_requested_option( const std::vector<Type_encoding>& to_hide );
 
-  bool hide_requested_option( const std::vector<Type_encoding>& to_hide,
-                              std::vector<Type_encoding>& failed_to_hide );
+  [[nodiscard]] bool hide_requested_option( const std::vector<Type_encoding>& to_hide,
+                                            std::vector<Type_encoding>& failed_to_hide );
 
   void hide_all_options_except( const std::set<Type_encoding>& to_keep );
 
