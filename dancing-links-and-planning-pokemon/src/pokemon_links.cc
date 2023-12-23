@@ -254,6 +254,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
     }
     cur_state.score = cover_type( cur_state.option );
     static_cast<void>( coverage.insert( cur_state.score.value().score, cur_state.score.value().name ) );
+
     if ( item_table_[0].right == 0 && cur_state.limit - 1 >= 0 ) {
       coverages.insert( coverage );
       if ( coverages.size() == max_output_ ) {
@@ -264,6 +265,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
       }
       continue;
     }
+
     const uint64_t next_to_cover = choose_item();
     if ( !next_to_cover || cur_state.limit - 1 <= 0 ) {
       continue;
@@ -478,6 +480,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
     }
     cur_state.score = overlapping_cover_type( { cur_state.option, cur_state.limit } );
     static_cast<void>( coverage.insert( cur_state.score.value().score, cur_state.score.value().name ) );
+
     if ( item_table_[0].right == 0 && cur_state.limit - 1 >= 0 ) {
       coverages.insert( coverage );
       if ( coverages.size() == max_output_ ) {
@@ -488,6 +491,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
       }
       continue;
     }
+
     const uint64_t next_to_cover = choose_item();
     if ( !next_to_cover || cur_state.limit - 1 <= 0 ) {
       continue;
