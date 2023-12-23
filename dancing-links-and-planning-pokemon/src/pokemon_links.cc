@@ -235,7 +235,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
   std::vector<dlx_state> dfs { { start, start, choice_limit, {} } };
   while ( !dfs.empty() ) {
     dlx_state& cur_state = dfs.back();
-    // If we return down the stack to any element again, it is time to move on from this option.
+    // If we return down the stack to any state again, it is time to move on from this option.
     // This also ensures that proper cleanup happens when we are done with the entire search space.
     if ( cur_state.score ) {
       uncover_type( cur_state.option );
@@ -452,7 +452,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
   std::vector<dlx_state> dfs { { start, start, choice_limit, {} } };
   while ( !dfs.empty() ) {
     dlx_state& cur_state = dfs.back();
-    // If we return down the stack to any element again, it is time to move on from this option.
+    // If we return down the stack to any state again, it is time to move on from this option.
     // This also ensures that proper cleanup happens when we are done with the entire search space.
     if ( cur_state.score ) {
       overlapping_uncover_type( cur_state.option );
