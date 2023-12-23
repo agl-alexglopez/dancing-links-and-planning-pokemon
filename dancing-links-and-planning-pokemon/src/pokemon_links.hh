@@ -202,7 +202,6 @@ private:
   {
     uint64_t item {};
     uint64_t option {};
-    int32_t limit {};
     std::optional<Encoding_score> score {};
   };
 
