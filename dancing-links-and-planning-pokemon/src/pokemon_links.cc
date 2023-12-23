@@ -231,8 +231,10 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
   }
   std::set<Ranked_set<Type_encoding>> coverages = {};
   Ranked_set<Type_encoding> coverage {};
+  coverage.reserve( choice_limit );
   const uint64_t start = choose_item();
   std::vector<dlx_state> dfs { { start, start, choice_limit, {} } };
+  dfs.reserve( choice_limit );
   while ( !dfs.empty() ) {
     dlx_state& cur_state = dfs.back();
     // If we return down the stack to any state again, it is time to move on from this option.
@@ -447,8 +449,10 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
   }
   std::set<Ranked_set<Type_encoding>> coverages = {};
   Ranked_set<Type_encoding> coverage {};
+  coverage.reserve( choice_limit );
   const uint64_t start = choose_item();
   std::vector<dlx_state> dfs { { start, start, choice_limit, {} } };
+  dfs.reserve( choice_limit );
   while ( !dfs.empty() ) {
     dlx_state& cur_state = dfs.back();
     // If we return down the stack to any state again, it is time to move on from this option.
