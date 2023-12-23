@@ -52,14 +52,24 @@ namespace Dancing_links {
 
 /* * * * * * * * * * * * *       Convenience Callers for Encapsulation      * * * * * * * * * * * */
 
-std::set<Ranked_set<Type_encoding>> solve_exact_cover( Pokemon_links& dlx, int choice_limit )
+std::set<Ranked_set<Type_encoding>> exact_cover_functional( Pokemon_links& dlx, int choice_limit )
 {
   return dlx.exact_coverages_functional( choice_limit );
 }
 
-std::set<Ranked_set<Type_encoding>> solve_overlapping_cover( Pokemon_links& dlx, int choice_limit )
+std::set<Ranked_set<Type_encoding>> exact_cover_stack( Pokemon_links& dlx, int choice_limit )
+{
+  return dlx.exact_coverages_stack( choice_limit );
+}
+
+std::set<Ranked_set<Type_encoding>> overlapping_cover_functional( Pokemon_links& dlx, int choice_limit )
 {
   return dlx.overlapping_coverages_functional( choice_limit );
+}
+
+std::set<Ranked_set<Type_encoding>> overlapping_cover_stack( Pokemon_links& dlx, int8_t choice_limit )
+{
+  return dlx.overlapping_coverages_stack( choice_limit );
 }
 
 bool has_max_solutions( const Pokemon_links& dlx )
