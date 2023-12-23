@@ -30,7 +30,6 @@
  * repository has a detailed writeup with images.
  */
 #pragma once
-#include <optional>
 #ifndef POKEMON_LINKS_HH
 #define POKEMON_LINKS_HH
 #include "ranked_set.hh"
@@ -43,6 +42,7 @@
 #include <cstdint>
 #include <iostream>
 #include <map>
+#include <optional>
 #include <set>
 #include <unordered_map>
 #include <vector>

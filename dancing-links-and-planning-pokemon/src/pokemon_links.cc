@@ -42,6 +42,7 @@
 #include <iostream>
 #include <map>
 #include <optional>
+#include <ranges>
 #include <set>
 #include <string_view>
 #include <unordered_map>
@@ -233,6 +234,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
   Ranked_set<Type_encoding> coverage {};
   coverage.reserve( choice_limit );
   const uint64_t start = choose_item();
+  // A true recursive stack. We will only have O(depth) states on the stack equivalent to current search path.
   std::vector<dlx_state> dfs { { start, start, choice_limit, {} } };
   dfs.reserve( choice_limit );
   while ( !dfs.empty() ) {
@@ -254,6 +256,12 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
     static_cast<void>( coverage.insert( cur_state.score.value().score, cur_state.score.value().name ) );
     if ( item_table_[0].right == 0 && cur_state.limit - 1 >= 0 ) {
       coverages.insert( coverage );
+      if ( coverages.size() == max_output_ ) {
+        for ( const auto& i : dfs | std::views::reverse ) {
+          uncover_type( i.option );
+        }
+        return coverages;
+      }
       continue;
     }
     const uint64_t next_to_cover = choose_item();
@@ -450,6 +458,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
   Ranked_set<Type_encoding> coverage {};
   coverage.reserve( choice_limit );
   const uint64_t start = choose_item();
+  // A true recursive stack. We will only have O(depth) states on the stack equivalent to current search path.
   std::vector<dlx_state> dfs { { start, start, choice_limit, {} } };
   dfs.reserve( choice_limit );
   while ( !dfs.empty() ) {
@@ -471,6 +480,12 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
     static_cast<void>( coverage.insert( cur_state.score.value().score, cur_state.score.value().name ) );
     if ( item_table_[0].right == 0 && cur_state.limit - 1 >= 0 ) {
       coverages.insert( coverage );
+      if ( coverages.size() == max_output_ ) {
+        for ( const auto& i : dfs | std::views::reverse ) {
+          overlapping_uncover_type( i.option );
+        }
+        return coverages;
+      }
       continue;
     }
     const uint64_t next_to_cover = choose_item();
