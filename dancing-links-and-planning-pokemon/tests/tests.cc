@@ -51,7 +51,6 @@
 /* * * * * * * *     All Operators We Overloaded Simply for Testing/Debugging       * * * * * * * */
 
 namespace Dancing_links {
-namespace Dx = Dancing_links;
 
 std::ostream& operator<<( std::ostream& os, const std::set<Ranked_set<Type_encoding>>& solution )
 {

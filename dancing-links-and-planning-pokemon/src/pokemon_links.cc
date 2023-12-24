@@ -247,7 +247,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
       ++choice_limit;
     }
     // This is a caching mechanism so that if we return to this level of recursion we will know how
-    // many options we have tried already. We also know when we are done because list is circular.
+    // many options we have tried already. See the for loop in the functional version if this is confusing.
     cur.option = links_[cur.option].down;
     if ( cur.option == cur.item ) {
       dfs.pop_back();
@@ -262,6 +262,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::exact_coverages_stack( int ch
       if ( coverages.size() != max_output_ ) {
         continue;
       }
+      hit_limit_ = true;
       for ( const auto& i : dfs | std::views::reverse ) {
         uncover_type( i.option );
       }
@@ -475,7 +476,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
       ++choice_limit;
     }
     // This is a caching mechanism so that if we return to this level of recursion we will know how
-    // many options we have tried already. We also know when we are done because list is circular.
+    // many options we have tried already. See the for loop in the functional version if this is confusing.
     cur.option = links_[cur.option].down;
     if ( cur.option == cur.item ) {
       dfs.pop_back();
@@ -490,6 +491,7 @@ std::set<Ranked_set<Type_encoding>> Pokemon_links::overlapping_coverages_stack( 
       if ( coverages.size() != max_output_ ) {
         continue;
       }
+      hit_limit_ = true;
       for ( const auto& i : dfs | std::views::reverse ) {
         overlapping_uncover_type( i.option );
       }

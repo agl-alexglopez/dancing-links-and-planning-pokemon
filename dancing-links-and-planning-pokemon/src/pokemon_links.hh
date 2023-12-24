@@ -76,12 +76,12 @@ public:
 
   /**
    * @brief Pokemon_links      this alternative constructor is helpful when choosing a defensive
-   *                          team based on a subset of attack types. For example, we could build
-   *                          defenses against the attack types present at specific gyms. It is
-   *                          important that the data is passed in with a map and set because we
-   *                          need our dancing links items and options to be built and setup
-   *                          in lexicographic order for some additional functionality and
-   *                          runtime guarantees.
+   *                           team based on a subset of attack types. For example, we could build
+   *                           defenses against the attack types present at specific gyms. It is
+   *                           important that the data is passed in with a map and set because we
+   *                           need our dancing links items and options to be built and setup
+   *                           in lexicographic order for some additional functionality and
+   *                           runtime guarantees.
    * @param type_interactions  the map of types and their defenses for a given generation.
    * @param attack_types       the subset of attacks we must cover with choices of Pokemon teams.
    */
