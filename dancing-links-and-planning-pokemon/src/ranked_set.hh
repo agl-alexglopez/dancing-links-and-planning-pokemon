@@ -37,7 +37,8 @@
  * of Sets required me to pop from the queue, destroying it. This gives me less flexibility with
  * how I store and illustrate solutions to cover problems in the Pokemon GUI. Putting Ranked_sets
  * in a set acheives the same ordering as I wanted in a priority queue and allows for more
- * flexibility.
+ * flexibility. Becuase the Ranked set sizes we deal with are very small in my use case I found a flat set
+ * to be the better implementation for locality and convenience.
  */
 #pragma once
 #ifndef RANKED_SET_HH
@@ -55,7 +56,7 @@ class Ranked_set
 {
 public:
   Ranked_set() = default;
-  Ranked_set( int rank, std::vector<T> set ) : rank_( rank ), flat_set_( std::move( set ) )
+  Ranked_set( int rank, std::vector<T>&& set ) : rank_( rank ), flat_set_( std::move( set ) )
   {
     std::sort( flat_set_.begin(), flat_set_.end() );
   }
@@ -71,6 +72,11 @@ public:
     return flat_set_.size();
   }
 
+  [[nodiscard]] std::size_t empty() const
+  {
+    return flat_set_.empty();
+  }
+
   [[nodiscard]] int rank() const
   {
     return rank_;
@@ -84,23 +90,23 @@ public:
 
   [[nodiscard]] bool insert( const T& elem )
   {
-    if ( !std::binary_search( flat_set_.cbegin(), flat_set_.cend(), elem ) ) {
-      flat_set_.push_back( elem );
-      std::sort( flat_set_.begin(), flat_set_.end() );
-      return true;
+    const auto found = std::lower_bound( flat_set_.cbegin(), flat_set_.cend(), elem );
+    if ( found != flat_set_.end() && *found == elem ) {
+      return false;
     }
-    return false;
+    static_cast<void>( flat_set_.insert( found, elem ) );
+    return true;
   }
 
   [[nodiscard]] bool insert( const int rank, const T& elem )
   {
-    if ( !std::binary_search( flat_set_.cbegin(), flat_set_.cend(), elem ) ) {
-      flat_set_.push_back( elem );
-      rank_ += rank;
-      std::sort( flat_set_.begin(), flat_set_.end() );
-      return true;
+    const auto found = std::lower_bound( flat_set_.cbegin(), flat_set_.cend(), elem );
+    if ( found != flat_set_.end() && *found == elem ) {
+      return false;
     }
-    return false;
+    rank_ += rank;
+    static_cast<void>( flat_set_.insert( found, elem ) );
+    return true;
   }
 
   [[nodiscard]] bool erase( const T& elem )

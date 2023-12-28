@@ -39,10 +39,12 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <ctime>
 #include <fstream>
 #include <iostream>
+#include <optional>
 #include <random>
 #include <set>
 #include <unordered_map>
@@ -348,20 +350,29 @@ TEST( InternalTests, TestEveryPossibleCombinationOfTypings )
   /* Not all of these type combinations exist yet in Pokemon and that's ok. It sounds like there
    * would be alot but it only comes out to 171 unique combinations. Unique here means that
    * types order does not matter so Water-Bug is the same as Bug-Water and is only counted once.
+   * Use the combinations where order does not matter and repetitions are allowed formula.
+   *
+   *                   ( n + r - 1 )!
+   * # combinations =  --------------
+   *                   ( n - 1 )! r!
+   *
+   *                   ( 18 + 2 - 1 )!
+   * # typing combo =  --------------- = 171
+   *                   ( 18 - 1 )! 2!
+   *
+   * The above formula accounts for a combination such as "Bug-Bug." In practice, we would
+   * count this as just "Bug," dropping the second part because single types exist.
    */
   const uint64_t bug = 0x1;
   const uint64_t end = 1ULL << Dx::Type_encoding::type_table().size();
-  for ( uint64_t bit1 = bug, type1 = 0; bit1 != end; bit1 <<= 1, ++type1 ) {
-
-    const std::string check_single_type( Dx::Type_encoding::type_table()[type1] );
+  for ( uint64_t bit1 = bug; bit1 != end; bit1 <<= 1 ) {
+    const std::string_view check_single_type( Dx::Type_encoding::type_table()[std::countr_zero( bit1 )] );
     const Dx::Type_encoding single_type_encoding( check_single_type );
     EXPECT_EQ( single_type_encoding.encoding(), bit1 );
     EXPECT_EQ( single_type_encoding.decode_type().first, check_single_type );
     EXPECT_EQ( single_type_encoding.decode_type().second, std::string_view {} );
-
-    for ( uint64_t bit2 = bit1 << 1, type2 = type1 + 1; bit2 != end; bit2 <<= 1, ++type2 ) {
-
-      const auto t2 = std::string( Dx::Type_encoding::type_table()[type2] );
+    for ( uint64_t bit2 = bit1 << 1; bit2 != end; bit2 <<= 1 ) {
+      const std::string_view t2 = Dx::Type_encoding::type_table()[std::countr_zero( bit2 )];
       const auto check_dual_type = std::string( check_single_type ).append( "-" ).append( t2 );
       Dx::Type_encoding dual_type_encoding( check_dual_type );
       EXPECT_EQ( dual_type_encoding.encoding(), bit1 | bit2 );
@@ -391,13 +402,13 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
   // Generate all possible unique type combinations and place them in the maps.
   const uint64_t bug = 0x1;
   const uint64_t bit_end = 1ULL << Dx::Type_encoding::type_table().size();
-  for ( uint64_t bit1 = bug, type1 = 0; bit1 != bit_end; bit1 <<= 1, ++type1 ) {
-    const std::string check_single_type( Dx::Type_encoding::type_table()[type1] );
+  for ( uint64_t bit1 = bug; bit1 != bit_end; bit1 <<= 1 ) {
+    const std::string check_single_type( Dx::Type_encoding::type_table()[std::countr_zero( bit1 )] );
     const Dx::Type_encoding single_type_encoding( check_single_type );
     encode_map.insert( { check_single_type, single_type_encoding } );
     decode_map.insert( { single_type_encoding, check_single_type } );
-    for ( uint64_t bit2 = bit1 << 1, type2 = type1 + 1; bit2 != bit_end; bit2 <<= 1, ++type2 ) {
-      const auto t2 = std::string( Dx::Type_encoding::type_table()[type2] );
+    for ( uint64_t bit2 = bit1 << 1; bit2 != bit_end; bit2 <<= 1 ) {
+      const auto t2 = std::string( Dx::Type_encoding::type_table()[std::countr_zero( bit2 )] );
       const auto check_dual_type = std::string( check_single_type ).append( "-" ).append( t2 );
       const Dx::Type_encoding dual_type_encoding( check_dual_type );
       encode_map.insert( { check_dual_type, dual_type_encoding } );
@@ -487,7 +498,163 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
   EXPECT_EQ( type_encodings.size(), type_decodings.size() );
 }
 
-/* * * * * * * * * * * * * * *      Tests Below This Point      * * * * * * * * * * * * * * * * * */
+/* * * * * * * * * * * * * * * * * * * *    Ranked Set Tests     * * * * * * * * * * * * * * * * * * * * * * * * */
+
+TEST( RankedSetTests, SetContainsUniqueElements )
+{
+  Ranked_set<Dx::Type_encoding> rset {};
+  EXPECT_EQ( rset.insert( { "Bug" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug" } ), false );
+  EXPECT_EQ( rset.size(), 1 );
+  EXPECT_EQ( rset.insert( { "Bug-Dark" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Fire" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Dark" } ), false );
+  EXPECT_EQ( rset.insert( { "Bug-Fire" } ), false );
+  EXPECT_EQ( rset.size(), 3 );
+}
+
+TEST( RankedSetTests, SetElementsAreSorted )
+{
+  Ranked_set<Dx::Type_encoding> rset {};
+  EXPECT_EQ( rset.insert( { "Bug" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Ground" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Poison" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Water" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Dark" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Fire" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Steel" } ), true );
+  EXPECT_EQ( rset,
+             Ranked_set<Dx::Type_encoding>( 0,
+                                            {
+                                              { "Bug" },
+                                              { "Bug-Dark" },
+                                              { "Bug-Fire" },
+                                              { "Bug-Ground" },
+                                              { "Bug-Poison" },
+                                              { "Bug-Steel" },
+                                              { "Bug-Water" },
+                                            } ) );
+}
+
+TEST( RankedSetTests, AntiPatternIsDealtWithCorrectly )
+{
+  Ranked_set<Dx::Type_encoding> rset {};
+  // Each of these will need to be inserted at the front.
+  EXPECT_EQ( rset.insert( { "Bug-Water" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Steel" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Poison" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Ground" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Fire" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Dark" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug" } ), true );
+  EXPECT_EQ( rset,
+             Ranked_set<Dx::Type_encoding>( 0,
+                                            {
+                                              { "Bug" },
+                                              { "Bug-Dark" },
+                                              { "Bug-Fire" },
+                                              { "Bug-Ground" },
+                                              { "Bug-Poison" },
+                                              { "Bug-Steel" },
+                                              { "Bug-Water" },
+                                            } ) );
+}
+
+TEST( RankedSetTests, BestCaseIsDealtWithCorrectly )
+{
+  Ranked_set<Dx::Type_encoding> rset {};
+  // Each of these will need to be inserted at the back.
+  EXPECT_EQ( rset.insert( { "Bug" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Dark" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Fire" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Ground" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Poison" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Steel" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Water" } ), true );
+  EXPECT_EQ( rset,
+             Ranked_set<Dx::Type_encoding>( 0,
+                                            {
+                                              { "Bug" },
+                                              { "Bug-Dark" },
+                                              { "Bug-Fire" },
+                                              { "Bug-Ground" },
+                                              { "Bug-Poison" },
+                                              { "Bug-Steel" },
+                                              { "Bug-Water" },
+                                            } ) );
+}
+
+TEST( RankedSetTests, RemovingElementsKeepsSetContiguous )
+{
+  Ranked_set<Dx::Type_encoding> rset {};
+  EXPECT_EQ( rset.insert( { "Bug" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Dark" } ), true );
+  EXPECT_EQ( rset.insert( { "Bug-Fire" } ), true );
+  EXPECT_EQ( rset.erase( { "Bug-Dark" } ), true );
+  EXPECT_EQ( rset.size(), 2 );
+  EXPECT_EQ( rset,
+             Ranked_set<Dx::Type_encoding>( 0,
+                                            {
+                                              { "Bug" },
+                                              { "Bug-Fire" },
+                                            } ) );
+}
+
+TEST( RankedSetTests, RemovingFromEmptySetIsWellDefined )
+{
+  Ranked_set<Dx::Type_encoding> rset {};
+  EXPECT_EQ( rset.erase( { "Bug-Dark" } ), false );
+}
+
+TEST( RankedSetTests, AddAndRemoveAllPokemonTypesRandomly )
+{
+
+  Ranked_set<Dx::Type_encoding> all_types {};
+  all_types.reserve( 171 );
+  const uint64_t bug = 0x1;
+  const uint64_t end = 1ULL << Dx::Type_encoding::type_table().size();
+  std::vector<std::pair<uint64_t, std::optional<uint64_t>>> type_table_indices {};
+  type_table_indices.reserve( 171 );
+  for ( uint64_t bit1 = bug; bit1 != end; bit1 <<= 1 ) {
+    type_table_indices.emplace_back( std::countr_zero( bit1 ), std::optional<uint64_t> {} );
+    for ( uint64_t bit2 = bit1 << 1; bit2 != end; bit2 <<= 1 ) {
+      type_table_indices.emplace_back( std::countr_zero( bit1 ), std::countr_zero( bit2 ) );
+    }
+  }
+  EXPECT_EQ( type_table_indices.size(), 171 );
+  std::shuffle( type_table_indices.begin(), type_table_indices.end(), std::mt19937( std::random_device {}() ) );
+  for ( const auto& type_indices : type_table_indices ) {
+    const std::string_view check_single_type( Dx::Type_encoding::type_table()[type_indices.first] );
+    if ( !type_indices.second ) {
+      const Dx::Type_encoding single_type_encoding( check_single_type );
+      EXPECT_EQ( all_types.insert( single_type_encoding ), true );
+      continue;
+    }
+    const auto check_dual_type = std::string( check_single_type )
+                                   .append( "-" )
+                                   .append( Dx::Type_encoding::type_table()[type_indices.second.value()] );
+    Dx::Type_encoding dual_type_encoding( check_dual_type );
+    EXPECT_EQ( all_types.insert( dual_type_encoding ), true );
+  }
+  EXPECT_EQ( all_types.size(), 171 );
+  EXPECT_EQ( std::is_sorted( all_types.begin(), all_types.end() ), true );
+  for ( const auto& type_indices : type_table_indices ) {
+    const std::string_view check_single_type( Dx::Type_encoding::type_table()[type_indices.first] );
+    if ( !type_indices.second ) {
+      const Dx::Type_encoding single_type_encoding( check_single_type );
+      EXPECT_EQ( all_types.erase( single_type_encoding ), true );
+      continue;
+    }
+    const auto check_dual_type = std::string( check_single_type )
+                                   .append( "-" )
+                                   .append( Dx::Type_encoding::type_table()[type_indices.second.value()] );
+    Dx::Type_encoding dual_type_encoding( check_dual_type );
+    EXPECT_EQ( all_types.erase( dual_type_encoding ), true );
+  }
+  EXPECT_EQ( all_types.empty(), true );
+}
+
+/* * * * * * * * * * * * * * *      DLX Tests Below This Point      * * * * * * * * * * * * * * * * * */
 
 /* These type names completely crowd out our test cases when I construct the dlx grids in the test
  * making them hard to read. They stretch too far horizontally so I am creating these name codes
