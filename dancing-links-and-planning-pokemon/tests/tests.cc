@@ -611,10 +611,10 @@ TEST( RankedSetTests, AddAndRemoveAllPokemonTypesRandomly )
 
   Ranked_set<Dx::Type_encoding> all_types {};
   all_types.reserve( 171 );
-  const uint64_t bug = 0x1;
-  const uint64_t end = 1ULL << Dx::Type_encoding::type_table().size();
   std::vector<std::pair<uint64_t, std::optional<uint64_t>>> type_table_indices {};
   type_table_indices.reserve( 171 );
+  const uint64_t bug = 0x1;
+  const uint64_t end = 1ULL << Dx::Type_encoding::type_table().size();
   for ( uint64_t bit1 = bug; bit1 != end; bit1 <<= 1 ) {
     type_table_indices.emplace_back( std::countr_zero( bit1 ), std::optional<uint64_t> {} );
     for ( uint64_t bit2 = bit1 << 1; bit2 != end; bit2 <<= 1 ) {
@@ -652,6 +652,125 @@ TEST( RankedSetTests, AddAndRemoveAllPokemonTypesRandomly )
     EXPECT_EQ( all_types.erase( dual_type_encoding ), true );
   }
   EXPECT_EQ( all_types.empty(), true );
+}
+
+namespace {
+
+template<typename T>
+double fill_and_empty_set_with_types( T& set,
+                                      std::span<std::pair<uint64_t, std::optional<uint64_t>>> type_table_indices )
+{
+  const std::clock_t start = std::clock();
+  for ( const auto& type_indices : type_table_indices ) {
+    const std::string_view check_single_type( Dx::Type_encoding::type_table()[type_indices.first] );
+    if ( !type_indices.second ) {
+      const Dx::Type_encoding single_type_encoding( check_single_type );
+      static_cast<void>( set.insert( single_type_encoding ) );
+      continue;
+    }
+    const auto check_dual_type = std::string( check_single_type )
+                                   .append( "-" )
+                                   .append( Dx::Type_encoding::type_table()[type_indices.second.value()] );
+    Dx::Type_encoding dual_type_encoding( check_dual_type );
+    static_cast<void>( set.insert( dual_type_encoding ) );
+  }
+  for ( const auto& type_indices : type_table_indices ) {
+    const std::string_view check_single_type( Dx::Type_encoding::type_table()[type_indices.first] );
+    if ( !type_indices.second ) {
+      const Dx::Type_encoding single_type_encoding( check_single_type );
+      static_cast<void>( set.erase( single_type_encoding ) );
+      continue;
+    }
+    const auto check_dual_type = std::string( check_single_type )
+                                   .append( "-" )
+                                   .append( Dx::Type_encoding::type_table()[type_indices.second.value()] );
+    Dx::Type_encoding dual_type_encoding( check_dual_type );
+    static_cast<void>( set.erase( dual_type_encoding ) );
+  }
+  const std::clock_t end = std::clock();
+  return 1000.0 * ( static_cast<double>( end - start ) ) / CLOCKS_PER_SEC;
+}
+
+template<typename T>
+double insert_delete_small_n( T& set, std::span<std::pair<uint64_t, std::optional<uint64_t>>> type_table_indices )
+{
+  const std::clock_t start = std::clock();
+  for ( uint64_t i = 0; i < 10'000ULL; ++i ) {
+    for ( uint64_t j = 0; j < 13 && j < type_table_indices.size(); ++j ) {
+      const std::string_view check_single_type( Dx::Type_encoding::type_table()[type_table_indices[j].first] );
+      if ( !type_table_indices[j].second ) {
+        const Dx::Type_encoding single_type_encoding( check_single_type );
+        static_cast<void>( set.insert( single_type_encoding ) );
+        continue;
+      }
+      const auto check_dual_type
+        = std::string( check_single_type )
+            .append( "-" )
+            .append( Dx::Type_encoding::type_table()[type_table_indices[j].second.value()] );
+      Dx::Type_encoding dual_type_encoding( check_dual_type );
+      static_cast<void>( set.insert( dual_type_encoding ) );
+    }
+    for ( uint64_t j = 0; j < 13 && j < type_table_indices.size(); ++j ) {
+      const std::string_view check_single_type( Dx::Type_encoding::type_table()[type_table_indices[j].first] );
+      if ( !type_table_indices[j].second ) {
+        const Dx::Type_encoding single_type_encoding( check_single_type );
+        static_cast<void>( set.erase( single_type_encoding ) );
+        continue;
+      }
+      const auto check_dual_type
+        = std::string( check_single_type )
+            .append( "-" )
+            .append( Dx::Type_encoding::type_table()[type_table_indices[j].second.value()] );
+      Dx::Type_encoding dual_type_encoding( check_dual_type );
+      static_cast<void>( set.erase( dual_type_encoding ) );
+    }
+  }
+  const std::clock_t end = std::clock();
+  return 1000.0 * ( static_cast<double>( end - start ) ) / CLOCKS_PER_SEC;
+}
+
+} // namespace
+
+TEST( RankedSetTests, ComparePerformanceWithNodeBasedSet )
+{
+  // I know my use case is that the Ranked_set will be small N (6-24 max). However, it's fun to compare.
+  Ranked_set<Dx::Type_encoding> all_types_flat {};
+  all_types_flat.reserve( 171 );
+  std::set<Dx::Type_encoding> all_types_set {};
+  std::vector<std::pair<uint64_t, std::optional<uint64_t>>> type_table_indices {};
+  type_table_indices.reserve( 171 );
+  const uint64_t bug = 0x1;
+  const uint64_t bit_end = 1ULL << Dx::Type_encoding::type_table().size();
+  for ( uint64_t bit1 = bug; bit1 != bit_end; bit1 <<= 1 ) {
+    type_table_indices.emplace_back( std::countr_zero( bit1 ), std::optional<uint64_t> {} );
+    for ( uint64_t bit2 = bit1 << 1; bit2 != bit_end; bit2 <<= 1 ) {
+      type_table_indices.emplace_back( std::countr_zero( bit1 ), std::countr_zero( bit2 ) );
+    }
+  }
+
+  std::cerr << "\n-------Flat set vs. std::set comparison----------\n\n";
+
+  //////////////////     Traditional Set Performance     //////////////////////////////
+
+  std::cerr << "All types inserted and deleted from std::set(ms): "
+            << fill_and_empty_set_with_types( all_types_set, type_table_indices ) << "\n";
+
+  //////////////////     Flat Set Performance     //////////////////////////////
+
+  std::cerr << "All types inserted and deleted from Ranked_set(ms): "
+            << fill_and_empty_set_with_types( all_types_flat, type_table_indices ) << "\n\n";
+
+  //////////////////      Dancing Links Workflow   ///////////////////////////
+
+  // During the dancing links algorithm we are constantly adding and removing from a set with
+  // our attempts at covering the items with options. This means many inserts and deletes in
+  // a very small set.
+
+  std::cerr << "A few types inserted and deleted from std::set many times(ms): "
+            << insert_delete_small_n( all_types_set, type_table_indices ) << "\n";
+
+  std::cerr << "A few types inserted and deleted from Ranked_set many times(ms): "
+            << insert_delete_small_n( all_types_set, type_table_indices ) << "\n\n";
 }
 
 /* * * * * * * * * * * * * * *      DLX Tests Below This Point      * * * * * * * * * * * * * * * * * */
