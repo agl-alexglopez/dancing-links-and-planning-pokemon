@@ -16,3 +16,6 @@ target_link_libraries(pokemon_parser PRIVATE nlohmann_json::nlohmann_json map_pa
 
 add_executable(pokemon_gui pokemon_gui.cc)
 target_link_libraries(pokemon_gui dancing_links pokemon_parser type_resistance window triangle quad)
+
+add_executable(pokemon_cli pokemon_cli.cc)
+target_link_libraries(pokemon_cli dancing_links pokemon_parser type_resistance)

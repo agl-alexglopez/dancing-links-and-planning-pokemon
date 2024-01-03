@@ -68,7 +68,7 @@ std::set<Ranked_set<Type_encoding>> overlapping_cover_functional( Pokemon_links&
   return dlx.overlapping_coverages_functional( choice_limit );
 }
 
-std::set<Ranked_set<Type_encoding>> overlapping_cover_stack( Pokemon_links& dlx, int8_t choice_limit )
+std::set<Ranked_set<Type_encoding>> overlapping_cover_stack( Pokemon_links& dlx, int choice_limit )
 {
   return dlx.overlapping_coverages_stack( choice_limit );
 }

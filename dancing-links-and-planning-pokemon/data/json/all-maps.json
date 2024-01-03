@@ -882,7 +882,7 @@
         }
     },
     "Gen-7-AlolaUltra.dst": {
-        "C1": {
+        "G1": {
             "attack": [
                 "Normal",
                 "Fire",
@@ -895,7 +895,7 @@
                 "Normal"
             ]
         },
-        "C2": {
+        "G2": {
             "attack": [
                 "Water",
                 "Electric",
@@ -911,7 +911,7 @@
                 "Bug-Water"
             ]
         },
-        "C3": {
+        "G3": {
             "attack": [
                 "Dark",
                 "Fire",
@@ -926,7 +926,7 @@
                 "Fire-Ghost"
             ]
         },
-        "C4": {
+        "G4": {
             "attack": [
                 "Grass",
                 "Ghost",
@@ -941,7 +941,7 @@
                 "Grass"
             ]
         },
-        "C5": {
+        "G5": {
             "attack": [
                 "Electric",
                 "Grass",
@@ -959,7 +959,7 @@
                 "Electric-Rock"
             ]
         },
-        "C6": {
+        "G6": {
             "attack": [
                 "Ghost",
                 "Dark",
@@ -1162,7 +1162,7 @@
                 "Dragon-Steel"
             ]
         },
-        "CC": {
+        "E4": {
             "attack": [
                 "Dark",
                 "Poison",

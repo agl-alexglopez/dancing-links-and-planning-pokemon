@@ -176,6 +176,11 @@ Pokemon_test load_pokemon_generation( std::istream& source )
   return generation;
 }
 
+std::map<Dx::Type_encoding, std::set<Dx::Resistance>> load_interaction_map( std::istream& source )
+{
+  return load_generation_from_json( source );
+}
+
 std::set<Dx::Type_encoding> load_selected_gyms_defenses( const std::string& selected_map,
                                                          const std::set<std::string>& selected_gyms )
 {

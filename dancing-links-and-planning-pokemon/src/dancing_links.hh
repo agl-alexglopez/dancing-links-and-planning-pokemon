@@ -145,7 +145,7 @@ class Pokemon_links;
  * @param choice_limit            a limit to the depth of the recursive depth first search we perform.
  * @return                        the set of Ranked Sets that form all solutions of exact cover.
  */
-[[nodiscard]] std::set<Ranked_set<Type_encoding>> exact_cover_functional( Pokemon_links& dlx, int8_t choice_limit );
+[[nodiscard]] std::set<Ranked_set<Type_encoding>> exact_cover_functional( Pokemon_links& dlx, int choice_limit );
 
 /**
  * @brief exact_cover_stack  finds an exact cover identically to the functional version but uses
@@ -154,32 +154,31 @@ class Pokemon_links;
  * @param choice_limit       a limit to the depth of the recursive depth first search we perform.
  * @return                   the set of Ranked Sets that form all solutions of exact cover.
  */
-[[nodiscard]] std::set<Ranked_set<Type_encoding>> exact_cover_stack( Pokemon_links& dlx, int8_t choice_limit );
+[[nodiscard]] std::set<Ranked_set<Type_encoding>> exact_cover_stack( Pokemon_links& dlx, int choice_limit );
 
 /**
- * @brief solve_overlapping_cover an overlapping coverage is when we cover every "item"
- *                                with our choices of "options." It is allowable for two
- *                                options cover the same item twice, the goal is to cover
- *                                the items with any allowable choices. The scoring scheme
- *                                for generated sets is the same as described in the
- *                                exact cover version of the problem. Currently, this
- *                                solution is slow because it generates duplicate
- *                                Ranked_set solutions. I filter out duplicates by using a
- *                                set. I have not yet found a way to prevent generating
- *                                duplicate solutions with the Dancing Links method.
- * @return                        the set of Ranked Sets that form all overlapping covers.
+ * @brief overlapping_cover_functional an overlapping coverage is when we cover every "item"
+ *                                     with our choices of "options." It is allowable for two
+ *                                     options cover the same item twice, the goal is to cover
+ *                                     the items with any allowable choices. The scoring scheme
+ *                                     for generated sets is the same as described in the
+ *                                     overlapping cover version of the problem. Currently, this
+ *                                     solution is slow because it generates duplicate
+ *                                     Ranked_set solutions. I filter out duplicates by using a
+ *                                     set. I have not yet found a way to prevent generating
+ *                                     duplicate solutions with the Dancing Links method.
+ * @return                             the set of Ranked Sets that form all overlapping covers.
  */
 [[nodiscard]] std::set<Ranked_set<Type_encoding>> overlapping_cover_functional( Pokemon_links& dlx,
-                                                                                int8_t choice_limit );
+                                                                                int choice_limit );
 /**
- * @brief exact_cover_stack  finds an exact cover identically to the functional version but uses
- *                           an explicit stack for the recursive algorithm instead of a call stack.
- * @param dlx                Pokemon_links object capable of providing its exact covers.
- * @param choice_limit       a limit to the depth of the recursive depth first search we perform.
- * @return                   the set of Ranked Sets that form all solutions of exact cover.
+ * @brief overlapping_cover_stack  finds an overlapping cover identically to the functional version but uses
+ *                                 an explicit stack for the recursive algorithm instead of a call stack.
+ * @param dlx                      Pokemon_links object capable of providing its overlapping covers.
+ * @param choice_limit             a limit to the depth of the recursive depth first search we perform.
+ * @return                         the set of Ranked Sets that form all solutions of overlapping cover.
  */
-[[nodiscard]] std::set<Ranked_set<Type_encoding>> overlapping_cover_stack( Pokemon_links& dlx,
-                                                                           int8_t choice_limit );
+[[nodiscard]] std::set<Ranked_set<Type_encoding>> overlapping_cover_stack( Pokemon_links& dlx, int choice_limit );
 
 /**
  * @brief has_max_solutions  exact and overlapping cover solutions are limited at a large number

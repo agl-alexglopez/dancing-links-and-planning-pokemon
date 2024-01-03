@@ -79,22 +79,30 @@ struct Pokemon_test
 };
 
 /**
- * @brief loadPokemonGeneration  builds the PokemonTest needed to interact with a generation's map
- *                               in the Pokemon Planning GUI.
- * @param source                 the file with the map that gives us info on which gen to build.
- * @return                       the completed pokemon test with map drawing and Pokemon info.
+ * @brief load_pokemon_generation  builds the PokemonTest needed to interact with a generation's map
+ *                                 in the Pokemon Planning GUI.
+ * @param source                   the file with the map that gives us info on which gen to build.
+ * @return                         the completed pokemon test with map drawing and Pokemon info.
  */
 Pokemon_test load_pokemon_generation( std::istream& source );
 
 /**
- * @brief loadSelectedGymsDefenses  when interacting with the GUI, the user can choose subsets of
- *                                  gyms on the current map they are viewing. If they make these
- *                                  selections we can load in the defensive types that are present
- *                                  at those gyms. These are intended to be fed to a PokemonLinks
- *                                  solver as the items we must defend against.
- * @param selectedMap               the current .dst file we are viewing.
- * @param selectedGyms              the gyms G1-E4 that we are considering attacking.
- * @return                          the set of all defensive types present in the selection of gyms.
+ * @brief load_interaction_map  builds the PokemonTest needed to interact with a generation's map
+ *                              in the Pokemon Planning GUI.
+ * @param source                the file with the map that gives us info on which gen to build.
+ * @return                      the completed pokemon test with map drawing and Pokemon info.
+ */
+std::map<Dx::Type_encoding, std::set<Dx::Resistance>> load_interaction_map( std::istream& source );
+
+/**
+ * @brief load_selected_gyms_defenses  when interacting with the GUI, the user can choose subsets of
+ *                                     gyms on the current map they are viewing. If they make these
+ *                                     selections we can load in the defensive types that are present
+ *                                     at those gyms. These are intended to be fed to a PokemonLinks
+ *                                     solver as the items we must defend against.
+ * @param selectedMap                  the current .dst file we are viewing.
+ * @param selectedGyms                 the gyms G1-E4 that we are considering attacking.
+ * @return                             the set of all defensive types present in the selection of gyms.
  */
 std::set<Dx::Type_encoding> load_selected_gyms_defenses( const std::string& selected_map,
                                                          const std::set<std::string>& selected_gyms );
