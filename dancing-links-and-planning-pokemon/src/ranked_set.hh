@@ -144,9 +144,9 @@ public:
   using iterator = typename container::iterator;
   using const_iterator = typename container::const_iterator;
 
-  iterator begin()
+  const_iterator begin() const
   {
-    return flat_set_.begin();
+    return flat_set_.cbegin();
   }
 
   const_iterator cbegin() const
@@ -154,9 +154,9 @@ public:
     return flat_set_.cbegin();
   }
 
-  iterator end()
+  const_iterator end() const
   {
-    return flat_set_.end();
+    return flat_set_.cend();
   }
 
   const_iterator cend() const

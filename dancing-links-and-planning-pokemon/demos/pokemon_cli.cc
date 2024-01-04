@@ -2,8 +2,10 @@
 #include "pokemon_parser.hh"
 #include "ranked_set.hh"
 
+#include <algorithm>
 #include <cstddef>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <span>
@@ -13,10 +15,19 @@
 namespace Dx = Dancing_links;
 namespace {
 
+constexpr size_t max_name_width = 17;
+constexpr size_t digit_width = 3;
+
 enum class Solution_type
 {
   exact,
   overlapping
+};
+
+struct Universe_sets
+{
+  std::vector<Dx::Type_encoding> items;
+  std::vector<Dx::Type_encoding> options;
 };
 
 struct Runner
@@ -29,6 +40,9 @@ struct Runner
 };
 
 int run( std::span<const char* const> args );
+int solve( const Runner& runner );
+void print_prep_message( const Universe_sets& sets );
+void break_line( size_t max_set_len );
 
 } // namespace
 
@@ -77,31 +91,90 @@ int run( const std::span<const char* const> args )
         return 1;
       }
     }
-    std::set<Ranked_set<Dx::Type_encoding>> result {};
-    Dx::Pokemon_links links( runner.interactions, runner.type );
-    if ( !runner.selected_gyms.empty() ) {
-      std::set<Dx::Type_encoding> subset {};
-      switch ( runner.type ) {
-        case Dx::Pokemon_links::Coverage_type::attack: {
-          subset = load_selected_gyms_attacks( runner.map, runner.selected_gyms );
-        } break;
-        case Dx::Pokemon_links::Coverage_type::defense: {
-          subset = load_selected_gyms_defenses( runner.map, runner.selected_gyms );
-        } break;
-      }
-      Dx::hide_items_except( links, subset );
-    }
-    int depth_limit = runner.type == Dx::Pokemon_links::Coverage_type::attack ? 24 : 6;
-    result = runner.sol_type == Solution_type::exact ? Dx::exact_cover_stack( links, depth_limit )
-                                                     : Dx::overlapping_cover_stack( links, depth_limit );
-    for ( const auto& res : result ) {
-      std::cout << res;
-    }
-    return 0;
+    return solve( runner );
   } catch ( ... ) {
     std::cerr << "Pokemon CLI application encountered exception.\n";
     return 1;
   }
+}
+
+int solve( const Runner& runner )
+{
+  if ( runner.map.empty() || runner.map.empty() ) {
+    std::cerr << "No data loaded from any map to solve.\n";
+    return 1;
+  }
+  std::set<Ranked_set<Dx::Type_encoding>> result {};
+  Dx::Pokemon_links links( runner.interactions, runner.type );
+  if ( !runner.selected_gyms.empty() ) {
+    std::set<Dx::Type_encoding> subset {};
+    // Load in the opposite of our coverage type so we know what we attack/defend against in this subset of gyms.
+    runner.type == Dx::Pokemon_links::Coverage_type::attack
+      ? subset = load_selected_gyms_defenses( runner.map, runner.selected_gyms )
+      : subset = load_selected_gyms_attacks( runner.map, runner.selected_gyms );
+    Dx::hide_items_except( links, subset );
+  }
+  Universe_sets items_options = { Dx::items( links ), Dx::options( links ) };
+  print_prep_message( items_options );
+  const int depth_limit = runner.type == Dx::Pokemon_links::Coverage_type::attack ? 24 : 6;
+  result = runner.sol_type == Solution_type::exact ? Dx::exact_cover_stack( links, depth_limit )
+                                                   : Dx::overlapping_cover_stack( links, depth_limit );
+  std::cout << "Found " << result.size() << ( runner.sol_type == Solution_type::exact ? " exact" : " overlapping" )
+            << " sets of options that cover specified items.\n";
+  if ( result.empty() ) {
+    return 0;
+  }
+  const auto& largest_ranked_set = std::ranges::max(
+    result, []( const Ranked_set<Dx::Type_encoding>& a, const Ranked_set<Dx::Type_encoding>& b ) {
+      return a.size() < b.size();
+    } );
+  const size_t max_set_len = largest_ranked_set.size();
+  for ( const auto& res : result ) {
+    std::cout << std::left << std::setw( digit_width ) << res.rank();
+    size_t col = 0;
+    for ( const auto& t : res ) {
+      const auto type = t.to_string();
+      std::cout << "│" << std::left << std::setw( max_name_width ) << type;
+      ++col;
+    }
+    while ( col < max_set_len ) {
+      std::cout << "│" << std::left << std::setw( max_name_width ) << "";
+      ++col;
+    }
+    std::cout << "│\n";
+    break_line( max_set_len );
+  }
+  std::cout << "Found " << result.size() << ( runner.sol_type == Solution_type::exact ? " exact" : " overlapping" )
+            << " sets of options that cover specified items.\n";
+  print_prep_message( items_options );
+  return 0;
+}
+
+void print_prep_message( const Universe_sets& sets )
+{
+
+  std::cout << "Trying to cover " << sets.items.size() << " items:\n";
+  for ( const auto& type : sets.items ) {
+    std::cout << type << ", ";
+  }
+  std::cout << "\n" << sets.options.size() << " options are available:\n";
+  for ( const auto& type : sets.options ) {
+    std::cout << type << ", ";
+  }
+  std::cout << "\n";
+}
+
+void break_line( size_t max_set_len )
+{
+  std::cout << std::left << std::setw( digit_width ) << "";
+  std::cout << "├";
+  for ( size_t col = 0; col < max_set_len; ++col ) {
+    for ( size_t line = 0; line < max_name_width; ++line ) {
+      std::cout << "─";
+    }
+    std::cout << ( col == max_set_len - 1 ? "┤" : "┼" );
+  }
+  std::cout << "\n";
 }
 
 } // namespace

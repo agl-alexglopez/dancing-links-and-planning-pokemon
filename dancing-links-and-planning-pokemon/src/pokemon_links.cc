@@ -654,7 +654,7 @@ std::vector<Type_encoding> Pokemon_links::get_options() const
   // Hop from row title to row title, skip hidden options. Skip bookend node that is placeholder.
   for ( uint64_t i = item_table_.size(); i < links_.size() - 1; i = links_[i].down + 1 ) {
     if ( links_[i].tag != hidden ) {
-      result.push_back( option_table_[i].name );
+      result.push_back( option_table_[std::abs( links_[i].top_or_len )].name );
     }
   }
   return result;

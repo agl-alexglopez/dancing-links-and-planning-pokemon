@@ -184,39 +184,73 @@ std::map<Dx::Type_encoding, std::set<Dx::Resistance>> load_interaction_map( std:
 std::set<Dx::Type_encoding> load_selected_gyms_defenses( const std::string& selected_map,
                                                          const std::set<std::string>& selected_gyms )
 {
+  if ( selected_gyms.empty() ) {
+    std::cerr << "Requesting to load zero gyms check selected gyms input.\n";
+  }
   const nlo::json map_data = get_json_object( json_all_maps_file );
   std::set<Dx::Type_encoding> result = {};
 
   const nlo::json& gym_keys = map_data.at( selected_map );
 
+  std::vector<std::string_view> confirmed {};
+  confirmed.reserve( selected_gyms.size() );
   for ( const auto& [gym, attack_defense_map] : gym_keys.items() ) {
     if ( !selected_gyms.contains( gym ) ) {
       continue;
     }
+    confirmed.push_back( gym );
     for ( const auto& t : attack_defense_map.at( gym_defense_key ) ) {
       const std::string& type = t;
       result.insert( Dx::Type_encoding( type ) );
     }
   }
-  // This will be a much smaller map.
+  if ( confirmed.size() != selected_gyms.size() ) {
+    std::cerr << "Mismatch occured for " << selected_map << " gym selection.\nRequested: ";
+    for ( const auto& s : selected_gyms ) {
+      std::cerr << s << " ";
+    }
+    std::cerr << "\nConfirmed: ";
+    for ( const auto& s : confirmed ) {
+      std::cerr << s << " ";
+    }
+    std::cerr << "\n";
+  }
+  // This will be a much smaller set.
   return result;
 }
 
 std::set<Dx::Type_encoding> load_selected_gyms_attacks( const std::string& selected_map,
                                                         const std::set<std::string>& selected_gyms )
 {
+  if ( selected_gyms.empty() ) {
+    std::cerr << "Requesting to load zero gyms check selected gyms input.\n";
+  }
   const nlo::json map_data = get_json_object( json_all_maps_file );
   std::set<Dx::Type_encoding> result = {};
   const nlo::json& selection = map_data.at( selected_map );
 
+  std::vector<std::string_view> confirmed {};
+  confirmed.reserve( selected_gyms.size() );
   for ( const auto& [gym, attack_defense_map] : selection.items() ) {
     if ( !selected_gyms.contains( gym ) ) {
       continue;
     }
+    confirmed.push_back( gym );
     for ( const auto& t : attack_defense_map.at( gym_attacks_key ) ) {
       const std::string& type = t;
       result.insert( Dx::Type_encoding( type ) );
     }
+  }
+  if ( confirmed.size() != selected_gyms.size() ) {
+    std::cerr << "Mismatch occured for " << selected_map << " gym selection.\nRequested: ";
+    for ( const auto& s : selected_gyms ) {
+      std::cerr << s << " ";
+    }
+    std::cerr << "\nConfirmed: ";
+    for ( const auto& s : confirmed ) {
+      std::cerr << s << " ";
+    }
+    std::cerr << "\n";
   }
   // Return a simple set rather than altering every type's resistances in a large map.
   return result;
