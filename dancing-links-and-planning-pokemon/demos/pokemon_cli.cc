@@ -3,6 +3,7 @@
 #include "ranked_set.hh"
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <fstream>
 #include <iomanip>
@@ -17,6 +18,50 @@ namespace {
 
 constexpr size_t max_name_width = 17;
 constexpr size_t digit_width = 3;
+
+constexpr std::string_view nil = "\033[0m";
+constexpr std::string_view ansi_yel = "\033[38;5;11m";
+constexpr std::string_view ansi_red = "\033[38;5;9m";
+constexpr std::string_view ansi_grn = "\033[38;5;10m";
+// Obtained from hex color gist: https://gist.github.com/apaleslimghost/0d25ec801ca4fc43317bcff298af43c3
+constexpr std::array<std::string_view, 18> type_colors = {
+  // "Bug",
+  "\033[38;2;166;185;26m",
+  // "Dark",
+  "\033[38;2;112;87;70m",
+  // "Dragon",
+  "\033[38;2;111;53;252m",
+  // "Electric",
+  "\033[38;2;247;208;44m",
+  // "Fairy",
+  "\033[38;2;214;133;173m",
+  // "Fighting",
+  "\033[38;2;194;46;40m",
+  // "Fire",
+  "\033[38;2;238;129;48m",
+  // "Flying",
+  "\033[38;2;169;143;243m",
+  // "Ghost",
+  "\033[38;2;115;87;151m",
+  // "Grass",
+  "\033[38;2;122;199;76m",
+  // "Ground",
+  "\033[38;2;226;191;101m",
+  // "Ice",
+  "\033[38;2;150;217;214m",
+  // "Normal",
+  "\033[38;2;168;167;122m",
+  // "Poison",
+  "\033[38;2;163;62;161m",
+  // "Psychic",
+  "\033[38;2;249;85;135m",
+  // "Rock",
+  "\033[38;2;182;161;54m",
+  // "Steel",
+  "\033[38;2;183;183;206m",
+  // "Water",
+  "\033[38;2;99;144;240m",
+};
 
 enum class Solution_type
 {
@@ -43,6 +88,7 @@ int run( std::span<const char* const> args );
 int solve( const Runner& runner );
 void print_prep_message( const Universe_sets& sets );
 void break_line( size_t max_set_len );
+void print_solution_msg( const std::set<Ranked_set<Dx::Type_encoding>>& result, const Runner& runner );
 
 } // namespace
 
@@ -119,8 +165,7 @@ int solve( const Runner& runner )
   const int depth_limit = runner.type == Dx::Pokemon_links::Coverage_type::attack ? 24 : 6;
   result = runner.sol_type == Solution_type::exact ? Dx::exact_cover_stack( links, depth_limit )
                                                    : Dx::overlapping_cover_stack( links, depth_limit );
-  std::cout << "Found " << result.size() << ( runner.sol_type == Solution_type::exact ? " exact" : " overlapping" )
-            << " sets of options that cover specified items.\n";
+  print_solution_msg( result, runner );
   if ( result.empty() ) {
     return 0;
   }
@@ -133,8 +178,26 @@ int solve( const Runner& runner )
     std::cout << std::left << std::setw( digit_width ) << res.rank();
     size_t col = 0;
     for ( const auto& t : res ) {
-      const auto type = t.to_string();
-      std::cout << "│" << std::left << std::setw( max_name_width ) << type;
+      const std::pair<std::string_view, std::string_view> type_pair = t.decode_type();
+      const std::pair<uint64_t, std::optional<uint64_t>> type_indices = t.decode_indices();
+      if ( type_indices.second ) {
+        const auto output = std::string( type_colors.at( type_indices.first ) )
+                              .append( type_pair.first )
+                              .append( nil )
+                              .append( "-" )
+                              .append( type_colors.at( type_indices.second.value() ) )
+                              .append( type_pair.second )
+                              .append( nil );
+        std::cout << "│" << output
+                  << std::setw( static_cast<int>( max_name_width
+                                                  - ( type_pair.first.size() + 1 + type_pair.second.size() ) ) )
+                  << "";
+      } else {
+        const auto output
+          = std::string( type_colors.at( type_indices.first ) ).append( type_pair.first ).append( nil );
+        std::cout << "│" << output << std::setw( static_cast<int>( max_name_width - type_pair.first.size() ) )
+                  << "";
+      }
       ++col;
     }
     while ( col < max_set_len ) {
@@ -144,24 +207,74 @@ int solve( const Runner& runner )
     std::cout << "│\n";
     break_line( max_set_len );
   }
-  std::cout << "Found " << result.size() << ( runner.sol_type == Solution_type::exact ? " exact" : " overlapping" )
-            << " sets of options that cover specified items.\n";
+  print_solution_msg( result, runner );
   print_prep_message( items_options );
   return 0;
 }
 
 void print_prep_message( const Universe_sets& sets )
 {
-
-  std::cout << "Trying to cover " << sets.items.size() << " items:\n";
+  const auto item_msg = std::string( "Trying to cover " )
+                          .append( ansi_yel )
+                          .append( std::to_string( sets.items.size() ) )
+                          .append( " items\n\n" )
+                          .append( nil );
+  std::cout << item_msg;
   for ( const auto& type : sets.items ) {
-    std::cout << type << ", ";
+    const std::pair<std::string_view, std::string_view> type_pair = type.decode_type();
+    const std::pair<uint64_t, std::optional<uint64_t>> type_indices = type.decode_indices();
+    if ( type_indices.second ) {
+      const auto output = std::string( type_colors.at( type_indices.first ) )
+                            .append( type_pair.first )
+                            .append( nil )
+                            .append( "-" )
+                            .append( type_colors.at( type_indices.second.value() ) )
+                            .append( type_pair.second )
+                            .append( nil );
+      std::cout << output << ", ";
+    } else {
+      const auto output
+        = std::string( type_colors.at( type_indices.first ) ).append( type_pair.first ).append( nil );
+      std::cout << output << ", ";
+    }
   }
-  std::cout << "\n" << sets.options.size() << " options are available:\n";
+  const auto option_msg = std::string( "\n" )
+                            .append( ansi_yel )
+                            .append( std::to_string( sets.options.size() ) )
+                            .append( " options" )
+                            .append( nil )
+                            .append( " are available:\n\n" );
+  std::cout << "\n" << option_msg;
   for ( const auto& type : sets.options ) {
-    std::cout << type << ", ";
+    const std::pair<std::string_view, std::string_view> type_pair = type.decode_type();
+    const std::pair<uint64_t, std::optional<uint64_t>> type_indices = type.decode_indices();
+    if ( type_indices.second ) {
+      const auto output = std::string( type_colors.at( type_indices.first ) )
+                            .append( type_pair.first )
+                            .append( nil )
+                            .append( "-" )
+                            .append( type_colors.at( type_indices.second.value() ) )
+                            .append( type_pair.second )
+                            .append( nil );
+      std::cout << output << ", ";
+    } else {
+      const auto output
+        = std::string( type_colors.at( type_indices.first ) ).append( type_pair.first ).append( nil );
+      std::cout << output << ", ";
+    }
   }
   std::cout << "\n";
+}
+
+void print_solution_msg( const std::set<Ranked_set<Dx::Type_encoding>>& result, const Runner& runner )
+{
+  auto result_color = std::string( result.empty() ? ansi_red : ansi_grn );
+  const auto msg = result_color.append( "\nFound " )
+                     .append( std::to_string( result.size() ) )
+                     .append( runner.sol_type == Solution_type::exact ? " exact" : " overlapping" )
+                     .append( " sets of options that cover specified items.\n\n" )
+                     .append( nil );
+  std::cout << msg;
 }
 
 void break_line( size_t max_set_len )

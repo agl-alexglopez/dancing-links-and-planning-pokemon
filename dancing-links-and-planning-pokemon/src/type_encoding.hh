@@ -26,6 +26,7 @@
  * ---------------------
  */
 #pragma once
+#include <optional>
 #include <span>
 #ifndef TYPE_ENCODING_HH
 #define TYPE_ENCODING_HH
@@ -51,6 +52,7 @@ public:
   Type_encoding( std::string_view type ); // NOLINT
   [[nodiscard]] uint32_t encoding() const;
   [[nodiscard]] std::pair<std::string_view, std::string_view> decode_type() const;
+  [[nodiscard]] std::pair<uint64_t, std::optional<uint64_t>> decode_indices() const;
   [[nodiscard]] std::string to_string() const;
   [[nodiscard]] static std::span<const std::string_view> type_table();
 
