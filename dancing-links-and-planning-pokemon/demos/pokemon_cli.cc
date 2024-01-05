@@ -107,6 +107,13 @@ enum class Solution_type
   overlapping
 };
 
+enum class Table_type
+{
+  first,
+  normal,
+  last
+};
+
 struct Universe_sets
 {
   std::vector<Dx::Type_encoding> items;
@@ -125,7 +132,7 @@ struct Runner
 int run( std::span<const char* const> args );
 int solve( const Runner& runner );
 void print_prep_message( const Universe_sets& sets );
-void break_line( size_t max_set_len );
+void break_line( size_t max_set_len, Table_type t );
 void print_solution_msg( const std::set<Ranked_set<Dx::Type_encoding>>& result, const Runner& runner );
 void help();
 
@@ -161,7 +168,7 @@ int run( const std::span<const char* const> args )
         std::ifstream f( owned );
         runner.interactions = load_interaction_map( f );
         runner.map = owned.substr( owned.find_last_of( '/' ) + 1 );
-      } else if ( arg_str.starts_with( 'G' ) || arg_str.starts_with( 'E' ) ) {
+      } else if ( arg_str.starts_with( 'G' ) || arg_str == "E4" ) {
         runner.selected_gyms.emplace( arg_str );
       } else if ( arg_str == "A" ) {
         runner.type = Dx::Pokemon_links::attack;
@@ -215,6 +222,8 @@ int solve( const Runner& runner )
       return a.size() < b.size();
     } );
   const size_t max_set_len = largest_ranked_set.size();
+  break_line( max_set_len, Table_type::first );
+  size_t cur_set = 1;
   for ( const auto& res : result ) {
     std::cout << std::left << std::setw( digit_width ) << res.rank();
     size_t col = 0;
@@ -246,7 +255,9 @@ int solve( const Runner& runner )
       ++col;
     }
     std::cout << "│\n";
-    break_line( max_set_len );
+    cur_set == result.size() ? break_line( max_set_len, Table_type::last )
+                             : break_line( max_set_len, Table_type::normal );
+    ++cur_set;
   }
   print_solution_msg( result, runner );
   print_prep_message( items_options );
@@ -321,15 +332,39 @@ void print_solution_msg( const std::set<Ranked_set<Dx::Type_encoding>>& result, 
   std::cout << msg;
 }
 
-void break_line( size_t max_set_len )
+void break_line( size_t max_set_len, Table_type t )
 {
   std::cout << std::left << std::setw( digit_width ) << "";
-  std::cout << "├";
+  switch ( t ) {
+    case Table_type::first:
+      std::cout << "┌";
+      break;
+    case Table_type::normal:
+      std::cout << "├";
+      break;
+    case Table_type::last:
+      std::cout << "└";
+      break;
+    default:
+      std::cerr << "Unknown table type\n";
+  }
   for ( size_t col = 0; col < max_set_len; ++col ) {
     for ( size_t line = 0; line < max_name_width; ++line ) {
       std::cout << "─";
     }
-    std::cout << ( col == max_set_len - 1 ? "┤" : "┼" );
+    switch ( t ) {
+      case Table_type::first:
+        std::cout << ( col == max_set_len - 1 ? "┐" : "┬" );
+        break;
+      case Table_type::normal:
+        std::cout << ( col == max_set_len - 1 ? "┤" : "┼" );
+        break;
+      case Table_type::last:
+        std::cout << ( col == max_set_len - 1 ? "┘" : "┴" );
+        break;
+      default:
+        std::cerr << "Unknown table type\n";
+    }
   }
   std::cout << "\n";
 }
