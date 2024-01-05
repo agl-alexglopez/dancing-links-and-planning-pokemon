@@ -272,7 +272,10 @@ void print_solution_msg( const std::set<Ranked_set<Dx::Type_encoding>>& result, 
   const auto msg = result_color.append( "\nFound " )
                      .append( std::to_string( result.size() ) )
                      .append( runner.sol_type == Solution_type::exact ? " exact" : " overlapping" )
-                     .append( " sets of options that cover specified items.\n\n" )
+                     .append( " ranked sets of options that cover specified items." )
+                     .append( runner.type == Dx::Pokemon_links::Coverage_type::defense ? " Lower rank is better."
+                                                                                       : " Higher rank is better." )
+                     .append( "\n\n" )
                      .append( nil );
   std::cout << msg;
 }
