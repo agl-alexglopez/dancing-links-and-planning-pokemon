@@ -1,3 +1,41 @@
+/// Author: Alexander G. Lopez
+/// File: pokemon_cli.cc
+/// ---------------------
+/// This program is a minimal demo to get you up and running with dancing links
+/// solutions to "real world," or in this case "video game world" data. Progress on
+/// The graph cover visualizer with OpenGL is slow and I needed to test some changes
+/// I made to dancing links algorithms so here is the program to do it. It is not
+/// bad as it now has some color output which is nice. Use it as follows.
+///
+/// Request an exact defensive cover of the entire Pokemon generation on a certain map. This is the default.
+///
+/// ./build/rel/pokemon_cli data/dist/Gen-9-Paldea.dst
+///
+/// The above command answers the question: given at most 6 Pokemon what is the minimum number I can use
+/// to have better than normal defense from every type in the game? Request the Attack coverage instead
+/// in this form.
+///
+/// ./build/rel/pokemon_cli data/dist/Gen-9-Paldea.dst A
+///
+/// This answers the following question: given 24 attack slots across a team of 6 pokemon which attack types
+/// can I choose to be super effective against every type in the game? Ask for any subset of gyms for a given
+/// generation as follows.
+///
+/// ./build/rel/pokemon_cli data/dist/Gen-9-Paldea.dst G1 G2 G4
+///
+/// The above format asks the following question: given a subset of gyms how do I defensively cover myself
+/// from the attack types present in those gyms? You can ask the attack version by adding an A to your arguments.
+/// Finally, you can specify an exact or overlapping cover. By default this program tries to find exact covers
+/// to these pokemon typing questions meaning the at every option we use to cover all the items covers the items
+/// such that each item is covered exactly once. This is hard to do in many maps. Instead, if you want a blanket
+/// approach that simply seeks to cover all the items even if multiple options cover the same items add the "O"
+/// flag as follows.
+///
+/// ./build/rel/pokemon_cli data/dist/Gen-9-Paldea.dst G1 G2 G4 O
+///
+/// This will generate many solutions because this is a much looser constraint to apply to cover problems.
+/// Solutions will be cut off at 200,000 and your terminal will likely not display anywhere near the full set.
+/// Run this program from the root of the code base where the CMakePresets.json file is. Enjoy!
 #include "dancing_links.hh"
 #include "pokemon_parser.hh"
 #include "ranked_set.hh"
