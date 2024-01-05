@@ -127,6 +127,7 @@ int solve( const Runner& runner );
 void print_prep_message( const Universe_sets& sets );
 void break_line( size_t max_set_len );
 void print_solution_msg( const std::set<Ranked_set<Dx::Type_encoding>>& result, const Runner& runner );
+void help();
 
 } // namespace
 
@@ -172,12 +173,14 @@ int run( const std::span<const char* const> args )
         runner.sol_type = Solution_type::overlapping;
       } else {
         std::cerr << "Unknown argument: " << arg_str << "\n";
+        help();
         return 1;
       }
     }
     return solve( runner );
   } catch ( ... ) {
     std::cerr << "Pokemon CLI application encountered exception.\n";
+    help();
     return 1;
   }
 }
@@ -329,6 +332,20 @@ void break_line( size_t max_set_len )
     std::cout << ( col == max_set_len - 1 ? "┤" : "┼" );
   }
   std::cout << "\n";
+}
+
+void help()
+{
+  constexpr auto msg =
+    R"(Pokemon CLI Usage:
+        data/dst/map.dst - Path from the root of the repository to the generation map to solve.
+        G[GYM NUMBER]    - Add as many gyms to your argument to solve cover problems only for those gyms.
+        E4               - Add the "Elite Four" or equivalent stand-in final boss for a generation to the subset.
+        A                - The Attack flag to solve the attack type cover problem.
+        D                - The Defense flag to solve the defensive type cover problem. This is the default.
+        E                - Solve an Exact cover problem. This the default.
+        O                - Solve the overlapping cover problem)";
+  std::cout << msg << "\n";
 }
 
 } // namespace
