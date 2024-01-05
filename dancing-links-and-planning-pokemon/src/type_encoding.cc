@@ -41,6 +41,7 @@
 #include <bit>
 #include <compare>
 #include <cstdint>
+#include <optional>
 #include <ostream>
 #include <span>
 #include <string>

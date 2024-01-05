@@ -39,17 +39,24 @@
 #include "dancing_links.hh"
 #include "pokemon_parser.hh"
 #include "ranked_set.hh"
+#include "resistance.hh"
+#include "type_encoding.hh"
 
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <optional>
+#include <set>
 #include <span>
 #include <string>
 #include <string_view>
+#include <utility>
+#include <vector>
 
 namespace Dx = Dancing_links;
 namespace {
@@ -158,7 +165,7 @@ int run( const std::span<const char* const> args )
   try {
     Runner runner;
     for ( const auto& arg : args ) {
-      std::string_view arg_str { arg };
+      const std::string_view arg_str { arg };
       if ( arg_str.find( '/' ) != std::string::npos ) {
         if ( !runner.interactions.empty() ) {
           std::cerr << "Cannot load multiple generations simultaneously. Specify one.\n";
@@ -198,7 +205,6 @@ int solve( const Runner& runner )
     std::cerr << "No data loaded from any map to solve.\n";
     return 1;
   }
-  std::set<Ranked_set<Dx::Type_encoding>> result {};
   Dx::Pokemon_links links( runner.interactions, runner.type );
   if ( !runner.selected_gyms.empty() ) {
     std::set<Dx::Type_encoding> subset {};
@@ -208,11 +214,12 @@ int solve( const Runner& runner )
       : subset = load_selected_gyms_attacks( runner.map, runner.selected_gyms );
     Dx::hide_items_except( links, subset );
   }
-  Universe_sets items_options = { Dx::items( links ), Dx::options( links ) };
+  const Universe_sets items_options = { Dx::items( links ), Dx::options( links ) };
   print_prep_message( items_options );
   const int depth_limit = runner.type == Dx::Pokemon_links::Coverage_type::attack ? 24 : 6;
-  result = runner.sol_type == Solution_type::exact ? Dx::exact_cover_stack( links, depth_limit )
-                                                   : Dx::overlapping_cover_stack( links, depth_limit );
+  const std::set<Ranked_set<Dx::Type_encoding>> result = runner.sol_type == Solution_type::exact
+                                                           ? Dx::exact_cover_stack( links, depth_limit )
+                                                           : Dx::overlapping_cover_stack( links, depth_limit );
   print_solution_msg( result, runner );
   if ( result.empty() ) {
     return 0;
