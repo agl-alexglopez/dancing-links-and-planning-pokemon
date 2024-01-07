@@ -49,6 +49,8 @@ import :ranked_set;
 import :resistance;
 import :type_encoding;
 
+/////////////////////////////////////////   Exported Interface   //////////////////////////////////////////////////
+
 export namespace Dancing_links {
 
 class Pokemon_links
@@ -574,6 +576,8 @@ void reset_all( Pokemon_links& dlx )
 }
 
 } // namespace Dancing_links
+
+////////////////////////////////////////   Implementation   ///////////////////////////////////////////////////////
 
 namespace Dancing_links {
 

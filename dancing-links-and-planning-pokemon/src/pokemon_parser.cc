@@ -20,6 +20,8 @@ import :map_parser;
 import :resistance;
 import :type_encoding;
 
+///////////////////////////////////   Exported Interface   ////////////////////////////////////////////////////////
+
 export namespace Dancing_links {
 
 /* Leave a comment at the first line of the Pokemon Generation .dst file you want to construct with
@@ -99,6 +101,8 @@ std::set<Type_encoding> load_selected_gyms_attacks( const std::string& selected_
                                                     const std::set<std::string>& selected );
 
 } // namespace Dancing_links
+
+///////////////////////////////////////   Implementation   ////////////////////////////////////////////////////////
 
 namespace Dancing_links {
 

@@ -48,6 +48,8 @@ module;
 #include <utility>
 export module dancing_links:type_encoding;
 
+////////////////////////////////////////   Exported Interface   //////////////////////////////////////////////////
+
 export namespace Dancing_links {
 
 class Type_encoding
@@ -98,6 +100,8 @@ private:
 std::ostream& operator<<( std::ostream& out, Type_encoding tp );
 
 } // namespace Dancing_links
+
+////////////////////////////////////////   Implementation   ///////////////////////////////////////////////////////
 
 /* * * * * * * * * *          Type_encodings Should be Hashable          * * * * * * * * * * * * * */
 

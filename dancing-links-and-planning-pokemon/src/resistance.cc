@@ -26,6 +26,8 @@ module;
 export module dancing_links:resistance;
 import :type_encoding;
 
+///////////////////////////////////////   Exported Interface   ////////////////////////////////////////////////////
+
 export namespace Dancing_links {
 
 enum Multiplier
@@ -92,6 +94,8 @@ std::ostream& operator<<( std::ostream& out, const Resistance& res );
 std::ostream& operator<<( std::ostream& out, const Multiplier& mult );
 
 } // namespace Dancing_links
+
+////////////////////////////////////////   Implementation   //////////////////////////////////////////////////////
 
 namespace Dancing_links {
 

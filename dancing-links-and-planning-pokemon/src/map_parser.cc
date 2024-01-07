@@ -15,7 +15,10 @@ module;
 export module dancing_links:map_parser;
 import :point;
 
+//////////////////////////////////////   Exported Interface   /////////////////////////////////////////////////////
+
 export namespace Dancing_links {
+
 /**
  * Type representing a test case for the Disaster Preparation problem.
  */
@@ -36,6 +39,8 @@ struct Map_test
 Map_test load_map( std::istream& source );
 
 } // namespace Dancing_links
+
+//////////////////////////////////////   Implementation   /////////////////////////////////////////////////////////
 
 namespace Dancing_links {
 

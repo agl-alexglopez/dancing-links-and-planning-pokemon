@@ -5,6 +5,8 @@ module;
 #include <iostream>
 export module dancing_links:point;
 
+////////////////////////////////////////   Exported Interface   ///////////////////////////////////////////////////
+
 export namespace Dancing_links {
 
 class Point
@@ -23,6 +25,8 @@ std::partial_ordering operator<=>( const Point& lhs, const Point& rhs );
 Point operator*( const Point& p1, float scale );
 
 } // namespace Dancing_links
+
+///////////////////////////////////////   Implementation   ////////////////////////////////////////////////////////
 
 namespace std {
 template<>
