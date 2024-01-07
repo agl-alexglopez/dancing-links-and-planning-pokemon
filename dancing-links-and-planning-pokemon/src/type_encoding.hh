@@ -26,8 +26,6 @@
  * ---------------------
  */
 #pragma once
-#include <optional>
-#include <span>
 #ifndef TYPE_ENCODING_HH
 #define TYPE_ENCODING_HH
 
@@ -36,7 +34,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <ostream>
+#include <span>
 #include <string>
 #include <string_view>
 #include <utility>

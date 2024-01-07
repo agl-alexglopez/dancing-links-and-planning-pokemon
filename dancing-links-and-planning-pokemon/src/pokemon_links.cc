@@ -35,6 +35,7 @@
 #include "ranked_set.hh"
 #include "resistance.hh"
 #include "type_encoding.hh"
+
 #include <climits>
 #include <cmath>
 #include <cstdint>
@@ -608,6 +609,21 @@ void Pokemon_links::overlapping_uncover_type( uint64_t index_in_option )
 }
 
 /* * * * * * * * * * * * * * * * *        Utility Functions             * * * * * * * * * * * * * */
+
+const std::vector<Pokemon_links::Poke_link>& Pokemon_links::links() const
+{
+  return links_;
+}
+
+const std::vector<Pokemon_links::Type_name>& Pokemon_links::item_table() const
+{
+  return item_table_;
+}
+
+const std::vector<Pokemon_links::Encoding_index>& Pokemon_links::option_table() const
+{
+  return option_table_;
+}
 
 bool Pokemon_links::reached_output_limit() const
 {

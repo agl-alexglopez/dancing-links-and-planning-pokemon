@@ -1,5 +1,5 @@
 /**
- * mIT License
+ * MIT License
  *
  * Copyright (c) 2023 Alex G. Lopez
  *
@@ -36,11 +36,8 @@
 #include "resistance.hh"
 #include "type_encoding.hh"
 
-#include <gtest/gtest_prod.h>
-
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
 #include <map>
 #include <optional>
 #include <set>
@@ -53,11 +50,37 @@ class Pokemon_links
 {
 
 public:
+  static constexpr int hidden = -1;
+
   // The user is asking us for the defensive team they should build or attacks they need.
   enum Coverage_type
   {
     defense,
     attack
+  };
+
+  // This type, in a seperate vector, controls the base case of our recursion.
+  struct Type_name
+  {
+    Type_encoding name;
+    uint64_t left;
+    uint64_t right;
+  };
+
+  // This type is entered into our dancing links array for the in place recursive algorithm.
+  struct Poke_link
+  {
+    int32_t top_or_len;
+    uint64_t up;
+    uint64_t down;
+    Multiplier multiplier; // x0.0, x0.25, x0.5, x1.0, x2, or x4 damage multipliers.
+    int tag;               // We use this to efficiently generate overlapping sets.
+  };
+
+  struct Encoding_index
+  {
+    Type_encoding name;
+    uint64_t index;
   };
 
   /**
@@ -158,32 +181,14 @@ public:
 
   [[nodiscard]] Coverage_type get_links_type() const;
 
+  [[nodiscard]] const std::vector<Poke_link>& links() const;
+
+  [[nodiscard]] const std::vector<Type_name>& item_table() const;
+
+  [[nodiscard]] const std::vector<Encoding_index>& option_table() const;
+
 private:
   /* * * * * * * * * * *   Dancing Links Internals and Implementation   * * * * * * * * * * * * */
-
-  // This type is entered into our dancing links array for the in place recursive algorithm.
-  struct Poke_link
-  {
-    int32_t top_or_len;
-    uint64_t up;
-    uint64_t down;
-    Multiplier multiplier; // x0.0, x0.25, x0.5, x1.0, x2, or x4 damage multipliers.
-    int tag;               // We use this to efficiently generate overlapping sets.
-  };
-
-  // This type, in a seperate vector, controls the base case of our recursion.
-  struct Type_name
-  {
-    Type_encoding name;
-    uint64_t left;
-    uint64_t right;
-  };
-
-  struct Encoding_index
-  {
-    Type_encoding name;
-    uint64_t index;
-  };
 
   struct Encoding_score
   {
@@ -222,8 +227,6 @@ private:
   uint64_t num_items_ { 0 };                    // What needs to be covered.
   uint64_t num_options_ { 0 };                  // Options we can choose from to cover items.
   Coverage_type requested_cover_solution_ {};   // The user is asking for ATTACK or DEFENSE
-
-  static constexpr int hidden = -1;
 
   /**
    * @brief exact_dlx_recursive fills the output parameters with every exact cover that can be
@@ -392,54 +395,6 @@ private:
                            std::unordered_map<Type_encoding, uint64_t>& column_builder,
                            Coverage_type requested_coverage );
 
-  /* * * * * * * * * * *    Operators for Test Harness Functionality    * * * * * * * * * * * * */
-
-  /* I test dancing links implementations internally rather than with unit tests because the
-   * vectors are easy to examine. To use the Google Test I need to provide overloaded
-   * operators for equality testing and printing output on failure. These friend functions
-   * are strictly for the FRIEND_TEST() calls at the end of this class and shouldn't be
-   * useful or used by anything else that uses this class. This algorithm doesn't need to allow
-   * users to have access to these internals. I understand this is bad design but this algorithm
-   * was a little advanced for my level when I first heard of it so I wanted to make sure I did it
-   * right back then. I will redesign so tests don't break on changes ASAP.
-   */
-  friend bool operator==( const Poke_link& lhs, const Poke_link& rhs );
-  friend bool operator!=( const Poke_link& lhs, const Poke_link& rhs );
-  friend std::ostream& operator<<( std::ostream& os, const Poke_link& link );
-  friend bool operator==( const Type_name& lhs, const Type_name& rhs );
-  friend bool operator!=( const Type_name& lhs, const Type_name& rhs );
-  friend std::ostream& operator<<( std::ostream& os, const Type_name& type );
-  friend bool operator==( const Encoding_index& lhs, const Encoding_index& rhs );
-  friend bool operator!=( const Encoding_index& lhs, const Encoding_index& rhs );
-  friend std::ostream& operator<<( std::ostream& os, const Encoding_index& n_n );
-  friend std::ostream& operator<<( std::ostream& os, const std::vector<Encoding_index>& n_n );
-  friend bool operator==( const std::vector<Encoding_index>& lhs, const std::vector<Encoding_index>& rhs );
-  friend bool operator!=( const std::vector<Encoding_index>& lhs, const std::vector<Encoding_index>& rhs );
-  friend bool operator==( const std::vector<Poke_link>& lhs, const std::vector<Poke_link>& rhs );
-  friend bool operator!=( const std::vector<Poke_link>& lhs, const std::vector<Poke_link>& rhs );
-  friend bool operator==( const std::vector<Type_name>& lhs, const std::vector<Type_name>& rhs );
-  friend bool operator!=( const std::vector<Type_name>& lhs, const std::vector<Type_name>& rhs );
-  friend std::ostream& operator<<( std::ostream& os, const std::vector<Poke_link>& links );
-  friend std::ostream& operator<<( std::ostream& os, const std::vector<Type_name>& items );
-
-  FRIEND_TEST( InternalTests, InitializeSmallDefensiveLinks );
-  FRIEND_TEST( InternalTests, InitializeAWorldWhereThereAreOnlySingleTypes );
-  FRIEND_TEST( InternalTests, CoverElectricWithDragonEliminatesElectricOptionUncoverResets );
-  FRIEND_TEST( InternalTests, CoverElectricWithElectricToCauseHidingOfManyOptions );
-  FRIEND_TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst );
-  FRIEND_TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestoreStateAfter );
-  FRIEND_TEST( InternalTests, InitializationOfAttackDancingLinks );
-  FRIEND_TEST( InternalTests, TestTheDepthTagApproachToOverlappingCoverage );
-  FRIEND_TEST( InternalTests, ThereAreAFewOverlappingCoversHere );
-  FRIEND_TEST( InternalTests, TestBinarySearchOnTheItemTable );
-  FRIEND_TEST( InternalTests, TestBinarySearchOnTheOptionTable );
-  FRIEND_TEST( InternalTests, TestHidingAnItemFromTheWorld );
-  FRIEND_TEST( InternalTests, TestHidingGrassAndIceAndThenResetTheLinks );
-  FRIEND_TEST( InternalTests, TestHidingAnOptionFromTheWorld );
-  FRIEND_TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover );
-  FRIEND_TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCover );
-  FRIEND_TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep );
-  FRIEND_TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution );
 }; // class Pokemon_links
 
 } // namespace Dancing_links
