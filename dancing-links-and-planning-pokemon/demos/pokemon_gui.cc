@@ -1,7 +1,6 @@
-#include "pokemon_parser.hh"
+import dancing_links;
 #include "quad.hh"
 #include "triangle.hh"
-#include "type_encoding.hh"
 #include "window.hh"
 
 #include <array>
@@ -35,7 +34,7 @@ int run()
   try {
     std::ifstream gen( std::string { "data/dst/Gen-1-Kanto.dst" } );
     const Dx::Type_encoding tester( "Fire" );
-    const Pokemon_test interactions = load_pokemon_generation( gen );
+    const Dx::Pokemon_test interactions = Dx::load_pokemon_generation( gen );
     std::cout << "Hello from the GUI.\n";
     std::cout << "Tester Type_encoding is: " << tester << "\n";
     std::cout << "Generation size is: " << interactions.interactions.size() << "\n";

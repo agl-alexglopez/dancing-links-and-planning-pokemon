@@ -28,13 +28,7 @@
  * found it much easier to develop the algorithm quickly with internal testing rather than just
  * plain unit testing. You can learn a lot about how Dancing Links works by reading these tests.
  */
-#include "map_parser.hh"
-#include "point.hh"
-#include "pokemon_links.hh"
-#include "pokemon_parser.hh"
-#include "ranked_set.hh"
-#include "resistance.hh"
-#include "type_encoding.hh"
+import dancing_links;
 
 #include <gtest/gtest.h>
 
@@ -47,6 +41,7 @@
 #include <optional>
 #include <random>
 #include <set>
+#include <span>
 #include <unordered_map>
 #include <vector>
 
@@ -235,15 +230,15 @@ TEST( ParserTests, CheckMapParserLoadsInMapCorrectly )
         {"E4", {"G8"}},
       },
       .city_locations = {
-        {"G1", Gui::Point( 3.0, 4.0 )},
-        {"G2", Gui::Point( 8.0, 3.0 )},
-        {"G3", Gui::Point( 8.0, 7.0 )},
-        {"G4", Gui::Point( 6.0, 5.0 )},
-        {"G5", Gui::Point( 6.0, 10.0 )},
-        {"G6", Gui::Point( 8.0, 5.0 )},
-        {"G7", Gui::Point( 3.0, 11.0 )},
-        {"G8", Gui::Point( 3.0, 7.0 )},
-        {"E4", Gui::Point( 1.0, 3.0 )},
+        {"G1", Point( 3.0, 4.0 )},
+        {"G2", Point( 8.0, 3.0 )},
+        {"G3", Point( 8.0, 7.0 )},
+        {"G4", Point( 6.0, 5.0 )},
+        {"G5", Point( 6.0, 10.0 )},
+        {"G6", Point( 8.0, 5.0 )},
+        {"G7", Point( 3.0, 11.0 )},
+        {"G8", Point( 3.0, 7.0 )},
+        {"E4", Point( 1.0, 3.0 )},
       },
     },
   };
@@ -272,9 +267,8 @@ TEST( ParserTests, LoadTwoSubsetsOfGyms )
 {
   const std::string gen_1_map { "Gen-1-Kanto.dst" };
   const std::set<std::string> selected_gyms = { "G1", "G2" };
-  const std::set<Dx::Type_encoding> g1_g2_attack = { Dx::Type_encoding( "Normal" ), Dx::Type_encoding( "Water" ) };
-  const std::set<Dx::Type_encoding> g1_g2_defense
-    = { Dx::Type_encoding( "Ground-Rock" ), Dx::Type_encoding( "Water" ) };
+  const std::set<Type_encoding> g1_g2_attack = { Type_encoding( "Normal" ), Type_encoding( "Water" ) };
+  const std::set<Type_encoding> g1_g2_defense = { Type_encoding( "Ground-Rock" ), Type_encoding( "Water" ) };
 
   EXPECT_EQ( load_selected_gyms_attacks( gen_1_map, selected_gyms ), g1_g2_attack );
   EXPECT_EQ( load_selected_gyms_defenses( gen_1_map, selected_gyms ), g1_g2_defense );
@@ -286,7 +280,7 @@ TEST( InternalTests, EasiestTypeEncodingLexographicallyIsBug )
 {
   const uint32_t hex_type = 0x1;
   const std::string_view str_type = "Bug";
-  const Dx::Type_encoding code( str_type );
+  const Type_encoding code( str_type );
   EXPECT_EQ( hex_type, code.encoding() );
   EXPECT_EQ( str_type, code.decode_type().first );
   const std::string_view empty {};
@@ -297,7 +291,7 @@ TEST( InternalTests, TestTheNextSimplistDualTypeBugDark )
 {
   const uint32_t hex_type = 0x3;
   const std::string_view str_type = "Bug-Dark";
-  const Dx::Type_encoding code( str_type );
+  const Type_encoding code( str_type );
   EXPECT_EQ( hex_type, code.encoding() );
   EXPECT_EQ( std::string_view( "Bug" ), code.decode_type().first );
   EXPECT_EQ( std::string_view( "Dark" ), code.decode_type().second );
@@ -307,7 +301,7 @@ TEST( InternalTests, TestForOffByOneErrorsWithFirstAndLastIndexTypeBugWater )
 {
   const uint32_t hex_type = 0x20001;
   const std::string_view str_type = "Bug-Water";
-  const Dx::Type_encoding code( str_type );
+  const Type_encoding code( str_type );
   EXPECT_EQ( hex_type, code.encoding() );
   EXPECT_EQ( std::string_view( "Bug" ), code.decode_type().first );
   EXPECT_EQ( std::string_view( "Water" ), code.decode_type().second );
@@ -333,9 +327,9 @@ TEST( InternalTests, TestLexicographicOrderIsEquivalentBetweenStringsAndTypeEnco
     "Fairy-Flying",
     "Ground-Rock",
   };
-  std::array<Dx::Type_encoding, 16> encodings {};
+  std::array<Type_encoding, 16> encodings {};
   for ( size_t i = 0; i < rand_types.size(); ++i ) {
-    encodings.at( i ) = Dx::Type_encoding( rand_types.at( i ) );
+    encodings.at( i ) = Type_encoding( rand_types.at( i ) );
   }
   // We should expect the same sorting as string representation for use in any container or algorithm.
   std::sort( rand_types.begin(), rand_types.end() );
@@ -364,17 +358,17 @@ TEST( InternalTests, TestEveryPossibleCombinationOfTypings )
    * count this as just "Bug," dropping the second part because single types exist.
    */
   const uint64_t bug = 0x1;
-  const uint64_t end = 1ULL << Dx::Type_encoding::type_table().size();
+  const uint64_t end = 1ULL << Type_encoding::type_table().size();
   for ( uint64_t bit1 = bug; bit1 != end; bit1 <<= 1 ) {
-    const std::string_view check_single_type( Dx::Type_encoding::type_table()[std::countr_zero( bit1 )] );
-    const Dx::Type_encoding single_type_encoding( check_single_type );
+    const std::string_view check_single_type( Type_encoding::type_table()[std::countr_zero( bit1 )] );
+    const Type_encoding single_type_encoding( check_single_type );
     EXPECT_EQ( single_type_encoding.encoding(), bit1 );
     EXPECT_EQ( single_type_encoding.decode_type().first, check_single_type );
     EXPECT_EQ( single_type_encoding.decode_type().second, std::string_view {} );
     for ( uint64_t bit2 = bit1 << 1; bit2 != end; bit2 <<= 1 ) {
-      const std::string_view t2 = Dx::Type_encoding::type_table()[std::countr_zero( bit2 )];
+      const std::string_view t2 = Type_encoding::type_table()[std::countr_zero( bit2 )];
       const auto check_dual_type = std::string( check_single_type ).append( "-" ).append( t2 );
-      Dx::Type_encoding dual_type_encoding( check_dual_type );
+      Type_encoding dual_type_encoding( check_dual_type );
       EXPECT_EQ( dual_type_encoding.encoding(), bit1 | bit2 );
       EXPECT_EQ( dual_type_encoding.to_string(), check_dual_type );
     }
@@ -396,21 +390,21 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
    * of 18 stack strings that the compiler will likely place in the read-only memory segment, much less wasteful.
    */
 
-  std::unordered_map<std::string, Dx::Type_encoding> encode_map;
-  std::unordered_map<Dx::Type_encoding, std::string> decode_map;
+  std::unordered_map<std::string, Type_encoding> encode_map;
+  std::unordered_map<Type_encoding, std::string> decode_map;
 
   // Generate all possible unique type combinations and place them in the maps.
   const uint64_t bug = 0x1;
-  const uint64_t bit_end = 1ULL << Dx::Type_encoding::type_table().size();
+  const uint64_t bit_end = 1ULL << Type_encoding::type_table().size();
   for ( uint64_t bit1 = bug; bit1 != bit_end; bit1 <<= 1 ) {
-    const std::string check_single_type( Dx::Type_encoding::type_table()[std::countr_zero( bit1 )] );
-    const Dx::Type_encoding single_type_encoding( check_single_type );
+    const std::string check_single_type( Type_encoding::type_table()[std::countr_zero( bit1 )] );
+    const Type_encoding single_type_encoding( check_single_type );
     encode_map.insert( { check_single_type, single_type_encoding } );
     decode_map.insert( { single_type_encoding, check_single_type } );
     for ( uint64_t bit2 = bit1 << 1; bit2 != bit_end; bit2 <<= 1 ) {
-      const auto t2 = std::string( Dx::Type_encoding::type_table()[std::countr_zero( bit2 )] );
+      const auto t2 = std::string( Type_encoding::type_table()[std::countr_zero( bit2 )] );
       const auto check_dual_type = std::string( check_single_type ).append( "-" ).append( t2 );
-      const Dx::Type_encoding dual_type_encoding( check_dual_type );
+      const Type_encoding dual_type_encoding( check_dual_type );
       encode_map.insert( { check_dual_type, dual_type_encoding } );
       decode_map.insert( { dual_type_encoding, check_dual_type } );
     }
@@ -432,10 +426,10 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
     const int type1 = first_type( gen );
     const int type2 = second_type( gen );
     single_type_total++;
-    std::string type( Dx::Type_encoding::type_table()[type1] );
+    std::string type( Type_encoding::type_table()[type1] );
     // This ensures we get a decent amount of single and dual types into the mix.
     if ( type2 < type1 ) {
-      std::string t2( Dx::Type_encoding::type_table()[type2] );
+      std::string t2( Type_encoding::type_table()[type2] );
       type += "-" + t2;
       dual_type_total++;
       single_type_total--;
@@ -452,16 +446,16 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
 
   // Time 1,000,000 encodings with both methods.
 
-  std::vector<Dx::Type_encoding> type_encodings( to_encode.size() );
+  std::vector<Type_encoding> type_encodings( to_encode.size() );
   const std::clock_t start = std::clock();
   for ( uint64_t i = 0; i < to_encode.size(); i++ ) {
-    type_encodings[i] = Dx::Type_encoding( to_encode[i] );
+    type_encodings[i] = Type_encoding( to_encode[i] );
   }
   const std::clock_t end = std::clock();
   std::cerr << "Type_encoding encode method(ms): "
             << 1000.0 * ( static_cast<double>( end - start ) ) / CLOCKS_PER_SEC << "\n";
 
-  std::vector<Dx::Type_encoding> hash_encodings( num_requests );
+  std::vector<Type_encoding> hash_encodings( num_requests );
   const std::clock_t start2 = std::clock();
   for ( uint64_t i = 0; i < to_encode.size(); i++ ) {
     hash_encodings[i] = encode_map[to_encode[i]];
@@ -502,7 +496,7 @@ TEST( InternalTests, CompareMyEncodingDecodingSpeed )
 
 TEST( RankedSetTests, SetContainsUniqueElements )
 {
-  Ranked_set<Dx::Type_encoding> rset {};
+  Ranked_set<Type_encoding> rset {};
   EXPECT_EQ( rset.insert( { "Bug" } ), true );
   EXPECT_EQ( rset.insert( { "Bug" } ), false );
   EXPECT_EQ( rset.size(), 1 );
@@ -515,7 +509,7 @@ TEST( RankedSetTests, SetContainsUniqueElements )
 
 TEST( RankedSetTests, SetElementsAreSorted )
 {
-  Ranked_set<Dx::Type_encoding> rset {};
+  Ranked_set<Type_encoding> rset {};
   EXPECT_EQ( rset.insert( { "Bug" } ), true );
   EXPECT_EQ( rset.insert( { "Bug-Ground" } ), true );
   EXPECT_EQ( rset.insert( { "Bug-Poison" } ), true );
@@ -524,21 +518,21 @@ TEST( RankedSetTests, SetElementsAreSorted )
   EXPECT_EQ( rset.insert( { "Bug-Fire" } ), true );
   EXPECT_EQ( rset.insert( { "Bug-Steel" } ), true );
   EXPECT_EQ( rset,
-             Ranked_set<Dx::Type_encoding>( 0,
-                                            {
-                                              { "Bug" },
-                                              { "Bug-Dark" },
-                                              { "Bug-Fire" },
-                                              { "Bug-Ground" },
-                                              { "Bug-Poison" },
-                                              { "Bug-Steel" },
-                                              { "Bug-Water" },
-                                            } ) );
+             Ranked_set<Type_encoding>( 0,
+                                        {
+                                          { "Bug" },
+                                          { "Bug-Dark" },
+                                          { "Bug-Fire" },
+                                          { "Bug-Ground" },
+                                          { "Bug-Poison" },
+                                          { "Bug-Steel" },
+                                          { "Bug-Water" },
+                                        } ) );
 }
 
 TEST( RankedSetTests, AntiPatternIsDealtWithCorrectly )
 {
-  Ranked_set<Dx::Type_encoding> rset {};
+  Ranked_set<Type_encoding> rset {};
   // Each of these will need to be inserted at the front.
   EXPECT_EQ( rset.insert( { "Bug-Water" } ), true );
   EXPECT_EQ( rset.insert( { "Bug-Steel" } ), true );
@@ -548,21 +542,21 @@ TEST( RankedSetTests, AntiPatternIsDealtWithCorrectly )
   EXPECT_EQ( rset.insert( { "Bug-Dark" } ), true );
   EXPECT_EQ( rset.insert( { "Bug" } ), true );
   EXPECT_EQ( rset,
-             Ranked_set<Dx::Type_encoding>( 0,
-                                            {
-                                              { "Bug" },
-                                              { "Bug-Dark" },
-                                              { "Bug-Fire" },
-                                              { "Bug-Ground" },
-                                              { "Bug-Poison" },
-                                              { "Bug-Steel" },
-                                              { "Bug-Water" },
-                                            } ) );
+             Ranked_set<Type_encoding>( 0,
+                                        {
+                                          { "Bug" },
+                                          { "Bug-Dark" },
+                                          { "Bug-Fire" },
+                                          { "Bug-Ground" },
+                                          { "Bug-Poison" },
+                                          { "Bug-Steel" },
+                                          { "Bug-Water" },
+                                        } ) );
 }
 
 TEST( RankedSetTests, BestCaseIsDealtWithCorrectly )
 {
-  Ranked_set<Dx::Type_encoding> rset {};
+  Ranked_set<Type_encoding> rset {};
   // Each of these will need to be inserted at the back.
   EXPECT_EQ( rset.insert( { "Bug" } ), true );
   EXPECT_EQ( rset.insert( { "Bug-Dark" } ), true );
@@ -572,49 +566,49 @@ TEST( RankedSetTests, BestCaseIsDealtWithCorrectly )
   EXPECT_EQ( rset.insert( { "Bug-Steel" } ), true );
   EXPECT_EQ( rset.insert( { "Bug-Water" } ), true );
   EXPECT_EQ( rset,
-             Ranked_set<Dx::Type_encoding>( 0,
-                                            {
-                                              { "Bug" },
-                                              { "Bug-Dark" },
-                                              { "Bug-Fire" },
-                                              { "Bug-Ground" },
-                                              { "Bug-Poison" },
-                                              { "Bug-Steel" },
-                                              { "Bug-Water" },
-                                            } ) );
+             Ranked_set<Type_encoding>( 0,
+                                        {
+                                          { "Bug" },
+                                          { "Bug-Dark" },
+                                          { "Bug-Fire" },
+                                          { "Bug-Ground" },
+                                          { "Bug-Poison" },
+                                          { "Bug-Steel" },
+                                          { "Bug-Water" },
+                                        } ) );
 }
 
 TEST( RankedSetTests, RemovingElementsKeepsSetContiguous )
 {
-  Ranked_set<Dx::Type_encoding> rset {};
+  Ranked_set<Type_encoding> rset {};
   EXPECT_EQ( rset.insert( { "Bug" } ), true );
   EXPECT_EQ( rset.insert( { "Bug-Dark" } ), true );
   EXPECT_EQ( rset.insert( { "Bug-Fire" } ), true );
   EXPECT_EQ( rset.erase( { "Bug-Dark" } ), true );
   EXPECT_EQ( rset.size(), 2 );
   EXPECT_EQ( rset,
-             Ranked_set<Dx::Type_encoding>( 0,
-                                            {
-                                              { "Bug" },
-                                              { "Bug-Fire" },
-                                            } ) );
+             Ranked_set<Type_encoding>( 0,
+                                        {
+                                          { "Bug" },
+                                          { "Bug-Fire" },
+                                        } ) );
 }
 
 TEST( RankedSetTests, RemovingFromEmptySetIsWellDefined )
 {
-  Ranked_set<Dx::Type_encoding> rset {};
+  Ranked_set<Type_encoding> rset {};
   EXPECT_EQ( rset.erase( { "Bug-Dark" } ), false );
 }
 
 TEST( RankedSetTests, AddAndRemoveAllPokemonTypesRandomly )
 {
 
-  Ranked_set<Dx::Type_encoding> all_types {};
+  Ranked_set<Type_encoding> all_types {};
   all_types.reserve( 171 );
   std::vector<std::pair<uint64_t, std::optional<uint64_t>>> type_table_indices {};
   type_table_indices.reserve( 171 );
   const uint64_t bug = 0x1;
-  const uint64_t end = 1ULL << Dx::Type_encoding::type_table().size();
+  const uint64_t end = 1ULL << Type_encoding::type_table().size();
   for ( uint64_t bit1 = bug; bit1 != end; bit1 <<= 1 ) {
     type_table_indices.emplace_back( std::countr_zero( bit1 ), std::optional<uint64_t> {} );
     for ( uint64_t bit2 = bit1 << 1; bit2 != end; bit2 <<= 1 ) {
@@ -624,31 +618,31 @@ TEST( RankedSetTests, AddAndRemoveAllPokemonTypesRandomly )
   EXPECT_EQ( type_table_indices.size(), 171 );
   std::shuffle( type_table_indices.begin(), type_table_indices.end(), std::mt19937( std::random_device {}() ) );
   for ( const auto& type_indices : type_table_indices ) {
-    const std::string_view check_single_type( Dx::Type_encoding::type_table()[type_indices.first] );
+    const std::string_view check_single_type( Type_encoding::type_table()[type_indices.first] );
     if ( !type_indices.second ) {
-      const Dx::Type_encoding single_type_encoding( check_single_type );
+      const Type_encoding single_type_encoding( check_single_type );
       EXPECT_EQ( all_types.insert( single_type_encoding ), true );
       continue;
     }
     const auto check_dual_type = std::string( check_single_type )
                                    .append( "-" )
-                                   .append( Dx::Type_encoding::type_table()[type_indices.second.value()] );
-    Dx::Type_encoding dual_type_encoding( check_dual_type );
+                                   .append( Type_encoding::type_table()[type_indices.second.value()] );
+    Type_encoding dual_type_encoding( check_dual_type );
     EXPECT_EQ( all_types.insert( dual_type_encoding ), true );
   }
   EXPECT_EQ( all_types.size(), 171 );
   EXPECT_EQ( std::is_sorted( all_types.begin(), all_types.end() ), true );
   for ( const auto& type_indices : type_table_indices ) {
-    const std::string_view check_single_type( Dx::Type_encoding::type_table()[type_indices.first] );
+    const std::string_view check_single_type( Type_encoding::type_table()[type_indices.first] );
     if ( !type_indices.second ) {
-      const Dx::Type_encoding single_type_encoding( check_single_type );
+      const Type_encoding single_type_encoding( check_single_type );
       EXPECT_EQ( all_types.erase( single_type_encoding ), true );
       continue;
     }
     const auto check_dual_type = std::string( check_single_type )
                                    .append( "-" )
-                                   .append( Dx::Type_encoding::type_table()[type_indices.second.value()] );
-    Dx::Type_encoding dual_type_encoding( check_dual_type );
+                                   .append( Type_encoding::type_table()[type_indices.second.value()] );
+    Type_encoding dual_type_encoding( check_dual_type );
     EXPECT_EQ( all_types.erase( dual_type_encoding ), true );
   }
   EXPECT_EQ( all_types.empty(), true );
@@ -662,29 +656,29 @@ double fill_and_empty_set_with_types( T& set,
 {
   const std::clock_t start = std::clock();
   for ( const auto& type_indices : type_table_indices ) {
-    const std::string_view check_single_type( Dx::Type_encoding::type_table()[type_indices.first] );
+    const std::string_view check_single_type( Type_encoding::type_table()[type_indices.first] );
     if ( !type_indices.second ) {
-      const Dx::Type_encoding single_type_encoding( check_single_type );
+      const Type_encoding single_type_encoding( check_single_type );
       static_cast<void>( set.insert( single_type_encoding ) );
       continue;
     }
     const auto check_dual_type = std::string( check_single_type )
                                    .append( "-" )
-                                   .append( Dx::Type_encoding::type_table()[type_indices.second.value()] );
-    Dx::Type_encoding dual_type_encoding( check_dual_type );
+                                   .append( Type_encoding::type_table()[type_indices.second.value()] );
+    Type_encoding dual_type_encoding( check_dual_type );
     static_cast<void>( set.insert( dual_type_encoding ) );
   }
   for ( const auto& type_indices : type_table_indices ) {
-    const std::string_view check_single_type( Dx::Type_encoding::type_table()[type_indices.first] );
+    const std::string_view check_single_type( Type_encoding::type_table()[type_indices.first] );
     if ( !type_indices.second ) {
-      const Dx::Type_encoding single_type_encoding( check_single_type );
+      const Type_encoding single_type_encoding( check_single_type );
       static_cast<void>( set.erase( single_type_encoding ) );
       continue;
     }
     const auto check_dual_type = std::string( check_single_type )
                                    .append( "-" )
-                                   .append( Dx::Type_encoding::type_table()[type_indices.second.value()] );
-    Dx::Type_encoding dual_type_encoding( check_dual_type );
+                                   .append( Type_encoding::type_table()[type_indices.second.value()] );
+    Type_encoding dual_type_encoding( check_dual_type );
     static_cast<void>( set.erase( dual_type_encoding ) );
   }
   const std::clock_t end = std::clock();
@@ -697,31 +691,29 @@ double insert_delete_small_n( T& set, std::span<std::pair<uint64_t, std::optiona
   const std::clock_t start = std::clock();
   for ( uint64_t i = 0; i < 10'000ULL; ++i ) {
     for ( uint64_t j = 0; j < 13 && j < type_table_indices.size(); ++j ) {
-      const std::string_view check_single_type( Dx::Type_encoding::type_table()[type_table_indices[j].first] );
+      const std::string_view check_single_type( Type_encoding::type_table()[type_table_indices[j].first] );
       if ( !type_table_indices[j].second ) {
-        const Dx::Type_encoding single_type_encoding( check_single_type );
+        const Type_encoding single_type_encoding( check_single_type );
         static_cast<void>( set.insert( single_type_encoding ) );
         continue;
       }
-      const auto check_dual_type
-        = std::string( check_single_type )
-            .append( "-" )
-            .append( Dx::Type_encoding::type_table()[type_table_indices[j].second.value()] );
-      Dx::Type_encoding dual_type_encoding( check_dual_type );
+      const auto check_dual_type = std::string( check_single_type )
+                                     .append( "-" )
+                                     .append( Type_encoding::type_table()[type_table_indices[j].second.value()] );
+      Type_encoding dual_type_encoding( check_dual_type );
       static_cast<void>( set.insert( dual_type_encoding ) );
     }
     for ( uint64_t j = 0; j < 13 && j < type_table_indices.size(); ++j ) {
-      const std::string_view check_single_type( Dx::Type_encoding::type_table()[type_table_indices[j].first] );
+      const std::string_view check_single_type( Type_encoding::type_table()[type_table_indices[j].first] );
       if ( !type_table_indices[j].second ) {
-        const Dx::Type_encoding single_type_encoding( check_single_type );
+        const Type_encoding single_type_encoding( check_single_type );
         static_cast<void>( set.erase( single_type_encoding ) );
         continue;
       }
-      const auto check_dual_type
-        = std::string( check_single_type )
-            .append( "-" )
-            .append( Dx::Type_encoding::type_table()[type_table_indices[j].second.value()] );
-      Dx::Type_encoding dual_type_encoding( check_dual_type );
+      const auto check_dual_type = std::string( check_single_type )
+                                     .append( "-" )
+                                     .append( Type_encoding::type_table()[type_table_indices[j].second.value()] );
+      Type_encoding dual_type_encoding( check_dual_type );
       static_cast<void>( set.erase( dual_type_encoding ) );
     }
   }
@@ -734,13 +726,13 @@ double insert_delete_small_n( T& set, std::span<std::pair<uint64_t, std::optiona
 TEST( RankedSetTests, ComparePerformanceWithNodeBasedSet )
 {
   // I know my use case is that the Ranked_set will be small N (6-24 max). However, it's fun to compare.
-  Ranked_set<Dx::Type_encoding> all_types_flat {};
+  Ranked_set<Type_encoding> all_types_flat {};
   all_types_flat.reserve( 171 );
-  std::set<Dx::Type_encoding> all_types_set {};
+  std::set<Type_encoding> all_types_set {};
   std::vector<std::pair<uint64_t, std::optional<uint64_t>>> type_table_indices {};
   type_table_indices.reserve( 171 );
   const uint64_t bug = 0x1;
-  const uint64_t bit_end = 1ULL << Dx::Type_encoding::type_table().size();
+  const uint64_t bit_end = 1ULL << Type_encoding::type_table().size();
   for ( uint64_t bit1 = bug; bit1 != bit_end; bit1 <<= 1 ) {
     type_table_indices.emplace_back( std::countr_zero( bit1 ), std::optional<uint64_t> {} );
     for ( uint64_t bit2 = bit1 << 1; bit2 != bit_end; bit2 <<= 1 ) {
@@ -784,13 +776,13 @@ TEST( RankedSetTests, ComparePerformanceWithNodeBasedSet )
 
 namespace {
 
-constexpr Dx::Multiplier em = Dx::emp;
-constexpr Dx::Multiplier im = Dx::imm;
-constexpr Dx::Multiplier f4 = Dx::f14;
-constexpr Dx::Multiplier f2 = Dx::f12;
-constexpr Dx::Multiplier nm = Dx::nrm;
-constexpr Dx::Multiplier db = Dx::dbl;
-constexpr Dx::Multiplier qd = Dx::qdr;
+constexpr Multiplier em = emp;
+constexpr Multiplier im = imm;
+constexpr Multiplier f4 = f14;
+constexpr Multiplier f2 = f12;
+constexpr Multiplier nm = nrm;
+constexpr Multiplier db = dbl;
+constexpr Multiplier qd = qdr;
 
 } // namespace
 
@@ -806,21 +798,21 @@ TEST( InternalTests, InitializeSmallDefensiveLinks )
    *  Water   x0.5             x0.5
    *
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
+  const std::map<Type_encoding, std::set<Resistance>> types {
     { { "Ghost" }, { { { "Fire" }, nm }, { { "Normal" }, im }, { { "Water" }, nm } } },
     { { "Water" }, { { { "Fire" }, f2 }, { { "Normal" }, nm }, { { "Water" }, f2 } } },
   };
 
-  const std::vector<Dx::Pokemon_links::Encoding_index> option_table
-    = { { Dx::Type_encoding( "" ), 0 }, { { "Ghost" }, 4 }, { { "Water" }, 6 } };
-  const std::vector<Dx::Pokemon_links::Type_name> item_table = {
+  const std::vector<Pokemon_links::Encoding_index> option_table
+    = { { Type_encoding( "" ), 0 }, { { "Ghost" }, 4 }, { { "Water" }, 6 } };
+  const std::vector<Pokemon_links::Type_name> item_table = {
     { { "" }, 3, 1 },
     { { "Fire" }, 0, 2 },
     { { "Normal" }, 1, 3 },
     { { "Water" }, 2, 0 },
   };
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
+  const std::vector<Pokemon_links::Poke_link> dlx = {
     //   0                   1Fire               2Normal             3Water
     { 0, 0, 0, em, 0 },  { 1, 7, 7, em, 0 }, { 1, 5, 5, em, 0 }, { 1, 8, 8, em, 0 },    
     //  4Ghost               5Zero
@@ -831,7 +823,7 @@ TEST( InternalTests, InitializeSmallDefensiveLinks )
     { INT_MIN, 7, UINT64_MAX, em, 0 },
   };
   // clang-format on
-  const Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
+  const Pokemon_links links( types, Pokemon_links::defense );
   EXPECT_EQ( option_table, links.option_table() );
   EXPECT_EQ( item_table, links.item_table() );
   EXPECT_EQ( dlx, links.links() );
@@ -851,7 +843,7 @@ TEST( InternalTests, InitializeAWorldWhereThereAreOnlySingleTypes )
    *  Ice                              x0.5
    *
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
+  const std::map<Type_encoding, std::set<Resistance>> types {
     {
       { "Dragon" },
       { { { "Normal" }, nm },
@@ -890,9 +882,9 @@ TEST( InternalTests, InitializeAWorldWhereThereAreOnlySingleTypes )
     },
   };
 
-  const std::vector<Dx::Pokemon_links::Encoding_index> option_table
+  const std::vector<Pokemon_links::Encoding_index> option_table
     = { { { "" }, 0 }, { { "Dragon" }, 7 }, { { "Electric" }, 12 }, { { "Ghost" }, 14 }, { { "Ice" }, 16 } };
-  const std::vector<Dx::Pokemon_links::Type_name> item_table = {
+  const std::vector<Pokemon_links::Type_name> item_table = {
     { { "" }, 6, 1 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 1, 3 },
@@ -902,7 +894,7 @@ TEST( InternalTests, InitializeAWorldWhereThereAreOnlySingleTypes )
     { { "Water" }, 5, 0 },
   };
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
+  const std::vector<Pokemon_links::Poke_link> dlx = {
     //    0           1Electric       2Fire        3Grass          4Ice          5Normal        6Water
     {0,0,0,em,0},   {2,13,8,em,0}, {1,9,9,em,0}, {1,10,10,em,0},{1,17,17,em,0},{1,15,15,em,0},{1,11,11,em,0},
     //  7Dragon        8half          9half        10half                                       11half
@@ -917,7 +909,7 @@ TEST( InternalTests, InitializeAWorldWhereThereAreOnlySingleTypes )
     { INT_MIN, 17, UINT64_MAX, em, 0 },
   };
   // clang-format on
-  const Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
+  const Pokemon_links links( types, Pokemon_links::defense );
   EXPECT_EQ( option_table, links.option_table() );
   EXPECT_EQ( item_table, links.item_table() );
   EXPECT_EQ( dlx, links.links() );
@@ -946,7 +938,7 @@ TEST( InternalTests, ThereAreTwoExactCoversForThisTypingCombo )
    *      2. Electric, Ghost, Poison, Water
    *
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
+  const std::map<Type_encoding, std::set<Resistance>> types {
     {
       { "Electric" },
       { { { "Electric" }, f2 }, { { "Grass" }, nm }, { { "Ice" }, nm }, { { "Normal" }, nm }, { { "Water" }, nm } },
@@ -972,8 +964,8 @@ TEST( InternalTests, ThereAreTwoExactCoversForThisTypingCombo )
       { { { "Electric" }, nm }, { { "Grass" }, db }, { { "Ice" }, f2 }, { { "Normal" }, nm }, { { "Water" }, f2 } },
     },
   };
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  const std::set<Ranked_set<Dx::Type_encoding>> correct
+  Pokemon_links links( types, Pokemon_links::defense );
+  const std::set<Ranked_set<Type_encoding>> correct
     = { { 11, { { "Ghost" }, { "Ground" }, { "Poison" }, { "Water" } } },
         { 13, { { "Electric" }, { "Ghost" }, { "Poison" }, { "Water" } } } };
   EXPECT_EQ( links.exact_coverages_functional( 6 ), correct );
@@ -996,7 +988,7 @@ TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst 
    * ----------------------------------------------------------------------------------------
    *   Ice-Water                                      x.25              x.5
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types = {
+  const std::map<Type_encoding, std::set<Resistance>> types = {
     /* In reality maps will have every type present in every key. But I know the internals
      * of my implementation and will just enter all types for the first key to make entering
      * the rest of the test cases easier.
@@ -1048,7 +1040,7 @@ TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst 
       },
     },
   };
-  const std::vector<Dx::Pokemon_links::Encoding_index> options = {
+  const std::vector<Pokemon_links::Encoding_index> options = {
     { { "" }, 0 },
     { { "Bug-Ghost" }, 7 },
     { { "Electric-Grass" }, 10 },
@@ -1057,7 +1049,7 @@ TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst 
     { { "Ice-Psychic" }, 20 },
     { { "Ice-Water" }, 22 },
   };
-  const std::vector<Dx::Pokemon_links::Type_name> items = {
+  const std::vector<Pokemon_links::Type_name> items = {
     { { "" }, 6, 1 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 1, 3 },
@@ -1067,7 +1059,7 @@ TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst 
     { { "Water" }, 5, 0 },
   };
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
+  const std::vector<Pokemon_links::Poke_link> dlx = {
     // 0                 1Electric       2Fire          3Grass         4Ice          5Normal       6Water
     {0,0,0,em,0},    {2,18,11,em,0}, {2,19,15,em,0}, {3,16,8,em,0}, {2,23,21,em,0}, {1,9,9,em,0}, {2,24,13,em,0}, 
     // 7Bug-Ghost                                         8                            9
@@ -1086,11 +1078,11 @@ TEST( InternalTests, ThereIsOneExactAndAFewOverlappingCoversHereExactCoverFirst 
     {INT_MIN,23,UINT64_MAX,em,0},
   };
   // clang-format on
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
+  Pokemon_links links( types, Pokemon_links::defense );
   EXPECT_EQ( links.option_table(), options );
   EXPECT_EQ( links.item_table(), items );
   EXPECT_EQ( links.links(), dlx );
-  const std::set<Ranked_set<Dx::Type_encoding>> correct
+  const std::set<Ranked_set<Type_encoding>> correct
     = { { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } } };
   EXPECT_EQ( correct, links.exact_coverages_functional( 6 ) );
   EXPECT_EQ( correct, links.exact_coverages_stack( 6 ) );
@@ -1112,7 +1104,7 @@ TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestore
    * ----------------------------------------------------------------------------------------
    *   Ice-Water                                      x.25              x.5
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types = {
+  const std::map<Type_encoding, std::set<Resistance>> types = {
     /* In reality maps will have every type present in every key. But I know the internals
      * of my implementation and will just enter all types for the first key to make entering
      * the rest of the test cases easier.
@@ -1147,7 +1139,7 @@ TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestore
       { { { "Ice" }, f4 }, { { "Water" }, f2 } },
     },
   };
-  const std::vector<Dx::Pokemon_links::Encoding_index> options = {
+  const std::vector<Pokemon_links::Encoding_index> options = {
     { { "" }, 0 },
     { { "Bug-Ghost" }, 7 },
     { { "Electric-Grass" }, 10 },
@@ -1156,7 +1148,7 @@ TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestore
     { { "Ice-Psychic" }, 20 },
     { { "Ice-Water" }, 22 },
   };
-  const std::vector<Dx::Pokemon_links::Type_name> items = {
+  const std::vector<Pokemon_links::Type_name> items = {
     { { "" }, 6, 1 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 1, 3 },
@@ -1166,7 +1158,7 @@ TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestore
     { { "Water" }, 5, 0 },
   };
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
+  const std::vector<Pokemon_links::Poke_link> dlx = {
     // 0                1Electric       2Fire          3Grass         4Ice            5Normal       6Water
     {0,0,0,em,0},    {2,18,11,em,0}, {2,19,15,em,0}, {3,16,8,em,0}, {2,23,21,em,0}, {1,9,9,em,0}, {2,24,13,em,0}, 
     // 7Bug-Ghost                                         8                            9
@@ -1185,18 +1177,18 @@ TEST( InternalTests, AllAlgorithmsThatOperateOnTheseLinksShouldCleanupAndRestore
     { INT_MIN, 23, UINT64_MAX, em, 0 },
   };
   // clang-format on
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
+  Pokemon_links links( types, Pokemon_links::defense );
   EXPECT_EQ( links.option_table(), options );
   EXPECT_EQ( links.item_table(), items );
   EXPECT_EQ( links.links(), dlx );
-  const std::set<Ranked_set<Dx::Type_encoding>> correct
+  const std::set<Ranked_set<Type_encoding>> correct
     = { { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } } };
-  const std::set<Ranked_set<Dx::Type_encoding>> result_rec = links.exact_coverages_functional( 6 );
+  const std::set<Ranked_set<Type_encoding>> result_rec = links.exact_coverages_functional( 6 );
   EXPECT_EQ( correct, result_rec );
   EXPECT_EQ( links.option_table(), options );
   EXPECT_EQ( links.item_table(), items );
   EXPECT_EQ( links.links(), dlx );
-  const std::set<Ranked_set<Dx::Type_encoding>> result_iter = links.exact_coverages_stack( 6 );
+  const std::set<Ranked_set<Type_encoding>> result_iter = links.exact_coverages_stack( 6 );
   EXPECT_EQ( correct, result_iter );
   EXPECT_EQ( links.option_table(), options );
   EXPECT_EQ( links.item_table(), items );
@@ -1222,21 +1214,21 @@ TEST( InternalTests, InitializationOfAttackDancingLinks )
    *         Water          2x                         4x          <-Attack
    *
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
+  const std::map<Type_encoding, std::set<Resistance>> types {
     { { "Ground-Rock" }, { { { "Electric" }, im }, { { "Fire" }, nm }, { { "Water" }, qd } } },
     { { "Ground-Grass" }, { { { "Electric" }, im }, { { "Fire" }, db }, { { "Water" }, nm } } },
     { { "Fire-Flying" }, { { { "Electric" }, db }, { { "Fire" }, f2 }, { { "Water" }, db } } },
   };
-  const std::vector<Dx::Pokemon_links::Encoding_index> option_table
+  const std::vector<Pokemon_links::Encoding_index> option_table
     = { { { "" }, 0 }, { { "Electric" }, 4 }, { { "Fire" }, 6 }, { { "Water" }, 8 } };
-  const std::vector<Dx::Pokemon_links::Type_name> item_table = {
+  const std::vector<Pokemon_links::Type_name> item_table = {
     { { "" }, 3, 1 },
     { { "Fire-Flying" }, 0, 2 },
     { { "Ground-Grass" }, 1, 3 },
     { { "Ground-Rock" }, 2, 0 },
   };
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx {
+  const std::vector<Pokemon_links::Poke_link> dlx {
     // 0           1Fire-Flying   2Ground-Grass   3Ground-Rock
     {0,0,0,em,0},  {2,9,5,em,0},  {1,7,7,em,0},  {1,10,10,em,0},  
     // 4Electric     5Double
@@ -1248,7 +1240,7 @@ TEST( InternalTests, InitializationOfAttackDancingLinks )
     {INT_MIN,9,UINT64_MAX,em,0},
   };
   // clang-format on
-  const Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
+  const Pokemon_links links( types, Pokemon_links::attack );
   EXPECT_EQ( links.option_table(), option_table );
   EXPECT_EQ( links.item_table(), item_table );
   EXPECT_EQ( links.links(), dlx );
@@ -1273,7 +1265,7 @@ TEST( InternalTests, AtLeastTestThatWeCanRecognizeASuccessfulAttackCoverage )
    *      Fighting, Grass, Ground, Ice
    *      Fighting, Grass, Ground, Poison
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types = {
+  const std::map<Type_encoding, std::set<Resistance>> types = {
     { { "Electric" }, { { { "Ground" }, db } } },
     { { "Fire" }, { { { "Ground" }, db } } },
     { { "Grass" }, { { { "Ice" }, db }, { { "Poison" }, db } } },
@@ -1281,10 +1273,10 @@ TEST( InternalTests, AtLeastTestThatWeCanRecognizeASuccessfulAttackCoverage )
     { { "Normal" }, { { { "Fighting" }, db } } },
     { { "Water" }, { { { "Grass" }, db } } },
   };
-  const std::set<Ranked_set<Dx::Type_encoding>> solutions
+  const std::set<Ranked_set<Type_encoding>> solutions
     = { { 30, { { "Fighting" }, { "Grass" }, { "Ground" }, { "Ice" } } },
         { 30, { { "Fighting" }, { "Grass" }, { "Ground" }, { "Poison" } } } };
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
+  Pokemon_links links( types, Pokemon_links::attack );
   EXPECT_EQ( links.exact_coverages_functional( 24 ), solutions );
 }
 
@@ -1305,7 +1297,7 @@ TEST( InternalTests, ThereIsOneExactCoverHere )
    * ----------------------------------------------------------------------------------------
    * Water                                       x2
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types = {
+  const std::map<Type_encoding, std::set<Resistance>> types = {
     {
       { "Bug-Ghost" },
       { { { "Electric" }, nm },
@@ -1361,8 +1353,8 @@ TEST( InternalTests, ThereIsOneExactCoverHere )
         { { "Water" }, f2 } },
     },
   };
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
-  const std::set<Ranked_set<Dx::Type_encoding>> correct = { { 31, { { "Fire" }, { "Grass" }, { "Water" } } } };
+  Pokemon_links links( types, Pokemon_links::attack );
+  const std::set<Ranked_set<Type_encoding>> correct = { { 31, { { "Fire" }, { "Grass" }, { "Water" } } } };
   EXPECT_EQ( links.exact_coverages_functional( 24 ), correct );
   EXPECT_EQ( links.exact_coverages_stack( 24 ), correct );
 }
@@ -1401,7 +1393,7 @@ TEST( InternalTests, ThereAreMultipleExactCoversHere )
    * { 31, { { "Fire" }, { "Grass" }, { "Water" } } },
    * { 31, { { "Grass" }, { "Psychic" }, { "Rock" } } },
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types = {
+  const std::map<Type_encoding, std::set<Resistance>> types = {
     {
       { "Bug-Ghost" },
       {
@@ -1499,8 +1491,8 @@ TEST( InternalTests, ThereAreMultipleExactCoversHere )
       },
     },
   };
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
-  const std::set<Ranked_set<Dx::Type_encoding>> correct = {
+  Pokemon_links links( types, Pokemon_links::attack );
+  const std::set<Ranked_set<Type_encoding>> correct = {
     { 30, { { "Bug" }, { "Electric" }, { "Fire" } } },
     { 30, { { "Bug" }, { "Fire" }, { "Steel" }, { "Water" } } },
     { 30, { { "Bug" }, { "Psychic" }, { "Rock" }, { "Steel" } } },
@@ -1545,7 +1537,7 @@ TEST( InternalTests, RecursiveAndIterativeSolutionsAreEquivalent )
    * { 31, { { "Fire" }, { "Grass" }, { "Water" } } },
    * { 31, { { "Grass" }, { "Psychic" }, { "Rock" } } },
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types = {
+  const std::map<Type_encoding, std::set<Resistance>> types = {
     {
       { "Bug-Ghost" },
       {
@@ -1643,8 +1635,8 @@ TEST( InternalTests, RecursiveAndIterativeSolutionsAreEquivalent )
       },
     },
   };
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::attack );
-  const std::set<Ranked_set<Dx::Type_encoding>> correct = {
+  Pokemon_links links( types, Pokemon_links::attack );
+  const std::set<Ranked_set<Type_encoding>> correct = {
     { 30, { { "Bug" }, { "Electric" }, { "Fire" } } },
     { 30, { { "Bug" }, { "Fire" }, { "Steel" }, { "Water" } } },
     { 30, { { "Bug" }, { "Psychic" }, { "Rock" }, { "Steel" } } },
@@ -1676,7 +1668,7 @@ TEST( InternalTests, OverlappingAllowsTwoTypesToCoverSameOpposingTypeIEFireAndEl
    *  Water              x0.5                        x0.5
    *
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
+  const std::map<Type_encoding, std::set<Resistance>> types {
     { { "Electric" },
       { { { "Electric" }, f2 },
         { { "Fire" }, f2 },
@@ -1720,10 +1712,10 @@ TEST( InternalTests, OverlappingAllowsTwoTypesToCoverSameOpposingTypeIEFireAndEl
         { { "Normal" }, nm },
         { { "Water" }, f2 } } },
   };
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  const std::set<Ranked_set<Dx::Type_encoding>> result_rec = links.overlapping_coverages_functional( 6 );
-  const std::set<Ranked_set<Dx::Type_encoding>> result_iter = links.overlapping_coverages_stack( 6 );
-  const std::set<Ranked_set<Dx::Type_encoding>> correct
+  Pokemon_links links( types, Pokemon_links::defense );
+  const std::set<Ranked_set<Type_encoding>> result_rec = links.overlapping_coverages_functional( 6 );
+  const std::set<Ranked_set<Type_encoding>> result_iter = links.overlapping_coverages_stack( 6 );
+  const std::set<Ranked_set<Type_encoding>> correct
     = { { 18, { { "Electric" }, { "Fire" }, { "Ice" }, { "Normal" } } },
         { 18, { { "Fire" }, { "Grass" }, { "Ice" }, { "Normal" } } },
         { 18, { { "Fire" }, { "Ice" }, { "Normal" }, { "Water" } } } };
@@ -1756,7 +1748,7 @@ TEST( InternalTests, ThereAreAFewOverlappingCoversHere )
    * { 15, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Fire-Flying" }, { "Ice-Psychic" } } },
    * { 15, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Ground-Water" }, { "Ice-Psychic" } } },
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types = {
+  const std::map<Type_encoding, std::set<Resistance>> types = {
     /* In reality maps will have every type present in every key. But I know the internals
      * of my implementation and will just enter all types for the first key to make entering
      * the rest of the test cases easier.
@@ -1808,7 +1800,7 @@ TEST( InternalTests, ThereAreAFewOverlappingCoversHere )
       },
     },
   };
-  const std::vector<Dx::Pokemon_links::Type_name> headers = {
+  const std::vector<Pokemon_links::Type_name> headers = {
     { { "" }, 6, 1 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 1, 3 },
@@ -1818,7 +1810,7 @@ TEST( InternalTests, ThereAreAFewOverlappingCoversHere )
     { { "Water" }, 5, 0 },
   };
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
+  const std::vector<Pokemon_links::Poke_link> dlx = {
     // 0               1Electric       2Fire            3Grass        4Ice             5Normal       6Water
     {0,0,0,em,0},    {2,18,11,em,0}, {2,19,15,em,0}, {3,16,8,em,0}, {2,23,21,em,0}, {1,9,9,em,0}, {2,24,13,em,0}, 
     // 7Bug-Ghost                                         8                            9
@@ -1837,7 +1829,7 @@ TEST( InternalTests, ThereAreAFewOverlappingCoversHere )
     {INT_MIN,23,UINT64_MAX,em,0},
   };
   // clang-format on
-  const std::set<Ranked_set<Dx::Type_encoding>> correct = {
+  const std::set<Ranked_set<Type_encoding>> correct = {
     { 13, { { "Bug-Ghost" }, { "Ground-Water" }, { "Ice-Water" } } },
     { 14, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Fire-Flying" }, { "Ice-Water" } } },
     { 14, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Ground-Water" }, { "Ice-Psychic" } } },
@@ -1846,14 +1838,14 @@ TEST( InternalTests, ThereAreAFewOverlappingCoversHere )
     { 15, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Fire-Flying" }, { "Ice-Psychic" } } },
     { 15, { { "Bug-Ghost" }, { "Electric-Grass" }, { "Ground-Water" }, { "Ice-Psychic" } } },
   };
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  const std::set<Ranked_set<Dx::Type_encoding>> result_rec = links.overlapping_coverages_functional( 6 );
+  Pokemon_links links( types, Pokemon_links::defense );
+  const std::set<Ranked_set<Type_encoding>> result_rec = links.overlapping_coverages_functional( 6 );
   EXPECT_EQ( correct, result_rec );
   // Make sure the overlapping algorithms clean up the tables when done.
   EXPECT_EQ( links.item_table(), headers );
   EXPECT_EQ( links.links(), dlx );
   // Test the iterative version.
-  const std::set<Ranked_set<Dx::Type_encoding>> result_iter = links.overlapping_coverages_stack( 6 );
+  const std::set<Ranked_set<Type_encoding>> result_iter = links.overlapping_coverages_stack( 6 );
   EXPECT_EQ( correct, result_iter );
   EXPECT_EQ( links.item_table(), headers );
   EXPECT_EQ( links.links(), dlx );
@@ -1880,7 +1872,7 @@ TEST( InternalTests, TestHidingAnItemFromTheWorld )
    *  Water              x0.5                        x0.5
    *
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
+  const std::map<Type_encoding, std::set<Resistance>> types {
     { { "Electric" },
       { { { "Electric" }, f2 },
         { { "Fire" }, f2 },
@@ -1924,7 +1916,7 @@ TEST( InternalTests, TestHidingAnItemFromTheWorld )
         { { "Normal" }, nm },
         { { "Water" }, f2 } } },
   };
-  const std::vector<Dx::Pokemon_links::Type_name> headers {
+  const std::vector<Pokemon_links::Type_name> headers {
     { { "" }, 6, 1 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 1, 3 },
@@ -1934,7 +1926,7 @@ TEST( InternalTests, TestHidingAnItemFromTheWorld )
     { { "Water" }, 5, 0 },
   };
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
+  const std::vector<Pokemon_links::Poke_link> dlx = {
     // 0              1Electric     2Fire         3Grass          4Ice          5Normal        6Water
     {0,0,0,em,0},   {3,21,8,em,0},{3,24,9,em,0},{1,12,12,em,0},{1,18,18,em,0},{1,22,22,em,0},{4,25,13,em,0},
     // 7Electric       8             9
@@ -1953,9 +1945,9 @@ TEST( InternalTests, TestHidingAnItemFromTheWorld )
     {INT_MIN,24,UINT64_MAX,em,0},
   };
   // clang-format on
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  EXPECT_EQ( true, links.hide_requested_item( Dx::Type_encoding( std::string( "Fire" ) ) ) );
-  const std::vector<Dx::Pokemon_links::Type_name> headers_hide_fire {
+  Pokemon_links links( types, Pokemon_links::defense );
+  EXPECT_EQ( true, links.hide_requested_item( Type_encoding( std::string( "Fire" ) ) ) );
+  const std::vector<Pokemon_links::Type_name> headers_hide_fire {
     { { "" }, 6, 1 },
     { { "Electric" }, 0, 3 },
     { { "Fire" }, 1, 3 },
@@ -1964,9 +1956,9 @@ TEST( InternalTests, TestHidingAnItemFromTheWorld )
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
-  const int8_t hd = Dx::Pokemon_links::hidden;
+  const int8_t hd = Pokemon_links::hidden;
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx_hide_fire = {
+  const std::vector<Pokemon_links::Poke_link> dlx_hide_fire = {
     // 0              1Electric      2Fire            3Grass        4Ice           5Normal        6Water
     {0,0,0,em,0},   {3,21,8,em,0},{3,24,9,em,hd},{1,12,12,em,0},{1,18,18,em,0},{1,22,22,em,0},{4,25,13,em,0},
     // 7Electric       8             9
@@ -1987,7 +1979,7 @@ TEST( InternalTests, TestHidingAnItemFromTheWorld )
   // clang-format on
   EXPECT_EQ( links.links(), dlx_hide_fire );
   EXPECT_EQ( links.item_table(), headers_hide_fire );
-  EXPECT_EQ( false, links.hide_requested_item( Dx::Type_encoding( std::string( "Fire" ) ) ) );
+  EXPECT_EQ( false, links.hide_requested_item( Type_encoding( std::string( "Fire" ) ) ) );
   EXPECT_EQ( links.links(), dlx_hide_fire );
   EXPECT_EQ( links.peek_hid_item().decode_type().first, "Fire" );
   EXPECT_EQ( links.get_num_hid_items(), 1 );
@@ -1997,7 +1989,7 @@ TEST( InternalTests, TestHidingAnItemFromTheWorld )
   EXPECT_EQ( links.item_table(), headers );
   EXPECT_EQ( true, links.hid_items_empty() );
   EXPECT_EQ( links.get_num_hid_items(), 0 );
-  EXPECT_EQ( true, links.hide_requested_item( Dx::Type_encoding( std::string( "Fire" ) ) ) );
+  EXPECT_EQ( true, links.hide_requested_item( Type_encoding( std::string( "Fire" ) ) ) );
   links.reset_items();
   EXPECT_EQ( links.links(), dlx );
   EXPECT_EQ( links.item_table(), headers );
@@ -2024,7 +2016,7 @@ TEST( InternalTests, TestHidingGrassAndIceAndThenResetTheLinks )
    *  Water              x0.5                        x0.5
    *
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
+  const std::map<Type_encoding, std::set<Resistance>> types {
     { { "Electric" },
       { { { "Electric" }, f2 },
         { { "Fire" }, f2 },
@@ -2069,7 +2061,7 @@ TEST( InternalTests, TestHidingGrassAndIceAndThenResetTheLinks )
         { { "Water" }, f2 } } },
   };
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
+  const std::vector<Pokemon_links::Poke_link> dlx = {
     // 0             1Electric     2Fire         3Grass          4Ice          5Normal        6Water
     {0,0,0,em,0},   {3,21,8,em,0},{3,24,9,em,0},{1,12,12,em,0},{1,18,18,em,0},{1,22,22,em,0},{4,25,13,em,0},
     // 7Electric        8             9
@@ -2088,11 +2080,11 @@ TEST( InternalTests, TestHidingGrassAndIceAndThenResetTheLinks )
     {INT_MIN,24,UINT64_MAX,em,0},
   };
   // clang-format on
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
+  Pokemon_links links( types, Pokemon_links::defense );
   EXPECT_EQ( true, links.hide_requested_option( { { "Grass" }, { "Ice" } } ) );
-  const int hd = Dx::Pokemon_links::hidden;
+  const int hd = Pokemon_links::hidden;
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx_hide_option_ice_grass = {
+  const std::vector<Pokemon_links::Poke_link> dlx_hide_option_ice_grass = {
     // 0               1Electric     2Fire           3Grass        4Ice         5Normal        6Water
     {0,0,0,em,0},    {3,21,8,em,0},{2,24,9,em,0},{1,12,12,em,0},{0,4,4,em,0},{1,22,22,em,0},{2,25,13,em,0},
     // 7Electric       8             9
@@ -2137,7 +2129,7 @@ TEST( InternalTests, TestHidingAnOptionFromTheWorld )
    *  Water              x0.5                        x0.5
    *
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
+  const std::map<Type_encoding, std::set<Resistance>> types {
     { { "Electric" },
       { { { "Electric" }, f2 },
         { { "Fire" }, f2 },
@@ -2182,7 +2174,7 @@ TEST( InternalTests, TestHidingAnOptionFromTheWorld )
         { { "Water" }, f2 } } },
   };
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
+  const std::vector<Pokemon_links::Poke_link> dlx = {
     // 0              1Electric     2Fire         3Grass          4Ice          5Normal        6Water
     {0,0,0,em,0},   {3,21,8,em,0},{3,24,9,em,0},{1,12,12,em,0},{1,18,18,em,0},{1,22,22,em,0},{4,25,13,em,0},
     // 7Electric       8             9
@@ -2201,20 +2193,20 @@ TEST( InternalTests, TestHidingAnOptionFromTheWorld )
     {INT_MIN,24,UINT64_MAX,em,0},
   };
   // clang-format on
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
+  Pokemon_links links( types, Pokemon_links::defense );
 
-  EXPECT_EQ( true, links.hide_requested_option( Dx::Type_encoding( std::string( "Fire" ) ) ) );
-  const Dx::Type_encoding fire( "Fire" );
-  const Dx::Type_encoding flipper( "Fire" );
-  const std::vector<Dx::Type_encoding> fire_flipper { fire, flipper };
-  std::vector<Dx::Type_encoding> failed_to_hide = {};
+  EXPECT_EQ( true, links.hide_requested_option( Type_encoding( std::string( "Fire" ) ) ) );
+  const Type_encoding fire( "Fire" );
+  const Type_encoding flipper( "Fire" );
+  const std::vector<Type_encoding> fire_flipper { fire, flipper };
+  std::vector<Type_encoding> failed_to_hide = {};
   EXPECT_EQ( false, links.hide_requested_option( { fire, flipper } ) );
   EXPECT_EQ( false, links.hide_requested_option( { fire, flipper }, failed_to_hide ) );
   EXPECT_EQ( failed_to_hide, fire_flipper );
 
-  const int hd = Dx::Pokemon_links::hidden;
+  const int hd = Pokemon_links::hidden;
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx_hide_option_fire = {
+  const std::vector<Pokemon_links::Poke_link> dlx_hide_option_fire = {
     // 0              1Electric     2Fire         3Grass          4Ice          5Normal        6Water
     {0,0,0,em,0},   {2,21,8,em,0},{3,24,9,em,0},{0,3,3,em,0},{1,18,18,em,0},{1,22,22,em,0},{3,25,16,em,0},
     // 7Electric        8             9
@@ -2268,7 +2260,7 @@ TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover 
    *  Water              x0.5                        x0.5
    *
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
+  const std::map<Type_encoding, std::set<Resistance>> types {
     { { "Electric" },
       { { { "Electric" }, f2 },
         { { "Fire" }, f2 },
@@ -2312,7 +2304,7 @@ TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover 
         { { "Normal" }, nm },
         { { "Water" }, f2 } } },
   };
-  const std::vector<Dx::Pokemon_links::Type_name> headers {
+  const std::vector<Pokemon_links::Type_name> headers {
     { { "" }, 6, 1 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 1, 3 },
@@ -2322,7 +2314,7 @@ TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover 
     { { "Water" }, 5, 0 },
   };
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
+  const std::vector<Pokemon_links::Poke_link> dlx = {
     // 0               1Electric    2Fire         3Grass         4Ice          5Normal         6Water
     {0,0,0,em,0},   {3,20,8,em,0},{3,23,9,em,0},{1,12,12,em,0},{1,17,17,em,0},{1,21,21,em,0},{3,24,15,em,0},
     // 7Electric
@@ -2341,10 +2333,10 @@ TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover 
     {INT_MIN,23,UINT64_MAX,em,0},
   };
   // clang-format on
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  const Dx::Type_encoding electric( "Electric" );
+  Pokemon_links links( types, Pokemon_links::defense );
+  const Type_encoding electric( "Electric" );
   EXPECT_EQ( true, links.hide_requested_item( electric ) );
-  const std::vector<Dx::Pokemon_links::Type_name> headers_hide_electric {
+  const std::vector<Pokemon_links::Type_name> headers_hide_electric {
     { { "" }, 6, 2 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 0, 3 },
@@ -2353,9 +2345,9 @@ TEST( InternalTests, TestHidingAnItemFromTheWorldAndThenSolvingBothTypesOfCover 
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
-  const int hd = Dx::Pokemon_links::hidden;
+  const int hd = Pokemon_links::hidden;
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx_hide_electric = {
+  const std::vector<Pokemon_links::Poke_link> dlx_hide_electric = {
     // 0             1Electric     2Fire         3Grass         4Ice          5Normal         6Water
     {0,0,0,em,0},  {3,20,8,em,hd},{3,23,9,em,0},{1,12,12,em,0},{1,17,17,em,0},{1,21,21,em,0},{3,24,15,em,0},    
     //7Electric
@@ -2408,7 +2400,7 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
    *  Water              x0.5                        x0.5
    *
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
+  const std::map<Type_encoding, std::set<Resistance>> types {
     { { "Electric" },
       { { { "Electric" }, f2 },
         { { "Fire" }, f2 },
@@ -2452,7 +2444,7 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
         { { "Normal" }, nm },
         { { "Water" }, f2 } } },
   };
-  const std::vector<Dx::Pokemon_links::Type_name> headers {
+  const std::vector<Pokemon_links::Type_name> headers {
     { { "" }, 6, 1 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 1, 3 },
@@ -2462,7 +2454,7 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
     { { "Water" }, 5, 0 },
   };
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
+  const std::vector<Pokemon_links::Poke_link> dlx = {
     // 0               1Electric    2Fire         3Grass         4Ice          5Normal         6Water
     {0,0,0,em,0},   {3,20,8,em,0},{3,23,9,em,0},{1,12,12,em,0},{1,17,17,em,0},{1,21,21,em,0},{3,24,15,em,0},
     // 7Electric
@@ -2481,19 +2473,19 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
     {INT_MIN,23,UINT64_MAX,em,0},
   };
   // clang-format on
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  const Dx::Type_encoding electric( "Electric" );
+  Pokemon_links links( types, Pokemon_links::defense );
+  const Type_encoding electric( "Electric" );
   EXPECT_EQ( true, links.hide_requested_item( electric ) );
-  std::vector<Dx::Type_encoding> fail_output = {};
-  const Dx::Type_encoding grass( "Grass" );
-  const Dx::Type_encoding grassy( "Grassy" );
-  const Dx::Type_encoding cloudy( "Cloudy" );
-  const Dx::Type_encoding rainy( "Rainy" );
-  const std::vector<Dx::Type_encoding> hide_request { grass, electric, grassy, cloudy, rainy };
-  const std::vector<Dx::Type_encoding> should_fail { electric, grassy, cloudy, rainy };
+  std::vector<Type_encoding> fail_output = {};
+  const Type_encoding grass( "Grass" );
+  const Type_encoding grassy( "Grassy" );
+  const Type_encoding cloudy( "Cloudy" );
+  const Type_encoding rainy( "Rainy" );
+  const std::vector<Type_encoding> hide_request { grass, electric, grassy, cloudy, rainy };
+  const std::vector<Type_encoding> should_fail { electric, grassy, cloudy, rainy };
   EXPECT_EQ( false, links.hide_requested_item( hide_request, fail_output ) );
   EXPECT_EQ( fail_output, should_fail );
-  const std::vector<Dx::Pokemon_links::Type_name> headers_hide_electric_and_grass {
+  const std::vector<Pokemon_links::Type_name> headers_hide_electric_and_grass {
     { { "" }, 6, 2 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 0, 4 },
@@ -2502,9 +2494,9 @@ TEST( InternalTests, TestHidingTwoItemsFromTheWorldAndThenSolvingBothTypesOfCove
     { { "Normal" }, 4, 6 },
     { { "Water" }, 5, 0 },
   };
-  const int hd = Dx::Pokemon_links::hidden;
+  const int hd = Pokemon_links::hidden;
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx_hide_electric_and_grass = {
+  const std::vector<Pokemon_links::Poke_link> dlx_hide_electric_and_grass = {
     // 0               1Electric    2Fire         3Grass            4Ice          5Normal         6Water
     {0,0,0,em,0},   {3,20,8,em,hd},{3,23,9,em,0},{1,12,12,em,hd},{1,17,17,em,0},{1,21,21,em,0},{3,24,15,em,0},
     // 7Electric
@@ -2555,7 +2547,7 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
    *  Water              x0.5                        x0.5
    *
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
+  const std::map<Type_encoding, std::set<Resistance>> types {
     { { "Electric" },
       { { { "Electric" }, f2 },
         { { "Fire" }, f2 },
@@ -2599,7 +2591,7 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
         { { "Normal" }, nm },
         { { "Water" }, f2 } } },
   };
-  const std::vector<Dx::Pokemon_links::Type_name> headers {
+  const std::vector<Pokemon_links::Type_name> headers {
     { { "" }, 6, 1 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 1, 3 },
@@ -2609,7 +2601,7 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
     { { "Water" }, 5, 0 },
   };
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
+  const std::vector<Pokemon_links::Poke_link> dlx = {
     // 0               1Electric    2Fire         3Grass         4Ice          5Normal         6Water
     {0,0,0,em,0},   {3,20,8,em,0},{3,23,9,em,0},{1,12,12,em,0},{1,17,17,em,0},{1,21,21,em,0},{3,24,15,em,0},
     // 7Electric
@@ -2628,9 +2620,9 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
     {INT_MIN,23,UINT64_MAX,em,0},
   };
   // clang-format on
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  links.hide_all_items_except( { Dx::Type_encoding( "Water" ) } );
-  const std::vector<Dx::Pokemon_links::Type_name> headers_hide_except_water {
+  Pokemon_links links( types, Pokemon_links::defense );
+  links.hide_all_items_except( { Type_encoding( "Water" ) } );
+  const std::vector<Pokemon_links::Type_name> headers_hide_except_water {
     { { "" }, 6, 6 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 0, 3 },
@@ -2639,9 +2631,9 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
     { { "Normal" }, 0, 6 },
     { { "Water" }, 0, 0 },
   };
-  const int hd = Dx::Pokemon_links::hidden;
+  const int hd = Pokemon_links::hidden;
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx_hide_except_water = {
+  const std::vector<Pokemon_links::Poke_link> dlx_hide_except_water = {
     // 0               1Electric      2Fire           3Grass          4Ice           5Normal         6Water
     {0,0,0,em,0},   {3,20,8,em,hd},{3,23,9,em,hd},{1,12,12,em,hd},{1,17,17,em,hd},{1,21,21,em,hd},{3,24,15,em,0},
     // 7Electric
@@ -2660,12 +2652,12 @@ TEST( InternalTests, TestTheHidingAllTheItemsExceptForTheOnesTheUserWantsToKeep 
     {INT_MIN,23,UINT64_MAX,em,0},
   };
   // clang-format on
-  const std::set<Ranked_set<Dx::Type_encoding>> exact {
+  const std::set<Ranked_set<Type_encoding>> exact {
     { 3, { { "Grass" } } },
     { 3, { { "Ice" } } },
     { 3, { { "Water" } } },
   };
-  const std::set<Ranked_set<Dx::Type_encoding>> overlapping {
+  const std::set<Ranked_set<Type_encoding>> overlapping {
     { 3, { { "Grass" } } },
     { 3, { { "Ice" } } },
     { 3, { { "Water" } } },
@@ -2702,7 +2694,7 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
    *  Water              x0.5                        x0.5
    *
    */
-  const std::map<Dx::Type_encoding, std::set<Dx::Resistance>> types {
+  const std::map<Type_encoding, std::set<Resistance>> types {
     { { "Electric" },
       { { { "Electric" }, f2 },
         { { "Fire" }, f2 },
@@ -2746,7 +2738,7 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
         { { "Normal" }, nm },
         { { "Water" }, f2 } } },
   };
-  const std::vector<Dx::Pokemon_links::Type_name> headers {
+  const std::vector<Pokemon_links::Type_name> headers {
     { { "" }, 6, 1 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 1, 3 },
@@ -2756,7 +2748,7 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
     { { "Water" }, 5, 0 },
   };
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx = {
+  const std::vector<Pokemon_links::Poke_link> dlx = {
     // 0               1Electric    2Fire         3Grass         4Ice          5Normal         6Water
     {0,0,0,em,0},   {3,20,8,em,0},{3,23,9,em,0},{1,12,12,em,0},{1,17,17,em,0},{1,21,21,em,0},{3,24,15,em,0},
     // 7Electric
@@ -2775,13 +2767,13 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
     {INT_MIN,23,UINT64_MAX,em,0},
   };
   // clang-format on
-  Dx::Pokemon_links links( types, Dx::Pokemon_links::defense );
-  const Dx::Type_encoding water( "Water" );
-  const Dx::Type_encoding grass( "Grass" );
-  const Dx::Type_encoding electric( "Electric" );
-  const Dx::Type_encoding fire( "Fire" );
-  const Dx::Type_encoding ice( "Ice" );
-  const Dx::Type_encoding normal( "Normal" );
+  Pokemon_links links( types, Pokemon_links::defense );
+  const Type_encoding water( "Water" );
+  const Type_encoding grass( "Grass" );
+  const Type_encoding electric( "Electric" );
+  const Type_encoding fire( "Fire" );
+  const Type_encoding ice( "Ice" );
+  const Type_encoding normal( "Normal" );
   links.hide_all_items_except( { water } );
   links.hide_all_options_except( { grass } );
   EXPECT_EQ( links.get_num_hid_items(), 5 );
@@ -2798,7 +2790,7 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
   EXPECT_EQ( false, links.has_item( normal ) );
   EXPECT_EQ( false, links.has_option( normal ) );
   EXPECT_EQ( false, links.has_option( water ) );
-  const std::vector<Dx::Pokemon_links::Type_name> headers_hide_except_water {
+  const std::vector<Pokemon_links::Type_name> headers_hide_except_water {
     { { "" }, 6, 6 },
     { { "Electric" }, 0, 2 },
     { { "Fire" }, 0, 3 },
@@ -2807,9 +2799,9 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
     { { "Normal" }, 0, 6 },
     { { "Water" }, 0, 0 },
   };
-  const int8_t hd = Dx::Pokemon_links::hidden;
+  const int8_t hd = Pokemon_links::hidden;
   // clang-format off
-  const std::vector<Dx::Pokemon_links::Poke_link> dlx_hide_except_water = {
+  const std::vector<Pokemon_links::Poke_link> dlx_hide_except_water = {
     // 0               1Electric        2Fire         3Grass         4Ice         5Normal       6Water
     {0,0,0,em,0},    {0,1,1,em,hd},{1,14,14,em,hd},{0,3,3,em,hd},{0,4,4,em,hd},{0,5,5,em,hd},{1,15,15,em,0},
     // 7Electric
@@ -2828,7 +2820,7 @@ TEST( InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution )
     {INT_MIN,23,UINT64_MAX,em,0},
   };
   // clang-format on
-  const std::set<Ranked_set<Dx::Type_encoding>> answer { { 3, { { "Grass" } } } };
+  const std::set<Ranked_set<Type_encoding>> answer { { 3, { { "Grass" } } } };
   EXPECT_EQ( links.links(), dlx_hide_except_water );
   EXPECT_EQ( links.item_table(), headers_hide_except_water );
   EXPECT_EQ( links.get_num_items(), 1 );

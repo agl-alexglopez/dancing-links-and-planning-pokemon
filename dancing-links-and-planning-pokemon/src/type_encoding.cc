@@ -35,8 +35,7 @@
  * balance of performance and space efficiency. We have at worst two linear searches to encode a
  * type string and at worst two bit checks to decode the encoding back to a string. This is fine.
  */
-#include "type_encoding.hh"
-
+module;
 #include <array>
 #include <bit>
 #include <compare>
@@ -47,6 +46,73 @@
 #include <string>
 #include <string_view>
 #include <utility>
+export module dancing_links:type_encoding;
+
+export namespace Dancing_links {
+
+class Type_encoding
+{
+
+public:
+  Type_encoding() = default;
+  // If encoding cannot be found encoding_ is set the falsey value 0.
+  Type_encoding( std::string_view type ); // NOLINT
+  [[nodiscard]] uint32_t encoding() const;
+  [[nodiscard]] std::pair<std::string_view, std::string_view> decode_type() const;
+  [[nodiscard]] std::pair<uint64_t, std::optional<uint64_t>> decode_indices() const;
+  [[nodiscard]] std::string to_string() const;
+  [[nodiscard]] static std::span<const std::string_view> type_table();
+
+  bool operator==( Type_encoding rhs ) const;
+  std::strong_ordering operator<=>( Type_encoding rhs ) const;
+
+private:
+  uint32_t encoding_;
+  static uint64_t type_bit_index( std::string_view type );
+  // Any and all Type_encodings will have one global string_view of the type strings for decoding.
+  static constexpr std::array<std::string_view, 18> type_encoding_table = {
+    // lexicographicly organized table. 17th index is the highest lexicographic value "Water."
+    "Bug",
+    "Dark",
+    "Dragon",
+    "Electric",
+    "Fairy",
+    "Fighting",
+    "Fire",
+    "Flying",
+    "Ghost",
+    "Grass",
+    "Ground",
+    "Ice",
+    "Normal",
+    "Poison",
+    "Psychic",
+    "Rock",
+    "Steel",
+    "Water",
+  };
+};
+
+/* * * * * * * * * *      Overloaded Operator for a String View       * * * * * * * * * * * * * * */
+
+std::ostream& operator<<( std::ostream& out, Type_encoding tp );
+
+} // namespace Dancing_links
+
+/* * * * * * * * * *          Type_encodings Should be Hashable          * * * * * * * * * * * * * */
+
+namespace std {
+
+template<>
+struct hash<Dancing_links::Type_encoding>
+{
+  size_t operator()( Dancing_links::Type_encoding type ) const noexcept
+  {
+    return std::hash<uint32_t> {}( type.encoding() );
+  }
+};
+
+} // namespace std
 
 namespace Dancing_links {
 

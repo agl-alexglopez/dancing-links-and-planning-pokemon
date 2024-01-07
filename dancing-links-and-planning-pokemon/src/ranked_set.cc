@@ -1,57 +1,14 @@
-/**
- * MIT License
- *
- * Copyright (c) 2023 Alex G. Lopez
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
- * Author: Alexander Lopez
- * File: Ranked_set.h
- * -----------------------
- * This template class is a simple wrapper for a set so that I can implement my scoring method for
- * the exact and overlapping covers I find for Pokemon. However, this could be used for any case
- * in which I need a set to carry a numeric rank that defines its natural order. The order goes as
- * follows: Ranked_sets are ordered first by their numeric rank in ascending order. If two ranks
- * are the same the Ranked_set is then organized by the natural ordering of std::set and behaves
- * exactly as you would expect the C++ std::set to behave when compared. The rank component of
- * the set is a simple integer, allowing for both positive and negative weights.
- *
- * Initially, my purpose in using this was to create the same data structure as a priority queue.
- * I found that the C++ priority queue was inconvenient because iteration through a priority queue
- * of Sets required me to pop from the queue, destroying it. This gives me less flexibility with
- * how I store and illustrate solutions to cover problems in the Pokemon GUI. Putting Ranked_sets
- * in a set acheives the same ordering as I wanted in a priority queue and allows for more
- * flexibility. Becuase the Ranked set sizes we deal with are very small in my use case I found a flat set
- * to be the better implementation for locality and convenience.
- */
-#pragma once
-#ifndef RANKED_SET_HH
-#define RANKED_SET_HH
+module;
 #include <algorithm>
 #include <compare>
 #include <cstddef>
 #include <ostream>
 #include <utility>
 #include <vector>
+export module dancing_links:ranked_set;
 
 /// Implemented as a flat set meaning you should reserve known sizes ahead of time when possible.
-template<class T>
+export template<class T>
 class Ranked_set
 {
 public:
@@ -191,5 +148,3 @@ private:
   int rank_ { 0 };
   std::vector<T> flat_set_ {};
 };
-
-#endif // RANKED_SET_HH

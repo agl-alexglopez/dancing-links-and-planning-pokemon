@@ -1,27 +1,43 @@
-/**
- * Author: Keith Schwarz and Stanford course staff
- * File: MapParser.cpp
- * -------------------
- * This parser was written by Keith Schwarz and it is very good. I only updated the implementation
- * to use the C++ STL over the Stanford C++ Library because I have been having some library
- * conflicts with newer versions of the Stanford Library and this project was mixing STL and
- * Stanford Libraries. I decided to change as much as I could over to the STL, at least for major
- * containers.
- */
-#include "map_parser.hh"
-#include "point.hh"
-
+module;
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
+#include <istream>
 #include <map>
 #include <ostream>
 #include <regex>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
+export module dancing_links:map_parser;
+import :point;
+
+export namespace Dancing_links {
+/**
+ * Type representing a test case for the Disaster Preparation problem.
+ */
+struct Map_test
+{
+  std::map<std::string, std::set<std::string>> network; // The road network
+  std::map<std::string, Point> city_locations;          // Where each city should be drawn
+};
+
+/**
+ * Given a stream pointing at a test case for Disaster Preparation,
+ * pulls the data from that test case.
+ *
+ * @param source The stream containing the test case.
+ * @return A test case from the file.
+ * @throws ErrorException If an error occurs or the file is invalid.
+ */
+Map_test load_map( std::istream& source );
+
+} // namespace Dancing_links
+
+namespace Dancing_links {
 
 /* Everything in here is private to this file. */
 namespace {
@@ -198,7 +214,7 @@ void add_reverse_edges( Map_test& result )
 /* Given a graph, confirms all nodes are at distinct locations. */
 void validate_locations( const Map_test& test )
 {
-  std::map<Gui::Point, std::string> locations {};
+  std::map<Point, std::string> locations {};
   for ( const auto& loc : test.city_locations ) {
     if ( locations.find( test.city_locations.at( loc.first ) ) != locations.end() ) {
       throw std::runtime_error( loc.first + " is at the same location as "
@@ -235,3 +251,5 @@ Map_test load_map( std::istream& source )
   validate_locations( result );
   return result;
 }
+
+} // namespace Dancing_links

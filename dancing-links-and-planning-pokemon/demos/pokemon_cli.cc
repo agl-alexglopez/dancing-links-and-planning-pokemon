@@ -36,11 +36,7 @@
 /// This will generate many solutions because this is a much looser constraint to apply to cover problems.
 /// Solutions will be cut off at 200,000 and your terminal will likely not display anywhere near the full set.
 /// Run this program from the root of the code base where the CMakePresets.json file is. Enjoy!
-#include "dancing_links.hh"
-#include "pokemon_parser.hh"
-#include "ranked_set.hh"
-#include "resistance.hh"
-#include "type_encoding.hh"
+import dancing_links;
 
 #include <algorithm>
 #include <array>
@@ -173,7 +169,7 @@ int run( const std::span<const char* const> args )
         }
         const auto owned = std::string( arg_str );
         std::ifstream f( owned );
-        runner.interactions = load_interaction_map( f );
+        runner.interactions = Dancing_links::load_interaction_map( f );
         runner.map = owned.substr( owned.find_last_of( '/' ) + 1 );
       } else if ( arg_str.starts_with( 'G' ) || arg_str == "E4" ) {
         runner.selected_gyms.emplace( arg_str );
@@ -210,8 +206,8 @@ int solve( const Runner& runner )
     std::set<Dx::Type_encoding> subset {};
     // Load in the opposite of our coverage type so we know what we attack/defend against in this subset of gyms.
     runner.type == Dx::Pokemon_links::Coverage_type::attack
-      ? subset = load_selected_gyms_defenses( runner.map, runner.selected_gyms )
-      : subset = load_selected_gyms_attacks( runner.map, runner.selected_gyms );
+      ? subset = Dancing_links::load_selected_gyms_defenses( runner.map, runner.selected_gyms )
+      : subset = Dancing_links::load_selected_gyms_attacks( runner.map, runner.selected_gyms );
     Dx::hide_items_except( links, subset );
   }
   const Universe_sets items_options = { Dx::items( links ), Dx::options( links ) };

@@ -9,6 +9,6 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 add_executable(tests tests.cc)
-target_link_libraries(tests GTest::gtest_main point type_encoding ranked_set pokemon_links map_parser pokemon_parser)
+target_link_libraries(tests GTest::gtest_main point dancing_links)
 include(GoogleTest)
 gtest_discover_tests(tests)

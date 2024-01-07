@@ -1,12 +1,26 @@
-add_library(ranked_set INTERFACE ranked_set.hh)
-add_library(type_encoding type_encoding.hh type_encoding.cc)
-add_library(resistance resistance.hh resistance.cc)
-target_link_libraries(resistance PUBLIC type_encoding)
+include(FetchContent)
 
-add_library(pokemon_links pokemon_links.hh pokemon_links.cc)
-target_link_libraries(pokemon_links PRIVATE ranked_set resistance type_encoding)
+FetchContent_Declare(
+  json
+  GIT_REPOSITORY https://github.com/nlohmann/json
+  GIT_TAG v3.11.2
+)
+FetchContent_MakeAvailable(json)
 
-add_library(type_resistance INTERFACE type_resistance.hh)
-target_link_libraries(type_resistance INTERFACE resistance type_encoding)
-add_library(dancing_links INTERFACE dancing_links.hh)
-target_link_libraries(dancing_links INTERFACE pokemon_links)
+add_library(dancing_links)
+target_sources(dancing_links
+  PUBLIC
+    FILE_SET CXX_MODULES
+    BASE_DIRS
+      ${PROJECT_SOURCE_DIR}/src
+    FILES
+      ${PROJECT_SOURCE_DIR}/src/dancing_links.cc
+      ${PROJECT_SOURCE_DIR}/src/pokemon_links.cc
+      ${PROJECT_SOURCE_DIR}/src/ranked_set.cc
+      ${PROJECT_SOURCE_DIR}/src/type_encoding.cc
+      ${PROJECT_SOURCE_DIR}/src/point.cc
+      ${PROJECT_SOURCE_DIR}/src/map_parser.cc
+      ${PROJECT_SOURCE_DIR}/src/pokemon_parser.cc
+      ${PROJECT_SOURCE_DIR}/src/resistance.cc
+)
+target_link_libraries(dancing_links nlohmann_json::nlohmann_json)

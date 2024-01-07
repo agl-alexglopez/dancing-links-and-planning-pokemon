@@ -21,9 +21,77 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "resistance.hh"
-#include "type_encoding.hh"
+module;
 #include <ostream>
+export module dancing_links:resistance;
+import :type_encoding;
+
+export namespace Dancing_links {
+
+enum Multiplier
+{
+  /* It would not make sense for someone to let a multiplier in a Resistance default to
+   * IMMUNE, because that is a valuable multiplier to have for a Pokemon. Make sure you
+   * initialize multipliers unless you want an EMPTY_ placeholder.
+   */
+  emp = 0,
+  imm,
+  f14, // x0.25 damage aka the fraction 1/4
+  f12, // x0.5 damage aka the fraction 1/2
+  nrm, // normal
+  dbl, // double or 2x damage
+  qdr  // quadruple or 4x damage.
+};
+
+class Resistance
+{
+public:
+  Resistance( const Type_encoding& type, const Multiplier& multiplier );
+
+  Resistance( const Resistance& other ) = default;
+  Resistance( Resistance&& other ) noexcept = default;
+  Resistance& operator=( Resistance&& other ) = default;
+  Resistance& operator=( const Resistance& other ) = default;
+  ~Resistance() = default;
+
+  [[nodiscard]] Type_encoding type() const;
+
+  [[nodiscard]] Multiplier multiplier() const;
+
+  bool operator<( const Resistance& rhs ) const
+  {
+    return this->type() < rhs.type();
+  }
+  bool operator==( const Resistance& rhs ) const
+  {
+    return this->type() == rhs.type() && this->multiplier() == rhs.multiplier();
+  }
+  bool operator>( const Resistance& rhs ) const
+  {
+    return rhs < *this;
+  }
+  bool operator>=( const Resistance& rhs ) const
+  {
+    return !( *this < rhs );
+  }
+  bool operator<=( const Resistance& rhs ) const
+  {
+    return !( *this > rhs );
+  }
+  bool operator!=( const Resistance& rhs ) const
+  {
+    return !( *this == rhs );
+  }
+
+private:
+  Type_encoding type_;
+  Multiplier multiplier_;
+};
+
+std::ostream& operator<<( std::ostream& out, const Resistance& res );
+std::ostream& operator<<( std::ostream& out, const Multiplier& mult );
+
+} // namespace Dancing_links
 
 namespace Dancing_links {
 
