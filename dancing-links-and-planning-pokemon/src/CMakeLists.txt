@@ -18,7 +18,6 @@ target_sources(dancing_links
       ${PROJECT_SOURCE_DIR}/src/pokemon_links.cc
       ${PROJECT_SOURCE_DIR}/src/ranked_set.cc
       ${PROJECT_SOURCE_DIR}/src/type_encoding.cc
-      ${PROJECT_SOURCE_DIR}/src/point.cc
       ${PROJECT_SOURCE_DIR}/src/map_parser.cc
       ${PROJECT_SOURCE_DIR}/src/pokemon_parser.cc
       ${PROJECT_SOURCE_DIR}/src/resistance.cc

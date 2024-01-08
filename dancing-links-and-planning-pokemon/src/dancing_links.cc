@@ -1,7 +1,6 @@
 export module dancing_links;
 
 export import :pokemon_links;
-export import :point;
 export import :ranked_set;
 export import :type_encoding;
 export import :map_parser;
