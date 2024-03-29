@@ -26,7 +26,7 @@
 /// The above format asks the following question: given a subset of gyms how do I defensively cover myself
 /// from the attack types present in those gyms? You can ask the attack version by adding an A to your arguments.
 /// Finally, you can specify an exact or overlapping cover. By default this program tries to find exact covers
-/// to these pokemon typing questions meaning the at every option we use to cover all the items covers the items
+/// to these pokemon typing questions meaning that at every option we use to cover all the items covers the items
 /// such that each item is covered exactly once. This is hard to do in many maps. Instead, if you want a blanket
 /// approach that simply seeks to cover all the items even if multiple options cover the same items add the "O"
 /// flag as follows.
@@ -57,8 +57,8 @@ import dancing_links;
 namespace Dx = Dancing_links;
 namespace {
 
-constexpr size_t max_name_width = 17;
-constexpr size_t digit_width = 3;
+constexpr int max_name_width = 17;
+constexpr int digit_width = 3;
 
 constexpr std::string_view nil = "\033[0m";
 constexpr std::string_view ansi_yel = "\033[38;5;11m";
@@ -117,6 +117,12 @@ enum class Table_type
   last
 };
 
+enum class Print_style
+{
+  color,
+  plain
+};
+
 struct Universe_sets
 {
   std::vector<Dx::Type_encoding> items;
@@ -130,11 +136,16 @@ struct Runner
   std::set<std::string> selected_gyms {};
   Dx::Pokemon_links::Coverage_type type { Dx::Pokemon_links::Coverage_type::defense };
   Solution_type sol_type { Solution_type::exact };
+  Print_style style { Print_style::color };
 };
 
 int run( std::span<const char* const> args );
 int solve( const Runner& runner );
-void print_prep_message( const Universe_sets& sets );
+void print_types( const Ranked_set<Dx::Type_encoding>& res, Print_style style );
+std::string generate_type_string( std::pair<std::string_view, std::string_view> name,
+                                  std::pair<uint64_t, std::optional<uint64_t>> indices,
+                                  Print_style style );
+void print_prep_message( const Universe_sets& sets, Print_style style );
 void break_line( size_t max_set_len, Table_type t );
 void print_solution_msg( const std::set<Ranked_set<Dx::Type_encoding>>& result, const Runner& runner );
 void help();
@@ -181,6 +192,10 @@ int run( const std::span<const char* const> args )
         runner.sol_type = Solution_type::exact;
       } else if ( arg_str == "O" ) {
         runner.sol_type = Solution_type::overlapping;
+      } else if ( arg_str == "--color" ) {
+        runner.style = Print_style::color;
+      } else if ( arg_str == "--plain" ) {
+        runner.style = Print_style::plain;
       } else {
         std::cerr << "Unknown argument: " << arg_str << "\n";
         help();
@@ -211,7 +226,7 @@ int solve( const Runner& runner )
     Dx::hide_items_except( links, subset );
   }
   const Universe_sets items_options = { Dx::items( links ), Dx::options( links ) };
-  print_prep_message( items_options );
+  print_prep_message( items_options, runner.style );
   const int depth_limit = runner.type == Dx::Pokemon_links::Coverage_type::attack ? 24 : 6;
   const std::set<Ranked_set<Dx::Type_encoding>> result = runner.sol_type == Solution_type::exact
                                                            ? Dx::exact_cover_stack( links, depth_limit )
@@ -229,30 +244,8 @@ int solve( const Runner& runner )
   size_t cur_set = 1;
   for ( const auto& res : result ) {
     std::cout << std::left << std::setw( digit_width ) << res.rank();
-    size_t col = 0;
-    for ( const auto& t : res ) {
-      const std::pair<std::string_view, std::string_view> type_pair = t.decode_type();
-      const std::pair<uint64_t, std::optional<uint64_t>> type_indices = t.decode_indices();
-      if ( type_indices.second ) {
-        const auto output = std::string( type_colors.at( type_indices.first ) )
-                              .append( type_pair.first )
-                              .append( nil )
-                              .append( "-" )
-                              .append( type_colors.at( type_indices.second.value() ) )
-                              .append( type_pair.second )
-                              .append( nil );
-        std::cout << "│" << output
-                  << std::setw( static_cast<int>( max_name_width
-                                                  - ( type_pair.first.size() + 1 + type_pair.second.size() ) ) )
-                  << "";
-      } else {
-        const auto output
-          = std::string( type_colors.at( type_indices.first ) ).append( type_pair.first ).append( nil );
-        std::cout << "│" << output << std::setw( static_cast<int>( max_name_width - type_pair.first.size() ) )
-                  << "";
-      }
-      ++col;
-    }
+    size_t col = res.size();
+    print_types( res, runner.style );
     while ( col < max_set_len ) {
       std::cout << "│" << std::left << std::setw( max_name_width ) << "";
       ++col;
@@ -263,75 +256,119 @@ int solve( const Runner& runner )
     ++cur_set;
   }
   print_solution_msg( result, runner );
-  print_prep_message( items_options );
+  print_prep_message( items_options, runner.style );
   return 0;
 }
 
-void print_prep_message( const Universe_sets& sets )
+void print_types( const Ranked_set<Dx::Type_encoding>& res, Print_style style )
 {
-  const auto item_msg = std::string( "Trying to cover " )
-                          .append( ansi_yel )
-                          .append( std::to_string( sets.items.size() ) )
-                          .append( " items\n\n" )
-                          .append( nil );
+  for ( const auto& t : res ) {
+    const std::pair<std::string_view, std::string_view> type_pair = t.decode_type();
+    const std::pair<uint64_t, std::optional<uint64_t>> type_indices = t.decode_indices();
+    const std::string output = generate_type_string( type_pair, type_indices, style );
+    int width = 0;
+    if ( type_indices.second ) {
+      width = max_name_width - static_cast<int>( type_pair.first.size() + 1 + type_pair.second.size() );
+    } else {
+      width = max_name_width - static_cast<int>( type_pair.first.size() );
+    }
+    std::cout << "│" << output << std::setw( width ) << "";
+  }
+}
+
+std::string generate_type_string( std::pair<std::string_view, std::string_view> name,
+                                  std::pair<uint64_t, std::optional<uint64_t>> indices,
+                                  Print_style style )
+{
+  std::string output = {};
+  if ( indices.second ) {
+    if ( style == Print_style::color ) {
+      output = std::string( type_colors.at( indices.first ) )
+                 .append( name.first )
+                 .append( nil )
+                 .append( "-" )
+                 .append( type_colors.at( indices.second.value() ) )
+                 .append( name.second )
+                 .append( nil );
+    } else {
+      output = std::string( name.first ).append( "-" ).append( name.second );
+    }
+  } else {
+    if ( style == Print_style::color ) {
+      output = std::string( type_colors.at( indices.first ) ).append( name.first ).append( nil );
+    } else {
+      output = std::string( name.first );
+    }
+  }
+  return output;
+}
+
+void print_prep_message( const Universe_sets& sets, Print_style style )
+{
+  std::string item_msg = {};
+  if ( style == Print_style::color ) {
+    item_msg.append( "Trying to cover " )
+      .append( ansi_yel )
+      .append( std::to_string( sets.items.size() ) )
+      .append( " items\n\n" )
+      .append( nil );
+  } else {
+    item_msg.append( "Trying to cover " ).append( std::to_string( sets.items.size() ) ).append( " items\n\n" );
+  }
   std::cout << item_msg;
   for ( const auto& type : sets.items ) {
     const std::pair<std::string_view, std::string_view> type_pair = type.decode_type();
     const std::pair<uint64_t, std::optional<uint64_t>> type_indices = type.decode_indices();
-    if ( type_indices.second ) {
-      const auto output = std::string( type_colors.at( type_indices.first ) )
-                            .append( type_pair.first )
-                            .append( nil )
-                            .append( "-" )
-                            .append( type_colors.at( type_indices.second.value() ) )
-                            .append( type_pair.second )
-                            .append( nil );
-      std::cout << output << ", ";
-    } else {
-      const auto output
-        = std::string( type_colors.at( type_indices.first ) ).append( type_pair.first ).append( nil );
-      std::cout << output << ", ";
-    }
+    std::string output = generate_type_string( type_pair, type_indices, style );
+    std::cout << output << ", ";
   }
-  const auto option_msg = std::string( "\n" )
-                            .append( ansi_yel )
-                            .append( std::to_string( sets.options.size() ) )
-                            .append( " options" )
-                            .append( nil )
-                            .append( " are available:\n\n" );
+  std::string option_msg = {};
+  if ( style == Print_style::color ) {
+    option_msg.append( "\n" )
+      .append( ansi_yel )
+      .append( std::to_string( sets.options.size() ) )
+      .append( " options" )
+      .append( nil )
+      .append( " are available:\n\n" );
+  } else {
+    option_msg.append( "\n" )
+      .append( std::to_string( sets.options.size() ) )
+      .append( " options" )
+      .append( " are available:\n\n" );
+  }
   std::cout << "\n" << option_msg;
   for ( const auto& type : sets.options ) {
     const std::pair<std::string_view, std::string_view> type_pair = type.decode_type();
     const std::pair<uint64_t, std::optional<uint64_t>> type_indices = type.decode_indices();
-    if ( type_indices.second ) {
-      const auto output = std::string( type_colors.at( type_indices.first ) )
-                            .append( type_pair.first )
-                            .append( nil )
-                            .append( "-" )
-                            .append( type_colors.at( type_indices.second.value() ) )
-                            .append( type_pair.second )
-                            .append( nil );
-      std::cout << output << ", ";
-    } else {
-      const auto output
-        = std::string( type_colors.at( type_indices.first ) ).append( type_pair.first ).append( nil );
-      std::cout << output << ", ";
-    }
+    std::string output = generate_type_string( type_pair, type_indices, style );
+    std::cout << output << ", ";
   }
   std::cout << "\n";
 }
 
 void print_solution_msg( const std::set<Ranked_set<Dx::Type_encoding>>& result, const Runner& runner )
 {
-  auto result_color = std::string( result.empty() ? ansi_red : ansi_grn );
-  const auto msg = result_color.append( "\nFound " )
-                     .append( std::to_string( result.size() ) )
-                     .append( runner.sol_type == Solution_type::exact ? " exact" : " overlapping" )
-                     .append( " ranked sets of options that cover specified items." )
-                     .append( runner.type == Dx::Pokemon_links::Coverage_type::defense ? " Lower rank is better."
-                                                                                       : " Higher rank is better." )
-                     .append( "\n\n" )
-                     .append( nil );
+  std::string msg = {};
+  if ( runner.style == Print_style::color ) {
+    msg = std::string( result.empty() ? ansi_red : ansi_grn )
+            .append( "\nFound " )
+            .append( std::to_string( result.size() ) )
+            .append( runner.sol_type == Solution_type::exact ? " exact" : " overlapping" )
+            .append( " ranked sets of options that cover specified items." )
+            .append( runner.type == Dx::Pokemon_links::Coverage_type::defense ? " Lower rank is better."
+                                                                              : " Higher rank is better." )
+            .append( "\n\n" )
+            .append( nil );
+  } else {
+    msg.append( "\nFound " )
+      .append( std::to_string( result.size() ) )
+      .append( runner.sol_type == Solution_type::exact ? " exact" : " overlapping" )
+      .append( " ranked sets of options that cover specified items." )
+      .append( runner.type == Dx::Pokemon_links::Coverage_type::defense ? " Lower rank is better."
+                                                                        : " Higher rank is better." )
+      .append( "\n\n" )
+      .append( nil );
+  }
   std::cout << msg;
 }
 
