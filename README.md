@@ -1,6 +1,6 @@
 # Dancing Links and Planning Pokémon
 
-![graph-app](/images/graph-app.png)
+![cli-app](/images/pokemon-cli.png)
 
 ## Navigation
 - Pokémon Planning
