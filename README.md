@@ -16,7 +16,7 @@ This project makes use of new C++ module features and therefore must be built wi
 I have created a small Command Line Interface program to demonstrate the interesting problems that the Dancing Links algorithm can solve. Read the Overview and breakdown of the algorithm below, but here is a quick start guide to see output in the terminal right away.
 
 1. Clone the repository.
-2. Build the project from the `/dancling-links-and-planning-pokemon` folder.
+2. Build the project from the root of the repository.
     - There is a provided configuration in `CMakePresets.json` and `CMakeUserPresets.json` that looks for `clang++` and the `Ninja` build generator to support building C++ modules. Alter any of these flags and settings to your liking if you cannot build.
     - Use the cmake preset for realease mode `cmake --preset=rel` or with the provided convenience Makefile `make rel`.
 3. Run the Command Line Interface application `./build/rel/pokemon_cli`.
