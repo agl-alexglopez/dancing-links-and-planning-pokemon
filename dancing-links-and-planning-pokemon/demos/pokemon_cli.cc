@@ -483,8 +483,7 @@ print_solution_msg(const std::set<Ranked_set<Dx::Type_encoding>> &result,
             .append(runner.type == Dx::Pokemon_links::Coverage_type::defense
                         ? " Lower rank is better."
                         : " Higher rank is better.")
-            .append("\n\n")
-            .append(nil);
+            .append("\n\n");
     }
     std::cout << msg;
 }
