@@ -480,14 +480,14 @@ hide_item(Pokemon_links &dlx, Type_encoding to_hide)
 }
 
 bool
-hide_item(Pokemon_links &dlx, const std::vector<Type_encoding> &to_hide)
+hide_items(Pokemon_links &dlx, const std::vector<Type_encoding> &to_hide)
 {
     return dlx.hide_requested_item(to_hide);
 }
 
 bool
-hide_item(Pokemon_links &dlx, const std::vector<Type_encoding> &to_hide,
-          std::vector<Type_encoding> &failed_to_hide)
+hide_items(Pokemon_links &dlx, const std::vector<Type_encoding> &to_hide,
+           std::vector<Type_encoding> &failed_to_hide)
 {
     return dlx.hide_requested_item(to_hide, failed_to_hide);
 }
@@ -541,14 +541,14 @@ hide_option(Pokemon_links &dlx, Type_encoding to_hide)
 }
 
 bool
-hide_option(Pokemon_links &dlx, const std::vector<Type_encoding> &to_hide)
+hide_options(Pokemon_links &dlx, const std::vector<Type_encoding> &to_hide)
 {
     return dlx.hide_requested_option(to_hide);
 }
 
 bool
-hide_option(Pokemon_links &dlx, const std::vector<Type_encoding> &to_hide,
-            std::vector<Type_encoding> &failed_to_hide)
+hide_options(Pokemon_links &dlx, const std::vector<Type_encoding> &to_hide,
+             std::vector<Type_encoding> &failed_to_hide)
 {
     return dlx.hide_requested_option(to_hide, failed_to_hide);
 }

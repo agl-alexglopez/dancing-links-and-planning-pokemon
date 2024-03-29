@@ -197,26 +197,34 @@ std::vector<typeName> headers = {
 The `TypeEncoding` is a new addition to this project. Previously, this implementation produced solutions in string format. This means all input and output for the Pokémon types came in the form of `std::string`. Normally, this would be fine, but the exact cover problem as I have set it up communicates with sets and maps which means behind the scenes the algorithm is performing thousands if not millions of string comparisons of varying lengths. We can reduce all of these comparisons that are happening to a single comparison between two numbers. This will make moving data and some of the algorithms faster while vastly reducing the memory footprint. We simply encode all types into this format and get the added benefit of a trivially copyable class.
 
 ```c++
-class TypeEncoding {
-public:
-    TypeEncoding() = default;
-    TypeEncoding(std::string_view type);
-    uint32_t encoding() const;
-    std::pair<std::string_view,std::string_view> decodeType() const;
-    bool operator==(TypeEncoding rhs) const;
-    bool operator!=(TypeEncoding rhs) const;
-    bool operator<(TypeEncoding rhs) const;
-    bool operator>(TypeEncoding rhs) const;
-    bool operator<=(TypeEncoding rhs) const;
-    bool operator>=(TypeEncoding rhs) const;
-private:
+class Type_encoding {
+
+  public:
+    Type_encoding() = default;
+    // If encoding cannot be found encoding_ is set the falsey value 0.
+    Type_encoding(std::string_view type);
+    [[nodiscard]] uint32_t encoding() const;
+    [[nodiscard]] std::pair<std::string_view, std::string_view>
+    decode_type() const;
+    [[nodiscard]] std::pair<uint64_t, std::optional<uint64_t>>
+    decode_indices() const;
+    [[nodiscard]] std::string to_string() const;
+    [[nodiscard]] static std::span<const std::string_view> type_table();
+
+    bool operator==(Type_encoding rhs) const;
+    std::strong_ordering operator<=>(Type_encoding rhs) const;
+
+  private:
     uint32_t encoding_;
-    uint8_t binsearchBitIndex(std::string_view type) const;
-    // Any and all TypeEncodings will have one global string_view of the type strings for decoding.
-    static constexpr std::array<std::string_view,18> TYPE_ENCODING_TABLE = {
-        // lexicographicly organized table. 17th index is the first lexicographic order Bug.
-        "Water","Steel","Rock","Psychic","Poison","Normal","Ice","Ground","Grass",
-        "Ghost","Flying","Fire","Fighting","Fairy","Electric","Dragon","Dark","Bug"
+    static uint64_t type_bit_index(std::string_view type);
+    // Any and all Type_encodings will have one global string_view of the type
+    // strings for decoding.
+    static constexpr std::array<std::string_view, 18> type_encoding_table = {
+        // lexicographicly organized table. 17th index is the highest
+        // lexicographic value "Water."
+        "Bug",    "Dark",   "Dragon",  "Electric", "Fairy",  "Fighting",
+        "Fire",   "Flying", "Ghost",   "Grass",    "Ground", "Ice",
+        "Normal", "Poison", "Psychic", "Rock",     "Steel",  "Water",
     };
 };
 ```
@@ -238,28 +246,28 @@ The final optimization involves the newish type `std::string_view`. I try to avo
 Here is the type that I use within the dancing links array.
 
 ```c++
-struct pokeLink {
-    int topOrLen;
-    int up;
-    int down;
-    // x0.0, x0.25, x0.5, x1.0, x2, or x4 damage multipliers.
-    Multiplier multiplier;
-    // Use this to efficiently find Overlapping covers.
-    int tag;
+struct Poke_link
+{
+    int32_t top_or_len;
+    uint64_t up;
+    uint64_t down;
+    Multiplier multiplier; // x0.0, x0.25, x0.5, x1.0, x2, or x4
+    int tag; // We use this to efficiently generate overlapping sets.
 };
 ```
 
 The Multiplier is a simple `enum`.
 
 ```c++
-enum Multiplier {
-    EMPTY_=0,
-    IMMUNE,  // x0.00
-    FRAC14,  // x0.25
-    FRAC12,  // x0.50
-    NORMAL,  // x1.00
-    DOUBLE,  // x2.00
-    QUADRU   // x4.00
+enum Multiplier
+{
+    emp = 0,
+    imm,
+    f14, // x0.25 damage aka the fraction 1/4
+    f12, // x0.5 damage aka the fraction 1/2
+    nrm, // normal
+    dbl, // double or 2x damage
+    qdr  // quadruple or 4x damage.
 };
 ```
 
@@ -270,19 +278,17 @@ We then place all of this in one array. Here is a illustration of these links as
 There is also one node at the end of this array to know we are at the end and that our last option is complete. Finally, to help keep track of the options that we choose to cover items, there is another array consisting only of names of the options. These also have an index for the option in the dancing links data structure for some class methods I cover in the next section.
 
 ```c++
-struct encodingAndNum {
-    TypeEncoding name;
-    int num;
+struct Encoding_index
+{
+    Type_encoding name;
+    uint64_t index;
 };
-const std::vector<encodingAndNum> options = {
-    {{""},0},
-    {{"Bug-Ghost"},7},	
-    {{"Electric-Grass"},10},
-    {{"Fire-Flying"},14},	
-    {{"Ground-Water"},17},
-    {{"Ice-Psychic"},20},
-    {{"Ice-Water"},22},
-};
+const std::vector<Pokemon_links::Encoding_index> option_table
+    = {{{""}, 0},
+       {{"Dragon"}, 7},
+       {{"Electric"}, 12},
+       {{"Ghost"}, 14},
+       {{"Ice"}, 16}};
 ```
 
 The spacer nodes in the dancing links array have a negative `topOrLen` field that correspond to the index in this options array and this array has the index of that option. There are other subtleties to the implementation that I must consider, especially how to use the depth tag to produce Overlapping Type Coverages, but that can all be gleaned from the code itself.
@@ -305,8 +311,8 @@ If a user wants to membership test an item or option we can make some guarantees
 
 ```c++
 namespace DancingLinks{
-bool hasItem(const PokemonLinks& dlx, const TypeEncoding& item);
-bool hasOption(const PokemonLinks& dlx, const TypeEncoding& option);
+[[nodiscard]] bool has_item(Type_encoding item) const;
+[[nodiscard]] bool has_option(Type_encoding option) const;
 }
 ```
 
@@ -319,18 +325,21 @@ As a part of Algorithm X via Dancing Links, covering items is central to the pro
 
 ```c++
 namespace DancingLinks {
-bool hideItem(PokemonLinks& dlx, const TypeEncoding& toHide);
-bool hideItem(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide);
-bool hideItem(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
-              std::vector<TypeEncoding>& failedToHide);
-void hideItemsExcept(PokemonLinks& dlx, const std::set<TypeEncoding>& toKeep);
+void hide_item(uint64_t header_index);
+bool hide_items(Pokemon_links &dlx,
+                const std::vector<Type_encoding> &to_hide);
+bool hide_items(Pokemon_links &dlx,
+                const std::vector<Type_encoding> &to_hide,
+                std::vector<Type_encoding> &failed_to_hide);
+void hide_items_except(Pokemon_links &dlx,
+                       const std::set<Type_encoding> &to_keep);
 }
 ```
 
 For the why behind these runtime guarantees, please see the code, but here is what these operations offer.
 
-- `hideItem` - It costs O(lgN) to find one item and a simple O(1) operation to hide it. The other two options add an O(N) operation to iterate through all requested items. The last overload can report any items that could not be hidden because they were hidden or did not exist in the links. 
-- `hideItemsExcept` - We must look at all items, however thanks to Knuth's algorithm the number of items we must examine shrinks if some items are already hidden. It costs O(NlgK) where N is not-hidden items and K is the size of the set of items to keep.  
+- `hide_item` - It costs O(lgN) to find one item and a simple O(1) operation to hide it. The other two options add an O(N) operation to iterate through all requested items. The last overload can report any items that could not be hidden because they were hidden or did not exist in the links. 
+- `hide_items_except` - We must look at all items, however thanks to Knuth's algorithm the number of items we must examine shrinks if some items are already hidden. It costs O(NlgK) where N is not-hidden items and K is the size of the set of items to keep.  
 
 ### Unhiding Items
 
@@ -340,12 +349,12 @@ To track the order, I use a stack and offer the user stack-like operations that 
 
 ```c++
 namespace DancingLinks {
-int numHidItems(const PokemonLinks& dlx);
-TypeEncoding peekHidItem(const PokemonLinks& dlx);
-void popHidItem(PokemonLinks& dlx);
-bool hidItemsEmpty(const PokemonLinks& dlx);
-std::vector<TypeEncoding> hiddenItems(const PokemonLinks& dlx);
-void resetItems(PokemonLinks& dlx);
+uint64_t num_hid_items(const Pokemon_links &dlx);
+Type_encoding peek_hid_item(const Pokemon_links &dlx);
+void pop_hid_item(Pokemon_links &dlx);
+bool hid_items_empty(const Pokemon_links &dlx);
+std::vector<Type_encoding> hid_items(const Pokemon_links &dlx);
+void reset_items(Pokemon_links &dlx);
 }
 ```
 
@@ -362,11 +371,14 @@ We will also use a stack to manage hidden options. Here, however, the stack is r
 
 ```c++
 namespace DancingLinks {
-bool hideOption(PokemonLinks& dlx, const TypeEncoding& toHide);
-bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide);
-bool hideOption(PokemonLinks& dlx, const std::vector<TypeEncoding>& toHide,
-                std::vector<TypeEncoding>& failedToHide);
-void hideOptionsExcept(PokemonLinks& dlx, const std::set<TypeEncoding>& toKeep);
+bool hide_option(Pokemon_links &dlx, Type_encoding to_hide);
+bool hide_options(Pokemon_links &dlx, 
+                  const std::vector<Type_encoding> &to_hide);
+bool hide_options(Pokemon_links &dlx, 
+                  const std::vector<Type_encoding> &to_hide,
+                  std::vector<Type_encoding> &failed_to_hide);
+void hide_options_except(Pokemon_links &dlx, 
+                         const std::set<Type_encoding> &to_keep);
 }
 ```
 
@@ -381,12 +393,12 @@ Here are the same stack utilities we offer for the option version of these opera
 
 ```c++
 namespace DancingLinks {
-int numHidOptions(const PokemonLinks& dlx);
-TypeEncoding peekHidOption(const PokemonLinks& dlx);
-void popHidOption(PokemonLinks& dlx);
-bool hidOptionsEmpty(const PokemonLinks& dlx);
-std::vector<TypeEncoding> hidOptions(const PokemonLinks& dlx);
-void resetOptions(PokemonLinks& dlx);
+uint64_t num_hid_options(const Pokemon_links &dlx);
+Type_encoding peek_hid_option(const Pokemon_links &dlx);
+void pop_hid_option(Pokemon_links &dlx);
+bool hid_options_empty(const Pokemon_links &dlx);
+std::vector<Type_encoding> hid_options(const Pokemon_links &dlx);
+void reset_options(Pokemon_links &dlx);
 }
 ```
 
@@ -400,41 +412,35 @@ With the hiding and unhiding logic in place you now have a complete set of opera
 
 ```c++
 namespace DancingLinks {
-std::set<RankedSet<TypeEncoding>> solveExactCover(PokemonLinks& dlx, int choiceLimit);
-std::set<RankedSet<TypeEncoding>> solveOverlappingCover(PokemonLinks& dlx, int choiceLimit);
-std::vector<TypeEncoding> items(const PokemonLinks& dlx);
-int numItems(const PokemonLinks& dlx);
-std::vector<TypeEncoding> options(const PokemonLinks& dlx);
-int numOptions(const PokemonLinks& dlx);
-PokemonLinks::CoverageType coverageType(const PokemonLinks& dlx);
+std::set<Ranked_set<Type_encoding>> exact_cover_functional(Pokemon_links &dlx, 
+                                                           int choice_limit);
+std::set<Ranked_set<Type_encoding>> exact_cover_stack(Pokemon_links &dlx, 
+                                                      int choice_limit);
+std::set<Ranked_set<Type_encoding>> 
+overlapping_cover_functional(Pokemon_links &dlx, int choice_limit);
+std::set<Ranked_set<Type_encoding>> overlapping_cover_stack(Pokemon_links &dlx, 
+                                                            int choice_limit);
 }
 ```
 
 We are now able to solve cover problems on a PokemonLinks object that is in a user-defined, altered state. The user can modify the structure as much as they would like and restore it to its original state with minimal internal maintenance of the object required. With the decent runtime guarantees we can offer with this data structure, the memory efficiency, lack of copies, and flexible state, I think there is a strong case to be made for a class implementation of Dancing Links.
 
-Treating the PokemonLinks as an alterable object with a prolonged lifetime was useful in the GUI program you can use in this repository. For each Pokémon map I load in, I only load two PokemonLinks objects, one for ATTACK and one for DEFENSE. As the user asks for solutions to only certain sets of gyms, we simply hide the items the user is not interested in and restore them after every query. I have not yet found a use case for hiding options but this project could continue to grow as I try out different techniques.
+Treating the PokemonLinks as an alterable object with a prolonged lifetime can be useful in GUI and CLI programs in this repo. For each Pokémon map I load in, I only load two PokemonLinks objects, one for ATTACK and one for DEFENSE. As the user asks for solutions to only certain sets of gyms, we simply hide the items the user is not interested in and restore them after every query. I have not yet found a use case for hiding options but this project could continue to grow as I try out different techniques.
 
 ## Citations
 
 This project grew more than I thought it would. I was able to bring in some great tools to help me explore these algorithms. So, it is important to note what I am responsible for in this repository and what I am not. The code that I wrote is contained in the following files.
 
-- `PokemonLinks.h`
-- `PokemonLinks.cpp`
-- `PokemonParser.h`
-- `PokemonParser.cpp`
-- `RankedSet.h`
-- `Resistance.h`
-- `Resistance.cpp`
+- `type_encoding.cc`
+- `pokemon_links.cc`
+- `pokemon_parser.cc`
+- `ranked_set.cc`
+- `resistance.cc`
+- `pokemon_cli.cc`
 
 As mentioned in the intro, the core ideas of Algorithm X via Dancing Links belongs to Knuth, I just implemented it a few different ways.
 
-Any other code was rearranged or modified to fit the needs of this project. Stanford Course staff is responsible for writing the GUI library that I used to display the algorithm. Keith Schwarz and Stanford course staff is responsible for writing the graph drawing algorithm that makes displaying `.dst` files so easy.
-
-I made the most significant modifications to the following file that had the graph drawing utility already completed as mentioned above.
-
-- `PokemonGUI.cpp`
-
-I added the necessary adjustments to the GUI file to bring in the `json` data that I put together from the following websites.
+Any other code was rearranged or modified to fit the needs of this project. Stanford Course staff and Keith Schwarz is responsible for writing the graph drawing algorithm that makes working with `.dst` files so easy.
 
 For the `all-types.json` file, I got the information on type interactions from the following website.
 
@@ -446,4 +452,4 @@ For the `all-maps.json` file, I got the information on gyms and the attack and d
 
 ## Next Steps
 
-I would like to visualize the cover problems in greater detail on a website and will try to put together a graph cover visualizer soon. Thanks for reading!
+The graph cover visualizer is a work in progress. Thanks for reading!
