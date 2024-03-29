@@ -4,7 +4,7 @@
 
 ## Navigation
 - Pokémon Planning
-	- Dancing Links Implementation **([`pokemon_links.cc`](/dancing-links-and-planning-pokemon/src/pokemon_links.cc))**
+	- Dancing Links Implementation **([`pokemon_links.cc`](/src/pokemon_links.cc))**
 - [Citations](#citations)
 
 ## Build Note
@@ -239,7 +239,7 @@ We now have the ability to turn specific bits on in this type to represent the t
 
 The final challenge for this strategy is making sure that we can use this type as you would a normal string, in a set or map for example. This means that the `TypeEncoding` must behave the same as its string representation in terms of lexicographic sorting. To achieve this we must take a counterintuitive approach; the bits must be aligned in the HIGHEST order bit position according to LOWEST lexicographical order of the string they represent. 
 
-So above, "Bug" will always be first in terms of lexicographical ordering among these strings. It's bit must be in the highest order position we have available. We need to ensure that any type that starts with "Bug" will always be less than any other possible type combination that does not start with bug, and so on for the next string in ascending order. The easy way to do this is to ensure that any `TypeEncoding` that contains the "Bug" bit is larger than one that does not (counterintuitive right?). That is why you see the `operator<` overload for this type flipped. Once we have consistent logic for this type we just need to flip the meaning of a larger value so it behaves like a normal string. If this is confusing consider the problems you would run into if you flipped this bit array, placing "Bug" at the zero index. The type "Bug-Water" would be a larger numeric value than "Ghost-Grass," but "Bug-Water" should be sorted first. It becomes a mess! Using the doubling nature of base 2 bits, we can achieve the consistency we want, we just need to take an odd approach. There are other bit tricks and strategies I use to implement this type efficiently but you can explore those in the code if you wish. In fact, when compared to a traditional `unordered_map` that would precompute and store all possible encodings and decoding strings, my implementation is slightly slower in the encoding phase but twice as fast in the decoding phase. See the **[`TypeEncoding.h`](/dancing-links-and-planning-pokemon/dlapp/TypeEncoding.h)** file and the runtime tests in **[`Tests.cpp`](/dancing-links-and-planning-pokemon/dlapp/Tests/Tests.cpp)**.
+So above, "Bug" will always be first in terms of lexicographical ordering among these strings. It's bit must be in the highest order position we have available. We need to ensure that any type that starts with "Bug" will always be less than any other possible type combination that does not start with bug, and so on for the next string in ascending order. The easy way to do this is to ensure that any `TypeEncoding` that contains the "Bug" bit is larger than one that does not (counterintuitive right?). That is why you see the `operator<` overload for this type flipped. Once we have consistent logic for this type we just need to flip the meaning of a larger value so it behaves like a normal string. If this is confusing consider the problems you would run into if you flipped this bit array, placing "Bug" at the zero index. The type "Bug-Water" would be a larger numeric value than "Ghost-Grass," but "Bug-Water" should be sorted first. It becomes a mess! Using the doubling nature of base 2 bits, we can achieve the consistency we want, we just need to take an odd approach. There are other bit tricks and strategies I use to implement this type efficiently but you can explore those in the code if you wish. In fact, when compared to a traditional `unordered_map` that would precompute and store all possible encodings and decoding strings, my implementation is slightly slower in the encoding phase but twice as fast in the decoding phase. See the **[`type_encoding.cc`](/src/type_encoding.cc)** file and the runtime tests in **[`tests.cc`](/tests/tests.cc)**.
 
 The final optimization involves the newish type `std::string_view`. I try to avoid creating heap allocated strings whenever necessary. Because we must have a table with type names to refer to for the `TypeEncoding` I just point to those strings to display type information when decoding a `TypeEncoding`. I added this constraint to learn more about how to properly use `std::string_view` and I like the design decisions that followed. See the code for more.
 
@@ -316,8 +316,8 @@ namespace DancingLinks{
 }
 ```
 
-- `hasItem` - Finding an item is O(lgN) where N is the number of all items. You cannot find a hidden item.
-- `hasOption` - Finding an option is O(lgN) where N is the number of all options. You cannot find a hidden option.
+- `has_item` - Finding an item is O(lgN) where N is the number of all items. You cannot find a hidden item.
+- `has_option` - Finding an option is O(lgN) where N is the number of all options. You cannot find a hidden option.
 
 ### Hiding Items
 
@@ -360,10 +360,10 @@ void reset_items(Pokemon_links &dlx);
 
 Here are the guarantees I can offer for these operations.
 
-- `numHidItems`/`hidItemsEmpty`/`peekHidItems` - These are your standard top of the stack operations offering O(1) runtime. Just as with a normal stack you should not try to peek or pop an empty stack.
-- `hidItems` - I do provide the additional functionality of viewing the hidden stack for clarity. O(N). 
-- `popHidItem` - Luckily, because of some internal implementation choices, unhiding an item is an O(1) operation. If you were using `left/right` fields for appearances of items in the options you would need to restore every appearance of those items. But with the tagging technique I use, this is not required in my implementation. This does incur a slight time cost when running a query on the PokemonLinks object if the user has hidden items, but due to the simple nature of traversing an array with indices, and the sparse nature of most matrices, this is a small cost.
-- `resetItems` - This is an O(H) operation where H is hidden items.
+- `num_hid_items`/`hid_items_empty`/`peek_hid_items` - These are your standard top of the stack operations offering O(1) runtime. Just as with a normal stack you should not try to peek or pop an empty stack.
+- `hid_items` - I do provide the additional functionality of viewing the hidden stack for clarity. O(N). 
+- `pop_hid_item` - Luckily, because of some internal implementation choices, unhiding an item is an O(1) operation. If you were using `left/right` fields for appearances of items in the options you would need to restore every appearance of those items. But with the tagging technique I use, this is not required in my implementation. This does incur a slight time cost when running a query on the PokemonLinks object if the user has hidden items, but due to the simple nature of traversing an array with indices, and the sparse nature of most matrices, this is a small cost.
+- `reset_items` - This is an O(H) operation where H is hidden items.
 
 ### Hiding Options
 
@@ -384,8 +384,8 @@ void hide_options_except(Pokemon_links &dlx,
 
 Here are the runtime guarantees these operations offer.
 
-- `hideOption` - It costs O(lgN) to find an option and O(I) to hide it, where I is the number of items in an option. The vector version is O(HIlgN) where H is the number of options to hide, I is the number of items for each option, and N is all options. We can also report back options we could not hide with the last overload. We cannot hide hidden options or options that don't exist.
-- `hideOptionsExcept` - This operation will cost O(NlgKI) where N is the number of options, K is the size of the set of items to keep, and I is the number of items in an option.
+- `hide_option` - It costs O(lgN) to find an option and O(I) to hide it, where I is the number of items in an option. The vector version is O(HIlgN) where H is the number of options to hide, I is the number of items for each option, and N is all options. We can also report back options we could not hide with the last overload. We cannot hide hidden options or options that don't exist.
+- `hide_options_except` - This operation will cost O(NlgKI) where N is the number of options, K is the size of the set of items to keep, and I is the number of items in an option.
 
 ### Unhiding Options
 
@@ -402,9 +402,9 @@ void reset_options(Pokemon_links &dlx);
 }
 ```
 
-- `numHidOptions`/`peekHidOption`/`hidOptionsEmpty` - standard O(1) stack operations.
-- `popHidOption` - O(I) where I is the number of items in an option.
-- `resetOptions` - O(HI) where H is the number of hidden items, and I is the number of items in an option. Usually, we are dealing with sparse matrices, so I hopefully remains low.
+- `num_hid_options`/`peek_hid_option`/`hid_options_empty` - standard O(1) stack operations.
+- `pop_hid_option` - O(I) where I is the number of items in an option.
+- `reset_options` - O(HI) where H is the number of hidden items, and I is the number of items in an option. Usually, we are dealing with sparse matrices, so I hopefully remains low.
 
 ### Other Operations
 
