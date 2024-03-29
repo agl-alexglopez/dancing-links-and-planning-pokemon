@@ -4,30 +4,42 @@
 
 ## Navigation
 - Pokémon Planning
-	- Dancing Links Class **([`PokemonLinks.h`](/dancing-links-and-planning-pokemon/dlapp/Src/PokemonLinks.h))**
-	- Dancing Links Implementation **([`PokemonLinks.cpp`](/dancing-links-and-planning-pokemon/dlapp/Src/PokemonLinks.cpp))**
+	- Dancing Links Implementation **([`pokemon_links.cc`](/dancing-links-and-planning-pokemon/src/pokemon_links.cc))**
 - [Citations](#citations)
 
 ## Build Note
 
-In order to build this project, you will need a copy of the CS106 C++ library from the Winter of 2022. To the best of my knowledge, newer libraries from Stanford's class websites have some graphics conflicts that prevent this assignment from building. I have included a copy of this library as a `.zip` file in the `/packages/` folder. Unzip the folder in a separate location on your computer because it will need to built as its own Qt project. You can then follow the same instructions to build this library that Stanford normally provides on their course websites [HERE](https://web.stanford.edu/dept/cs_edu/resources/qt/).
-
-Instead of building their new libraries, however, you will just build this older version. It will install all the necessary Stanford specific libraries on your system for use with Qt. I am working on a fix for this by gradually moving away from the Stanford Libraries.
+This project makes use of new C++ module features and therefore must be built with CMake >= 3.28.1, Clang >= 17.0.6, and Ninja >= 1.11.1. The C++ standard used is C++ 20 to enable use of modules and many other convenient features that cut down on lines of code significantly.
 
 ## Pokémon Planning Usage Instructions
 
-I have created a small testing ground for the Pokémon Cover Problem. I adapted a graph drawing application written by Keith Schwarz and Stanford course staff to allow you to explore various Pokémon maps. The maps are divided by Pokémon Generation. For example, the Kanto map is based around the attack and defense types available in Generation I of Pokémon. I included maps for Generations 1-9. I am fairly confident that the type information is accurate for each generation. There may be some minor errors in what types were available in the specific game map that I chose to represent a certain generation, but overall the division by generation is accurate.
+I have created a small Command Line Interface program to demonstrate the interesting problems that the Dancing Links algorithm can solve. Read the Overview and breakdown of the algorithm below, but here is a quick start guide to see output in the terminal right away.
 
-You can solve the maps entirely for exact and overlapping cover problems or you can select specific gyms. In Pokémon, you progress through the game by defeating 8 gym leaders and then a final group called the Elite 4 (along with one last champion of that league). You can select any combination of gyms to defend against or attack and the cover problem will be adapted to the types in those locations. Interesting results can arise as you plan out your type advantages!
+1. Clone the repository.
+2. Build the project from the `/dancling-links-and-planning-pokemon` folder.
+    - There is a provided configuration in `CMakePresets.json` and `CMakeUserPresets.json` that looks for `clang++` and the `Ninja` build generator to support building C++ modules. Alter any of these flags and settings to your liking if you cannot build.
+    - Use the cmake preset for realease mode `cmake --preset=rel` or with the provided convenience Makefile `make rel`.
+3. Run the Command Line Interface application `./build/rel/pokemon_cli`.
 
-1. Open the project in Qt Creator with the correct Stanford C++ library installed. (See the [Build Note](#build-note)).
-2. Build and run the project.
-3. Select the `Pokémon Planning` option from the top menu.
-4. Solve for every possible type you can encounter on a map with the cover buttons.
-5. Select only specific gyms that you would like to cover with the `G1`-`E4` buttons.
-6. Clear all selections at any time with the `CL` button.
+Here are the flags and settings available for this program.
 
-I find it interesting that only later generation maps have an exact cover for all possible types you will encounter in that generation. I am no expert on game design, but perhaps that communicates the variety and balance that Game Freak has achieved in their later games. However, looking at smaller subsets of gyms in the other maps can still be plenty of fun!
+```txt
+Pokemon CLI Usage:
+    h                - Read this help message.
+    plain            - Print without colors. Useful for piping or redirecting to file.
+    color            - The default color output to the terminal using ANSI escape sequences.
+    data/dst/map.dst - Path from the root of the repository to the generation map to solve.
+    G[GYM NUMBER]    - Add as many gyms to your argument to solve cover problems only for those gyms.
+    E4               - Add the "Elite Four" or equivalent stand-in final boss for a generation to the subset.
+    A                - The Attack flag to solve the attack type cover problem.
+    D                - The Defense flag to solve the defensive type cover problem. This is the default.
+    E                - Solve an Exact cover problem. This the default.
+    O                - Solve the overlapping cover problem
+Example Command:
+    ./build/rel/pokemon_cli G1 G2 G3 G4 data/dst/Gen-5-Unova2.dst
+```
+
+For what these types of cover problems mean, read the longer description below. A more robust and interesting graph cover visualizer is coming soon but is not complete yet. I find it interesting that only later generation maps have an exact cover for all possible types you will encounter in that generation. I am no expert on game design, but perhaps that communicates the variety and balance that Game Freak has achieved in their later games. However, looking at smaller subsets of gyms in the other maps can still be plenty of fun!
 
 ## Overview
 

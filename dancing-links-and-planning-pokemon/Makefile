@@ -1,4 +1,4 @@
-.PHONY: default nclang-rel nclang-deb build format tidy clean
+.PHONY: default rel deb build format tidy clean
 
 MAKE := $(MAKE)
 MAKEFLAGS += --no-print-directory
@@ -8,12 +8,12 @@ JOBS ?= $(shell (command -v nproc > /dev/null 2>&1 && echo "-j$$(nproc)") || (co
 
 default: build
 
-nclang-rel:
-	cmake --preset=nclang-rel
+rel:
+	cmake --preset=rel
 	cmake --build build/ $(JOBS)
 
-nclang-deb:
-	cmake --preset=nclang-deb
+deb:
+	cmake --preset=deb
 	cmake --build build/ $(JOBS)
 
 build:
