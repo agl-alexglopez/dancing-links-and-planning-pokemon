@@ -1,28 +1,24 @@
 ---
 Language: Cpp
-BasedOnStyle: Mozilla
-ColumnLimit: 116
-SpacesInParentheses: true
-AlwaysBreakAfterReturnType: None
-AlwaysBreakAfterDefinitionReturnType: None
-SpaceBeforeCpp11BracedList: true
+IndentWidth: 4
+ColumnLimit: 80
+SpacesInParentheses: false
+IndentPPDirectives: AfterHash
+AlwaysBreakAfterReturnType: AllDefinitions
 BreakBeforeBinaryOperators: All
-Cpp11BracedListStyle: true
 AllowShortBlocksOnASingleLine: Empty
 AllowShortFunctionsOnASingleLine: None
+AlignAfterOpenBracket: Align
 AlignTrailingComments: Always
-BinPackArguments: false
-BinPackParameters: false
-NamespaceIndentation: None
+BinPackArguments: true
+BinPackParameters: true
 BreakBeforeBraces: Custom
 BraceWrapping:
-  AfterClass: true
-  AfterControlStatement: Never
+  AfterControlStatement: Always
+  AfterCaseLabel: true
   AfterFunction: true
   AfterStruct: true
   AfterEnum: true
+  BeforeElse: true
   SplitEmptyFunction: false
-  SplitEmptyRecord: false
-  SplitEmptyNamespace: false
-PackConstructorInitializers: NextLine
-...
+---
