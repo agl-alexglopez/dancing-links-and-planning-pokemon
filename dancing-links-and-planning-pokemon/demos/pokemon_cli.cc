@@ -112,6 +112,21 @@ constexpr std::array<std::string_view, 18> type_colors = {
     "\033[38;2;99;144;240m",
 };
 
+constexpr auto help_msg =
+    R"(Pokemon CLI Usage:
+    h                - Read this help message.
+    plain            - Print without colors. Useful for piping or redirecting to file.
+    color            - The default color output to the terminal using ANSI escape sequences.
+    data/dst/map.dst - Path from the root of the repository to the generation map to solve.
+    G[GYM NUMBER]    - Add as many gyms to your argument to solve cover problems only for those gyms.
+    E4               - Add the "Elite Four" or equivalent stand-in final boss for a generation to the subset.
+    A                - The Attack flag to solve the attack type cover problem.
+    D                - The Defense flag to solve the defensive type cover problem. This is the default.
+    E                - Solve an Exact cover problem. This the default.
+    O                - Solve the overlapping cover problem
+Example Command:
+    ./build/rel/pokemon_cli G1 G2 G3 G4 data/dst/Gen-5-Unova2.dst)";
+
 enum class Solution_type
 {
     exact,
@@ -223,13 +238,18 @@ run(const std::span<const char *const> args)
             {
                 runner.sol_type = Solution_type::overlapping;
             }
-            else if (arg_str == "--color")
+            else if (arg_str == "color")
             {
                 runner.style = Print_style::color;
             }
-            else if (arg_str == "--plain")
+            else if (arg_str == "plain")
             {
                 runner.style = Print_style::plain;
+            }
+            else if (arg_str == "h")
+            {
+                help();
+                return 0;
             }
             else
             {
@@ -514,16 +534,7 @@ break_line(size_t max_set_len, Table_type t)
 void
 help()
 {
-    constexpr auto msg =
-        R"(Pokemon CLI Usage:
-        data/dst/map.dst - Path from the root of the repository to the generation map to solve.
-        G[GYM NUMBER]    - Add as many gyms to your argument to solve cover problems only for those gyms.
-        E4               - Add the "Elite Four" or equivalent stand-in final boss for a generation to the subset.
-        A                - The Attack flag to solve the attack type cover problem.
-        D                - The Defense flag to solve the defensive type cover problem. This is the default.
-        E                - Solve an Exact cover problem. This the default.
-        O                - Solve the overlapping cover problem)";
-    std::cout << msg << "\n";
+    std::cout << help_msg << "\n";
 }
 
 } // namespace
