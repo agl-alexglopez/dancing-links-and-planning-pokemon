@@ -11,8 +11,8 @@ Vertex::Vertex(std::span<float> vertex) : vertex_{vertex}
 {
     glGenBuffers(1, &vertex_id_);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_id_);
-    glBufferData(GL_ARRAY_BUFFER, vertex_.size_bytes(), vertex_.data(),
-                 GL_STATIC_DRAW); // NOLINT
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertex_.size_bytes()),
+                 vertex_.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr);
 }
@@ -22,14 +22,15 @@ Vertex::Vertex(std::span<float> vertex, std::span<const uint32_t> indices)
 {
     glGenBuffers(1, &vertex_id_);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_id_);
-    glBufferData(GL_ARRAY_BUFFER, vertex_.size_bytes(), vertex_.data(),
-                 GL_STATIC_DRAW); // NOLINT
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertex_.size_bytes()),
+                 vertex_.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr);
     glGenBuffers(1, &index_id_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_id_);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_.size_bytes(), index_.data(),
-                 GL_STATIC_DRAW); // NOLINT
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 static_cast<GLsizeiptr>(index_.size_bytes()), index_.data(),
+                 GL_STATIC_DRAW);
 }
 
 void

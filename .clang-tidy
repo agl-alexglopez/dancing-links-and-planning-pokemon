@@ -4,6 +4,7 @@ Checks: >
    -altera-*,
    -llvmlibc-*,
    -google-build-using-namespace,
+   -abseil*,
    -modernize-use-trailing-return-type,
    -readability-implicit-bool-conversion,
    -*-non-private-member-variables-in-classes,
@@ -14,7 +15,9 @@ Checks: >
    -fuchsia-default-arguments-calls,
    -fuchsia-default-arguments-declarations,
    -fuchsia-overloaded-operator,
-   -android-cloexec-accept
+   -android-cloexec-accept,
+   -misc-include-cleaner,
+   -readability-redundant-declaration
 
 WarningsAsErrors:
    '*'

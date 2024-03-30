@@ -419,7 +419,7 @@ print_prep_message(const Universe_sets &sets, Print_style style)
             = type.decode_type();
         const std::pair<uint64_t, std::optional<uint64_t>> type_indices
             = type.decode_indices();
-        std::string output
+        const std::string output
             = generate_type_string(type_pair, type_indices, style);
         std::cout << output << ", ";
     }
@@ -447,7 +447,7 @@ print_prep_message(const Universe_sets &sets, Print_style style)
             = type.decode_type();
         const std::pair<uint64_t, std::optional<uint64_t>> type_indices
             = type.decode_indices();
-        std::string output
+        const std::string output
             = generate_type_string(type_pair, type_indices, style);
         std::cout << output << ", ";
     }
