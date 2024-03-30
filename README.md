@@ -430,18 +430,11 @@ Treating the PokemonLinks as an alterable object with a prolonged lifetime can b
 
 ## Citations
 
-This project grew more than I thought it would. I was able to bring in some great tools to help me explore these algorithms. So, it is important to note what I am responsible for in this repository and what I am not. The code that I wrote is contained in the following files.
-
-- `type_encoding.cc`
-- `pokemon_links.cc`
-- `pokemon_parser.cc`
-- `ranked_set.cc`
-- `resistance.cc`
-- `pokemon_cli.cc`
+This project grew more than I thought it would. I was able to bring in some great tools to help me explore these algorithms. So, it is important to note what I am responsible for in this repository and what I am not.
 
 As mentioned in the intro, the core ideas of Algorithm X via Dancing Links belongs to Knuth, I just implemented it a few different ways.
 
-Any other code was rearranged or modified to fit the needs of this project. Stanford Course staff and Keith Schwarz is responsible for writing the graph drawing algorithm that makes working with `.dst` files so easy.
+Stanford Course staff and Keith Schwarz is responsible for writing the graph drawing algorithm that makes working with `.dst` files so easy, found in `map_parser.cc`. This will likely become more helpful when I make more progress with the graph cover visualizer.
 
 For the `all-types.json` file, I got the information on type interactions from the following website.
 
