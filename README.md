@@ -178,11 +178,11 @@ In order to accomplish the in-place, no-copy recursion that comes with Knuth's D
 Here is the type that I use to manage the recursion and know when every item is covered. The name corresponds to the item.
 
 ```c++
-struct typeName 
+struct Type_name
 {
-    TypeEncoding name;
-    int left;
-    int right;
+    Type_encoding name;
+    uint64_t left;
+    uint64_t right;
 };
 std::vector<typeName> headers = {
     {{""},6,1},	
