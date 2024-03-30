@@ -311,7 +311,7 @@ In order for the following techniques to work we must maintain some invariants i
 If a user wants to membership test an item or option we can make some guarantees because we maintain that all items and options are in sorted vectors.
 
 ```c++
-namespace DancingLinks{
+namespace Dancing_links{
 [[nodiscard]] bool has_item(Type_encoding item) const;
 [[nodiscard]] bool has_option(Type_encoding option) const;
 }
@@ -325,7 +325,7 @@ namespace DancingLinks{
 As a part of Algorithm X via Dancing Links, covering items is central to the process. However, with a slightly different technique for hiding items we can give the user the power to temporarily make an item disappear from the world for upcoming inquiries. Here are the hide options we can support.
 
 ```c++
-namespace DancingLinks {
+namespace Dancing_links {
 void hide_item(uint64_t header_index);
 bool hide_items(Pokemon_links &dlx,
                 const std::vector<Type_encoding> &to_hide);
@@ -349,7 +349,7 @@ The only space complexity cost we incur from hiding an item is that we must reme
 To track the order, I use a stack and offer the user stack-like operations that limit how they interact with hidden items.
 
 ```c++
-namespace DancingLinks {
+namespace Dancing_links {
 uint64_t num_hid_items(const Pokemon_links &dlx);
 Type_encoding peek_hid_item(const Pokemon_links &dlx);
 void pop_hid_item(Pokemon_links &dlx);
@@ -371,7 +371,7 @@ Here are the guarantees I can offer for these operations.
 We will also use a stack to manage hidden options. Here, however, the stack is required regardless of the implementation technique. We will be splicing options out of the links entirely, requiring that we undo the operation in the reverse order.
 
 ```c++
-namespace DancingLinks {
+namespace Dancing_links {
 bool hide_option(Pokemon_links &dlx, Type_encoding to_hide);
 bool hide_options(Pokemon_links &dlx, 
                   const std::vector<Type_encoding> &to_hide);
@@ -393,7 +393,7 @@ Here are the runtime guarantees these operations offer.
 Here are the same stack utilities we offer for the option version of these operations.
 
 ```c++
-namespace DancingLinks {
+namespace Dancing_links {
 uint64_t num_hid_options(const Pokemon_links &dlx);
 Type_encoding peek_hid_option(const Pokemon_links &dlx);
 void pop_hid_option(Pokemon_links &dlx);
@@ -412,7 +412,7 @@ void reset_options(Pokemon_links &dlx);
 With the hiding and unhiding logic in place you now have a complete set of operations you can use on an in-place data structure that can alter its state and restore the original state when required. Here are the other operations we can use.
 
 ```c++
-namespace DancingLinks {
+namespace Dancing_links {
 std::set<Ranked_set<Type_encoding>> exact_cover_functional(Pokemon_links &dlx, 
                                                            int choice_limit);
 std::set<Ranked_set<Type_encoding>> exact_cover_stack(Pokemon_links &dlx, 
