@@ -1,3 +1,12 @@
+/// Author(s): Keith Schwarz and Stanford course staff with modifications
+/// by Alex G. Lopez.
+/// File: map_parser.cc
+/// This file is a leftover from the old QT project used to visualize the
+/// road network and graphs of Pokemon Maps. I will likely make use of it
+/// again when the graph cover and Pokemon map visualizer is complete. I
+/// modified the entire program to be compliant with C++ 20 and use no
+/// Stanford Internal libraries, instead using the stl where needed. Finally,
+/// I adjusted the structure to suppport C++ modules.
 module;
 #include <algorithm>
 #include <cstdlib>
