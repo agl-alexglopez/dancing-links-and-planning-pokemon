@@ -159,7 +159,7 @@ export template <class T> class Ranked_set {
     explicit
     operator bool() const
     {
-        return this->rank_ != 0 || this->cover_.size() != 0;
+        return this->rank_ != 0 || this->flat_set_.size() != 0;
     }
     bool
     operator==(const Ranked_set<T> &rhs) const
