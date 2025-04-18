@@ -19,7 +19,7 @@ I have created a small Command Line Interface program to demonstrate the interes
 2. Build the project from the root of the repository.
     - There is a provided configuration in `CMakePresets.json` and `CMakeUserPresets.json` that looks for `clang++` and the `Ninja` build generator to support building C++ modules. Alter any of these flags and settings to your liking if you cannot build.
     - Use the cmake preset for realease mode `cmake --preset=rel` or with the provided convenience Makefile `make rel`.
-3. Run the Command Line Interface application `./build/rel/pokemon_cli`.
+3. Run the Command Line Interface application `./build/bin/pokemon_cli`.
 
 Here are the flags and settings available for this program.
 
@@ -36,7 +36,7 @@ Pokemon CLI Usage:
     E                - Solve an Exact cover problem. This the default.
     O                - Solve the overlapping cover problem
 Example Command:
-    ./build/rel/pokemon_cli G1 G2 G3 G4 data/dst/Gen-5-Unova2.dst
+    ./build/bin/pokemon_cli G1 G2 G3 G4 data/dst/Gen-5-Unova2.dst
 ```
 
 For what these types of cover problems mean, read the longer description below. A more robust and interesting graph cover visualizer is coming soon but is not complete yet. I find it interesting that only later generation maps have an exact cover for all possible types you will encounter in that generation. I am no expert on game design, but perhaps that communicates the variety and balance that Game Freak has achieved in their later games. However, looking at smaller subsets of gyms in the other maps can still be plenty of fun!

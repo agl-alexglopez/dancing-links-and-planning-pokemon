@@ -29,9 +29,9 @@ class Quad {
 
   private:
     static constexpr std::array<uint32_t, 6> indx{0, 1, 2, 2, 3, 0};
-    std::vector<float> positions_{};
+    std::vector<float> positions_;
     Vertex vertex_;
-    Shader shaders_{};
+    Shader shaders_;
 };
 
 } // namespace Gui

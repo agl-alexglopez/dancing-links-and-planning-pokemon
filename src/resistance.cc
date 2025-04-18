@@ -20,6 +20,7 @@
 /// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 /// IN THE SOFTWARE.
 module;
+#include <cstdint>
 #include <ostream>
 export module dancing_links:resistance;
 import :type_encoding;
@@ -28,7 +29,7 @@ import :type_encoding;
 
 export namespace Dancing_links {
 
-enum Multiplier
+enum Multiplier : uint8_t
 {
     /// It would not make sense for someone to let a multiplier in a Resistance
     /// default to IMMUNE, because that is a valuable multiplier to have for a
@@ -97,12 +98,6 @@ class Resistance {
 std::ostream &operator<<(std::ostream &out, const Resistance &res);
 std::ostream &operator<<(std::ostream &out, const Multiplier &mult);
 
-} // namespace Dancing_links
-
-////////////////////////////////////////   Implementation
-
-namespace Dancing_links {
-
 ////////////////////////      Free Functions for TypeResistance.h
 
 Type_encoding
@@ -116,6 +111,12 @@ multiplier(const Resistance &res)
 {
     return res.multiplier();
 }
+
+} // namespace Dancing_links
+
+////////////////////////////////////////   Implementation
+
+namespace Dancing_links {
 
 /////////////////////////     Resistance Helper Class
 

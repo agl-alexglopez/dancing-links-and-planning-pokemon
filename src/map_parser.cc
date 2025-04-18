@@ -9,6 +9,7 @@
 /// I adjusted the structure to suppport C++ modules.
 module;
 #include <algorithm>
+#include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <istream>
@@ -78,7 +79,7 @@ constexpr std::string_view whitespace = " \n\r\t\f\v";
 constexpr std::string_view dst_file_regex
     = R"(^([A-Za-z0-9 .\-]+)\(\s*(-?[0-9]+(?:\.[0-9]+)?)\s*,\s*(-?[0-9]+(?:\.[0-9]+)?)\s*\)$)";
 
-enum Name_components
+enum Name_components : uint8_t
 {
     whole_string,
     city_name,
@@ -233,7 +234,7 @@ parse_city_line(const std::string &line, Map_test &result)
 
     const std::string name = parse_city(components[0], result);
 
-    parse_links({name, components[1]}, result);
+    parse_links({.city = name, .links = components[1]}, result);
 }
 
 /// Given a graph in which all forward edges have been added, adds
@@ -245,7 +246,7 @@ add_reverse_edges(Map_test &result)
     {
         for (const std::string &dest : source.second)
         {
-            if (result.network.find(dest) == result.network.end())
+            if (!result.network.contains(dest))
             {
                 std::cerr << "Outgoing link found to nonexistent city '" + dest
                                  + "'\n";
@@ -263,14 +264,13 @@ validate_locations(const Map_test &test)
     std::map<Point, std::string> locations{};
     for (const auto &loc : test.city_locations)
     {
-        if (locations.find(test.city_locations.at(loc.first))
-            != locations.end())
+        auto const inserted = locations.try_emplace(
+            test.city_locations.at(loc.first), loc.first);
+        if (!inserted.second)
         {
-            throw std::runtime_error(
-                loc.first + " is at the same location as "
-                + locations[test.city_locations.at(loc.first)]);
+            throw std::runtime_error(loc.first + " is at the same location as "
+                                     + inserted.first->second);
         }
-        locations[test.city_locations.at(loc.first)] = loc.first;
     }
 }
 

@@ -22,13 +22,15 @@ constexpr std::string_view vert_file = "gui/vert/basic.vert";
 std::string
 read_shader(std::string_view filename)
 {
-    const std::ifstream f(filename.data());
+    const std::ifstream f(std::string{filename});
+    if (f.fail())
+    {
+        return {};
+    }
     std::stringstream s;
     s << f.rdbuf();
     return {s.str()};
 }
-
-} // namespace
 
 int
 run()
@@ -56,17 +58,24 @@ run()
         }
         const std::string vert = read_shader(vert_file);
         const std::string frag = read_shader(frag_file);
-        const Gui::Triangle tri({vert, frag}, {
-                                                  {-0.5F, -0.5F},
-                                                  {0.5F, -0.5F},
-                                                  {0.5F, 0.5F},
-                                              });
-        const Gui::Quad quad({vert, frag}, {
-                                               {-0.5F, -0.5F},
-                                               {0.5F, -0.5F},
-                                               {0.5F, 0.5F},
-                                               {-0.5F, 0.5F},
-                                           });
+        if (vert.empty() || frag.empty())
+        {
+            std::cerr << "could not read vertex and fragment data\n";
+            return 1;
+        }
+        const Gui::Triangle tri({.vert = vert, .frag = frag},
+                                {
+                                    .p1 = {-0.5F, -0.5F},
+                                    .p2 = {0.5F, -0.5F},
+                                    .p3 = {0.5F, 0.5F},
+                                });
+        const Gui::Quad quad({.vert = vert, .frag = frag},
+                             {
+                                 .p1 = {-0.5F, -0.5F},
+                                 .p2 = {0.5F, -0.5F},
+                                 .p3 = {0.5F, 0.5F},
+                                 .p4 = {-0.5F, 0.5F},
+                             });
         auto this_time = std::chrono::high_resolution_clock::now();
         auto last_time = this_time;
         std::array<std::function<void()>, 2> shapes
@@ -94,6 +103,8 @@ run()
         return 1;
     }
 }
+
+} // namespace
 
 int
 main()

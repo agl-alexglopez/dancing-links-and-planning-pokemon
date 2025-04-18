@@ -16,8 +16,8 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_CXX_SCAN_FOR_MODULES": "ON",
         "CMAKE_CXX_COMPILER": "clang++",
-        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/deb",
-        "CMAKE_CXX_FLAGS": "-g3 -Wall -Wpedantic -Wextra -Werror -Wshadow -Wpointer-arith -Wcast-qual -Wformat=2 -Wno-unqualified-std-cast-call",
+        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/debug/bin",
+        "CMAKE_CXX_FLAGS": "-g3 -Wall -Wpedantic -Werror -Wextra -Wno-deprecated-declarations -Wshadow -Wpointer-arith -Wcast-qual -Wformat=2 -Wno-unqualified-std-cast-call",
         "GLFW_BUILD_DOCS": "OFF",
         "GLFW_BUILD_TESTS": "OFF",
         "GLFW_BUILD_EXAMPLES": "OFF"
@@ -33,8 +33,8 @@
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_CXX_SCAN_FOR_MODULES": "ON",
         "CMAKE_CXX_COMPILER": "clang++",
-        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/rel",
-        "CMAKE_CXX_FLAGS": "-Wall -Wpedantic -Wextra -Werror -Wshadow -Wpointer-arith -Wcast-qual -Wformat=2 -Wno-unqualified-std-cast-call",
+        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/bin",
+        "CMAKE_CXX_FLAGS": "-Wall -Wpedantic -Wextra -Werror -Wno-deprecated-declarations -Wshadow -Wpointer-arith -Wcast-qual -Wformat=2 -Wno-unqualified-std-cast-call",
         "GLFW_BUILD_DOCS": "OFF",
         "GLFW_BUILD_TESTS": "OFF",
         "GLFW_BUILD_EXAMPLES": "OFF"

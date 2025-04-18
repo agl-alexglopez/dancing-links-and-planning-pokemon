@@ -2,7 +2,8 @@
 Checks: >
    *,
    -altera-*,
-   -llvmlibc-*,
+   -boost*,
+   -llvmlibc*,
    -google-build-using-namespace,
    -abseil*,
    -modernize-use-trailing-return-type,

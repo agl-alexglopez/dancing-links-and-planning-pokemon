@@ -10,7 +10,7 @@ namespace Gui {
 class Vertex {
 
   public:
-    enum class Primitive
+    enum class Primitive : uint8_t
     {
         triangle,
         quad,

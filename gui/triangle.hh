@@ -27,7 +27,7 @@ class Triangle {
   private:
     std::vector<float> positions_;
     Vertex vertex_;
-    Shader shaders_{};
+    Shader shaders_;
 };
 
 } // namespace Gui

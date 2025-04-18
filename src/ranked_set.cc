@@ -3,7 +3,6 @@ module;
 #include <compare>
 #include <cstddef>
 #include <ostream>
-#include <utility>
 #include <vector>
 export module dancing_links:ranked_set;
 
@@ -159,7 +158,7 @@ export template <class T> class Ranked_set {
     explicit
     operator bool() const
     {
-        return this->rank_ != 0 || this->flat_set_.size() != 0;
+        return this->rank_ != 0 || !this->flat_set_.empty();
     }
     bool
     operator==(const Ranked_set<T> &rhs) const

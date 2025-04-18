@@ -33,7 +33,6 @@ module;
 #include <map>
 #include <optional>
 #include <set>
-#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -52,7 +51,7 @@ class Pokemon_links {
     static constexpr int hidden = -1;
 
     // The user is asking us for defense team to build or attacks to use.
-    enum Coverage_type
+    enum Coverage_type : uint8_t
     {
         defense,
         attack
@@ -216,7 +215,7 @@ class Pokemon_links {
     {
         uint64_t item{};
         uint64_t option{};
-        std::optional<Encoding_score> score{};
+        std::optional<Encoding_score> score;
     };
 
     /// These data structures contain the core logic of Algorithm X via dancing
@@ -226,16 +225,16 @@ class Pokemon_links {
     /// items at the users request and restoring them later in place. Finally,
     /// because the option table and item table are sorted lexographically we
     /// can find any option or item in O(lgN). No auxillary maps are needed.
-    std::vector<Encoding_index> option_table_{}; // Name of the option we chose.
-    std::vector<Type_name> item_table_{};        // Names of our items.
-    std::vector<Poke_link> links_{};             // The links that dance!
-    std::vector<uint64_t> hidden_items_{};       // Stack with dynamic hiding.
-    std::vector<uint64_t> hidden_options_{};     // Stack with dynamic hiding.
-    std::size_t max_output_{200'000};            // Cutoff for solution count.
-    bool hit_limit_{false};                      // Remember if cutoff occurs.
-    uint64_t num_items_{0};                      // What needs to be covered.
-    uint64_t num_options_{0};                    // Available options.
-    Coverage_type requested_cover_solution_{};   // ATTACK or DEFENSE
+    std::vector<Encoding_index> option_table_; // Name of the option we chose.
+    std::vector<Type_name> item_table_;        // Names of our items.
+    std::vector<Poke_link> links_;             // The links that dance!
+    std::vector<uint64_t> hidden_items_;       // Stack with dynamic hiding.
+    std::vector<uint64_t> hidden_options_;     // Stack with dynamic hiding.
+    std::size_t max_output_{200'000};          // Cutoff for solution count.
+    bool hit_limit_{false};                    // Remember if cutoff occurs.
+    uint64_t num_items_{0};                    // What needs to be covered.
+    uint64_t num_options_{0};                  // Available options.
+    Coverage_type requested_cover_solution_{}; // ATTACK or DEFENSE
 
     /// @brief exact_dlx_recursive fills the output parameters with every exact
     /// cover that can be determined for defending against attack types or
@@ -623,7 +622,11 @@ Pokemon_links::exact_coverages_stack(int choice_limit)
     const uint64_t start = choose_item();
     // A true recursive stack. We will only have O(depth) branches on the stack
     // equivalent to current search path.
-    std::vector<Branch> dfs{{start, start, {}}};
+    std::vector<Branch> dfs{{
+        .item = start,
+        .option = start,
+        .score = {},
+    }};
     dfs.reserve(choice_limit);
     while (!dfs.empty())
     {
@@ -660,7 +663,7 @@ Pokemon_links::exact_coverages_stack(int choice_limit)
                 continue;
             }
             hit_limit_ = true;
-            for (size_t i = dfs.size() - 1; i != static_cast<size_t>(-1); --i)
+            for (size_t i = dfs.size() - 1; std::cmp_not_equal(i, -1); --i)
             {
                 uncover_type(dfs[i].option);
             }
@@ -718,8 +721,7 @@ Pokemon_links::exact_dlx_functional( // NOLINT
         const Encoding_score score = cover_type(cur);
         static_cast<void>(coverage.insert(score.score, score.name));
 
-        exact_dlx_functional(coverages, coverage,
-                             static_cast<int>(depth_limit - 1));
+        exact_dlx_functional(coverages, coverage, depth_limit - 1);
 
         // It is possible for these algorithms to produce many many sets. To
         // make the Pokemon Planner GUI more usable I cut off recursion if we
@@ -812,7 +814,7 @@ Pokemon_links::hide_options(uint64_t index_in_option)
     for (uint64_t row = links_[index_in_option].down; row != index_in_option;
          row = links_[row].down)
     {
-        if (static_cast<int>(row) == links_[index_in_option].top_or_len)
+        if (std::cmp_equal(row, links_[index_in_option].top_or_len))
         {
             continue;
         }
@@ -843,7 +845,7 @@ Pokemon_links::unhide_options(uint64_t index_in_option)
     for (uint64_t row = links_[index_in_option].up; row != index_in_option;
          row = links_[row].up)
     {
-        if (static_cast<int>(row) == links_[index_in_option].top_or_len)
+        if (std::cmp_equal(row, links_[index_in_option].top_or_len))
         {
             continue;
         }
@@ -908,7 +910,11 @@ Pokemon_links::overlapping_coverages_stack(int choice_limit)
     const uint64_t start = choose_item();
     // A true recursive stack. We will only have O(depth) branches on the stack
     // equivalent to current search path.
-    std::vector<Branch> dfs{{start, start, {}}};
+    std::vector<Branch> dfs{{
+        .item = start,
+        .option = start,
+        .score = {},
+    }};
     dfs.reserve(choice_limit);
     while (!dfs.empty())
     {
@@ -932,7 +938,10 @@ Pokemon_links::overlapping_coverages_stack(int choice_limit)
             dfs.pop_back();
             continue;
         }
-        cur.score = overlapping_cover_type({cur.option, choice_limit});
+        cur.score = overlapping_cover_type({
+            .index = cur.option,
+            .tag = choice_limit,
+        });
         static_cast<void>(
             coverage.insert(cur.score.value().score, cur.score.value().name));
         --choice_limit;
@@ -945,7 +954,7 @@ Pokemon_links::overlapping_coverages_stack(int choice_limit)
                 continue;
             }
             hit_limit_ = true;
-            for (size_t i = dfs.size() - 1; i != static_cast<size_t>(-1); --i)
+            for (size_t i = dfs.size() - 1; std::cmp_not_equal(i, -1); --i)
             {
                 overlapping_uncover_type(dfs[i].option);
             }
@@ -1000,11 +1009,13 @@ Pokemon_links::overlapping_dlx_recursive( // NOLINT
     for (uint64_t cur = links_[item_to_cover].down; cur != item_to_cover;
          cur = links_[cur].down)
     {
-        const Encoding_score score = overlapping_cover_type({cur, depth_tag});
+        const Encoding_score score = overlapping_cover_type({
+            .index = cur,
+            .tag = depth_tag,
+        });
         static_cast<void>(coverage.insert(score.score, score.name));
 
-        overlapping_dlx_recursive(coverages, coverage,
-                                  static_cast<int>(depth_tag - 1));
+        overlapping_dlx_recursive(coverages, coverage, depth_tag - 1);
 
         // It is possible for these algorithms to produce many many sets. To
         // make the Pokemon Planner GUI more usable I cut off recursion if we
@@ -1133,7 +1144,8 @@ std::vector<Type_encoding>
 Pokemon_links::get_items() const
 {
     std::vector<Type_encoding> result = {};
-    for (uint64_t i = item_table_[0].right; i != 0; i = item_table_[i].right)
+    for (uint64_t i = item_table_[0].right; std::cmp_not_equal(i, 0);
+         i = item_table_[i].right)
     {
         result.push_back(item_table_[i].name);
     }

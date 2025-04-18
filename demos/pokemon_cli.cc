@@ -11,20 +11,20 @@
 /// Request an exact defensive cover of the entire Pokemon generation on a
 /// certain map. This is the default.
 ///
-/// ./build/rel/pokemon_cli data/dist/Gen-9-Paldea.dst
+/// ./build/bin/pokemon_cli data/dist/Gen-9-Paldea.dst
 ///
 /// The above command answers the question: given at most 6 Pokemon what is the
 /// minimum number I can use to have better than normal defense from every type
 /// in the game? Request the Attack coverage instead in this form.
 ///
-/// ./build/rel/pokemon_cli data/dist/Gen-9-Paldea.dst A
+/// ./build/bin/pokemon_cli data/dist/Gen-9-Paldea.dst A
 ///
 /// This answers the following question: given 24 attack slots across a team of
 /// 6 pokemon which attack types can I choose to be super effective against
 /// every type in the game? Ask for any subset of gyms for a given generation as
 /// follows.
 ///
-/// ./build/rel/pokemon_cli data/dist/Gen-9-Paldea.dst G1 G2 G4
+/// ./build/bin/pokemon_cli data/dist/Gen-9-Paldea.dst G1 G2 G4
 ///
 /// The above format asks the following question: given a subset of gyms how do
 /// I defensively cover myself from the attack types present in those gyms? You
@@ -36,7 +36,7 @@
 /// a blanket approach that simply seeks to cover all the items even if multiple
 /// options cover the same items add the "O" flag as follows.
 ///
-/// ./build/rel/pokemon_cli data/dist/Gen-9-Paldea.dst G1 G2 G4 O
+/// ./build/bin/pokemon_cli data/dist/Gen-9-Paldea.dst G1 G2 G4 O
 ///
 /// This will generate many solutions because this is a much looser constraint
 /// to apply to cover problems. Solutions will be cut off at 200,000 and your
@@ -125,22 +125,22 @@ constexpr auto help_msg =
     E                - Solve an Exact cover problem. This the default.
     O                - Solve the overlapping cover problem
 Example Command:
-    ./build/rel/pokemon_cli G1 G2 G3 G4 data/dst/Gen-5-Unova2.dst)";
+    ./build/bin/pokemon_cli G1 G2 G3 G4 data/dst/Gen-5-Unova2.dst)";
 
-enum class Solution_type
+enum class Solution_type : uint8_t
 {
     exact,
     overlapping
 };
 
-enum class Table_type
+enum class Table_type : uint8_t
 {
     first,
     normal,
     last
 };
 
-enum class Print_style
+enum class Print_style : uint8_t
 {
     color,
     plain
@@ -154,9 +154,9 @@ struct Universe_sets
 
 struct Runner
 {
-    std::string map{};
-    std::map<Dx::Type_encoding, std::set<Dx::Resistance>> interactions{};
-    std::set<std::string> selected_gyms{};
+    std::string map;
+    std::map<Dx::Type_encoding, std::set<Dx::Resistance>> interactions;
+    std::set<std::string> selected_gyms;
     Dx::Pokemon_links::Coverage_type type{
         Dx::Pokemon_links::Coverage_type::defense};
     Solution_type sol_type{Solution_type::exact};
@@ -288,7 +288,10 @@ solve(const Runner &runner)
                   runner.map, runner.selected_gyms);
         Dx::hide_items_except(links, subset);
     }
-    const Universe_sets items_options = {Dx::items(links), Dx::options(links)};
+    const Universe_sets items_options = {
+        .items = Dx::items(links),
+        .options = Dx::options(links),
+    };
     print_prep_message(items_options, runner.style);
     const int depth_limit
         = runner.type == Dx::Pokemon_links::Coverage_type::attack ? 24 : 6;
