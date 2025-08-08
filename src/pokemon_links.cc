@@ -752,6 +752,7 @@ Pokemon_links::cover_type(uint64_t index_in_option)
         if (top <= 0)
         {
             row_lap = (i = links_[i].up) == index_in_option;
+            // Option table starts at 0 no sentinel at 0.
             result.name
                 = option_table_[std::abs(links_[i - 1].top_or_len)].name;
             continue;
@@ -1049,6 +1050,7 @@ Pokemon_links::overlapping_cover_type(Pokemon_links::Cover_tag tag)
         if (top <= 0)
         {
             row_lap = (i = links_[i].up) == tag.index;
+            // Option table is zero indexed with no 0 sentinel.
             result.name
                 = option_table_[std::abs(links_[i - 1].top_or_len)].name;
             continue;
