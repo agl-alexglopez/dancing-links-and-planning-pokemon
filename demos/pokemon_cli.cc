@@ -286,6 +286,12 @@ solve(const Runner &runner)
                   runner.map, runner.selected_gyms)
             : subset = Dancing_links::load_selected_gyms_attacks(
                   runner.map, runner.selected_gyms);
+        if (subset.empty())
+        {
+            std::cerr << "The existence of one or more requested gyms could "
+                         "not be confirmed.\n";
+            return 1;
+        }
         Dx::hide_items_except(links, subset);
     }
     const Universe_sets items_options = {
@@ -295,10 +301,13 @@ solve(const Runner &runner)
     print_prep_message(items_options, runner.style);
     const int depth_limit
         = runner.type == Dx::Pokemon_links::Coverage_type::attack ? 24 : 6;
+
+    // Core dancing links solver operates here, either exact or overlapping.
     const std::set<Ranked_set<Dx::Type_encoding>> result
         = runner.sol_type == Solution_type::exact
               ? Dx::exact_cover_stack(links, depth_limit)
               : Dx::overlapping_cover_stack(links, depth_limit);
+
     print_solution_msg(result, runner);
     if (result.empty())
     {
@@ -312,6 +321,10 @@ solve(const Runner &runner)
     const size_t max_set_len = largest_ranked_set.size();
     break_line(max_set_len, Table_type::first);
     size_t cur_set = 1;
+    if (Dx::has_max_solutions(links))
+    {
+        std::cout << "Hit maximum solutions capacity, quitting early!\n";
+    }
     for (const auto &res : result)
     {
         std::cout << std::left << std::setw(digit_width) << res.rank();
@@ -326,6 +339,10 @@ solve(const Runner &runner)
         cur_set == result.size() ? break_line(max_set_len, Table_type::last)
                                  : break_line(max_set_len, Table_type::normal);
         ++cur_set;
+    }
+    if (Dx::has_max_solutions(links))
+    {
+        std::cout << "Hit maximum solutions capacity, quitting early!\n";
     }
     print_solution_msg(result, runner);
     print_prep_message(items_options, runner.style);
@@ -469,7 +486,7 @@ print_solution_msg(const std::set<Ranked_set<Dx::Type_encoding>> &result,
             .append(std::to_string(result.size()))
             .append(runner.sol_type == Solution_type::exact ? " exact"
                                                             : " overlapping")
-            .append(" ranked sets of options that cover specified items.")
+            .append(" cover ranked sets of options for specified items.")
             .append(runner.type == Dx::Pokemon_links::Coverage_type::defense
                         ? " Lower rank is better."
                         : " Higher rank is better.")
@@ -482,7 +499,7 @@ print_solution_msg(const std::set<Ranked_set<Dx::Type_encoding>> &result,
             .append(std::to_string(result.size()))
             .append(runner.sol_type == Solution_type::exact ? " exact"
                                                             : " overlapping")
-            .append(" ranked sets of options that cover specified items.")
+            .append(" cover ranked sets of options for specified items.")
             .append(runner.type == Dx::Pokemon_links::Coverage_type::defense
                         ? " Lower rank is better."
                         : " Higher rank is better.")

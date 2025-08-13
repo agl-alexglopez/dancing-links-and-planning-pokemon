@@ -663,9 +663,10 @@ Pokemon_links::exact_coverages_stack(int choice_limit)
                 continue;
             }
             hit_limit_ = true;
-            for (size_t i = dfs.size() - 1; std::cmp_not_equal(i, -1); --i)
+            while (!dfs.empty())
             {
-                uncover_type(dfs[i].option);
+                uncover_type(dfs.back().option);
+                dfs.pop_back();
             }
             return coverages;
         }
@@ -752,7 +753,6 @@ Pokemon_links::cover_type(uint64_t index_in_option)
         if (top <= 0)
         {
             row_lap = (i = links_[i].up) == index_in_option;
-            // Option table starts at 0 no sentinel at 0.
             result.name
                 = option_table_[std::abs(links_[i - 1].top_or_len)].name;
             continue;
@@ -955,9 +955,10 @@ Pokemon_links::overlapping_coverages_stack(int choice_limit)
                 continue;
             }
             hit_limit_ = true;
-            for (size_t i = dfs.size() - 1; std::cmp_not_equal(i, -1); --i)
+            while (!dfs.empty())
             {
-                overlapping_uncover_type(dfs[i].option);
+                overlapping_uncover_type(dfs.back().option);
+                dfs.pop_back();
             }
             return coverages;
         }
@@ -1047,10 +1048,12 @@ Pokemon_links::overlapping_cover_type(Pokemon_links::Cover_tag tag)
     while (!row_lap)
     {
         const int top = links_[i].top_or_len;
+        // This is the next spacer node for the next option. We now know how to
+        // find the title of our current option if we go back to the start of
+        // the chosen option and go left.
         if (top <= 0)
         {
             row_lap = (i = links_[i].up) == tag.index;
-            // Option table is zero indexed with no 0 sentinel.
             result.name
                 = option_table_[std::abs(links_[i - 1].top_or_len)].name;
             continue;

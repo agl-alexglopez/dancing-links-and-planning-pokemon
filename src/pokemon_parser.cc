@@ -294,6 +294,7 @@ load_selected_gyms_defenses(const std::string &selected_map,
             std::cerr << s << " ";
         }
         std::cerr << "\n";
+        return {};
     }
     // This will be a much smaller set.
     return result;
@@ -341,6 +342,7 @@ load_selected_gyms_attacks(const std::string &selected_map,
             std::cerr << s << " ";
         }
         std::cerr << "\n";
+        return {};
     }
     // Return a set rather than altering every resistances in a large map.
     return result;
