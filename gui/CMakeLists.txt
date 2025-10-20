@@ -12,6 +12,8 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(raylib)
+# Don't what to see any warnings from raylib.
+set_target_properties(raylib PROPERTIES COMPILE_FLAGS "-w")
 
 add_library(gui)
 target_sources(gui

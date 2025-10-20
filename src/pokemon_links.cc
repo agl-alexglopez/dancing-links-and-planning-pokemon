@@ -51,7 +51,7 @@ class Pokemon_links {
     static constexpr int hidden = -1;
 
     // The user is asking us for defense team to build or attacks to use.
-    enum Coverage_type : uint8_t
+    enum class Coverage_type : uint8_t
     {
         defense,
         attack
@@ -770,7 +770,7 @@ Pokemon_links::cover_type(uint64_t index_in_option)
             // building defense. Quad is better than double damage if we are
             // building attack types. Points only change by increments of one.
             // Seems fine?
-            result.score += links_[i].multiplier;
+            result.score += static_cast<uint8_t>(links_[i].multiplier);
         }
         row_lap = ++i == index_in_option;
     }
@@ -1063,7 +1063,7 @@ Pokemon_links::overlapping_cover_type(Pokemon_links::Cover_tag tag)
             links_[top].tag = tag.tag;
             item_table_[item_table_[top].left].right = item_table_[top].right;
             item_table_[item_table_[top].right].left = item_table_[top].left;
-            result.score += links_[i].multiplier;
+            result.score += static_cast<uint8_t>(links_[i].multiplier);
         }
         if (links_[top].tag != hidden)
         {
@@ -1541,11 +1541,11 @@ Pokemon_links::Pokemon_links(
     Coverage_type const requested_cover_solution)
     : requested_cover_solution_(requested_cover_solution)
 {
-    if (requested_cover_solution == defense)
+    if (requested_cover_solution == Coverage_type::defense)
     {
         build_defense_links(type_interactions);
     }
-    else if (requested_cover_solution == attack)
+    else if (requested_cover_solution == Coverage_type::attack)
     {
         build_attack_links(type_interactions);
     }
@@ -1560,7 +1560,7 @@ Pokemon_links::Pokemon_links(
 Pokemon_links::Pokemon_links(
     std::map<Type_encoding, std::set<Resistance>> const &type_interactions,
     std::set<Type_encoding> const &attack_types)
-    : requested_cover_solution_(defense)
+    : requested_cover_solution_(Coverage_type::defense)
 {
     if (attack_types.empty())
     {
@@ -1604,7 +1604,7 @@ Pokemon_links::build_defense_links(
     std::unordered_map<Type_encoding, uint64_t> column_builder = {};
     option_table_.push_back({Type_encoding(""), 0});
     item_table_.push_back({Type_encoding(""), 0, 1});
-    links_.push_back({0, 0, 0, emp, 0});
+    links_.push_back({0, 0, 0, Multiplier::emp, 0});
     uint64_t index = 1;
     for (Type_encoding const &type : generation_types)
     {
@@ -1614,7 +1614,7 @@ Pokemon_links::build_defense_links(
         item_table_.push_back({type, index - 1, index + 1});
         ++item_table_[0].left;
 
-        links_.push_back({0, index, index, emp, 0});
+        links_.push_back({0, index, index, Multiplier::emp, 0});
 
         ++num_items_;
         ++index;
@@ -1643,7 +1643,7 @@ Pokemon_links::initialize_columns(
         // index.
         links_.push_back({-type_lookup_index,
                           current_links_index - previous_set_size,
-                          current_links_index, emp, 0});
+                          current_links_index, Multiplier::emp, 0});
         option_table_.push_back({type.first, current_links_index});
 
         for (Resistance const &single_type : type.second)
@@ -1659,9 +1659,9 @@ Pokemon_links::initialize_columns(
             // for the ATTACK version. We want damage better than Normal,
             // meaining x2 or x4.
 
-            if ((requested_coverage == defense
-                     ? single_type.multiplier() < nrm
-                     : nrm < single_type.multiplier()))
+            if ((requested_coverage == Coverage_type::defense
+                     ? single_type.multiplier() < Multiplier::nrm
+                     : Multiplier::nrm < single_type.multiplier()))
             {
                 ++current_links_index;
                 ++links_[type_title].down;
@@ -1699,8 +1699,8 @@ Pokemon_links::initialize_columns(
         ++num_options_;
         previous_set_size = set_size;
     }
-    links_.push_back(
-        {INT_MIN, current_links_index - previous_set_size, UINT64_MAX, emp, 0});
+    links_.push_back({INT_MIN, current_links_index - previous_set_size,
+                      UINT64_MAX, Multiplier::emp, 0});
 }
 
 void
@@ -1709,7 +1709,7 @@ Pokemon_links::build_attack_links(
 {
     option_table_.push_back({Type_encoding(""), 0});
     item_table_.push_back({Type_encoding(""), 0, 1});
-    links_.push_back({0, 0, 0, emp, 0});
+    links_.push_back({0, 0, 0, Multiplier::emp, 0});
     uint64_t index = 1;
 
     // An inverted map has the attack types as the keys and the damage they do
@@ -1723,7 +1723,7 @@ Pokemon_links::build_attack_links(
         column_builder[interaction.first] = index;
         item_table_.push_back({interaction.first, index - 1, index + 1});
         ++item_table_[0].left;
-        links_.push_back({0, index, index, emp, 0});
+        links_.push_back({0, index, index, Multiplier::emp, 0});
         ++num_items_;
         ++index;
         for (Resistance const &atk : interaction.second)

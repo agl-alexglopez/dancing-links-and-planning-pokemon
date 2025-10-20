@@ -79,9 +79,9 @@ constexpr std::string_view whitespace = " \n\r\t\f\v";
 constexpr std::string_view dst_file_regex
     = R"(^([A-Za-z0-9 .\-]+)\(\s*(-?[0-9]+(?:\.[0-9]+)?)\s*,\s*(-?[0-9]+(?:\.[0-9]+)?)\s*\)$)";
 
-enum Name_components : uint8_t
+enum class Name_components : uint8_t
 {
-    whole_string,
+    whole_string = 0,
     city_name,
     x_coord,
     y_coord,
@@ -142,7 +142,8 @@ parse_city(std::string const &city_info, Map_test &result)
 
     // There are four components here, actually: the whole match,
     // plus each subexpression we care about.
-    if (components.size() != num_components)
+    if (components.size()
+        != static_cast<uint8_t>(Name_components::num_components))
     {
         std::cerr << "Could not find all components?\n";
         std::abort();
@@ -150,7 +151,8 @@ parse_city(std::string const &city_info, Map_test &result)
 
     // We're going to get back some extra leading or trailing
     // whitespace here, so peel it off.
-    std::string name = trim(components[city_name]);
+    std::string name
+        = trim(components[static_cast<uint8_t>(Name_components::city_name)]);
     if (name.empty())
     {
         std::cerr << "City names can't be empty.\n";
@@ -160,7 +162,9 @@ parse_city(std::string const &city_info, Map_test &result)
     // Insert the city location
     result.city_locations.insert(
         {name,
-         {std::stof(components[x_coord]), std::stof(components[y_coord])}});
+         {std::stof(components[static_cast<uint8_t>(Name_components::x_coord)]),
+          std::stof(
+              components[static_cast<uint8_t>(Name_components::y_coord)])}});
 
     // Insert an entry for the city into the road network.
     result.network[name] = {};

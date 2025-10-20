@@ -43,8 +43,6 @@
 /// terminal will likely not display anywhere near the full set. Run this
 /// program from the root of the code base where the CMakePresets.json file is.
 /// Enjoy!
-import dancing_links;
-
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -60,6 +58,8 @@ import dancing_links;
 #include <string_view>
 #include <utility>
 #include <vector>
+
+import dancing_links;
 
 namespace Dx = Dancing_links;
 namespace {
@@ -224,11 +224,11 @@ run(std::span<char const *const> const args)
             }
             else if (arg_str == "A")
             {
-                runner.type = Dx::Pokemon_links::attack;
+                runner.type = Dx::Pokemon_links::Coverage_type::attack;
             }
             else if (arg_str == "D")
             {
-                runner.type = Dx::Pokemon_links::defense;
+                runner.type = Dx::Pokemon_links::Coverage_type::defense;
             }
             else if (arg_str == "E")
             {

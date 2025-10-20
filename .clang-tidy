@@ -18,7 +18,8 @@ Checks: >
    -fuchsia-overloaded-operator,
    -android-cloexec-accept,
    -misc-include-cleaner,
-   -readability-redundant-declaration
+   -readability-redundant-declaration,
+   -llvm-prefer-static-over-anonymous-namespace
 
 CheckOptions:
    - { key: hicpp-signed-bitwise.IgnorePositiveIntegerLiterals, value: true }

@@ -29,7 +29,7 @@ import :type_encoding;
 
 export namespace Dancing_links {
 
-enum Multiplier : uint8_t
+enum class Multiplier : uint8_t
 {
     /// It would not make sense for someone to let a multiplier in a Resistance
     /// default to IMMUNE, because that is a valuable multiplier to have for a
@@ -142,25 +142,25 @@ operator<<(std::ostream &out, Resistance const &res)
     out << res.type() << " x";
     switch (res.multiplier())
     {
-    case emp:
+    case Multiplier::emp:
         out << "NIL";
         break;
-    case imm:
+    case Multiplier::imm:
         out << "0.0";
         break;
-    case f14:
+    case Multiplier::f14:
         out << "0.25";
         break;
-    case f12:
+    case Multiplier::f12:
         out << "0.5";
         break;
-    case nrm:
+    case Multiplier::nrm:
         out << "1.0";
         break;
-    case dbl:
+    case Multiplier::dbl:
         out << "2.0";
         break;
-    case qdr:
+    case Multiplier::qdr:
         out << "4.0";
         break;
     }
@@ -173,26 +173,26 @@ operator<<(std::ostream &out, Multiplier const &mult)
     out << "Resistance::";
     switch (mult)
     {
-    case emp:
-        out << "emp";
+    case Multiplier::emp:
+        out << "Multiplier::emp";
         break;
-    case imm:
-        out << "imm";
+    case Multiplier::imm:
+        out << "Multiplier::imm";
         break;
-    case f14:
-        out << "f14";
+    case Multiplier::f14:
+        out << "Multiplier::f14";
         break;
-    case f12:
-        out << "f12";
+    case Multiplier::f12:
+        out << "Multiplier::f12";
         break;
-    case nrm:
-        out << "nrm";
+    case Multiplier::nrm:
+        out << "Multiplier::nrm";
         break;
-    case dbl:
-        out << "dbl";
+    case Multiplier::dbl:
+        out << "Multiplier::dbl";
         break;
-    case qdr:
-        out << "qdr";
+    case Multiplier::qdr:
+        out << "Multiplier::qdr";
         break;
     }
     return out;

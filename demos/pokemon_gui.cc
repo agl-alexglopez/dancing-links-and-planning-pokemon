@@ -1,9 +1,10 @@
-import dancing_links;
-import gui;
 #include <exception>
 #include <fstream>
 #include <iostream>
 #include <string>
+
+import dancing_links;
+import gui;
 
 namespace Dx = Dancing_links;
 namespace {

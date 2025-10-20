@@ -10,5 +10,8 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 add_executable(tests tests.cc)
 target_link_libraries(tests GTest::gtest_main dancing_links)
+# Don't want any warnings from google test compilation.
+set_target_properties(gtest PROPERTIES COMPILE_FLAGS "-w")
+set_target_properties(gtest_main PROPERTIES COMPILE_FLAGS "-w")
 include(GoogleTest)
 gtest_discover_tests(tests)

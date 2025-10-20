@@ -129,12 +129,12 @@ constexpr std::array<std::string_view, 10> generation_json_files = {
 
 std::array<std::pair<std::string_view, Multiplier>, 6> const damage_multipliers
     = {{
-        {"immune", imm},
-        {"quarter", f14},
-        {"half", f12},
-        {"normal", nrm},
-        {"double", dbl},
-        {"quad", qdr},
+        {"immune", Multiplier::imm},
+        {"quarter", Multiplier::f14},
+        {"half", Multiplier::f12},
+        {"normal", Multiplier::nrm},
+        {"double", Multiplier::dbl},
+        {"quad", Multiplier::qdr},
     }};
 
 Multiplier const &
