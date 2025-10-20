@@ -83,8 +83,8 @@ load_interaction_map(std::istream &source);
 /// @param selectedGyms the gyms G1-E4 that we are considering attacking.
 /// @return the set of all defensive types present in the selection of gyms.
 std::set<Type_encoding>
-load_selected_gyms_defenses(const std::string &selected_map,
-                            const std::set<std::string> &selected_gyms);
+load_selected_gyms_defenses(std::string const &selected_map,
+                            std::set<std::string> const &selected_gyms);
 
 /// @brief load_selected_gyms_attacks the user interacting with the GUI may want
 /// to defend themselves from only a selection of gyms. We will get the gym info
@@ -95,8 +95,8 @@ load_selected_gyms_defenses(const std::string &selected_map,
 /// @param selected the gyms they have selected.
 /// @return a set of all attack types present across those gyms.
 std::set<Type_encoding>
-load_selected_gyms_attacks(const std::string &selected_map,
-                           const std::set<std::string> &selected);
+load_selected_gyms_attacks(std::string const &selected_map,
+                           std::set<std::string> const &selected);
 
 } // namespace Dancing_links
 
@@ -127,7 +127,7 @@ constexpr std::array<std::string_view, 10> generation_json_files = {
     "data/json/gen-9-types.json",
 };
 
-const std::array<std::pair<std::string_view, Multiplier>, 6> damage_multipliers
+std::array<std::pair<std::string_view, Multiplier>, 6> const damage_multipliers
     = {{
         {"immune", imm},
         {"quarter", f14},
@@ -137,10 +137,10 @@ const std::array<std::pair<std::string_view, Multiplier>, 6> damage_multipliers
         {"quad", qdr},
     }};
 
-const Multiplier &
-get_multiplier(const std::string &key)
+Multiplier const &
+get_multiplier(std::string const &key)
 {
-    for (const auto &mult : damage_multipliers)
+    for (auto const &mult : damage_multipliers)
     {
         if (mult.first == key)
         {
@@ -151,7 +151,7 @@ get_multiplier(const std::string &key)
 }
 
 void
-print_generation_error(const std::exception &ex)
+print_generation_error(std::exception const &ex)
 {
     std::cerr << "Found this: " << ex.what();
     std::cerr
@@ -185,14 +185,14 @@ get_json_object(std::string_view path_to_json)
 
 void
 set_resistances(std::map<Type_encoding, std::set<Resistance>> &result,
-                const Type_encoding &new_type, const nlo::json &multipliers)
+                Type_encoding const &new_type, nlo::json const &multipliers)
 {
-    for (const auto &[multiplier, types_in_multiplier] : multipliers.items())
+    for (auto const &[multiplier, types_in_multiplier] : multipliers.items())
     {
-        const Multiplier multiplier_tag = get_multiplier(multiplier);
-        for (const auto &t : types_in_multiplier)
+        Multiplier const multiplier_tag = get_multiplier(multiplier);
+        for (auto const &t : types_in_multiplier)
         {
-            const std::string &type = t;
+            std::string const &type = t;
             result[new_type].insert({Type_encoding(type), multiplier_tag});
         }
     }
@@ -201,12 +201,12 @@ set_resistances(std::map<Type_encoding, std::set<Resistance>> &result,
 std::map<Type_encoding, std::set<Resistance>>
 from_json_to_map(int generation)
 {
-    const std::string_view path_to_json = generation_json_files.at(generation);
-    const nlo::json json_types = get_json_object(path_to_json);
+    std::string_view const path_to_json = generation_json_files.at(generation);
+    nlo::json const json_types = get_json_object(path_to_json);
     std::map<Type_encoding, std::set<Resistance>> result = {};
-    for (const auto &[type, resistances] : json_types.items())
+    for (auto const &[type, resistances] : json_types.items())
     {
-        const Type_encoding encoded(type);
+        Type_encoding const encoded(type);
         result.insert({encoded, {}});
         set_resistances(result, encoded, resistances);
     }
@@ -218,16 +218,16 @@ load_generation_from_json(std::istream &source)
 {
     std::string line;
     std::getline(source, line);
-    const std::string after_hashtag = line.substr(1, line.length() - 1);
+    std::string const after_hashtag = line.substr(1, line.length() - 1);
     try
     {
-        const int generation = std::stoi(after_hashtag);
+        int const generation = std::stoi(after_hashtag);
         return from_json_to_map(generation);
-    } catch (const std::out_of_range &oor)
+    } catch (std::out_of_range const &oor)
     {
         print_generation_error(oor);
         std::abort();
-    } catch (const std::invalid_argument &ia)
+    } catch (std::invalid_argument const &ia)
     {
         print_generation_error(ia);
         std::abort();
@@ -252,31 +252,31 @@ load_interaction_map(std::istream &source)
 }
 
 std::set<Type_encoding>
-load_selected_gyms_defenses(const std::string &selected_map,
-                            const std::set<std::string> &selected_gyms)
+load_selected_gyms_defenses(std::string const &selected_map,
+                            std::set<std::string> const &selected_gyms)
 {
     if (selected_gyms.empty())
     {
         std::cerr
             << "Requesting to load zero gyms check selected gyms input.\n";
     }
-    const nlo::json map_data = get_json_object(json_all_maps_file);
+    nlo::json const map_data = get_json_object(json_all_maps_file);
     std::set<Type_encoding> result = {};
 
-    const nlo::json &gym_keys = map_data.at(selected_map);
+    nlo::json const &gym_keys = map_data.at(selected_map);
 
     std::vector<std::string_view> confirmed{};
     confirmed.reserve(selected_gyms.size());
-    for (const auto &[gym, attack_defense_map] : gym_keys.items())
+    for (auto const &[gym, attack_defense_map] : gym_keys.items())
     {
         if (!selected_gyms.contains(gym))
         {
             continue;
         }
         confirmed.push_back(gym);
-        for (const auto &t : attack_defense_map.at(gym_defense_key))
+        for (auto const &t : attack_defense_map.at(gym_defense_key))
         {
-            const std::string &type = t;
+            std::string const &type = t;
             result.insert(Type_encoding(type));
         }
     }
@@ -284,12 +284,12 @@ load_selected_gyms_defenses(const std::string &selected_map,
     {
         std::cerr << "Mismatch occured for " << selected_map
                   << " gym selection.\nRequested: ";
-        for (const auto &s : selected_gyms)
+        for (auto const &s : selected_gyms)
         {
             std::cerr << s << " ";
         }
         std::cerr << "\nConfirmed: ";
-        for (const auto &s : confirmed)
+        for (auto const &s : confirmed)
         {
             std::cerr << s << " ";
         }
@@ -301,30 +301,30 @@ load_selected_gyms_defenses(const std::string &selected_map,
 }
 
 std::set<Type_encoding>
-load_selected_gyms_attacks(const std::string &selected_map,
-                           const std::set<std::string> &selected_gyms)
+load_selected_gyms_attacks(std::string const &selected_map,
+                           std::set<std::string> const &selected_gyms)
 {
     if (selected_gyms.empty())
     {
         std::cerr
             << "Requesting to load zero gyms check selected gyms input.\n";
     }
-    const nlo::json map_data = get_json_object(json_all_maps_file);
+    nlo::json const map_data = get_json_object(json_all_maps_file);
     std::set<Type_encoding> result = {};
-    const nlo::json &selection = map_data.at(selected_map);
+    nlo::json const &selection = map_data.at(selected_map);
 
     std::vector<std::string_view> confirmed{};
     confirmed.reserve(selected_gyms.size());
-    for (const auto &[gym, attack_defense_map] : selection.items())
+    for (auto const &[gym, attack_defense_map] : selection.items())
     {
         if (!selected_gyms.contains(gym))
         {
             continue;
         }
         confirmed.push_back(gym);
-        for (const auto &t : attack_defense_map.at(gym_attacks_key))
+        for (auto const &t : attack_defense_map.at(gym_attacks_key))
         {
-            const std::string &type = t;
+            std::string const &type = t;
             result.insert(Type_encoding(type));
         }
     }
@@ -332,12 +332,12 @@ load_selected_gyms_attacks(const std::string &selected_map,
     {
         std::cerr << "Mismatch occured for " << selected_map
                   << " gym selection.\nRequested: ";
-        for (const auto &s : selected_gyms)
+        for (auto const &s : selected_gyms)
         {
             std::cerr << s << " ";
         }
         std::cerr << "\nConfirmed: ";
-        for (const auto &s : confirmed)
+        for (auto const &s : confirmed)
         {
             std::cerr << s << " ";
         }

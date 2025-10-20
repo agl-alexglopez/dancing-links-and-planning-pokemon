@@ -37,10 +37,10 @@ class Point {
     float y{0};
 }; // class Point
 
-std::ostream &operator<<(std::ostream &out, const Point &p);
-bool operator==(const Point &lhs, const Point &rhs);
-std::partial_ordering operator<=>(const Point &lhs, const Point &rhs);
-Point operator*(const Point &p1, float scale);
+std::ostream &operator<<(std::ostream &out, Point const &p);
+bool operator==(Point const &lhs, Point const &rhs);
+std::partial_ordering operator<=>(Point const &lhs, Point const &rhs);
+Point operator*(Point const &p1, float scale);
 
 /// Type representing a test case for the Disaster Preparation problem.
 struct Map_test
@@ -64,7 +64,7 @@ namespace std {
 template <> struct hash<Dancing_links::Point>
 {
     size_t
-    operator()(const Dancing_links::Point &p) const noexcept
+    operator()(Dancing_links::Point const &p) const noexcept
     {
         return hash<float>()(p.x) ^ (hash<float>()(p.y) << 1U);
     }
@@ -95,19 +95,19 @@ struct City_links
 };
 
 std::string
-trim(const std::string &str)
+trim(std::string const &str)
 {
-    const size_t begin = str.find_first_not_of(whitespace);
+    size_t const begin = str.find_first_not_of(whitespace);
     if (begin == std::string::npos)
     {
         return "";
     }
-    const size_t end = str.find_last_not_of(whitespace);
+    size_t const end = str.find_last_not_of(whitespace);
     return str.substr(begin, end - begin + 1);
 }
 
 std::vector<std::string>
-string_split(const std::string &str, const char delim)
+string_split(std::string const &str, char const delim)
 {
     std::vector<std::string> components{};
     std::stringstream ss(str);
@@ -125,13 +125,13 @@ string_split(const std::string &str, const char delim)
 /// Parses out the name and the X/Y coordinate, returning the
 /// name, and filling in the MapTest with what's found.
 std::string
-parse_city(const std::string &city_info, Map_test &result)
+parse_city(std::string const &city_info, Map_test &result)
 {
     // Split on all the delimiters and confirm we've only got
     // three components.
-    const std::regex pattern(std::string{dst_file_regex});
+    std::regex const pattern(std::string{dst_file_regex});
     std::smatch components;
-    const std::string to_match = trim(city_info);
+    std::string const to_match = trim(city_info);
 
     if (!regex_match(to_match, components, pattern))
     {
@@ -170,7 +170,7 @@ parse_city(const std::string &city_info, Map_test &result)
 /// Reads the links out of the back half of the line of a file,
 /// adding them to the road network.
 void
-parse_links(const City_links &cl, Map_test &result)
+parse_links(City_links const &cl, Map_test &result)
 {
     // It's possible that there are no outgoing links.
     if (trim(cl.links).empty())
@@ -180,11 +180,11 @@ parse_links(const City_links &cl, Map_test &result)
     }
 
     auto components = string_split(cl.links, ',');
-    for (const std::string &dest : components)
+    for (std::string const &dest : components)
     {
         // Clean up all whitespace and make sure that we didn't
         // discover an empty entry.
-        const std::string clean_name = trim(dest);
+        std::string const clean_name = trim(dest);
         if (clean_name.empty())
         {
             std::cerr << "Blank name in list of outgoing cities?\n";
@@ -206,11 +206,11 @@ parse_links(const City_links &cl, Map_test &result)
 /// it found. This will only add edges in the forward direction as
 /// a safety measure; edges are reversed later on.
 void
-parse_city_line(const std::string &line, Map_test &result)
+parse_city_line(std::string const &line, Map_test &result)
 {
     // Search for a colon on the line. The split function will only return a
     // single component if there are no outgoing links specified.
-    const auto num_colons = std::count(line.begin(), line.end(), ':');
+    auto const num_colons = std::count(line.begin(), line.end(), ':');
     if (num_colons != 1)
     {
         std::cerr << "Each data line should have exactly one colon on it.\n";
@@ -232,7 +232,7 @@ parse_city_line(const std::string &line, Map_test &result)
         components.emplace_back("");
     }
 
-    const std::string name = parse_city(components[0], result);
+    std::string const name = parse_city(components[0], result);
 
     parse_links({.city = name, .links = components[1]}, result);
 }
@@ -242,9 +242,9 @@ parse_city_line(const std::string &line, Map_test &result)
 void
 add_reverse_edges(Map_test &result)
 {
-    for (const auto &source : result.network)
+    for (auto const &source : result.network)
     {
-        for (const std::string &dest : source.second)
+        for (std::string const &dest : source.second)
         {
             if (!result.network.contains(dest))
             {
@@ -259,12 +259,12 @@ add_reverse_edges(Map_test &result)
 
 /// Given a graph, confirms all nodes are at distinct locations.
 void
-validate_locations(const Map_test &test)
+validate_locations(Map_test const &test)
 {
     std::map<Point, std::string> locations{};
-    for (const auto &loc : test.city_locations)
+    for (auto const &loc : test.city_locations)
     {
-        const auto inserted = locations.try_emplace(
+        auto const inserted = locations.try_emplace(
             test.city_locations.at(loc.first), loc.first);
         if (!inserted.second)
         {
@@ -303,26 +303,26 @@ load_map(std::istream &source)
 }
 
 std::ostream &
-operator<<(std::ostream &out, const Point &p)
+operator<<(std::ostream &out, Point const &p)
 {
     return out << "{" << p.x << "," << p.y << "}";
 }
 
 bool
-operator==(const Point &lhs, const Point &rhs)
+operator==(Point const &lhs, Point const &rhs)
 {
     return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
 std::partial_ordering
-operator<=>(const Point &lhs, const Point &rhs)
+operator<=>(Point const &lhs, Point const &rhs)
 {
-    const auto cmp = lhs.x <=> rhs.x;
+    auto const cmp = lhs.x <=> rhs.x;
     return cmp == std::partial_ordering::equivalent ? lhs.y <=> rhs.y : cmp;
 }
 
 Point
-operator*(const Point &p1, float scale)
+operator*(Point const &p1, float scale)
 {
     return {p1.x * scale, p1.y * scale};
 }

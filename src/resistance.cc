@@ -46,12 +46,12 @@ enum Multiplier : uint8_t
 
 class Resistance {
   public:
-    Resistance(const Type_encoding &type, const Multiplier &multiplier);
+    Resistance(Type_encoding const &type, Multiplier const &multiplier);
 
-    Resistance(const Resistance &other) = default;
+    Resistance(Resistance const &other) = default;
     Resistance(Resistance &&other) noexcept = default;
     Resistance &operator=(Resistance &&other) = default;
-    Resistance &operator=(const Resistance &other) = default;
+    Resistance &operator=(Resistance const &other) = default;
     ~Resistance() = default;
 
     [[nodiscard]] Type_encoding type() const;
@@ -59,33 +59,33 @@ class Resistance {
     [[nodiscard]] Multiplier multiplier() const;
 
     bool
-    operator<(const Resistance &rhs) const
+    operator<(Resistance const &rhs) const
     {
         return this->type() < rhs.type();
     }
     bool
-    operator==(const Resistance &rhs) const
+    operator==(Resistance const &rhs) const
     {
         return this->type() == rhs.type()
                && this->multiplier() == rhs.multiplier();
     }
     bool
-    operator>(const Resistance &rhs) const
+    operator>(Resistance const &rhs) const
     {
         return rhs < *this;
     }
     bool
-    operator>=(const Resistance &rhs) const
+    operator>=(Resistance const &rhs) const
     {
         return !(*this < rhs);
     }
     bool
-    operator<=(const Resistance &rhs) const
+    operator<=(Resistance const &rhs) const
     {
         return !(*this > rhs);
     }
     bool
-    operator!=(const Resistance &rhs) const
+    operator!=(Resistance const &rhs) const
     {
         return !(*this == rhs);
     }
@@ -95,19 +95,19 @@ class Resistance {
     Multiplier multiplier_;
 };
 
-std::ostream &operator<<(std::ostream &out, const Resistance &res);
-std::ostream &operator<<(std::ostream &out, const Multiplier &mult);
+std::ostream &operator<<(std::ostream &out, Resistance const &res);
+std::ostream &operator<<(std::ostream &out, Multiplier const &mult);
 
 ////////////////////////      Free Functions for TypeResistance.h
 
 Type_encoding
-type(const Resistance &res)
+type(Resistance const &res)
 {
     return res.type();
 }
 
 Multiplier
-multiplier(const Resistance &res)
+multiplier(Resistance const &res)
 {
     return res.multiplier();
 }
@@ -120,7 +120,7 @@ namespace Dancing_links {
 
 /////////////////////////     Resistance Helper Class
 
-Resistance::Resistance(const Type_encoding &type, const Multiplier &multiplier)
+Resistance::Resistance(Type_encoding const &type, Multiplier const &multiplier)
     : type_(type), multiplier_(multiplier)
 {}
 
@@ -137,7 +137,7 @@ Resistance::multiplier() const
 }
 
 std::ostream &
-operator<<(std::ostream &out, const Resistance &res)
+operator<<(std::ostream &out, Resistance const &res)
 {
     out << res.type() << " x";
     switch (res.multiplier())
@@ -168,7 +168,7 @@ operator<<(std::ostream &out, const Resistance &res)
 }
 
 std::ostream &
-operator<<(std::ostream &out, const Multiplier &mult)
+operator<<(std::ostream &out, Multiplier const &mult)
 {
     out << "Resistance::";
     switch (mult)

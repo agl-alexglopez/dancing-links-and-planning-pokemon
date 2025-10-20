@@ -14,8 +14,8 @@ run()
     try
     {
         std::ifstream gen(std::string{"data/dst/Gen-1-Kanto.dst"});
-        const Dx::Type_encoding tester("Fire");
-        const Dx::Pokemon_test interactions = Dx::load_pokemon_generation(gen);
+        Dx::Type_encoding const tester("Fire");
+        Dx::Pokemon_test const interactions = Dx::load_pokemon_generation(gen);
         std::cout << "Hello from the GUI.\n";
         std::cout << "Tester Type_encoding is: " << tester << "\n";
         std::cout << "Generation size is: " << interactions.interactions.size()
@@ -27,7 +27,7 @@ run()
             return 1;
         }
         return 0;
-    } catch (const std::exception &e)
+    } catch (std::exception const &e)
     {
         std::cerr << "exception caught: " << e.what() << std::flush;
         return 1;

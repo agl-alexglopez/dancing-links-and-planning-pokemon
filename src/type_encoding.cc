@@ -66,7 +66,7 @@ class Type_encoding {
     [[nodiscard]] std::pair<uint64_t, std::optional<uint64_t>>
     decode_indices() const;
     [[nodiscard]] std::string to_string() const;
-    [[nodiscard]] static std::span<const std::string_view> type_table();
+    [[nodiscard]] static std::span<std::string_view const> type_table();
 
     bool operator==(Type_encoding rhs) const;
     std::strong_ordering operator<=>(Type_encoding rhs) const;
@@ -116,7 +116,7 @@ Type_encoding::Type_encoding(std::string_view type) : encoding_(0)
     {
         return;
     }
-    const uint64_t delim = type.find('-');
+    uint64_t const delim = type.find('-');
     uint64_t found = type_bit_index(type.substr(0, delim));
     if (found == type_encoding_table.size())
     {
@@ -143,9 +143,9 @@ Type_encoding::decode_type() const
     {
         return {};
     }
-    const uint32_t width = 31;
-    const uint32_t lesser_lexicographic_bit_index = std::countr_zero(encoding_);
-    const uint32_t greater_lexicographic_bit_index
+    uint32_t const width = 31;
+    uint32_t const lesser_lexicographic_bit_index = std::countr_zero(encoding_);
+    uint32_t const greater_lexicographic_bit_index
         = width - std::countl_zero(encoding_);
     if (lesser_lexicographic_bit_index == greater_lexicographic_bit_index)
     {
@@ -164,9 +164,9 @@ Type_encoding::decode_indices() const
     {
         return {};
     }
-    const uint64_t width = 31;
-    const uint64_t lesser_lexicographic_bit_index = std::countr_zero(encoding_);
-    const uint64_t greater_lexicographic_bit_index
+    uint64_t const width = 31;
+    uint64_t const lesser_lexicographic_bit_index = std::countr_zero(encoding_);
+    uint64_t const greater_lexicographic_bit_index
         = width - std::countl_zero(encoding_);
     if (lesser_lexicographic_bit_index == greater_lexicographic_bit_index)
     {
@@ -181,7 +181,7 @@ Type_encoding::type_bit_index(std::string_view type)
     // Linear search seems slow but actually beats binary search by a TON
     // because table is small.
     uint64_t i = 0;
-    for (const auto &t : type_encoding_table)
+    for (auto const &t : type_encoding_table)
     {
         if (t == type)
         {
@@ -195,7 +195,7 @@ Type_encoding::type_bit_index(std::string_view type)
 std::string
 Type_encoding::to_string() const
 {
-    const std::pair<std::string_view, std::string_view> types = decode_type();
+    std::pair<std::string_view, std::string_view> const types = decode_type();
     if (types.second.empty())
     {
         return std::string(types.first);
@@ -209,7 +209,7 @@ Type_encoding::encoding() const
     return encoding_;
 }
 
-std::span<const std::string_view>
+std::span<std::string_view const>
 Type_encoding::type_table()
 {
     return type_encoding_table;
@@ -228,7 +228,7 @@ Type_encoding::operator<=>(Type_encoding rhs) const
     {
         return std::strong_ordering::equal;
     }
-    const auto rightmost_bit_cmp
+    auto const rightmost_bit_cmp
         = std::countr_zero(this->encoding_) <=> std::countr_zero(rhs.encoding_);
     if (rightmost_bit_cmp != std::strong_ordering::equal)
     {
@@ -237,7 +237,7 @@ Type_encoding::operator<=>(Type_encoding rhs) const
     // A single type that tied for the low bit will be sorted correctly as well
     // as any two dual types. For example this check ensures that "Bug" comes
     // before "Bug-Dark" while also sorting any two dual types.
-    const auto leftmost_bit_cmp
+    auto const leftmost_bit_cmp
         = std::countl_zero(this->encoding_) <=> std::countl_zero(rhs.encoding_);
     // Not a mistake! We want the bits in a uint32_t to be sorted like strings.
     // Checking from the left means fewer zeros is closer to largest
@@ -258,7 +258,7 @@ Type_encoding::operator<=>(Type_encoding rhs) const
 std::ostream &
 operator<<(std::ostream &out, Type_encoding tp)
 {
-    const std::pair<std::string_view, std::string_view> to_print
+    std::pair<std::string_view, std::string_view> const to_print
         = tp.decode_type();
     out << to_print.first;
     if (!to_print.second.empty())

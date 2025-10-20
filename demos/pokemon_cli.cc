@@ -163,17 +163,17 @@ struct Runner
     Print_style style{Print_style::color};
 };
 
-int run(std::span<const char *const> args);
-int solve(const Runner &runner);
-void print_types(const Ranked_set<Dx::Type_encoding> &res, Print_style style);
+int run(std::span<char const *const> args);
+int solve(Runner const &runner);
+void print_types(Ranked_set<Dx::Type_encoding> const &res, Print_style style);
 std::string
 generate_type_string(std::pair<std::string_view, std::string_view> name,
                      std::pair<uint64_t, std::optional<uint64_t>> indices,
                      Print_style style);
-void print_prep_message(const Universe_sets &sets, Print_style style);
+void print_prep_message(Universe_sets const &sets, Print_style style);
 void break_line(size_t max_set_len, Table_type t);
-void print_solution_msg(const std::set<Ranked_set<Dx::Type_encoding>> &result,
-                        const Runner &runner);
+void print_solution_msg(std::set<Ranked_set<Dx::Type_encoding>> const &result,
+                        Runner const &runner);
 void help();
 
 } // namespace
@@ -184,8 +184,8 @@ void help();
 int
 main(int argc, char **argv)
 {
-    const auto args
-        = std::span<const char *const>{argv, static_cast<size_t>(argc)}.subspan(
+    auto const args
+        = std::span<char const *const>{argv, static_cast<size_t>(argc)}.subspan(
             1);
     if (args.empty())
     {
@@ -197,14 +197,14 @@ main(int argc, char **argv)
 namespace {
 
 int
-run(const std::span<const char *const> args)
+run(std::span<char const *const> const args)
 {
     try
     {
         Runner runner;
-        for (const auto &arg : args)
+        for (auto const &arg : args)
         {
-            const std::string_view arg_str{arg};
+            std::string_view const arg_str{arg};
             if (arg_str.find('/') != std::string::npos)
             {
                 if (!runner.interactions.empty())
@@ -213,7 +213,7 @@ run(const std::span<const char *const> args)
                                  "simultaneously. Specify one.\n";
                     return 1;
                 }
-                const auto owned = std::string(arg_str);
+                auto const owned = std::string(arg_str);
                 std::ifstream f(owned);
                 runner.interactions = Dancing_links::load_interaction_map(f);
                 runner.map = owned.substr(owned.find_last_of('/') + 1);
@@ -268,7 +268,7 @@ run(const std::span<const char *const> args)
 }
 
 int
-solve(const Runner &runner)
+solve(Runner const &runner)
 {
     if (runner.map.empty() || runner.map.empty())
     {
@@ -294,16 +294,16 @@ solve(const Runner &runner)
         }
         Dx::hide_items_except(links, subset);
     }
-    const Universe_sets items_options = {
+    Universe_sets const items_options = {
         .items = Dx::items(links),
         .options = Dx::options(links),
     };
     print_prep_message(items_options, runner.style);
-    const int depth_limit
+    int const depth_limit
         = runner.type == Dx::Pokemon_links::Coverage_type::attack ? 24 : 6;
 
     // Core dancing links solver operates here, either exact or overlapping.
-    const std::set<Ranked_set<Dx::Type_encoding>> result
+    std::set<Ranked_set<Dx::Type_encoding>> const result
         = runner.sol_type == Solution_type::exact
               ? Dx::exact_cover_stack(links, depth_limit)
               : Dx::overlapping_cover_stack(links, depth_limit);
@@ -313,19 +313,19 @@ solve(const Runner &runner)
     {
         return 0;
     }
-    const auto &largest_ranked_set
-        = std::ranges::max(result, [](const Ranked_set<Dx::Type_encoding> &a,
-                                      const Ranked_set<Dx::Type_encoding> &b) {
+    auto const &largest_ranked_set
+        = std::ranges::max(result, [](Ranked_set<Dx::Type_encoding> const &a,
+                                      Ranked_set<Dx::Type_encoding> const &b) {
               return a.size() < b.size();
           });
-    const size_t max_set_len = largest_ranked_set.size();
+    size_t const max_set_len = largest_ranked_set.size();
     break_line(max_set_len, Table_type::first);
     size_t cur_set = 1;
     if (Dx::has_max_solutions(links))
     {
         std::cout << "Hit maximum solutions capacity, quitting early!\n";
     }
-    for (const auto &res : result)
+    for (auto const &res : result)
     {
         std::cout << std::left << std::setw(digit_width) << res.rank();
         size_t col = res.size();
@@ -350,15 +350,15 @@ solve(const Runner &runner)
 }
 
 void
-print_types(const Ranked_set<Dx::Type_encoding> &res, Print_style style)
+print_types(Ranked_set<Dx::Type_encoding> const &res, Print_style style)
 {
-    for (const auto &t : res)
+    for (auto const &t : res)
     {
-        const std::pair<std::string_view, std::string_view> type_pair
+        std::pair<std::string_view, std::string_view> const type_pair
             = t.decode_type();
-        const std::pair<uint64_t, std::optional<uint64_t>> type_indices
+        std::pair<uint64_t, std::optional<uint64_t>> const type_indices
             = t.decode_indices();
-        const std::string output
+        std::string const output
             = generate_type_string(type_pair, type_indices, style);
         int width = 0;
         if (type_indices.second)
@@ -415,7 +415,7 @@ generate_type_string(std::pair<std::string_view, std::string_view> name,
 }
 
 void
-print_prep_message(const Universe_sets &sets, Print_style style)
+print_prep_message(Universe_sets const &sets, Print_style style)
 {
     std::string item_msg = {};
     if (style == Print_style::color)
@@ -433,13 +433,13 @@ print_prep_message(const Universe_sets &sets, Print_style style)
             .append(" items\n\n");
     }
     std::cout << item_msg;
-    for (const auto &type : sets.items)
+    for (auto const &type : sets.items)
     {
-        const std::pair<std::string_view, std::string_view> type_pair
+        std::pair<std::string_view, std::string_view> const type_pair
             = type.decode_type();
-        const std::pair<uint64_t, std::optional<uint64_t>> type_indices
+        std::pair<uint64_t, std::optional<uint64_t>> const type_indices
             = type.decode_indices();
-        const std::string output
+        std::string const output
             = generate_type_string(type_pair, type_indices, style);
         std::cout << output << ", ";
     }
@@ -461,13 +461,13 @@ print_prep_message(const Universe_sets &sets, Print_style style)
             .append(" are available:\n\n");
     }
     std::cout << "\n" << option_msg;
-    for (const auto &type : sets.options)
+    for (auto const &type : sets.options)
     {
-        const std::pair<std::string_view, std::string_view> type_pair
+        std::pair<std::string_view, std::string_view> const type_pair
             = type.decode_type();
-        const std::pair<uint64_t, std::optional<uint64_t>> type_indices
+        std::pair<uint64_t, std::optional<uint64_t>> const type_indices
             = type.decode_indices();
-        const std::string output
+        std::string const output
             = generate_type_string(type_pair, type_indices, style);
         std::cout << output << ", ";
     }
@@ -475,8 +475,8 @@ print_prep_message(const Universe_sets &sets, Print_style style)
 }
 
 void
-print_solution_msg(const std::set<Ranked_set<Dx::Type_encoding>> &result,
-                   const Runner &runner)
+print_solution_msg(std::set<Ranked_set<Dx::Type_encoding>> const &result,
+                   Runner const &runner)
 {
     std::string msg = {};
     if (runner.style == Print_style::color)

@@ -7,8 +7,8 @@ export namespace Gui {
 bool
 run()
 {
-    const int screen_width = 800;
-    const int screen_height = 450;
+    int const screen_width = 800;
+    int const screen_height = 450;
 
     InitWindow(screen_width, screen_height,
                "raylib [core] example - basic window");
