@@ -32,7 +32,7 @@ run()
         InitWindow(screen_width, screen_height,
                    "raylib [core] example - basic window");
 
-        SetTargetFPS(60); // Set our game to run at 60 frames-per-second
+        SetTargetFPS(60);
 
         // Main game loop
         while (!WindowShouldClose()) // Detect window close button or ESC key
