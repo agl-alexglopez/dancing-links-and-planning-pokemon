@@ -1,4 +1,4 @@
-.PHONY: default rel deb build format tidy clean
+.PHONY: default rel deb build format tidy dtest rtest clean
 
 MAKE := $(MAKE)
 MAKEFLAGS += --no-print-directory
@@ -24,6 +24,14 @@ format:
 
 tidy:
 	cmake --build build/ --target tidy $(JOBS)
+
+dtest:
+	cmake --build build/ $(JOBS)
+	./build/debug/bin/tests --gtest_color=yes
+
+rtest:
+	cmake --build build/ $(JOBS)
+	./build/bin/tests --gtest_color=yes
 
 clean:
 	rm -rf build/
