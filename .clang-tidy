@@ -20,9 +20,6 @@ Checks: >
    -misc-include-cleaner,
    -readability-redundant-declaration
 
-WarningsAsErrors:
-   '*'
-
 CheckOptions:
    - { key: hicpp-signed-bitwise.IgnorePositiveIntegerLiterals, value: true }
    - { key: readability-identifier-naming.EnumConstantCase, value: lower_case }

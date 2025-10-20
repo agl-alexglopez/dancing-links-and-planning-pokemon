@@ -3,7 +3,6 @@ import gui;
 #include <exception>
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <string>
 
 namespace Dx = Dancing_links;

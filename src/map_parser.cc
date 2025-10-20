@@ -264,7 +264,7 @@ validate_locations(const Map_test &test)
     std::map<Point, std::string> locations{};
     for (const auto &loc : test.city_locations)
     {
-        auto const inserted = locations.try_emplace(
+        const auto inserted = locations.try_emplace(
             test.city_locations.at(loc.first), loc.first);
         if (!inserted.second)
         {
