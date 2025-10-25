@@ -10,6 +10,21 @@ import dancing_links;
 
 namespace Dx = Dancing_links;
 
+////////////////////////    Prototypes     ////////////////////////////////////
+namespace {
+int run();
+} // namespace
+
+///////////////////////     Main           ////////////////////////////////////
+
+int
+main()
+{
+    return run();
+}
+
+///////////////////////////   Implementation   ////////////////////////////////
+
 namespace {
 
 int
@@ -57,9 +72,3 @@ run()
 }
 
 } // namespace
-
-int
-main()
-{
-    return run();
-}
