@@ -40,14 +40,11 @@ run()
     try
     {
         std::ifstream gen("data/dst/Gen-1-Kanto.dst");
-        Dx::Type_encoding const tester("Fire");
+        if (gen.fail())
+        {
+            return 1;
+        }
         Dx::Pokemon_test const interactions = Dx::load_pokemon_generation(gen);
-        std::cout << "Hello from the GUI.\n";
-        std::cout << "Tester Type_encoding is: " << tester << "\n";
-        std::cout << "Generation size is: " << interactions.interactions.size()
-                  << "\n";
-        std::cout << "Generation map city count is: "
-                  << interactions.gen_map.network.size() << "\n";
         int screen_width = 800;
         int screen_height = 450;
 
