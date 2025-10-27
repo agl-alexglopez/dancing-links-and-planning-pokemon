@@ -48,9 +48,10 @@ run()
                   << "\n";
         std::cout << "Generation map city count is: "
                   << interactions.gen_map.network.size() << "\n";
-        int const screen_width = 800;
-        int const screen_height = 450;
+        int screen_width = 800;
+        int screen_height = 450;
 
+        SetConfigFlags(FLAG_WINDOW_RESIZABLE);
         InitWindow(screen_width, screen_height,
                    "raylib [core] example - basic window");
 
@@ -59,6 +60,8 @@ run()
         // Main game loop
         while (!WindowShouldClose()) // Detect window close button or ESC key
         {
+            screen_width = GetScreenWidth();
+            screen_height = GetScreenHeight();
             BeginDrawing();
 
             ClearBackground(RAYWHITE);
@@ -83,7 +86,7 @@ namespace Minimap {
 
 constexpr float origin_x = 1.0;
 constexpr float origin_y = 1.0;
-constexpr float scale_factor = 0.40;
+constexpr float scale_factor = 0.25;
 constexpr float node_radius = 7.0;
 constexpr float text_label_font_size = 5.0;
 constexpr float map_pad = 3.0;
