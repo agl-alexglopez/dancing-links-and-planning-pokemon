@@ -85,6 +85,7 @@ constexpr float origin_x = 1.0;
 constexpr float origin_y = 1.0;
 constexpr float scale_factor = 0.40;
 constexpr float node_radius = 7.0;
+constexpr float text_label_font_size = 5.0;
 constexpr float map_pad = 3.0;
 constexpr float file_coordinate_pad = 1.0;
 
@@ -219,6 +220,9 @@ draw(Dx::Pokemon_test const &pt, int const window_width,
                 .y = scaled_coordinates.y - node_radius,
             },
             node_radius, BLUE);
+        DrawText(node.first.c_str(), static_cast<int>(scaled_coordinates.x),
+                 static_cast<int>(scaled_coordinates.y), text_label_font_size,
+                 BLACK);
     }
 }
 
