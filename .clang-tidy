@@ -19,7 +19,8 @@ Checks: >
    -android-cloexec-accept,
    -misc-include-cleaner,
    -readability-redundant-declaration,
-   -llvm-prefer-static-over-anonymous-namespace
+   -llvm-prefer-static-over-anonymous-namespace,
+   -bugprone-easily-swappable-parameters
 
 CheckOptions:
    - { key: hicpp-signed-bitwise.IgnorePositiveIntegerLiterals, value: true }

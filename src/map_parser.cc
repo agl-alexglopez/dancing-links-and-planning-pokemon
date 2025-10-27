@@ -29,17 +29,17 @@ export namespace Dancing_links {
 
 class Point {
   public:
-    Point() = default;
-    Point(float user_x, float user_y) : x(user_x), y(user_y)
+    constexpr Point() = default;
+    constexpr Point(float const user_x, float const user_y)
+        : x(user_x), y(user_y)
     {}
-    float x{0};
-    float y{0};
+    float x{0.0};
+    float y{0.0};
 }; // class Point
 
 std::ostream &operator<<(std::ostream &out, Point const &p);
 bool operator==(Point const &lhs, Point const &rhs);
 std::partial_ordering operator<=>(Point const &lhs, Point const &rhs);
-Point operator*(Point const &p1, float scale);
 
 /// Type representing a test case for the Disaster Preparation problem.
 struct Map_test
@@ -351,15 +351,6 @@ operator<=>(Point const &lhs, Point const &rhs)
 {
     auto const cmp = lhs.x <=> rhs.x;
     return cmp == std::partial_ordering::equivalent ? lhs.y <=> rhs.y : cmp;
-}
-
-Point
-operator*(Point const &p1, float scale)
-{
-    return {
-        p1.x * scale,
-        p1.y * scale,
-    };
 }
 
 } // namespace Dancing_links
