@@ -13,6 +13,7 @@ module;
 #include <cstdlib>
 #include <iostream>
 #include <istream>
+#include <limits>
 #include <map>
 #include <ostream>
 #include <regex>
@@ -27,8 +28,8 @@ export module dancing_links:map_parser;
 
 export namespace Dancing_links {
 
-class Point {
-  public:
+struct Point
+{
     constexpr Point() = default;
     constexpr Point(float const user_x, float const user_y)
         : x(user_x), y(user_y)
@@ -37,6 +38,12 @@ class Point {
     float y{0.0};
 }; // class Point
 
+struct Min_max
+{
+    float min;
+    float max;
+};
+
 std::ostream &operator<<(std::ostream &out, Point const &p);
 bool operator==(Point const &lhs, Point const &rhs);
 std::partial_ordering operator<=>(Point const &lhs, Point const &rhs);
@@ -44,8 +51,10 @@ std::partial_ordering operator<=>(Point const &lhs, Point const &rhs);
 /// Type representing a test case for the Disaster Preparation problem.
 struct Map_test
 {
-    std::map<std::string, std::set<std::string>> network; // The network
-    std::map<std::string, Point> city_locations;          // Drawing.
+    std::map<std::string, std::set<std::string>> network;
+    std::map<std::string, Point> city_locations;
+    struct Min_max x_data_bounds{};
+    struct Min_max y_data_bounds{};
 };
 
 /// @brief Given a stream pointing at a test case for Disaster Preparation,
@@ -74,6 +83,7 @@ namespace Dancing_links {
 
 namespace {
 
+constexpr float file_coordinate_pad = 1.0;
 constexpr char const *const whitespace = " \n\r\t\f\v";
 
 /// This regular expression pattern expects for gym location to be listed with
@@ -331,6 +341,25 @@ load_map(std::istream &source)
 
     add_reverse_edges(result);
     validate_locations(result);
+    result.x_data_bounds.min = std::numeric_limits<float>::infinity();
+    result.y_data_bounds.min = std::numeric_limits<float>::infinity();
+    result.x_data_bounds.max = -std::numeric_limits<float>::infinity();
+    result.y_data_bounds.max = -std::numeric_limits<float>::infinity();
+    for (auto const &node : result.city_locations)
+    {
+        result.x_data_bounds.min
+            = std::min(result.x_data_bounds.min, node.second.x);
+        result.y_data_bounds.min
+            = std::min(result.y_data_bounds.min, node.second.y);
+        result.x_data_bounds.max
+            = std::max(result.x_data_bounds.max, node.second.x);
+        result.y_data_bounds.max
+            = std::max(result.y_data_bounds.max, node.second.y);
+    }
+    result.x_data_bounds.min -= file_coordinate_pad;
+    result.y_data_bounds.min -= file_coordinate_pad;
+    result.x_data_bounds.max += file_coordinate_pad;
+    result.y_data_bounds.max += file_coordinate_pad;
     return result;
 }
 

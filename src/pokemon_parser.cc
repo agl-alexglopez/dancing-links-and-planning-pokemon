@@ -44,7 +44,6 @@ export namespace Dancing_links {
 /// This also means you should start every file with some sort of comment
 /// labelling it with identifying info, even if there is not generation
 /// specification.
-
 struct Pokemon_test
 {
     /// This map will hold all types--dual types included--and a map of defense
