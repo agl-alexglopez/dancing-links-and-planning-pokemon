@@ -6,7 +6,6 @@
 
 ///////////////////   External dependencies   /////////////////////////////////
 #include "raylib.h"
-
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
@@ -87,7 +86,7 @@ namespace Minimap {
 constexpr float origin_x = 1.0;
 constexpr float origin_y = 1.0;
 constexpr float scale_factor = 0.25;
-constexpr float node_radius = 7.0;
+constexpr float button_size = 25.0;
 constexpr float text_label_font_size = 5.0;
 constexpr float map_pad = 3.0;
 constexpr float file_coordinate_pad = 1.0;
@@ -202,12 +201,12 @@ draw(Dx::Pokemon_test const &pt, int const window_width,
             Dx::Point const dst = scale_point(dst_file_coordinates, bounds);
             DrawLineV(
                 Vector2{
-                    .x = src.x - node_radius,
-                    .y = src.y - node_radius,
+                    .x = src.x,
+                    .y = src.y,
                 },
                 Vector2{
-                    .x = dst.x - node_radius,
-                    .y = dst.y - node_radius,
+                    .x = dst.x,
+                    .y = dst.y,
                 },
                 BLACK);
         }
@@ -217,15 +216,14 @@ draw(Dx::Pokemon_test const &pt, int const window_width,
         Dx::Point const file_coordinates = node.second;
         Dx::Point const scaled_coordinates
             = scale_point(file_coordinates, bounds);
-        DrawCircleV(
-            Vector2{
-                .x = scaled_coordinates.x - node_radius,
-                .y = scaled_coordinates.y - node_radius,
+        GuiButton(
+            Rectangle{
+                .height = button_size,
+                .width = button_size,
+                .x = scaled_coordinates.x,
+                .y = scaled_coordinates.y,
             },
-            node_radius, BLUE);
-        DrawText(node.first.c_str(), static_cast<int>(scaled_coordinates.x),
-                 static_cast<int>(scaled_coordinates.y), text_label_font_size,
-                 BLACK);
+            node.first.c_str());
     }
 }
 
