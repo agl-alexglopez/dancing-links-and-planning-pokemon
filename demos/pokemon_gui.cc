@@ -7,6 +7,9 @@
 ///////////////////   External dependencies   /////////////////////////////////
 #include "raylib.h"
 
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
+
 ///////////////////   Project based internal modules   ////////////////////////
 import dancing_links;
 
