@@ -1,5 +1,6 @@
 ///////////////////   System headers   ////////////////////////////////////////
 #include <algorithm>
+#include <cstdlib>
 #include <exception>
 #include <filesystem>
 #include <iostream>
@@ -24,25 +25,41 @@ namespace Minimap {
 class Map {
   public:
     Map();
-    void draw(Dx::Pokemon_test &pt, int window_width, int window_height);
+    void draw(int window_width, int window_height);
 
   private:
+    static constexpr float origin_x = 1.0;
+    static constexpr float origin_y = 1.0;
+    static constexpr float scale_factor = 0.25;
+    static constexpr float button_size = 25;
+    static constexpr float text_label_font_size = 5.0;
+    static constexpr float map_pad = 3.0;
+    static constexpr char const *const dst_relative_path = "data/dst/";
+
     struct Dropdown
     {
         Rectangle dimensions;
         int active;
         bool editmode;
     };
+    std::vector<std::string> dropdown_active_list;
     std::string dropdown_options;
     Dropdown dst_map_select;
+    Dx::Pokemon_test generation;
     void draw_frame_and_dropdown(float minimap_width, float minimap_height);
+    void reload_generation();
+    static Dx::Point scale_point(Dx::Point const &p,
+                                 Dx::Min_max const &x_data_bounds,
+                                 Dx::Min_max const &x_draw_bounds,
+                                 Dx::Min_max const &y_data_bounds,
+                                 Dx::Min_max const &y_draw_bounds);
 };
 } // namespace Minimap
 
 namespace Render {
-class Draw {
+class Scene {
   public:
-    void draw(Dx::Pokemon_test &pt, int window_width, int window_height);
+    void draw(int window_width, int window_height);
 
   private:
     Minimap::Map minimap;
@@ -68,12 +85,6 @@ run()
 {
     try
     {
-        std::ifstream gen("data/dst/Gen-1-Kanto.dst");
-        if (gen.fail())
-        {
-            return 1;
-        }
-        Dx::Pokemon_test interactions = Dx::load_pokemon_generation(gen);
         int screen_width = 800;
         int screen_height = 450;
 
@@ -82,7 +93,7 @@ run()
                    "raylib [core] example - basic window");
 
         SetTargetFPS(60);
-        Render::Draw scene;
+        Render::Scene scene;
 
         while (!WindowShouldClose())
         {
@@ -94,7 +105,7 @@ run()
 
             DrawText("Congrats! You created your first window!", 190, 200, 20,
                      LIGHTGRAY);
-            scene.draw(interactions, screen_width, screen_height);
+            scene.draw(screen_width, screen_height);
 
             EndDrawing();
         }
@@ -111,22 +122,14 @@ run()
 namespace Render {
 
 void
-Draw::draw(Dx::Pokemon_test &pt, int const window_width,
-           int const window_height)
+Scene::draw(int const window_width, int const window_height)
 {
-    minimap.draw(pt, window_width, window_height);
+    minimap.draw(window_width, window_height);
 }
 
 } // namespace Render
 
 namespace Minimap {
-
-constexpr float origin_x = 1.0;
-constexpr float origin_y = 1.0;
-constexpr float scale_factor = 0.25;
-constexpr float button_size = 25;
-constexpr float text_label_font_size = 5.0;
-constexpr float map_pad = 3.0;
 
 Map::Map()
     : dst_map_select({
@@ -134,7 +137,6 @@ Map::Map()
           .editmode = false,
       })
 {
-    std::vector<std::string> files{};
     for (auto const &entry : std::filesystem::directory_iterator("data/dst"))
     {
         if (entry.is_directory())
@@ -144,20 +146,43 @@ Map::Map()
         std::filesystem::path const &p = entry.path();
         std::string_view file_name(p.c_str());
         file_name = file_name.substr(file_name.find_last_of('/') + 1);
-        files.emplace_back(file_name);
+        dropdown_active_list.emplace_back(file_name);
     }
-    if (files.empty())
+    if (dropdown_active_list.empty())
     {
         return;
     }
-    std::ranges::sort(files, [](std::string const &a, std::string const &b) {
-        return a.compare(b) < 0;
-    });
-    for (size_t i = 0; i < files.size() - 1; ++i)
+    std::ranges::sort(dropdown_active_list,
+                      [](std::string const &a, std::string const &b) {
+                          return a.compare(b) < 0;
+                      });
+    for (size_t i = 0; i < dropdown_active_list.size() - 1; ++i)
     {
-        dropdown_options.append(files[i]).append(";");
+        dropdown_options.append(dropdown_active_list[i]).append(";");
     }
-    dropdown_options.append(files.back());
+    dropdown_options.append(dropdown_active_list.back());
+    reload_generation();
+}
+
+void
+Map::reload_generation()
+{
+    if (dst_map_select.active >= dropdown_active_list.size())
+    {
+        std::cerr << "Active Pokemon Generation selector out of range.\n";
+        std::abort();
+    }
+    std::string const path
+        = std::string(dst_relative_path)
+              .append(dropdown_active_list[dst_map_select.active]);
+    std::ifstream gen(path);
+    if (gen.fail())
+    {
+        std::cerr << "Cannot load Pokemon Generation .dst file " << path
+                  << '.\n';
+        std::abort();
+    }
+    generation = Dx::load_pokemon_generation(gen);
 }
 
 void
@@ -185,22 +210,11 @@ Map::draw_frame_and_dropdown(float const minimap_width,
                        &dst_map_select.active, dst_map_select.editmode))
     {
         dst_map_select.editmode = !dst_map_select.editmode;
+        if (!dst_map_select.editmode)
+        {
+            reload_generation();
+        }
     }
-}
-
-inline Dx::Point
-scale_point(Dx::Point const &p, Dx::Min_max const &x_data_bounds,
-            Dx::Min_max const &x_draw_bounds, Dx::Min_max const &y_data_bounds,
-            Dx::Min_max const &y_draw_bounds)
-{
-    return Dx::Point{
-        (((p.x - x_data_bounds.min) / (x_data_bounds.max - x_data_bounds.min))
-         * (x_draw_bounds.max - x_draw_bounds.min))
-            + x_draw_bounds.min + origin_x,
-        (((p.y - y_data_bounds.min) / (y_data_bounds.max - y_data_bounds.min))
-         * (y_draw_bounds.max - y_draw_bounds.min))
-            + y_draw_bounds.min + origin_y,
-    };
 }
 
 /// Draws the Pokemon generation minimap to the top left corner of the
@@ -212,7 +226,7 @@ scale_point(Dx::Point const &p, Dx::Min_max const &x_data_bounds,
 /// The window has been allowed to be resizable so this draw call should occur
 /// on every loop in case the window size is updated.
 void
-Map::draw(Dx::Pokemon_test &pt, int const window_width, int const window_height)
+Map::draw(int const window_width, int const window_height)
 {
 
     float const minimap_width = static_cast<float>(window_width) * scale_factor;
@@ -223,8 +237,10 @@ Map::draw(Dx::Pokemon_test &pt, int const window_width, int const window_height)
 
     float const minimap_aspect_ratio = minimap_width / minimap_height;
     float const file_specified_aspect_ratio
-        = (pt.gen_map.x_data_bounds.max - pt.gen_map.x_data_bounds.min)
-          / (pt.gen_map.y_data_bounds.max - pt.gen_map.y_data_bounds.min);
+        = (generation.gen_map.x_data_bounds.max
+           - generation.gen_map.x_data_bounds.min)
+          / (generation.gen_map.y_data_bounds.max
+             - generation.gen_map.y_data_bounds.min);
     float file_specified_width{};
     float file_specified_height{};
     if (file_specified_aspect_ratio >= minimap_aspect_ratio)
@@ -248,20 +264,20 @@ Map::draw(Dx::Pokemon_test &pt, int const window_width, int const window_height)
         = ((minimap_height - file_specified_height) / 2.0F) + map_pad;
     y_draw_bounds.max = y_draw_bounds.min + file_specified_height;
 
-    for (auto const &node : pt.gen_map.network)
+    for (auto const &node : generation.gen_map.network)
     {
         Dx::Point const src_file_coordinates
-            = pt.gen_map.city_locations.at(node.first);
+            = generation.gen_map.city_locations.at(node.first);
         Dx::Point const src = scale_point(
-            src_file_coordinates, pt.gen_map.x_data_bounds, x_draw_bounds,
-            pt.gen_map.y_data_bounds, y_draw_bounds);
+            src_file_coordinates, generation.gen_map.x_data_bounds,
+            x_draw_bounds, generation.gen_map.y_data_bounds, y_draw_bounds);
         for (auto const &edge : node.second)
         {
             Dx::Point const dst_file_coordinates
-                = pt.gen_map.city_locations.at(edge);
+                = generation.gen_map.city_locations.at(edge);
             Dx::Point const dst = scale_point(
-                dst_file_coordinates, pt.gen_map.x_data_bounds, x_draw_bounds,
-                pt.gen_map.y_data_bounds, y_draw_bounds);
+                dst_file_coordinates, generation.gen_map.x_data_bounds,
+                x_draw_bounds, generation.gen_map.y_data_bounds, y_draw_bounds);
             DrawLineV(
                 Vector2{
                     .x = src.x,
@@ -274,12 +290,12 @@ Map::draw(Dx::Pokemon_test &pt, int const window_width, int const window_height)
                 BLACK);
         }
     }
-    for (auto const &node : pt.gen_map.city_locations)
+    for (auto const &node : generation.gen_map.city_locations)
     {
         Dx::Point const file_coordinates = node.second;
         Dx::Point const scaled_coordinates = scale_point(
-            file_coordinates, pt.gen_map.x_data_bounds, x_draw_bounds,
-            pt.gen_map.y_data_bounds, y_draw_bounds);
+            file_coordinates, generation.gen_map.x_data_bounds, x_draw_bounds,
+            generation.gen_map.y_data_bounds, y_draw_bounds);
         // We want the lines that connect the button nodes to run through the
         // center of the button. Buttons are drawn as squares with the top
         // left corner at the x and y point so move that corner so that the
@@ -293,6 +309,22 @@ Map::draw(Dx::Pokemon_test &pt, int const window_width, int const window_height)
             },
             node.first.c_str());
     }
+}
+
+Dx::Point
+Map::scale_point(Dx::Point const &p, Dx::Min_max const &x_data_bounds,
+                 Dx::Min_max const &x_draw_bounds,
+                 Dx::Min_max const &y_data_bounds,
+                 Dx::Min_max const &y_draw_bounds)
+{
+    return Dx::Point{
+        (((p.x - x_data_bounds.min) / (x_data_bounds.max - x_data_bounds.min))
+         * (x_draw_bounds.max - x_draw_bounds.min))
+            + x_draw_bounds.min + origin_x,
+        (((p.y - y_data_bounds.min) / (y_data_bounds.max - y_data_bounds.min))
+         * (y_draw_bounds.max - y_draw_bounds.min))
+            + y_draw_bounds.min + origin_y,
+    };
 }
 
 } // namespace Minimap
