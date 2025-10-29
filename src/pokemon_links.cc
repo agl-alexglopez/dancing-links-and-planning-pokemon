@@ -111,6 +111,8 @@ class Pokemon_links {
         std::map<Type_encoding, std::set<Resistance>> const &type_interactions,
         std::set<Type_encoding> const &attack_types);
 
+    Pokemon_links() = default;
+
     ///////////////////  See Dancing_links.h for Documented Free Functions
 
     [[nodiscard]] std::set<Ranked_set<Type_encoding>>
@@ -1575,14 +1577,15 @@ Pokemon_links::Pokemon_links(
 
         std::map<Type_encoding, std::set<Resistance>> modified_interactions
             = {};
-        for (auto const &type : type_interactions)
+        for (auto const &[type_encoding, resistances] : type_interactions)
         {
-            modified_interactions[type.first] = {};
-            for (Resistance const &t : type.second)
+            auto type_to_remap = modified_interactions.insert_or_assign(
+                type_encoding, std::set<Resistance>{});
+            for (Resistance const &type : resistances)
             {
-                if (attack_types.contains(t.type()))
+                if (attack_types.contains(type.type()))
                 {
-                    modified_interactions[type.first].insert(t);
+                    type_to_remap.first->second.insert(type);
                 }
             }
         }
@@ -1600,31 +1603,126 @@ Pokemon_links::build_defense_links(
     {
         generation_types.insert(res.type());
     }
-
+    // The column builder keeps track of the start of the column for every
+    // type. A type is represented in a column that runs vertically down the
+    // grid. Where it crosses with other types is the type interaction or
+    // multiplier given for attack or defense, depending on the solver.
+    //
+    // Because the entire grid is packed into one array, the columns begin at
+    // index 1 until all items have their column at the top.
     std::unordered_map<Type_encoding, uint64_t> column_builder = {};
-    option_table_.push_back({Type_encoding(""), 0});
-    item_table_.push_back({Type_encoding(""), 0, 1});
-    links_.push_back({0, 0, 0, Multiplier::emp, 0});
+    option_table_.push_back(Encoding_index{
+        .name = Type_encoding(""),
+        .index = 0,
+    });
+    item_table_.push_back(Type_name{
+        .name = Type_encoding(""),
+        .left = 0,
+        .right = 1,
+    });
+    links_.push_back(Poke_link{
+        .top_or_len = 0,
+        .up = 0,
+        .down = 0,
+        .multiplier = Multiplier::emp,
+        .tag = 0,
+    });
     uint64_t index = 1;
     for (Type_encoding const &type : generation_types)
     {
-
-        column_builder[type] = index;
-
-        item_table_.push_back({type, index - 1, index + 1});
+        column_builder.insert_or_assign(type, index);
+        item_table_.push_back(Type_name{
+            .name = type,
+            .left = index - 1,
+            .right = index + 1,
+        });
         ++item_table_[0].left;
-
-        links_.push_back({0, index, index, Multiplier::emp, 0});
-
+        links_.push_back(Poke_link{
+            .top_or_len = 0,
+            .up = index,
+            .down = index,
+            .multiplier = Multiplier::emp,
+            .tag = 0,
+        });
         ++num_items_;
         ++index;
     }
     item_table_[item_table_.size() - 1].right = 0;
-
     initialize_columns(type_interactions, column_builder,
                        requested_cover_solution_);
 }
 
+void
+Pokemon_links::build_attack_links(
+    std::map<Type_encoding, std::set<Resistance>> const &type_interactions)
+{
+    option_table_.push_back(Encoding_index{
+        .name = Type_encoding(""),
+        .index = 0,
+    });
+    item_table_.push_back(Type_name{
+        .name = Type_encoding(""),
+        .left = 0,
+        .right = 1,
+    });
+    links_.push_back(Poke_link{
+        .top_or_len = 0,
+        .up = 0,
+        .down = 0,
+        .multiplier = Multiplier::emp,
+        .tag = 0,
+    });
+    uint64_t index = 1;
+    // An inverted map has the attack types as the keys and the damage they do
+    // to defensive types as the set of Resistances. Once this is built just use
+    // the same builder function for cols.
+    std::map<Type_encoding, std::set<Resistance>> inverted_map = {};
+    // The column builder keeps track of the start of the column for every
+    // type. A type is represented in a column that runs vertically down the
+    // grid. Where it crosses with other types is the type interaction or
+    // multiplier given for attack or defense, depending on the solver.
+    //
+    // Because the entire grid is packed into one array, the columns begin at
+    // index 1 until all items have their column at the top.
+    std::unordered_map<Type_encoding, uint64_t> column_builder = {};
+    for (auto const &[type_encoding, resistances] : type_interactions)
+    {
+        column_builder.insert_or_assign(type_encoding, index);
+        item_table_.push_back(Type_name{
+            .name = type_encoding,
+            .left = index - 1,
+            .right = index + 1,
+        });
+        ++item_table_[0].left;
+        links_.push_back(Poke_link{
+            .top_or_len = 0,
+            .up = index,
+            .down = index,
+            .multiplier = Multiplier::emp,
+            .tag = 0,
+        });
+        ++num_items_;
+        ++index;
+        for (Resistance const &atk : resistances)
+        {
+            inverted_map[atk.type()].emplace(type_encoding, atk.multiplier());
+        }
+    }
+    item_table_[item_table_.size() - 1].right = 0;
+    initialize_columns(inverted_map, column_builder, requested_cover_solution_);
+}
+
+/// Iterates through all interactions and finishes building out the dancing
+/// links grid. To complete the grid, every type must build out its row and
+/// column.
+///
+/// The row is simply a left right linked list where the index is implicitly
+/// one greater for the entry to the right and one less for the entry to the
+/// left.
+///
+/// However, the column linked list must be explicit. Because everything is
+/// in one array, the column jumps up and down indices to vertically connect
+/// the doubly linked list across the rows.
 void
 Pokemon_links::initialize_columns(
     std::map<Type_encoding, std::set<Resistance>> const &type_interactions,
@@ -1634,64 +1732,90 @@ Pokemon_links::initialize_columns(
     uint64_t previous_set_size = links_.size();
     uint64_t current_links_index = links_.size();
     int32_t type_lookup_index = 1;
-    for (auto const &type : type_interactions)
+    for (auto const &[type_encoding, resistances] : type_interactions)
     {
 
         uint64_t const type_title = current_links_index;
         int set_size = 0;
-        // We will lookup our defense options in a seperate array with an O(1)
-        // index.
-        links_.push_back({-type_lookup_index,
-                          current_links_index - previous_set_size,
-                          current_links_index, Multiplier::emp, 0});
-        option_table_.push_back({type.first, current_links_index});
-
-        for (Resistance const &single_type : type.second)
+        // The first entry in a row is special because it stores the index into
+        // the option array as the negative top_or_len field. This will give
+        // us the name of the options this row represents when we need to look
+        // it up and signals a special entry by being negative.
+        links_.push_back(Poke_link{
+            .top_or_len = -type_lookup_index,
+            .up = current_links_index - previous_set_size,
+            .down = current_links_index,
+            .multiplier = Multiplier::emp,
+            .tag = 0,
+        });
+        option_table_.push_back(Encoding_index{
+            .name = type_encoding,
+            .index = current_links_index,
+        });
+        for (Resistance const &type_interaction : resistances)
         {
-
             // Important consideration for this algorithm. I am only interested
             // in damage resistances better than normal. So "covered" for a
-            // pokemon team means you found at most 6 Pokemon that give you some
-            // level of resistance to all types in the game and no pokemon on
+            // Pokemon team means you found at most 6 Pokemon that give you some
+            // level of resistance to all types in the game and no Pokemon on
             // your team overlap by resisting the same types. You could have
-            // Pokemon with x0.0, x0.25, or x0.5 resistances, but no higher.
-            // Maybe we could lessen criteria? Also, just flip this condition
-            // for the ATTACK version. We want damage better than Normal,
-            // meaining x2 or x4.
-
+            // Pokemon with 0.0, 0.25, or 0.5 resistance multipliers, but no
+            // higher. Maybe we could lessen criteria? Also, just flip this
+            // condition for the ATTACK version. We want damage better than
+            // Normal, meaning 2 or 4 times multipliers.
             if ((requested_coverage == Coverage_type::defense
-                     ? single_type.multiplier() < Multiplier::nrm
-                     : Multiplier::nrm < single_type.multiplier()))
+                     ? type_interaction.multiplier() < Multiplier::nrm
+                     : Multiplier::nrm < type_interaction.multiplier()))
             {
                 ++current_links_index;
                 ++links_[type_title].down;
                 ++set_size;
-
-                Type_encoding const s_type = single_type.type();
-                ++links_[links_[column_builder[s_type]].down].top_or_len;
-
-                // A single item in a circular doubly linked list points to
-                // itself.
-                links_.push_back(
-                    {static_cast<int>(links_[column_builder[s_type]].down),
-                     current_links_index, current_links_index,
-                     single_type.multiplier(), 0});
-
+                // As we build a types column we are moving "down." The columns
+                // started with the first type at index 1 and each type getting
+                // a column header at indices 1-N where N is the number of
+                // types.
+                //
+                // Every time we add a new row interaction to the array we will
+                // remember this furthest "down" column position we have
+                // reached. This is how we are able to traverse our column
+                // vertically during solving. We jump to the labeled indices
+                // between column positions.
+                auto const previous_column_position
+                    = column_builder.find(type_interaction.type());
+                if (previous_column_position == column_builder.end())
+                {
+                    std::cerr << "column builder logic broke while building "
+                                 "dlx solver grid.\n";
+                    std::abort();
+                }
+                uint64_t const prev_col_i = previous_column_position->second;
+                // Update the column headers length field while building down.
+                ++links_[links_[prev_col_i].down].top_or_len;
+                // A single circular doubly linked list element self pointer.
+                links_.push_back(Poke_link{
+                    .top_or_len = static_cast<int32_t>(links_[prev_col_i].down),
+                    .up = current_links_index,
+                    .down = current_links_index,
+                    .multiplier = type_interaction.multiplier(),
+                    .tag = 0,
+                });
                 // This is the adjustment to the column header's up field for a
-                // given item.
-                links_[links_[column_builder[s_type]].down].up
-                    = current_links_index;
+                // given item. Vertical circular doubly linked list.
+                links_[links_[prev_col_i].down].up = current_links_index;
                 // The current node is the new tail in a vertical circular
                 // linked list for an item.
-                links_[current_links_index].up = column_builder[s_type];
-                links_[current_links_index].down
-                    = links_[column_builder[s_type]].down;
-                // Update the old tail to reflect the new addition of an item in
-                // its option.
-                links_[column_builder[s_type]].down = current_links_index;
-                // Similar to a previous/current coding pattern but in an
-                // above/below column.
-                column_builder[s_type] = current_links_index;
+                links_[current_links_index].up = prev_col_i;
+                // This newly added column item now points back to the column
+                // header for this type as its wrapping doubly linked pointer.
+                links_[current_links_index].down = links_[prev_col_i].down;
+                // The previous column item no longer points to column header
+                // but to this newly added item below it in the column.
+                links_[prev_col_i].down = current_links_index;
+                // Now we will remember our new bottom-most row interaction in
+                // the column doubly linked list for future linking of this
+                // types column. All other data we needed to save has been
+                // written to links array we are building.
+                previous_column_position->second = current_links_index;
             }
         }
         ++type_lookup_index;
@@ -1699,41 +1823,13 @@ Pokemon_links::initialize_columns(
         ++num_options_;
         previous_set_size = set_size;
     }
-    links_.push_back({INT_MIN, current_links_index - previous_set_size,
-                      UINT64_MAX, Multiplier::emp, 0});
-}
-
-void
-Pokemon_links::build_attack_links(
-    std::map<Type_encoding, std::set<Resistance>> const &type_interactions)
-{
-    option_table_.push_back({Type_encoding(""), 0});
-    item_table_.push_back({Type_encoding(""), 0, 1});
-    links_.push_back({0, 0, 0, Multiplier::emp, 0});
-    uint64_t index = 1;
-
-    // An inverted map has the attack types as the keys and the damage they do
-    // to defensive types as the set of Resistances. Once this is built just use
-    // the same builder function for cols.
-
-    std::map<Type_encoding, std::set<Resistance>> inverted_map = {};
-    std::unordered_map<Type_encoding, uint64_t> column_builder = {};
-    for (auto const &interaction : type_interactions)
-    {
-        column_builder[interaction.first] = index;
-        item_table_.push_back({interaction.first, index - 1, index + 1});
-        ++item_table_[0].left;
-        links_.push_back({0, index, index, Multiplier::emp, 0});
-        ++num_items_;
-        ++index;
-        for (Resistance const &atk : interaction.second)
-        {
-            inverted_map[atk.type()].insert(
-                {interaction.first, atk.multiplier()});
-        }
-    }
-    item_table_[item_table_.size() - 1].right = 0;
-    initialize_columns(inverted_map, column_builder, requested_cover_solution_);
+    links_.push_back(Poke_link{
+        .top_or_len = INT_MIN,
+        .up = current_links_index - previous_set_size,
+        .down = UINT64_MAX,
+        .multiplier = Multiplier::emp,
+        .tag = 0,
+    });
 }
 
 } // namespace Dancing_links

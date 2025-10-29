@@ -90,6 +90,13 @@ class Minimap {
         std::pair<std::map<std::string, Dx::Point>::const_iterator, bool>>
         gym_toggles;
 
+    /// The defensive dancing links solver. Loaded along with each new
+    /// generation.
+    Dx::Pokemon_links defense_dlx;
+
+    /// The attack dancing links solver. Loaded along with each new generation.
+    Dx::Pokemon_links attack_dlx;
+
     //////////////////////    Functions ///////////////////////////////////
 
     void draw_frame_and_dropdown(float minimap_width, float minimap_height);
@@ -231,6 +238,10 @@ Minimap::reload_generation()
     {
         gym_toggles.emplace_back(gym, false);
     }
+    defense_dlx = Dx::Pokemon_links(generation.interactions,
+                                    Dx::Pokemon_links::Coverage_type::defense);
+    attack_dlx = Dx::Pokemon_links(generation.interactions,
+                                   Dx::Pokemon_links::Coverage_type::attack);
 }
 
 void
