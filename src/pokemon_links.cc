@@ -624,7 +624,7 @@ Pokemon_links::exact_coverages_stack(int choice_limit)
     uint64_t const start = choose_item();
     // A true recursive stack. We will only have O(depth) branches on the stack
     // equivalent to current search path.
-    std::vector<Branch> dfs{{
+    std::vector<Branch> dfs{Branch{
         .item = start,
         .option = start,
         .score = {},
@@ -687,7 +687,7 @@ Pokemon_links::exact_coverages_stack(int choice_limit)
 }
 
 std::set<Ranked_set<Type_encoding>>
-Pokemon_links::exact_coverages_functional(int choice_limit)
+Pokemon_links::exact_coverages_functional(int const choice_limit)
 {
     std::set<Ranked_set<Type_encoding>> coverages = {};
     Ranked_set<Type_encoding> coverage{};
@@ -697,9 +697,9 @@ Pokemon_links::exact_coverages_functional(int choice_limit)
 }
 
 void
-Pokemon_links::exact_dlx_functional( // NOLINT
+Pokemon_links::exact_dlx_functional(
     std::set<Ranked_set<Type_encoding>> &coverages,
-    Ranked_set<Type_encoding> &coverage, int depth_limit)
+    Ranked_set<Type_encoding> &coverage, int const depth_limit)
 {
     if (item_table_[0].right == 0 && depth_limit >= 0)
     {
@@ -741,12 +741,11 @@ Pokemon_links::exact_dlx_functional( // NOLINT
 }
 
 Pokemon_links::Encoding_score
-Pokemon_links::cover_type(uint64_t index_in_option)
+Pokemon_links::cover_type(uint64_t const index_in_option)
 {
     Encoding_score result = {};
     uint64_t i = index_in_option;
-    bool row_lap = false;
-    while (!row_lap)
+    for (;;)
     {
         int const top = links_[i].top_or_len;
         // This is the next spacer node for the next option. We now know how to
@@ -754,9 +753,13 @@ Pokemon_links::cover_type(uint64_t index_in_option)
         // the chosen option and go left.
         if (top <= 0)
         {
-            row_lap = (i = links_[i].up) == index_in_option;
+            i = links_[i].up;
             result.name
                 = option_table_[std::abs(links_[i - 1].top_or_len)].name;
+            if (i == index_in_option)
+            {
+                break;
+            }
             continue;
         }
         if (!links_[top].tag)
@@ -774,24 +777,30 @@ Pokemon_links::cover_type(uint64_t index_in_option)
             // Seems fine?
             result.score += static_cast<uint8_t>(links_[i].multiplier);
         }
-        row_lap = ++i == index_in_option;
+        if (++i == index_in_option)
+        {
+            break;
+        }
     }
     return result;
 }
 
 void
-Pokemon_links::uncover_type(uint64_t index_in_option)
+Pokemon_links::uncover_type(uint64_t const index_in_option)
 {
     // Go left first so the in place link restoration of the doubly linked
     // lookup table works.
-    uint64_t i = --index_in_option;
-    bool row_lap = false;
-    while (!row_lap)
+    uint64_t i = index_in_option - 1;
+    for (;;)
     {
         int const top = links_[i].top_or_len;
         if (top <= 0)
         {
-            row_lap = (i = links_[i].down) == index_in_option;
+            i = links_[i].down;
+            if (i == index_in_option - 1)
+            {
+                break;
+            }
             continue;
         }
         if (!links_[top].tag)
@@ -801,7 +810,10 @@ Pokemon_links::uncover_type(uint64_t index_in_option)
             item_table_[cur.right].left = top;
             unhide_options(i);
         }
-        row_lap = --i == index_in_option;
+        if (--i == index_in_option - 1)
+        {
+            break;
+        }
     }
 }
 
@@ -812,7 +824,7 @@ Pokemon_links::uncover_type(uint64_t index_in_option)
 /// problem much more quickly.
 
 void
-Pokemon_links::hide_options(uint64_t index_in_option)
+Pokemon_links::hide_options(uint64_t const index_in_option)
 {
     for (uint64_t row = links_[index_in_option].down; row != index_in_option;
          row = links_[row].down)
@@ -979,7 +991,7 @@ Pokemon_links::overlapping_coverages_stack(int choice_limit)
 }
 
 std::set<Ranked_set<Type_encoding>>
-Pokemon_links::overlapping_coverages_functional(int choice_limit)
+Pokemon_links::overlapping_coverages_functional(int const choice_limit)
 {
     std::set<Ranked_set<Type_encoding>> coverages = {};
     Ranked_set<Type_encoding> coverage = {};
@@ -989,9 +1001,9 @@ Pokemon_links::overlapping_coverages_functional(int choice_limit)
 }
 
 void
-Pokemon_links::overlapping_dlx_recursive( // NOLINT
+Pokemon_links::overlapping_dlx_recursive(
     std::set<Ranked_set<Type_encoding>> &coverages,
-    Ranked_set<Type_encoding> &coverage, int depth_tag)
+    Ranked_set<Type_encoding> &coverage, int const depth_tag)
 {
     if (item_table_[0].right == 0 && depth_tag >= 0)
     {
@@ -1042,12 +1054,11 @@ Pokemon_links::overlapping_dlx_recursive( // NOLINT
 /// options.
 
 Pokemon_links::Encoding_score
-Pokemon_links::overlapping_cover_type(Pokemon_links::Cover_tag tag)
+Pokemon_links::overlapping_cover_type(Pokemon_links::Cover_tag const tag)
 {
     uint64_t i = tag.index;
-    bool row_lap = false;
     Encoding_score result = {};
-    while (!row_lap)
+    for (;;)
     {
         int const top = links_[i].top_or_len;
         // This is the next spacer node for the next option. We now know how to
@@ -1055,9 +1066,13 @@ Pokemon_links::overlapping_cover_type(Pokemon_links::Cover_tag tag)
         // the chosen option and go left.
         if (top <= 0)
         {
-            row_lap = (i = links_[i].up) == tag.index;
+            i = links_[i].up;
             result.name
                 = option_table_[std::abs(links_[i - 1].top_or_len)].name;
+            if (i == tag.index)
+            {
+                break;
+            }
             continue;
         }
         if (!links_[top].tag)
@@ -1071,22 +1086,28 @@ Pokemon_links::overlapping_cover_type(Pokemon_links::Cover_tag tag)
         {
             links_[i].tag = tag.tag;
         }
-        row_lap = ++i == tag.index;
+        if (++i == tag.index)
+        {
+            break;
+        }
     }
     return result;
 }
 
 void
-Pokemon_links::overlapping_uncover_type(uint64_t index_in_option)
+Pokemon_links::overlapping_uncover_type(uint64_t const index_in_option)
 {
-    uint64_t i = --index_in_option;
-    bool row_lap = false;
-    while (!row_lap)
+    uint64_t i = index_in_option - 1;
+    for (;;)
     {
         int const top = links_[i].top_or_len;
         if (top < 0)
         {
-            row_lap = (i = links_[i].down) == index_in_option;
+            i = links_[i].down;
+            if (i == index_in_option - 1)
+            {
+                break;
+            }
             continue;
         }
         if (links_[top].tag == links_[i].tag)
@@ -1099,7 +1120,10 @@ Pokemon_links::overlapping_uncover_type(uint64_t index_in_option)
         {
             links_[i].tag = 0;
         }
-        row_lap = --i == index_in_option;
+        if (--i == index_in_option - 1)
+        {
+            break;
+        }
     }
 }
 

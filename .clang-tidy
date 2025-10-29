@@ -20,7 +20,8 @@ Checks: >
    -misc-include-cleaner,
    -readability-redundant-declaration,
    -llvm-prefer-static-over-anonymous-namespace,
-   -bugprone-easily-swappable-parameters
+   -bugprone-easily-swappable-parameters,
+   -misc-no-recursion
 
 CheckOptions:
    - { key: hicpp-signed-bitwise.IgnorePositiveIntegerLiterals, value: true }
