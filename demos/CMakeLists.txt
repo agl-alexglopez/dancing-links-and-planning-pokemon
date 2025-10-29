@@ -6,9 +6,6 @@ target_link_libraries(pokemon_cli dancing_links)
 
 # Adding Raylib
 include(FetchContent)
-set(FETCHCONTENT_QUIET FALSE)
-set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build the supplied examples
-set(BUILD_GAMES    OFF CACHE BOOL "" FORCE) # don't build the supplied example games
 
 # Unfortunately raylib does not include source code in their releases and
 # only provide a compiled library file and include headers. So we must

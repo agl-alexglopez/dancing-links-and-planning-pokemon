@@ -4,7 +4,9 @@
 #include <exception>
 #include <filesystem>
 #include <iostream>
+#include <map>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 ///////////////////   External dependencies   /////////////////////////////////
@@ -21,13 +23,14 @@ namespace Dx = Dancing_links;
 namespace {
 int run();
 
-namespace Minimap {
-class Map {
+class Minimap {
   public:
-    Map();
+    Minimap();
     void draw(int window_width, int window_height);
 
   private:
+    //////////////////////   Constants       //////////////////////////////////
+
     static constexpr float origin_x = 1.0;
     static constexpr float origin_y = 1.0;
     static constexpr float scale_factor = 0.25;
@@ -36,16 +39,59 @@ class Map {
     static constexpr float map_pad = 3.0;
     static constexpr char const *const dst_relative_path = "data/dst/";
 
+    //////////////////////   Helper Types    //////////////////////////////////
+
     struct Dropdown
     {
         Rectangle dimensions;
         int active;
         bool editmode;
     };
+
+    //////////////////////   Data Structures  /////////////////////////////////
+
+    /// Raylib Dropdowns use an active integer to track which option of a drop
+    /// down is selected. So, it is helpful to store them contiguously
+    /// corresponding to each active index.
     std::vector<std::string> dropdown_active_list;
+
+    /// Raylib requires a semicolon separated string to display all options in
+    /// the dropdown ("option1;option2"). The final options should not have a
+    /// trailing semicolon.
     std::string dropdown_options;
+
+    /// The state we must track to successfully use a Raylib drop down.
     Dropdown dst_map_select;
+
+    /// The data from the current Pokemon generation map we have loaded in.
+    /// This data structure tells us where all the gyms are for this generation
+    /// on the map. It also tells us how all the types interact with one
+    /// another in the form of a type map where the key is the type and the
+    /// value is the set of defense multipliers against the single attack types
+    /// in the game.
     Dx::Pokemon_test generation;
+
+    /// The user interacts with the mini map by clicking the gym buttons. By
+    /// default the solution to the entire game is loaded. But users can select
+    /// smaller sub-problems of gyms to solve for.
+    ///
+    /// This vector stores an iterator to the Pokemon test map city location
+    /// for a gym so that we can easily iterate through all gyms and render
+    /// the button placement correctly along with the toggle gym button state
+    /// boolean.
+    ///
+    /// Therefore this data structure must be initialized AFTER the current
+    /// generation has loaded in. The current generation city locations map
+    /// never changes once loaded in for the first time.
+    ///
+    /// These data structures are tightly bound like this because we don't want
+    /// to bother the Dx::Pokemon_test with adding state. We do it here.
+    std::vector<
+        std::pair<std::map<std::string, Dx::Point>::const_iterator, bool>>
+        gym_toggles;
+
+    //////////////////////    Functions ///////////////////////////////////
+
     void draw_frame_and_dropdown(float minimap_width, float minimap_height);
     void reload_generation();
     static Dx::Point scale_point(Dx::Point const &p,
@@ -54,17 +100,14 @@ class Map {
                                  Dx::Min_max const &y_data_bounds,
                                  Dx::Min_max const &y_draw_bounds);
 };
-} // namespace Minimap
 
-namespace Render {
 class Scene {
   public:
     void draw(int window_width, int window_height);
 
   private:
-    Minimap::Map minimap;
+    Minimap minimap;
 };
-} // namespace Render
 
 } // namespace
 
@@ -93,7 +136,7 @@ run()
                    "raylib [core] example - basic window");
 
         SetTargetFPS(60);
-        Render::Scene scene;
+        Scene scene;
 
         while (!WindowShouldClose())
         {
@@ -119,19 +162,13 @@ run()
     }
 }
 
-namespace Render {
-
 void
 Scene::draw(int const window_width, int const window_height)
 {
     minimap.draw(window_width, window_height);
 }
 
-} // namespace Render
-
-namespace Minimap {
-
-Map::Map()
+Minimap::Minimap()
     : dst_map_select({
           .active = 0,
           .editmode = false,
@@ -165,7 +202,7 @@ Map::Map()
 }
 
 void
-Map::reload_generation()
+Minimap::reload_generation()
 {
     if (dst_map_select.active >= dropdown_active_list.size())
     {
@@ -182,12 +219,23 @@ Map::reload_generation()
                   << '.\n';
         std::abort();
     }
+    // Clear the old gym toggles before loading new generation so we are not
+    // left with references to map data that does not exist.
+    gym_toggles.clear();
+    // Remember to load the Pokemon generation first.
     generation = Dx::load_pokemon_generation(gen);
+    // Next, the gym toggles can now finally be loaded and locked to the map.
+    for (auto gym = std::ranges::cbegin(generation.gen_map.city_locations);
+         gym != std::ranges::cend(generation.gen_map.city_locations);
+         gym = std::ranges::next(gym))
+    {
+        gym_toggles.emplace_back(gym, false);
+    }
 }
 
 void
-Map::draw_frame_and_dropdown(float const minimap_width,
-                             float const minimap_height)
+Minimap::draw_frame_and_dropdown(float const minimap_width,
+                                 float const minimap_height)
 {
     // Layout the map and the drop down menu below it.
     DrawRectangleV(
@@ -226,7 +274,7 @@ Map::draw_frame_and_dropdown(float const minimap_width,
 /// The window has been allowed to be resizable so this draw call should occur
 /// on every loop in case the window size is updated.
 void
-Map::draw(int const window_width, int const window_height)
+Minimap::draw(int const window_width, int const window_height)
 {
 
     float const minimap_width = static_cast<float>(window_width) * scale_factor;
@@ -290,9 +338,10 @@ Map::draw(int const window_width, int const window_height)
                 BLACK);
         }
     }
-    for (auto const &node : generation.gen_map.city_locations)
+    // We may be mutating a buttons toggle state we mutably iterate.
+    for (auto &[city_location_map_iterator, toggle_state] : gym_toggles)
     {
-        Dx::Point const file_coordinates = node.second;
+        Dx::Point const file_coordinates = city_location_map_iterator->second;
         Dx::Point const scaled_coordinates = scale_point(
             file_coordinates, generation.gen_map.x_data_bounds, x_draw_bounds,
             generation.gen_map.y_data_bounds, y_draw_bounds);
@@ -300,22 +349,23 @@ Map::draw(int const window_width, int const window_height)
         // center of the button. Buttons are drawn as squares with the top
         // left corner at the x and y point so move that corner so that the
         // center of the button is the center of node and line connections.
-        GuiButton(
-            Rectangle{
-                .height = button_size,
-                .width = button_size,
-                .x = scaled_coordinates.x - (button_size / 2),
-                .y = scaled_coordinates.y - (button_size / 2),
-            },
-            node.first.c_str());
+        if (GuiToggle(
+                Rectangle{
+                    .height = button_size,
+                    .width = button_size,
+                    .x = scaled_coordinates.x - (button_size / 2),
+                    .y = scaled_coordinates.y - (button_size / 2),
+                },
+                city_location_map_iterator->first.c_str(), &toggle_state))
+        {}
     }
 }
 
 Dx::Point
-Map::scale_point(Dx::Point const &p, Dx::Min_max const &x_data_bounds,
-                 Dx::Min_max const &x_draw_bounds,
-                 Dx::Min_max const &y_data_bounds,
-                 Dx::Min_max const &y_draw_bounds)
+Minimap::scale_point(Dx::Point const &p, Dx::Min_max const &x_data_bounds,
+                     Dx::Min_max const &x_draw_bounds,
+                     Dx::Min_max const &y_data_bounds,
+                     Dx::Min_max const &y_draw_bounds)
 {
     return Dx::Point{
         (((p.x - x_data_bounds.min) / (x_data_bounds.max - x_data_bounds.min))
@@ -326,7 +376,5 @@ Map::scale_point(Dx::Point const &p, Dx::Min_max const &x_data_bounds,
             + y_draw_bounds.min + origin_y,
     };
 }
-
-} // namespace Minimap
 
 } // namespace

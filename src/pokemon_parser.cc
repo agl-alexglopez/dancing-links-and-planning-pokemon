@@ -191,8 +191,8 @@ set_resistances(std::map<Type_encoding, std::set<Resistance>> &result,
         Multiplier const multiplier_tag = get_multiplier(multiplier);
         for (auto const &t : types_in_multiplier)
         {
-            std::string const &type = t;
-            result[new_type].insert({Type_encoding(type), multiplier_tag});
+            auto const type = t.template get<std::string>();
+            result[new_type].emplace(std::string_view{type}, multiplier_tag);
         }
     }
 }
@@ -275,8 +275,8 @@ load_selected_gyms_defenses(std::string const &selected_map,
         confirmed.push_back(gym);
         for (auto const &t : attack_defense_map.at(gym_defense_key))
         {
-            std::string const &type = t;
-            result.insert(Type_encoding(type));
+            auto const type = t.template get<std::string>();
+            result.emplace(std::string_view{type});
         }
     }
     if (confirmed.size() != selected_gyms.size())
@@ -323,8 +323,8 @@ load_selected_gyms_attacks(std::string const &selected_map,
         confirmed.push_back(gym);
         for (auto const &t : attack_defense_map.at(gym_attacks_key))
         {
-            std::string const &type = t;
-            result.insert(Type_encoding(type));
+            auto const type = t.template get<std::string>();
+            result.emplace(std::string_view{type});
         }
     }
     if (confirmed.size() != selected_gyms.size())
