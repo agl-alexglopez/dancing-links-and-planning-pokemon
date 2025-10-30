@@ -87,7 +87,7 @@ class Minimap {
     /// These data structures are tightly bound like this because we don't want
     /// to bother the Dx::Pokemon_test with adding state. We do it here.
     std::vector<
-        std::pair<std::map<std::string, Dx::Point>::const_iterator, bool>>
+        std::pair<std::map<std::string, Dx::Map_node>::const_iterator, bool>>
         gym_toggles;
 
     /// The defensive dancing links solver. Loaded along with each new
@@ -232,8 +232,8 @@ Minimap::reload_generation()
     // Remember to load the Pokemon generation first.
     generation = Dx::load_pokemon_generation(gen);
     // Next, the gym toggles can now finally be loaded and locked to the map.
-    for (auto gym = std::ranges::cbegin(generation.gen_map.city_locations);
-         gym != std::ranges::cend(generation.gen_map.city_locations);
+    for (auto gym = std::ranges::cbegin(generation.gen_map.network);
+         gym != std::ranges::cend(generation.gen_map.network);
          gym = std::ranges::next(gym))
     {
         gym_toggles.emplace_back(gym, false);
@@ -323,19 +323,16 @@ Minimap::draw(int const window_width, int const window_height)
         = ((minimap_height - file_specified_height) / 2.0F) + map_pad;
     y_draw_bounds.max = y_draw_bounds.min + file_specified_height;
 
-    for (auto const &node : generation.gen_map.network)
+    for (auto const &[city_string, node_info] : generation.gen_map.network)
     {
-        Dx::Point const src_file_coordinates
-            = generation.gen_map.city_locations.at(node.first);
         Dx::Point const src = scale_point(
-            src_file_coordinates, generation.gen_map.x_data_bounds,
+            node_info.coordinates, generation.gen_map.x_data_bounds,
             x_draw_bounds, generation.gen_map.y_data_bounds, y_draw_bounds);
-        for (auto const &edge : node.second)
+        for (std::string const *edge : node_info.edges)
         {
-            Dx::Point const dst_file_coordinates
-                = generation.gen_map.city_locations.at(edge);
+            Dx::Map_node const dst_info = generation.gen_map.network.at(*edge);
             Dx::Point const dst = scale_point(
-                dst_file_coordinates, generation.gen_map.x_data_bounds,
+                dst_info.coordinates, generation.gen_map.x_data_bounds,
                 x_draw_bounds, generation.gen_map.y_data_bounds, y_draw_bounds);
             DrawLineV(
                 Vector2{
@@ -352,10 +349,11 @@ Minimap::draw(int const window_width, int const window_height)
     // We may be mutating a buttons toggle state we mutably iterate.
     for (auto &[city_location_map_iterator, toggle_state] : gym_toggles)
     {
-        Dx::Point const file_coordinates = city_location_map_iterator->second;
+        Dx::Map_node const &file_coordinates
+            = city_location_map_iterator->second;
         Dx::Point const scaled_coordinates = scale_point(
-            file_coordinates, generation.gen_map.x_data_bounds, x_draw_bounds,
-            generation.gen_map.y_data_bounds, y_draw_bounds);
+            file_coordinates.coordinates, generation.gen_map.x_data_bounds,
+            x_draw_bounds, generation.gen_map.y_data_bounds, y_draw_bounds);
         // We want the lines that connect the button nodes to run through the
         // center of the button. Buttons are drawn as squares with the top
         // left corner at the x and y point so move that corner so that the
@@ -379,12 +377,14 @@ Minimap::scale_point(Dx::Point const &p, Dx::Min_max const &x_data_bounds,
                      Dx::Min_max const &y_draw_bounds)
 {
     return Dx::Point{
-        (((p.x - x_data_bounds.min) / (x_data_bounds.max - x_data_bounds.min))
-         * (x_draw_bounds.max - x_draw_bounds.min))
-            + x_draw_bounds.min + origin_x,
-        (((p.y - y_data_bounds.min) / (y_data_bounds.max - y_data_bounds.min))
-         * (y_draw_bounds.max - y_draw_bounds.min))
-            + y_draw_bounds.min + origin_y,
+        .x
+        = (((p.x - x_data_bounds.min) / (x_data_bounds.max - x_data_bounds.min))
+           * (x_draw_bounds.max - x_draw_bounds.min))
+          + x_draw_bounds.min + origin_x,
+        .y
+        = (((p.y - y_data_bounds.min) / (y_data_bounds.max - y_data_bounds.min))
+           * (y_draw_bounds.max - y_draw_bounds.min))
+          + y_draw_bounds.min + origin_y,
     };
 }
 

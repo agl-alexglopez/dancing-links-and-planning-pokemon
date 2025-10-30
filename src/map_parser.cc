@@ -30,13 +30,9 @@ export namespace Dancing_links {
 
 struct Point
 {
-    constexpr Point() = default;
-    constexpr Point(float const user_x, float const user_y)
-        : x(user_x), y(user_y)
-    {}
-    float x{0.0};
-    float y{0.0};
-}; // class Point
+    float x;
+    float y;
+};
 
 struct Min_max
 {
@@ -44,15 +40,40 @@ struct Min_max
     float max;
 };
 
-std::ostream &operator<<(std::ostream &out, Point const &p);
-bool operator==(Point const &lhs, Point const &rhs);
-std::partial_ordering operator<=>(Point const &lhs, Point const &rhs);
+// This type is critical to how the network is stored and traversed. Every
+// entry in our network map will have a std::string key and this node as
+// the value. Only one std::string name for every city will ever be allocated
+// and it will be stored as the key for that city in the map. Then the edges
+// are simply pointers back to the keys in the map that already exist as our
+// string names.
+//
+// This way we do not waste tons of repetitive tiny string allocations on the
+// heap for the same city name in well connected networks. Instead we have a
+// set of trivially copyable pointers. These pointers will be searched and
+// stored in the set by their pointer address but this is OK because every
+// key in the map will be unique. Obviously, it's a map!
+struct Map_node
+{
+    // Where the user has specified the location of this city should be in
+    // their dst file. This is true to what they wrote in the file. We can
+    // adjust this to display as needed later in the GUI.
+    Point coordinates;
+    // The set of pointers to other string keys in the map that serve as our
+    // city edge connections. Simple pointers, no wasted strings.
+    std::set<std::string const *> edges;
+};
 
 /// Type representing a test case for the Disaster Preparation problem.
 struct Map_test
 {
-    std::map<std::string, std::set<std::string>> network;
-    std::map<std::string, Point> city_locations;
+    // The network stores one string for every city (aka gym) name as the key.
+    // The nodes then specify where this city is located and its set of outgoing
+    // edges.
+    //
+    // The outgoing edges store pointers back to the keys in this same map. So
+    // This is a self referential data structure relying the stable guarantee of
+    // the map keys in memory to function correctly.
+    std::map<std::string, Map_node> network;
     struct Min_max x_data_bounds{};
     struct Min_max y_data_bounds{};
 };
@@ -63,6 +84,10 @@ struct Map_test
 /// @return A test case from the file.
 /// @throws ErrorException If an error occurs or the file is invalid.
 Map_test load_map(std::istream &source);
+
+std::ostream &operator<<(std::ostream &out, Point const &p);
+bool operator==(Point const &lhs, Point const &rhs);
+std::partial_ordering operator<=>(Point const &lhs, Point const &rhs);
 
 } // namespace Dancing_links
 
@@ -188,20 +213,20 @@ parse_city(std::string const &city_info, Map_test &result)
         std::abort();
     }
 
-    // Insert the city location
-    result.city_locations.insert({
-        name,
-        {
-            std::stof(
-                components[static_cast<uint8_t>(Name_components::x_coord)]),
-            std::stof(
-                components[static_cast<uint8_t>(Name_components::y_coord)]),
-        },
-    });
-
-    // Insert an entry for the city into the road network.
-    result.network[name] = {};
-    return name;
+    // In the parse links step we may have inserted a new key and empty default
+    // value for this city preemptively because we had not reached that city's
+    // line in the file yet. We are at that line in the file now. Carefully add
+    // only the data we need leaving the key alone if it has already been
+    // inserted. We cannot alter the key because it is now the stable string
+    // for all edge sets that other cities will use.
+    auto inserted = result.network.try_emplace(std::move(name), Map_node{});
+    inserted.first->second.coordinates = Point{
+        .x
+        = std::stof(components[static_cast<uint8_t>(Name_components::x_coord)]),
+        .y
+        = std::stof(components[static_cast<uint8_t>(Name_components::y_coord)]),
+    };
+    return inserted.first->first;
 }
 
 /// Reads the links out of the back half of the line of a file,
@@ -210,32 +235,50 @@ void
 parse_links(City_links const &cl, Map_test &result)
 {
     // It's possible that there are no outgoing links.
+    auto this_city = result.network.find(cl.city);
+    if (this_city == result.network.end())
+    {
+        std::cerr << "City locations map is missing a city and should be "
+                     "completed before network map.\n";
+        std::abort();
+    }
     if (trim(cl.links).empty())
     {
-        result.network[cl.city] = {};
+        this_city->second.edges = {};
         return;
     }
 
-    auto components = string_split(cl.links, ',');
+    // We will check for repeats and insert into this city's connections.
+    std::set<std::string const *> &connections
+        = result.network.at(this_city->first).edges;
+    std::vector<std::string> const components = string_split(cl.links, ',');
     for (std::string const &dest : components)
     {
         // Clean up all whitespace and make sure that we didn't
         // discover an empty entry.
-        std::string const clean_name = trim(dest);
+        std::string clean_name = trim(dest);
         if (clean_name.empty())
         {
             std::cerr << "Blank name in list of outgoing cities?\n";
             std::abort();
         }
 
+        auto const key_string_source = result.network.find(clean_name);
         // Confirm this isn't a dupe.
-        if (result.network.at(cl.city).contains(clean_name))
+        if (key_string_source != result.network.end()
+            && connections.contains(&key_string_source->first))
         {
             std::cerr << "City appears twice in outgoing list?\n";
             std::abort();
         }
-
-        result.network.at(cl.city).insert(clean_name);
+        // We may not have reached this step yet in the parse city operation
+        // because we have not reached the line in the file corresponding to
+        // this city. We will learn where this city is located and what its
+        // edges are later. For now, just give it its string entry in the map
+        // so we are pointer stable for the key reference and lookup.
+        auto const ensure_inserted
+            = result.network.try_emplace(std::move(clean_name), Map_node{});
+        connections.insert(&ensure_inserted.first->first);
     }
 }
 
@@ -272,7 +315,7 @@ parse_city_line(std::string const &line, Map_test &result)
     std::string const name = parse_city(components[0], result);
 
     parse_links(
-        {
+        City_links{
             .city = name,
             .links = components[1],
         },
@@ -284,17 +327,17 @@ parse_city_line(std::string const &line, Map_test &result)
 void
 add_reverse_edges(Map_test &result)
 {
-    for (auto const &source : result.network)
+    for (auto const &[src, node_data] : result.network)
     {
-        for (std::string const &dest : source.second)
+        for (std::string const *dest : node_data.edges)
         {
-            if (!result.network.contains(dest))
+            if (!result.network.contains(*dest))
             {
-                std::cerr << "Outgoing link found to nonexistent city '" + dest
+                std::cerr << "Outgoing link found to nonexistent city '" + *dest
                                  + "'\n";
                 std::abort();
             }
-            result.network[dest].insert(source.first);
+            result.network.at(*dest).edges.insert(&src);
         }
     }
 }
@@ -303,15 +346,15 @@ add_reverse_edges(Map_test &result)
 void
 validate_locations(Map_test const &test)
 {
-    std::map<Point, std::string> locations{};
-    for (auto const &loc : test.city_locations)
+    std::map<Point, std::string const *> locations{};
+    for (auto const &loc : test.network)
     {
         auto const inserted = locations.try_emplace(
-            test.city_locations.at(loc.first), loc.first);
+            test.network.at(loc.first).coordinates, &loc.first);
         if (!inserted.second)
         {
             throw std::runtime_error(loc.first + " is at the same location as "
-                                     + inserted.first->second);
+                                     + *inserted.first->second);
         }
     }
 }
@@ -345,16 +388,16 @@ load_map(std::istream &source)
     result.y_data_bounds.min = std::numeric_limits<float>::infinity();
     result.x_data_bounds.max = -std::numeric_limits<float>::infinity();
     result.y_data_bounds.max = -std::numeric_limits<float>::infinity();
-    for (auto const &node : result.city_locations)
+    for (auto const &[_, node] : result.network)
     {
         result.x_data_bounds.min
-            = std::min(result.x_data_bounds.min, node.second.x);
+            = std::min(result.x_data_bounds.min, node.coordinates.x);
         result.y_data_bounds.min
-            = std::min(result.y_data_bounds.min, node.second.y);
+            = std::min(result.y_data_bounds.min, node.coordinates.y);
         result.x_data_bounds.max
-            = std::max(result.x_data_bounds.max, node.second.x);
+            = std::max(result.x_data_bounds.max, node.coordinates.x);
         result.y_data_bounds.max
-            = std::max(result.y_data_bounds.max, node.second.y);
+            = std::max(result.y_data_bounds.max, node.coordinates.y);
     }
     result.x_data_bounds.min -= file_coordinate_pad;
     result.y_data_bounds.min -= file_coordinate_pad;

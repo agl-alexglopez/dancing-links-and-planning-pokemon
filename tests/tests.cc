@@ -32,6 +32,7 @@
 #include <cstdint>
 #include <ctime>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <optional>
 #include <random>
@@ -39,6 +40,7 @@
 #include <set>
 #include <span>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -222,6 +224,43 @@ operator!=(Pokemon_links::Encoding_index const &lhs,
     return !(lhs == rhs);
 }
 
+bool
+operator==(Map_node const &lhs, Map_node const &rhs)
+{
+    if (lhs.coordinates != rhs.coordinates
+        || lhs.edges.size() != rhs.edges.size())
+    {
+        return false;
+    }
+    auto const hash_str = [](std::string const *s) noexcept {
+        return std::hash<std::string>{}(*s);
+    };
+    auto const cmp_strs = [](std::string const *a,
+                             std::string const *b) -> bool { return *a == *b; };
+    std::unordered_set<std::string const *, decltype(hash_str),
+                       decltype(cmp_strs)>
+        seen_strings{};
+    for (std::string const *str : lhs.edges)
+    {
+        seen_strings.insert(str);
+    }
+    return std::ranges::all_of(rhs.edges.begin(), rhs.edges.end(),
+                               [&](std::string const *str) -> bool {
+                                   return seen_strings.contains(str);
+                               });
+}
+
+std::ostream &
+operator<<(std::ostream &os, Map_node const &n)
+{
+    os << "{ { " << n.coordinates.x << ", " << n.coordinates.y << " }, { ";
+    for (auto const &edge : n.edges)
+    {
+        os << *edge << ", ";
+    }
+    return os << " } }";
+}
+
 std::ostream &
 operator<<(std::ostream &os, Pokemon_links::Encoding_index const &n_n)
 {
@@ -271,38 +310,45 @@ operator<<(std::ostream &os,
 TEST(ParserTests, CheckMapParserLoadsInMapCorrectly)
 {
     Pokemon_test expected = {
-    .interactions {},
-    .gen_map = {
-      .network = {
-        {"G1", {"G2", "G8"}},
-        {"G2", {"G1", "G6"}},
-        {"G3", {"G6", "G5"}},
-        {"G4", {"G6", "G5"}},
-        {"G5", {"G4", "G3"}},
-        {"G6", {"G2", "G4", "G3"}},
-        {"G7", {}},
-        {"G8", {"G1", "E4"}},
-        {"E4", {"G8"}},
-      },
-      .city_locations = {
-        {"G1", Point( 3.0, 4.0 )},
-        {"G2", Point( 8.0, 3.0 )},
-        {"G3", Point( 8.0, 7.0 )},
-        {"G4", Point( 6.0, 5.0 )},
-        {"G5", Point( 6.0, 10.0 )},
-        {"G6", Point( 8.0, 5.0 )},
-        {"G7", Point( 3.0, 11.0 )},
-        {"G8", Point( 3.0, 7.0 )},
-        {"E4", Point( 1.0, 3.0 )},
-      },
-    },
-  };
+        .interactions {},
+        .gen_map = {
+            .network = {
+                {"G1", Map_node{.coordinates = Point(3.0, 4.0), .edges = {}}},
+                {"G2", Map_node{.coordinates = Point(8.0, 3.0), .edges = {}}},
+                {"G3", Map_node{.coordinates = Point(8.0, 7.0), .edges = {}}},
+                {"G4", Map_node{.coordinates = Point(6.0, 5.0), .edges = {}}},
+                {"G5", Map_node{.coordinates = Point(6.0, 10.0), .edges = {}}},
+                {"G6", Map_node{.coordinates = Point(8.0, 5.0), .edges = {}}},
+                {"G7", Map_node{.coordinates = Point(3.0, 11.0), .edges = {}}},
+                {"G8", Map_node{.coordinates = Point(3.0, 7.0), .edges = {}}},
+                {"E4", Map_node{.coordinates = Point(1.0, 3.0), .edges = {}}},
+            },
+        },
+    };
+    auto const key = [&expected](char const *city) -> std::string const * {
+        auto const found = expected.gen_map.network.find(city);
+        EXPECT_NE(found, expected.gen_map.network.end());
+        return &found->first;
+    };
+    auto const edges
+        = [&expected](char const *city) -> std::set<std::string const *> & {
+        auto const found = expected.gen_map.network.find(city);
+        EXPECT_NE(found, expected.gen_map.network.end());
+        return found->second.edges;
+    };
+    edges("G1") = {key("G2"), key("G8")};
+    edges("G2") = {key("G1"), key("G6")};
+    edges("G3") = {key("G6"), key("G5")};
+    edges("G4") = {key("G6"), key("G5")};
+    edges("G5") = {key("G4"), key("G3")};
+    edges("G6") = {key("G2"), key("G4"), key("G3")};
+    edges("G7") = {};
+    edges("G8") = {key("G1"), key("E4")};
+    edges("E4") = {key("G8")};
     std::ifstream kanto_map("data/dst/Gen-1-Kanto.dst");
     EXPECT_EQ(kanto_map.is_open(), true);
     Pokemon_test load_gen_1 = load_pokemon_generation(kanto_map);
     EXPECT_EQ(load_gen_1.gen_map.network, expected.gen_map.network);
-    EXPECT_EQ(load_gen_1.gen_map.city_locations,
-              expected.gen_map.city_locations);
 }
 
 TEST(ParserTests, CheckLoadingMapTypingWorksCorrectly)
