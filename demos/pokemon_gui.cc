@@ -1,10 +1,12 @@
 ///////////////////   System headers   ////////////////////////////////////////
 #include <algorithm>
+#include <array>
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
 #include <iostream>
 #include <map>
+#include <set>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -23,22 +25,23 @@ namespace Dx = Dancing_links;
 namespace {
 int run();
 
-class Minimap {
+/// Helper lambda for building a static table of rgb colors for types at compile
+/// time in the Generation colors table.
+auto const from_hex = [](uint32_t const hex_code) -> Color {
+    return Color{
+        .r = static_cast<unsigned char>((hex_code & 0xFF0000U) >> 16),
+        .g = static_cast<unsigned char>((hex_code & 0xFF00U) >> 8),
+        .b = static_cast<unsigned char>(hex_code & 0xFF),
+        .a = 0xFF,
+    };
+};
+
+class Generation {
   public:
-    Minimap();
+    Generation();
     void draw(int window_width, int window_height);
 
   private:
-    //////////////////////   Constants       //////////////////////////////////
-
-    static constexpr float origin_x = 1.0;
-    static constexpr float origin_y = 1.0;
-    static constexpr float scale_factor = 0.25;
-    static constexpr float button_size = 25;
-    static constexpr float text_label_font_size = 5.0;
-    static constexpr float map_pad = 3.0;
-    static constexpr char const *const dst_relative_path = "data/dst/";
-
     //////////////////////   Helper Types    //////////////////////////////////
 
     struct Dropdown
@@ -48,27 +51,92 @@ class Minimap {
         bool editmode;
     };
 
+    enum class Solution_request : int // NOLINT
+    {
+        attack_exact_cover = 0,
+        attack_overlapping_cover,
+        defense_exact_cover,
+        defense_overlapping_cover,
+        solutions_end,
+    };
+
+    struct Type_node
+    {
+        std::string_view type;
+        Color rgb;
+    };
+
+    //////////////////////   Constants       //////////////////////////////////
+
+    enum : uint8_t
+    {
+        pokemon_party_size = 6,
+        attack_slots = pokemon_party_size * 4,
+    };
+
+    static constexpr float minimap_origin_x = 1.0;
+    static constexpr float minimap_origin_y = 1.0;
+    static constexpr float scale_factor = 0.25;
+    static constexpr float button_size = 25;
+    static constexpr float text_label_font_size = 5.0;
+    static constexpr float map_pad = 3.0;
+    static constexpr char const *const dst_relative_path = "data/dst/";
+    /// The string provided to the solver drop down selection by Raylib.
+    static constexpr char const *const dlx_solver_options
+        = "Defense Exact Cover;Defense Overlapping Cover;Attack Exact "
+          "Cover;Attack Overlapping Cover";
+    /// Nodes will use a backing color corresponding to a type as well as an
+    /// abbreviation for the type name.
+    static constexpr std::array<Type_node, 18> type_colors{
+        Type_node{.type = "Bug", .rgb = from_hex(0xA6B91A)},
+        Type_node{.type = "Dark", .rgb = from_hex(0x705746)},
+        Type_node{.type = "Dragon", .rgb = from_hex(0x6F35FC)},
+        Type_node{.type = "Electric", .rgb = from_hex(0xF7D02C)},
+        Type_node{.type = "Fairy", .rgb = from_hex(0xD685AD)},
+        Type_node{.type = "Fighting", .rgb = from_hex(0xC22E28)},
+        Type_node{.type = "Fire", .rgb = from_hex(0xEE8130)},
+        Type_node{.type = "Flying", .rgb = from_hex(0xA98FF3)},
+        Type_node{.type = "Ghost", .rgb = from_hex(0x735797)},
+        Type_node{.type = "Grass", .rgb = from_hex(0x7AC74C)},
+        Type_node{.type = "Ground", .rgb = from_hex(0xE2BF65)},
+        Type_node{.type = "Ice", .rgb = from_hex(0x96D9D6)},
+        Type_node{.type = "Normal", .rgb = from_hex(0xA8A77A)},
+        Type_node{.type = "Poison", .rgb = from_hex(0xA33EA1)},
+        Type_node{.type = "Psychic", .rgb = from_hex(0xF95587)},
+        Type_node{.type = "Rock", .rgb = from_hex(0xB6A136)},
+        Type_node{.type = "Steel", .rgb = from_hex(0xB7B7CE)},
+        Type_node{.type = "Water", .rgb = from_hex(0x6390F0)},
+    };
+
     //////////////////////   Data Structures  /////////////////////////////////
-
-    /// Raylib Dropdowns use an active integer to track which option of a drop
-    /// down is selected. So, it is helpful to store them contiguously
-    /// corresponding to each active index.
-    std::vector<std::string> dropdown_active_list;
-
-    /// Raylib requires a semicolon separated string to display all options in
-    /// the dropdown ("option1;option2"). The final options should not have a
-    /// trailing semicolon.
-    std::string dropdown_options;
 
     /// The state we must track to successfully use a Raylib drop down.
     Dropdown dst_map_select;
 
+    /// Raylib Dropdowns use an active integer to track which option of a drop
+    /// down is selected. So, it is helpful to store them contiguously
+    /// corresponding to each active index.
+    std::vector<std::string> dst_map_list;
+
+    /// Raylib requires a semicolon separated string to display all options in
+    /// the dropdown ("option1;option2"). The final options should not have a
+    /// trailing semicolon.
+    std::string dst_map_options;
+
+    /// The choice of attack or defense and exact or overlapping coverage.
+    Dropdown dlx_solver_select;
+
+    /// The active solution requested from the solver select drop down. We will
+    /// do a simple switch statement on this value to dispatch to appropriate
+    /// dancing links solver.
+    Solution_request dlx_active_solver{};
+
     /// The data from the current Pokemon generation map we have loaded in.
-    /// This data structure tells us where all the gyms are for this generation
-    /// on the map. It also tells us how all the types interact with one
-    /// another in the form of a type map where the key is the type and the
-    /// value is the set of defense multipliers against the single attack types
-    /// in the game.
+    /// This data structure tells us where all the gyms are for this
+    /// generation on the map. It also tells us how all the types interact
+    /// with one another in the form of a type map where the key is the type
+    /// and the value is the set of defense multipliers against the single
+    /// attack types in the game.
     Dx::Pokemon_test generation;
 
     /// The user interacts with the mini map by clicking the gym buttons. By
@@ -90,30 +158,38 @@ class Minimap {
         std::pair<std::map<std::string, Dx::Map_node>::const_iterator, bool>>
         gym_toggles;
 
+    /// We will keep an active set of the user's selections of gyms to solve the
+    /// cover problem. We hide all items that need covering except for those
+    /// corresponding to the types at the active gyms.
+    ///
+    /// If the set is empty we solve for the entire generation and all types.
+    std::set<std::string> selected_gyms;
+
     /// The defensive dancing links solver. Loaded along with each new
     /// generation.
     Dx::Pokemon_links defense_dlx;
 
+    /// The most recent solution to the defense dlx problem rendered every
+    /// frame if non-empty and defense solutions was selected.
+    std::set<Ranked_set<Dx::Type_encoding>> defense_solutions;
+
     /// The attack dancing links solver. Loaded along with each new generation.
     Dx::Pokemon_links attack_dlx;
 
+    /// The most recent solution to the attack dlx problem rendered every
+    /// frame if non-empty and defense solutions was selected.
+    std::set<Ranked_set<Dx::Type_encoding>> attack_solutions;
+
     //////////////////////    Functions ///////////////////////////////////
 
-    void draw_frame_and_dropdown(float minimap_width, float minimap_height);
+    void draw_graph_cover(Rectangle canvas);
+    void draw_controls(float minimap_width, float minimap_height);
     void reload_generation();
     static Dx::Point scale_point(Dx::Point const &p,
                                  Dx::Min_max const &x_data_bounds,
                                  Dx::Min_max const &x_draw_bounds,
                                  Dx::Min_max const &y_data_bounds,
                                  Dx::Min_max const &y_draw_bounds);
-};
-
-class Scene {
-  public:
-    void draw(int window_width, int window_height);
-
-  private:
-    Minimap minimap;
 };
 
 } // namespace
@@ -143,7 +219,7 @@ run()
                    "raylib [core] example - basic window");
 
         SetTargetFPS(60);
-        Scene scene;
+        Generation gen;
 
         while (!WindowShouldClose())
         {
@@ -155,7 +231,7 @@ run()
 
             DrawText("Congrats! You created your first window!", 190, 200, 20,
                      LIGHTGRAY);
-            scene.draw(screen_width, screen_height);
+            gen.draw(screen_width, screen_height);
 
             EndDrawing();
         }
@@ -169,14 +245,14 @@ run()
     }
 }
 
-void
-Scene::draw(int const window_width, int const window_height)
-{
-    minimap.draw(window_width, window_height);
-}
-
-Minimap::Minimap()
-    : dst_map_select({
+Generation::Generation()
+    : dst_map_select(Dropdown{
+          .dimensions = {},
+          .active = 0,
+          .editmode = false,
+      }),
+      dlx_solver_select(Dropdown{
+          .dimensions = {},
           .active = 0,
           .editmode = false,
       })
@@ -190,35 +266,34 @@ Minimap::Minimap()
         std::filesystem::path const &p = entry.path();
         std::string_view file_name(p.c_str());
         file_name = file_name.substr(file_name.find_last_of('/') + 1);
-        dropdown_active_list.emplace_back(file_name);
+        dst_map_list.emplace_back(file_name);
     }
-    if (dropdown_active_list.empty())
+    if (dst_map_list.empty())
     {
         return;
     }
-    std::ranges::sort(dropdown_active_list,
+    std::ranges::sort(dst_map_list,
                       [](std::string const &a, std::string const &b) {
                           return a.compare(b) < 0;
                       });
-    for (size_t i = 0; i < dropdown_active_list.size() - 1; ++i)
+    for (size_t i = 0; i < dst_map_list.size() - 1; ++i)
     {
-        dropdown_options.append(dropdown_active_list[i]).append(";");
+        dst_map_options.append(dst_map_list[i]).append(";");
     }
-    dropdown_options.append(dropdown_active_list.back());
+    dst_map_options.append(dst_map_list.back());
     reload_generation();
 }
 
 void
-Minimap::reload_generation()
+Generation::reload_generation()
 {
-    if (dst_map_select.active >= dropdown_active_list.size())
+    if (dst_map_select.active >= dst_map_list.size())
     {
         std::cerr << "Active Pokemon Generation selector out of range.\n";
         std::abort();
     }
-    std::string const path
-        = std::string(dst_relative_path)
-              .append(dropdown_active_list[dst_map_select.active]);
+    std::string const path = std::string(dst_relative_path)
+                                 .append(dst_map_list[dst_map_select.active]);
     std::ifstream gen(path);
     if (gen.fail())
     {
@@ -244,38 +319,6 @@ Minimap::reload_generation()
                                    Dx::Pokemon_links::Coverage_type::attack);
 }
 
-void
-Minimap::draw_frame_and_dropdown(float const minimap_width,
-                                 float const minimap_height)
-{
-    // Layout the map and the drop down menu below it.
-    DrawRectangleV(
-        Vector2{
-            .x = origin_x,
-            .y = origin_y,
-        },
-        Vector2{
-            .x = minimap_width,
-            .y = minimap_height,
-        },
-        WHITE);
-    dst_map_select.dimensions = Rectangle{
-        .width = minimap_width * 0.33F,
-        .height = minimap_height * 0.05F,
-        .x = origin_x,
-        .y = origin_y + minimap_height,
-    };
-    if (GuiDropdownBox(dst_map_select.dimensions, dropdown_options.c_str(),
-                       &dst_map_select.active, dst_map_select.editmode))
-    {
-        dst_map_select.editmode = !dst_map_select.editmode;
-        if (!dst_map_select.editmode)
-        {
-            reload_generation();
-        }
-    }
-}
-
 /// Draws the Pokemon generation minimap to the top left corner of the
 /// screen. The minimap is scaled appropriately based on the dimensions of
 /// the overall window so that the shape of a Pokemon region is visible,
@@ -285,14 +328,23 @@ Minimap::draw_frame_and_dropdown(float const minimap_width,
 /// The window has been allowed to be resizable so this draw call should occur
 /// on every loop in case the window size is updated.
 void
-Minimap::draw(int const window_width, int const window_height)
+Generation::draw(int const window_width, int const window_height)
 {
 
     float const minimap_width = static_cast<float>(window_width) * scale_factor;
     float const minimap_height
         = static_cast<float>(window_height) * scale_factor;
-
-    draw_frame_and_dropdown(minimap_width, minimap_height);
+    // Layout the map and the drop down menu below it.
+    DrawRectangleV(
+        Vector2{
+            .x = minimap_origin_x,
+            .y = minimap_origin_y,
+        },
+        Vector2{
+            .x = minimap_width,
+            .y = minimap_height,
+        },
+        WHITE);
 
     float const minimap_aspect_ratio = minimap_width / minimap_height;
     float const file_specified_aspect_ratio
@@ -366,25 +418,132 @@ Minimap::draw(int const window_width, int const window_height)
                     .y = scaled_coordinates.y - (button_size / 2),
                 },
                 city_location_map_iterator->first.c_str(), &toggle_state))
-        {}
+        {
+            if (toggle_state)
+            {
+                selected_gyms.insert(city_location_map_iterator->first);
+            }
+            else
+            {
+                selected_gyms.erase(city_location_map_iterator->first);
+            }
+        }
+    }
+    draw_controls(minimap_width, minimap_height);
+    draw_graph_cover(Rectangle{
+        .width = static_cast<float>(window_width),
+        .height = static_cast<float>(window_height) - minimap_height,
+        .x = minimap_origin_x,
+        .y = minimap_origin_y + minimap_height + button_size,
+    });
+}
+
+void
+Generation::draw_controls(float const minimap_width, float const minimap_height)
+{
+    dst_map_select.dimensions = Rectangle{
+        .width = minimap_width * 0.33F,
+        .height = minimap_height * 0.05F,
+        .x = minimap_origin_x,
+        .y = minimap_origin_y + minimap_height,
+    };
+    dlx_solver_select.dimensions = Rectangle{
+        .width = minimap_width * 0.33F,
+        .height = minimap_height * 0.05F,
+        .x = minimap_origin_x + dst_map_select.dimensions.width,
+        .y = minimap_origin_y + minimap_height,
+    };
+    if (GuiDropdownBox(dst_map_select.dimensions, dst_map_options.c_str(),
+                       &dst_map_select.active, dst_map_select.editmode))
+    {
+        dst_map_select.editmode = !dst_map_select.editmode;
+        if (!dst_map_select.editmode)
+        {
+            reload_generation();
+        }
+    }
+    if (GuiDropdownBox(dlx_solver_select.dimensions, dlx_solver_options,
+                       &dlx_solver_select.active, dlx_solver_select.editmode))
+    {
+        dlx_solver_select.editmode = !dlx_solver_select.editmode;
+        if (!dlx_solver_select.editmode)
+        {
+            if (dlx_solver_select.active < 0
+                || dlx_solver_select.active
+                       >= static_cast<int>(Solution_request::solutions_end))
+            {
+                std::cerr << "Error while selecting solver from dropdown. "
+                             "Solver is out of range\n";
+                std::abort();
+            }
+            dlx_active_solver
+                = static_cast<Solution_request>(dlx_solver_select.active);
+        }
+    }
+    if (GuiButton(
+            Rectangle{
+                .width = minimap_width * 0.33F,
+                .height = minimap_height * 0.05F,
+                .x = minimap_origin_x + dst_map_select.dimensions.width
+                     + dlx_solver_select.dimensions.width,
+                .y = minimap_origin_y + minimap_height,
+            },
+            "Solve!"))
+    {
+        if (!selected_gyms.empty())
+        {
+            std::set<Dx::Type_encoding> const subset_attack
+                = Dx::load_selected_gyms_attacks(
+                    dst_map_list[dst_map_select.active], selected_gyms);
+            Dx::hide_items_except(defense_dlx, subset_attack);
+            std::set<Dx::Type_encoding> const subset_defense
+                = Dx::load_selected_gyms_defenses(
+                    dst_map_list[dst_map_select.active], selected_gyms);
+            Dx::hide_items_except(attack_dlx, subset_defense);
+        }
+        switch (dlx_active_solver)
+        {
+            case Solution_request::attack_exact_cover:
+            case Solution_request::defense_exact_cover:
+                attack_solutions
+                    = Dx::exact_cover_stack(attack_dlx, attack_slots);
+                defense_solutions
+                    = Dx::exact_cover_stack(defense_dlx, pokemon_party_size);
+                break;
+            case Solution_request::attack_overlapping_cover:
+            case Solution_request::defense_overlapping_cover:
+                attack_solutions
+                    = Dx::overlapping_cover_stack(attack_dlx, attack_slots);
+                defense_solutions = Dx::overlapping_cover_stack(
+                    defense_dlx, pokemon_party_size);
+                break;
+            default:
+                std::cerr << "unmatchable dlx active solver\n";
+                std::abort();
+                break;
+        }
     }
 }
 
+void
+Generation::draw_graph_cover(Rectangle const canvas)
+{}
+
 Dx::Point
-Minimap::scale_point(Dx::Point const &p, Dx::Min_max const &x_data_bounds,
-                     Dx::Min_max const &x_draw_bounds,
-                     Dx::Min_max const &y_data_bounds,
-                     Dx::Min_max const &y_draw_bounds)
+Generation::scale_point(Dx::Point const &p, Dx::Min_max const &x_data_bounds,
+                        Dx::Min_max const &x_draw_bounds,
+                        Dx::Min_max const &y_data_bounds,
+                        Dx::Min_max const &y_draw_bounds)
 {
     return Dx::Point{
         .x
         = (((p.x - x_data_bounds.min) / (x_data_bounds.max - x_data_bounds.min))
            * (x_draw_bounds.max - x_draw_bounds.min))
-          + x_draw_bounds.min + origin_x,
+          + x_draw_bounds.min + minimap_origin_x,
         .y
         = (((p.y - y_data_bounds.min) / (y_data_bounds.max - y_data_bounds.min))
            * (y_draw_bounds.max - y_draw_bounds.min))
-          + y_draw_bounds.min + origin_y,
+          + y_draw_bounds.min + minimap_origin_y,
     };
 }
 
