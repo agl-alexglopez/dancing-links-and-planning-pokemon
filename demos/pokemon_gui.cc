@@ -229,8 +229,6 @@ run()
 
             ClearBackground(RAYWHITE);
 
-            DrawText("Congrats! You created your first window!", 190, 200, 20,
-                     LIGHTGRAY);
             gen.draw(screen_width, screen_height);
 
             EndDrawing();
@@ -527,7 +525,18 @@ Generation::draw_controls(float const minimap_width, float const minimap_height)
 
 void
 Generation::draw_graph_cover(Rectangle const canvas)
-{}
+{
+    if (attack_solutions.empty() && defense_solutions.empty())
+    {
+        DrawText(
+            "No solver selected.\nSelect the Pokemon map and cover problem "
+            "you wish to solve\nfrom the dropdown menus.\nAll types are "
+            "solved for by default.\nIf you wish to solve for a subset of "
+            "gyms, select them on the minimap.\n",
+            static_cast<int>(minimap_origin_x + 10),
+            static_cast<int>(canvas.height / 2.0), 40, BLACK);
+    }
+}
 
 Dx::Point
 Generation::scale_point(Dx::Point const &p, Dx::Min_max const &x_data_bounds,
