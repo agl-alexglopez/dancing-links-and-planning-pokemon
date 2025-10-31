@@ -21,6 +21,8 @@ Checks: >
    -readability-redundant-declaration,
    -llvm-prefer-static-over-anonymous-namespace,
    -bugprone-easily-swappable-parameters,
+   -bugprone-suspicious-stringview-data-usage,
+   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
    -misc-no-recursion
 
 CheckOptions:

@@ -76,8 +76,8 @@ class Generation {
 
     static constexpr float minimap_origin_x = 1.0;
     static constexpr float minimap_origin_y = 1.0;
-    static constexpr float scale_factor = 0.25;
-    static constexpr float button_size = 25;
+    static constexpr float scale_minimap_y_factor = 0.25;
+    static constexpr float minimap_button_size = 30;
     static constexpr float text_label_font_size = 5.0;
     static constexpr float map_pad = 3.0;
     static constexpr char const *const dst_relative_path = "data/dst/";
@@ -85,6 +85,11 @@ class Generation {
     static constexpr char const *const dlx_solver_options
         = "Defense Exact Cover;Defense Overlapping Cover;Attack Exact "
           "Cover;Attack Overlapping Cover";
+    static constexpr std::string_view graph_display_message
+        = "No solver selected. Select the Pokemon map and cover problem you "
+          "wish to solve from the dropdown menus. All types are solved for by "
+          "default. If you wish to solve for a subset of gyms, select them on "
+          "the minimap.";
     /// Nodes will use a backing color corresponding to a type as well as an
     /// abbreviation for the type name.
     static constexpr std::array<Type_node, 18> type_colors{
@@ -190,6 +195,8 @@ class Generation {
                                  Dx::Min_max const &x_draw_bounds,
                                  Dx::Min_max const &y_data_bounds,
                                  Dx::Min_max const &y_draw_bounds);
+    static void draw_wrapping_message(Rectangle canvas, Font font,
+                                      std::string_view message);
 };
 
 } // namespace
@@ -219,6 +226,7 @@ run()
                    "raylib [core] example - basic window");
 
         SetTargetFPS(60);
+        GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
         Generation gen;
 
         while (!WindowShouldClose())
@@ -329,9 +337,9 @@ void
 Generation::draw(int const window_width, int const window_height)
 {
 
-    float const minimap_width = static_cast<float>(window_width) * scale_factor;
+    auto const minimap_width = static_cast<float>(window_width);
     float const minimap_height
-        = static_cast<float>(window_height) * scale_factor;
+        = static_cast<float>(window_height) * scale_minimap_y_factor;
     // Layout the map and the drop down menu below it.
     DrawRectangleV(
         Vector2{
@@ -410,10 +418,10 @@ Generation::draw(int const window_width, int const window_height)
         // center of the button is the center of node and line connections.
         if (GuiToggle(
                 Rectangle{
-                    .height = button_size,
-                    .width = button_size,
-                    .x = scaled_coordinates.x - (button_size / 2),
-                    .y = scaled_coordinates.y - (button_size / 2),
+                    .height = minimap_button_size,
+                    .width = minimap_button_size,
+                    .x = scaled_coordinates.x - (minimap_button_size / 2),
+                    .y = scaled_coordinates.y - (minimap_button_size / 2),
                 },
                 city_location_map_iterator->first.c_str(), &toggle_state))
         {
@@ -432,22 +440,24 @@ Generation::draw(int const window_width, int const window_height)
         .width = static_cast<float>(window_width),
         .height = static_cast<float>(window_height) - minimap_height,
         .x = minimap_origin_x,
-        .y = minimap_origin_y + minimap_height + button_size,
+        .y = minimap_origin_y + minimap_height + minimap_button_size,
     });
 }
 
 void
 Generation::draw_controls(float const minimap_width, float const minimap_height)
 {
+    float const button_width = minimap_width / 3;
+    float const button_height = minimap_height * 0.08F;
     dst_map_select.dimensions = Rectangle{
-        .width = minimap_width * 0.33F,
-        .height = minimap_height * 0.05F,
+        .width = button_width,
+        .height = button_height,
         .x = minimap_origin_x,
         .y = minimap_origin_y + minimap_height,
     };
     dlx_solver_select.dimensions = Rectangle{
-        .width = minimap_width * 0.33F,
-        .height = minimap_height * 0.05F,
+        .width = button_width,
+        .height = button_height,
         .x = minimap_origin_x + dst_map_select.dimensions.width,
         .y = minimap_origin_y + minimap_height,
     };
@@ -480,8 +490,8 @@ Generation::draw_controls(float const minimap_width, float const minimap_height)
     }
     if (GuiButton(
             Rectangle{
-                .width = minimap_width * 0.33F,
-                .height = minimap_height * 0.05F,
+                .width = button_width,
+                .height = button_height,
                 .x = minimap_origin_x + dst_map_select.dimensions.width
                      + dlx_solver_select.dimensions.width,
                 .y = minimap_origin_y + minimap_height,
@@ -526,15 +536,117 @@ Generation::draw_controls(float const minimap_width, float const minimap_height)
 void
 Generation::draw_graph_cover(Rectangle const canvas)
 {
-    if (attack_solutions.empty() && defense_solutions.empty())
+    Font font = GetFontDefault();
+    bool const no_attack_solution_ready
+        = (dlx_active_solver == Solution_request::attack_exact_cover
+           || dlx_active_solver == Solution_request::attack_overlapping_cover)
+          && attack_solutions.empty();
+    bool const no_defense_solution_ready
+        = (dlx_active_solver == Solution_request::defense_exact_cover
+           || dlx_active_solver == Solution_request::defense_overlapping_cover)
+          && defense_solutions.empty();
+    if (no_attack_solution_ready || no_defense_solution_ready)
     {
-        DrawText(
-            "No solver selected.\nSelect the Pokemon map and cover problem "
-            "you wish to solve\nfrom the dropdown menus.\nAll types are "
-            "solved for by default.\nIf you wish to solve for a subset of "
-            "gyms, select them on the minimap.\n",
-            static_cast<int>(minimap_origin_x + 10),
-            static_cast<int>(canvas.height / 2.0), 40, BLACK);
+        draw_wrapping_message(canvas, font, graph_display_message);
+        return;
+    }
+}
+
+/// Attempts to display a helpful directions with word wrapping near the center
+/// of the screen. Because solving cover problems can be CPU intensive and take
+/// some time, we don't solve by default. The user must request a solution with
+/// the solve button so a message helps facilitate that.
+void
+Generation::draw_wrapping_message(Rectangle const canvas, Font const font,
+                                  std::string_view message)
+{
+    // Leave these constants here because you should consider scaling the font
+    // based on the canvas size, not hard coded values.
+    float const start_x = canvas.width / 4.0F;
+    float const end_x = canvas.width - (canvas.width / 4.0F);
+    auto const font_size = static_cast<float>(font.baseSize * 4);
+    float const font_x_spacing = 4.0;
+    float const font_y_spacing = 5.0;
+    float const font_scaling = font_size / static_cast<float>(font.baseSize);
+    float cur_pos_x = start_x;
+    float cur_pos_y = canvas.height / 1.5F;
+
+    /// Tokenize a view into the first occurrence of a word before any delimiter
+    /// specified in the delimiter set. An empty word is returned if no
+    /// occurrence of a delimiter is found. Leading delimiters in the set are
+    /// skipped. However, the first found trailing delimiter is included in the
+    /// returned string view to aid in left justifying the text.
+    auto const tok = [](std::string_view view,
+                        std::string_view delim_set) -> std::string_view {
+        size_t const skip_leading = view.find_first_not_of(delim_set);
+        if (skip_leading == std::string_view::npos)
+        {
+            return {};
+        }
+        view.remove_prefix(skip_leading);
+        size_t const found = view.find_first_of(delim_set);
+        if (found == std::string_view::npos)
+        {
+            return {};
+        }
+        return view.substr(0, found + 1);
+    };
+    /// Returns the codepoint and the glyph width of the specified character.
+    auto const get_glyph_info
+        = [&](char const *const c) -> std::pair<int, float> {
+        int codepoint_byte_count = 0;
+        int const codepoint = GetCodepoint(c, &codepoint_byte_count);
+        int const glyph_index = GetGlyphIndex(font, codepoint);
+        float const glyph_width
+            = font.glyphs[glyph_index].advanceX == 0
+                  ? font.recs[glyph_index].width * font_scaling
+                  : static_cast<float>(font.glyphs[glyph_index].advanceX)
+                        * font_scaling;
+        return {
+            codepoint,
+            glyph_width,
+        };
+    };
+    std::string_view const delim_set(" \r\t\n\v\f");
+    while (!message.empty())
+    {
+        std::string_view word = tok(message, delim_set);
+        if (word.empty())
+        {
+            word = message;
+        }
+        float word_width = 0;
+        for (char const &c : word)
+        {
+            float const glyph_width = get_glyph_info(&c).second;
+            word_width += glyph_width + font_x_spacing;
+        }
+        if (cur_pos_x + word_width > end_x)
+        {
+            cur_pos_y += (static_cast<float>(font.baseSize) * font_scaling)
+                         + font_y_spacing;
+            // If we would write off the screen no point in continuing.
+            if (cur_pos_y > canvas.height)
+            {
+                return;
+            }
+            cur_pos_x = start_x;
+        }
+        for (char const &c : word)
+        {
+            std::pair<int, float> const glyph_info = get_glyph_info(&c);
+            DrawTextCodepoint(font, glyph_info.first,
+                              Vector2{
+                                  .x = cur_pos_x,
+                                  .y = cur_pos_y,
+                              },
+                              font_size, BLACK);
+            cur_pos_x += glyph_info.second + font_x_spacing;
+        }
+        // The word we got back as a token may have skipped leading delimiters
+        // in the original message so be sure to cut those off by using the
+        // true underlying pointer arithmetic, not just word size.
+        message.remove_prefix((word.data() + word.size()) - message.data());
     }
 }
 
