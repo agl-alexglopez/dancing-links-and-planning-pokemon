@@ -197,6 +197,9 @@ class Generation {
                                  Dx::Min_max const &y_draw_bounds);
     static void draw_wrapping_message(Rectangle canvas, Font font,
                                       std::string_view message);
+    static std::string_view
+    get_token_with_trailing_delims(std::string_view view,
+                                   std::string_view delim_set);
 };
 
 } // namespace
@@ -552,37 +555,6 @@ Generation::draw_graph_cover(Rectangle const canvas)
     }
 }
 
-/// Tokenize a view into the first occurrence of a word before any delimiter
-/// specified in the delimiter set. The original word is returned if no
-/// delimiters are found. Leading delimiters in the set are skipped.
-/// However, all found trailing delimiters are included in the returned
-/// string view to aid in left justifying the text and preserving extra
-/// spaces, returns or other formatting.
-std::string_view
-get_token_with_trailing_delims(std::string_view view,
-                               std::string_view delim_set)
-{
-    size_t const skip_leading = view.find_first_not_of(delim_set);
-    if (skip_leading == std::string_view::npos)
-    {
-        return view;
-    }
-    view.remove_prefix(skip_leading);
-    size_t const first_found = view.find_first_of(delim_set);
-    if (first_found == std::string_view::npos)
-    {
-        return view;
-    }
-    size_t const end_of_delims
-        = view.substr(first_found, view.length() - first_found)
-              .find_first_not_of(delim_set);
-    if (end_of_delims == std::string_view::npos)
-    {
-        return view;
-    }
-    return view.substr(0, first_found + end_of_delims);
-}
-
 /// Attempts to display a helpful directions with word wrapping near the center
 /// of the screen. Because solving cover problems can be CPU intensive and take
 /// some time, we don't solve by default. The user must request a solution with
@@ -688,6 +660,37 @@ Generation::draw_wrapping_message(Rectangle const canvas, Font const font,
         // true underlying pointer arithmetic, not just word size.
         message.remove_prefix((word.data() + word.size()) - message.data());
     }
+}
+
+/// Tokenize a view into the first occurrence of a word before any delimiter
+/// specified in the delimiter set. The original word is returned if no
+/// delimiters are found. Leading delimiters in the set are skipped.
+/// However, all found trailing delimiters are included in the returned
+/// string view to aid in left justifying the text and preserving extra
+/// spaces, returns or other formatting.
+std::string_view
+Generation::get_token_with_trailing_delims(std::string_view view,
+                                           std::string_view delim_set)
+{
+    size_t const skip_leading = view.find_first_not_of(delim_set);
+    if (skip_leading == std::string_view::npos)
+    {
+        return view;
+    }
+    view.remove_prefix(skip_leading);
+    size_t const first_found = view.find_first_of(delim_set);
+    if (first_found == std::string_view::npos)
+    {
+        return view;
+    }
+    size_t const end_of_delims
+        = view.substr(first_found, view.length() - first_found)
+              .find_first_not_of(delim_set);
+    if (end_of_delims == std::string_view::npos)
+    {
+        return view;
+    }
+    return view.substr(0, first_found + end_of_delims);
 }
 
 Dx::Point
