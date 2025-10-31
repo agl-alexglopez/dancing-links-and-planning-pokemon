@@ -552,10 +552,47 @@ Generation::draw_graph_cover(Rectangle const canvas)
     }
 }
 
+/// Tokenize a view into the first occurrence of a word before any delimiter
+/// specified in the delimiter set. The original word is returned if no
+/// delimiters are found. Leading delimiters in the set are skipped.
+/// However, all found trailing delimiters are included in the returned
+/// string view to aid in left justifying the text and preserving extra
+/// spaces, returns or other formatting.
+std::string_view
+get_token_with_trailing_delims(std::string_view view,
+                               std::string_view delim_set)
+{
+    size_t const skip_leading = view.find_first_not_of(delim_set);
+    if (skip_leading == std::string_view::npos)
+    {
+        return view;
+    }
+    view.remove_prefix(skip_leading);
+    size_t const first_found = view.find_first_of(delim_set);
+    if (first_found == std::string_view::npos)
+    {
+        return view;
+    }
+    size_t const end_of_delims
+        = view.substr(first_found, view.length() - first_found)
+              .find_first_not_of(delim_set);
+    if (end_of_delims == std::string_view::npos)
+    {
+        return view;
+    }
+    return view.substr(0, first_found + end_of_delims);
+}
+
 /// Attempts to display a helpful directions with word wrapping near the center
 /// of the screen. Because solving cover problems can be CPU intensive and take
 /// some time, we don't solve by default. The user must request a solution with
 /// the solve button so a message helps facilitate that.
+///
+/// This function will respect some escaped characters in a string like the
+/// usual newline or return characters (\n or \r). However, some will not be
+/// rendered correctly such as escaped tabs (\t). For spaces just add the
+/// appropriate number of spaces to the string rather than adding an escaped
+/// tab.
 void
 Generation::draw_wrapping_message(Rectangle const canvas, Font const font,
                                   std::string_view message)
@@ -571,29 +608,9 @@ Generation::draw_wrapping_message(Rectangle const canvas, Font const font,
     float cur_pos_x = start_x;
     float cur_pos_y = canvas.height / 1.5F;
 
-    /// Tokenize a view into the first occurrence of a word before any delimiter
-    /// specified in the delimiter set. An empty word is returned if no
-    /// occurrence of a delimiter is found. Leading delimiters in the set are
-    /// skipped. However, the first found trailing delimiter is included in the
-    /// returned string view to aid in left justifying the text.
-    auto const tok = [](std::string_view view,
-                        std::string_view delim_set) -> std::string_view {
-        size_t const skip_leading = view.find_first_not_of(delim_set);
-        if (skip_leading == std::string_view::npos)
-        {
-            return {};
-        }
-        view.remove_prefix(skip_leading);
-        size_t const found = view.find_first_of(delim_set);
-        if (found == std::string_view::npos)
-        {
-            return {};
-        }
-        return view.substr(0, found + 1);
-    };
     /// Returns the codepoint and the glyph width of the specified character.
     auto const get_glyph_info
-        = [&](char const *const c) -> std::pair<int, float> {
+        = [=](char const *const c) -> std::pair<int, float> {
         int codepoint_byte_count = 0;
         int const codepoint = GetCodepoint(c, &codepoint_byte_count);
         int const glyph_index = GetGlyphIndex(font, codepoint);
@@ -607,33 +624,56 @@ Generation::draw_wrapping_message(Rectangle const canvas, Font const font,
             glyph_width,
         };
     };
-    std::string_view const delim_set(" \r\t\n\v\f");
-    while (!message.empty())
-    {
-        std::string_view word = tok(message, delim_set);
-        if (word.empty())
-        {
-            word = message;
-        }
+
+    /// Returns the width of a word according the glyph width of each character
+    /// and the added spacing we have specified between letters.
+    auto const get_word_width = [=](std::string_view word) -> float {
         float word_width = 0;
         for (char const &c : word)
         {
             float const glyph_width = get_glyph_info(&c).second;
             word_width += glyph_width + font_x_spacing;
         }
-        if (cur_pos_x + word_width > end_x)
+        return word_width;
+    };
+
+    /// Advances x and y positions and returns if there is space for a new
+    /// line below the current. Returns true if there is more space for new
+    /// lines or false if the window is exhausted for space.
+    auto const advance_new_line
+        = [=](float &cur_pos_x, float &cur_pos_y) -> bool {
+        cur_pos_y += (static_cast<float>(font.baseSize) * font_scaling)
+                     + font_y_spacing;
+        // If we would write off the screen no point in continuing.
+        if (cur_pos_y > canvas.height)
         {
-            cur_pos_y += (static_cast<float>(font.baseSize) * font_scaling)
-                         + font_y_spacing;
-            // If we would write off the screen no point in continuing.
-            if (cur_pos_y > canvas.height)
-            {
-                return;
-            }
-            cur_pos_x = start_x;
+            return false;
+        }
+        cur_pos_x = start_x;
+        return true;
+    };
+
+    std::string_view const delim_set(" \r\t\n\v\f");
+    while (!message.empty())
+    {
+        std::string_view word
+            = get_token_with_trailing_delims(message, delim_set);
+        float word_width = get_word_width(word);
+        if (cur_pos_x + word_width > end_x
+            && !advance_new_line(cur_pos_x, cur_pos_y))
+        {
+            return;
         }
         for (char const &c : word)
         {
+            if (c == '\n' || c == '\r' || c == '\r\n')
+            {
+                if (!advance_new_line(cur_pos_x, cur_pos_y))
+                {
+                    return;
+                }
+                continue;
+            }
             std::pair<int, float> const glyph_info = get_glyph_info(&c);
             DrawTextCodepoint(font, glyph_info.first,
                               Vector2{
