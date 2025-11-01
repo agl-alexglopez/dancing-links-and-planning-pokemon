@@ -65,10 +65,17 @@ class Generation {
         defense_overlapping_cover,
     };
 
-    struct Type_node
+    struct Type_display_info
     {
         std::string_view type;
         Color rgb;
+    };
+
+    struct Circle
+    {
+        float radius;
+        float center_x;
+        float center_y;
     };
 
     //////////////////////   Constants       //////////////////////////////////
@@ -101,25 +108,25 @@ class Generation {
           "generation, then press the 'Solve!' button.";
     /// Nodes will use a backing color corresponding to a type as well as an
     /// abbreviation for the type name.
-    static constexpr std::array<Type_node, 18> type_colors{
-        Type_node{.type = "Bug", .rgb = from_hex(0xA6B91A)},
-        Type_node{.type = "Drk", .rgb = from_hex(0x705746)},
-        Type_node{.type = "Drg", .rgb = from_hex(0x6F35FC)},
-        Type_node{.type = "Elc", .rgb = from_hex(0xF7D02C)},
-        Type_node{.type = "Fry", .rgb = from_hex(0xD685AD)},
-        Type_node{.type = "Fgt", .rgb = from_hex(0xC22E28)},
-        Type_node{.type = "Fir", .rgb = from_hex(0xEE8130)},
-        Type_node{.type = "Fly", .rgb = from_hex(0xA98FF3)},
-        Type_node{.type = "Ghs", .rgb = from_hex(0x735797)},
-        Type_node{.type = "Grs", .rgb = from_hex(0x7AC74C)},
-        Type_node{.type = "Gnd", .rgb = from_hex(0xE2BF65)},
-        Type_node{.type = "Ice", .rgb = from_hex(0x96D9D6)},
-        Type_node{.type = "Nml", .rgb = from_hex(0xA8A77A)},
-        Type_node{.type = "Psn", .rgb = from_hex(0xA33EA1)},
-        Type_node{.type = "Psy", .rgb = from_hex(0xF95587)},
-        Type_node{.type = "Rck", .rgb = from_hex(0xB6A136)},
-        Type_node{.type = "Stl", .rgb = from_hex(0xB7B7CE)},
-        Type_node{.type = "Wtr", .rgb = from_hex(0x6390F0)},
+    static constexpr std::array<Type_display_info, 18> type_colors{
+        Type_display_info{.type = "Bug", .rgb = from_hex(0xA6B91A)},
+        Type_display_info{.type = "Drk", .rgb = from_hex(0x705746)},
+        Type_display_info{.type = "Drg", .rgb = from_hex(0x6F35FC)},
+        Type_display_info{.type = "Elc", .rgb = from_hex(0xF7D02C)},
+        Type_display_info{.type = "Fry", .rgb = from_hex(0xD685AD)},
+        Type_display_info{.type = "Fgt", .rgb = from_hex(0xC22E28)},
+        Type_display_info{.type = "Fir", .rgb = from_hex(0xEE8130)},
+        Type_display_info{.type = "Fly", .rgb = from_hex(0xA98FF3)},
+        Type_display_info{.type = "Ghs", .rgb = from_hex(0x735797)},
+        Type_display_info{.type = "Grs", .rgb = from_hex(0x7AC74C)},
+        Type_display_info{.type = "Gnd", .rgb = from_hex(0xE2BF65)},
+        Type_display_info{.type = "Ice", .rgb = from_hex(0x96D9D6)},
+        Type_display_info{.type = "Nml", .rgb = from_hex(0xA8A77A)},
+        Type_display_info{.type = "Psn", .rgb = from_hex(0xA33EA1)},
+        Type_display_info{.type = "Psy", .rgb = from_hex(0xF95587)},
+        Type_display_info{.type = "Rck", .rgb = from_hex(0xB6A136)},
+        Type_display_info{.type = "Stl", .rgb = from_hex(0xB7B7CE)},
+        Type_display_info{.type = "Wtr", .rgb = from_hex(0x6390F0)},
     };
 
     //////////////////////   Data Structures  /////////////////////////////////
@@ -211,6 +218,8 @@ class Generation {
     get_token_with_trailing_delims(std::string_view view,
                                    std::string_view delim_set);
     static Color select_max_contrast_black_or_white(Color const &background);
+    static void draw_circle_node(Dx::Type_encoding type, Circle circle,
+                                 Font font);
 };
 
 } // namespace
@@ -620,47 +629,66 @@ Generation::draw_graph_cover(Rectangle const canvas)
     float cur_theta = std::numbers::pi / 2.0F;
     for (Dx::Type_encoding t : *solution->begin())
     {
-        std::pair<uint64_t, std::optional<uint64_t>> const type_indices
-            = t.decode_indices();
-        Type_node const &type1 = type_colors.at(type_indices.first);
-        Color const type1_color = select_max_contrast_black_or_white(type1.rgb);
-        Vector2 const coordinates = Vector2{
-            .x = (inner_ring_radius * std::cos(cur_theta)) + center_x,
-            .y = (inner_ring_radius * std::sin(cur_theta)) + center_y,
-        };
-        if (type_indices.second.has_value())
-        {
-            Type_node const &type2
-                = type_colors.at(type_indices.second.value());
-            Color const type2_color
-                = select_max_contrast_black_or_white(type2.rgb);
-            DrawCircleSector(coordinates, node_radius, 360, 180, 100,
-                             type1.rgb);
-            DrawCircleSector(coordinates, node_radius, 0, 180, 100, type2.rgb);
-            DrawTextEx(font, type1.type.data(),
-                       Vector2{
-                           .x = coordinates.x - (node_radius * 0.5F),
-                           .y = coordinates.y - font_size,
-                       },
-                       font_size, font_spacing, type1_color);
-            DrawTextEx(font, type2.type.data(),
-                       Vector2{
-                           .x = coordinates.x - (node_radius * 0.5F),
-                           .y = coordinates.y + font_size,
-                       },
-                       font_size, font_spacing, type2_color);
-        }
-        else
-        {
-            DrawCircleV(coordinates, node_radius, type1.rgb);
-            DrawTextEx(font, type1.type.data(),
-                       Vector2{
-                           .x = coordinates.x - (node_radius * 0.5F),
-                           .y = coordinates.y - (font_size / 2.0F),
-                       },
-                       font_size, font_spacing, type1_color);
-        }
+        draw_circle_node(
+            t,
+            Circle{
+                .radius = node_radius,
+                .center_x
+                = (inner_ring_radius * std::cos(cur_theta)) + center_x,
+                .center_y
+                = (inner_ring_radius * std::sin(cur_theta)) + center_y,
+            },
+            font);
         cur_theta += theta_angle;
+    }
+}
+
+void
+Generation::draw_circle_node(Dx::Type_encoding const type, Circle const circle,
+                             Font const font)
+{
+    float const font_scaling
+        = (2.0F * static_cast<float>(std::numbers::pi) * circle.radius)
+          / 1200.0F;
+    auto const font_size = static_cast<float>(font.baseSize) * font_scaling;
+    float const font_spacing = font_size * 0.2F;
+    std::pair<uint64_t, std::optional<uint64_t>> const type_indices
+        = type.decode_indices();
+    Type_display_info const &type1 = type_colors.at(type_indices.first);
+    Color const type1_color = select_max_contrast_black_or_white(type1.rgb);
+    Vector2 const coordinates{
+        .x = circle.center_x,
+        .y = circle.center_y,
+    };
+    if (type_indices.second.has_value())
+    {
+        Type_display_info const &type2
+            = type_colors.at(type_indices.second.value());
+        Color const type2_color = select_max_contrast_black_or_white(type2.rgb);
+        DrawCircleSector(coordinates, circle.radius, 360, 180, 100, type1.rgb);
+        DrawCircleSector(coordinates, circle.radius, 0, 180, 100, type2.rgb);
+        DrawTextEx(font, type1.type.data(),
+                   Vector2{
+                       .x = coordinates.x - (circle.radius * 0.5F),
+                       .y = coordinates.y - font_size,
+                   },
+                   font_size, font_spacing, type1_color);
+        DrawTextEx(font, type2.type.data(),
+                   Vector2{
+                       .x = coordinates.x - (circle.radius * 0.5F),
+                       .y = coordinates.y + font_size,
+                   },
+                   font_size, font_spacing, type2_color);
+    }
+    else
+    {
+        DrawCircleV(coordinates, circle.radius, type1.rgb);
+        DrawTextEx(font, type1.type.data(),
+                   Vector2{
+                       .x = coordinates.x - (circle.radius * 0.5F),
+                       .y = coordinates.y - (font_size / 2.0F),
+                   },
+                   font_size, font_spacing, type1_color);
     }
 }
 
