@@ -71,13 +71,6 @@ class Generation {
         Color rgb;
     };
 
-    struct Circle
-    {
-        float radius;
-        float center_x;
-        float center_y;
-    };
-
     //////////////////////   Constants       //////////////////////////////////
 
     enum : uint8_t
@@ -212,14 +205,14 @@ class Generation {
                                  Dx::Min_max const &x_draw_bounds,
                                  Dx::Min_max const &y_data_bounds,
                                  Dx::Min_max const &y_draw_bounds);
-    static void draw_wrapping_message(Rectangle canvas, Font font,
+    static void draw_wrapping_message(Rectangle canvas,
                                       std::string_view message);
     static std::string_view
     get_token_with_trailing_delims(std::string_view view,
                                    std::string_view delim_set);
     static Color select_max_contrast_black_or_white(Color const &background);
-    static void draw_circle_node(Dx::Type_encoding type, Circle circle,
-                                 Font font);
+    static void draw_type_node(Dx::Type_encoding type, float radius,
+                               float center_x, float center_y);
 };
 
 } // namespace
@@ -568,24 +561,26 @@ Generation::draw_controls(float const minimap_width, float const minimap_height)
 void
 Generation::draw_graph_cover(Rectangle const canvas)
 {
-    Font font = GuiGetFont();
     auto const dlx_active_solver
         = static_cast<Solution_request>(dlx_solver_select.active);
     if (!rendering_solution)
     {
-        draw_wrapping_message(canvas, font, graph_display_message);
+        draw_wrapping_message(canvas, graph_display_message);
         return;
     }
     std::set<Ranked_set<Dx::Type_encoding>> const *solution{};
+    Dx::Pokemon_links const *dlx{};
     switch (dlx_active_solver)
     {
         case Solution_request::attack_exact_cover:
         case Solution_request::attack_overlapping_cover:
             solution = &attack_solutions;
+            dlx = &attack_dlx;
             break;
         case Solution_request::defense_exact_cover:
         case Solution_request::defense_overlapping_cover:
             solution = &defense_solutions;
+            dlx = &defense_dlx;
             break;
         default:
             return;
@@ -593,18 +588,16 @@ Generation::draw_graph_cover(Rectangle const canvas)
     }
     if (solution->empty())
     {
-        draw_wrapping_message(canvas, font, no_solution_message);
+        draw_wrapping_message(canvas, no_solution_message);
         return;
     }
-    float const font_scaling = std::min(canvas.width, canvas.height) / 6000.0F;
-    auto const font_size = static_cast<float>(font.baseSize) * font_scaling;
-    float const font_spacing = font_size * 0.2F;
     float const node_radius = std::min(canvas.width, canvas.height) / 30.0F;
     size_t const solution_size = (*solution->begin()).size();
     // Every type in the solution is given a segment of a circle and will be
     // placed on intervals around a ring by steps of this segment in radians.
-    float const theta_angle = static_cast<float>(2.0F * std::numbers::pi)
-                              / static_cast<float>(solution_size);
+    float const theta_segment_angle
+        = static_cast<float>(2.0F * std::numbers::pi)
+          / static_cast<float>(solution_size);
     // We want all of our solution types to gather at the center of the screen
     // in the smallest ring possible without overlapping. The circle cord
     // segment that passes through two center points of type nodes on this
@@ -622,71 +615,88 @@ Generation::draw_graph_cover(Rectangle const canvas)
     //
     // where r is known, giving the perfect radius for the inner ring.
     float const inner_ring_radius
-        = solution_size == 1 ? 0 : node_radius / std::sin(theta_angle / 2.0F);
+        = solution_size == 1
+              ? 0
+              : node_radius / std::sin(theta_segment_angle / 2.0F);
     float const center_x = canvas.x + (canvas.width / 2);
     float const center_y = canvas.y + (canvas.height / 2);
     // We can fill the circle clockwise from the North tip of circle.
     float cur_theta = std::numbers::pi / 2.0F;
     for (Dx::Type_encoding t : *solution->begin())
     {
-        draw_circle_node(
-            t,
-            Circle{
-                .radius = node_radius,
-                .center_x
-                = (inner_ring_radius * std::cos(cur_theta)) + center_x,
-                .center_y
-                = (inner_ring_radius * std::sin(cur_theta)) + center_y,
-            },
-            font);
-        cur_theta += theta_angle;
+        float i = 1;
+        for (auto const covered : Dx::items_for(*dlx, t))
+        {
+            draw_type_node(
+                covered, node_radius,
+                ((inner_ring_radius + (i * node_radius)) * std::cos(cur_theta))
+                    + center_x,
+                ((inner_ring_radius + (i * node_radius)) * std::sin(cur_theta))
+                    + center_y);
+            ++i;
+        }
+        draw_type_node(t, node_radius,
+                       (inner_ring_radius * std::cos(cur_theta)) + center_x,
+                       (inner_ring_radius * std::sin(cur_theta)) + center_y);
+        cur_theta += theta_segment_angle;
     }
 }
 
 void
-Generation::draw_circle_node(Dx::Type_encoding const type, Circle const circle,
-                             Font const font)
+Generation::draw_type_node(Dx::Type_encoding const type, float const radius,
+                           float const center_x, float const center_y)
 {
+    Font const font = GuiGetFont();
     float const font_scaling
-        = (2.0F * static_cast<float>(std::numbers::pi) * circle.radius)
-          / 1200.0F;
+        = (2.0F * static_cast<float>(std::numbers::pi) * radius) / 1200.0F;
     auto const font_size = static_cast<float>(font.baseSize) * font_scaling;
     float const font_spacing = font_size * 0.2F;
     std::pair<uint64_t, std::optional<uint64_t>> const type_indices
         = type.decode_indices();
     Type_display_info const &type1 = type_colors.at(type_indices.first);
     Color const type1_color = select_max_contrast_black_or_white(type1.rgb);
-    Vector2 const coordinates{
-        .x = circle.center_x,
-        .y = circle.center_y,
-    };
     if (type_indices.second.has_value())
     {
         Type_display_info const &type2
             = type_colors.at(type_indices.second.value());
         Color const type2_color = select_max_contrast_black_or_white(type2.rgb);
-        DrawCircleSector(coordinates, circle.radius, 360, 180, 100, type1.rgb);
-        DrawCircleSector(coordinates, circle.radius, 0, 180, 100, type2.rgb);
+        DrawCircleSector(
+            Vector2{
+                center_x,
+                center_y,
+            },
+            radius, 360, 180, 100, type1.rgb);
+        DrawCircleSector(
+            Vector2{
+                center_x,
+                center_y,
+            },
+            radius, 0, 180, 100, type2.rgb);
         DrawTextEx(font, type1.type.data(),
                    Vector2{
-                       .x = coordinates.x - (circle.radius * 0.5F),
-                       .y = coordinates.y - font_size,
+                       .x = center_x - (radius * 0.5F),
+                       .y = center_y - font_size,
                    },
                    font_size, font_spacing, type1_color);
         DrawTextEx(font, type2.type.data(),
                    Vector2{
-                       .x = coordinates.x - (circle.radius * 0.5F),
-                       .y = coordinates.y + font_size,
+                       .x = center_x - (radius * 0.5F),
+                       .y = center_y + font_size,
                    },
                    font_size, font_spacing, type2_color);
     }
     else
     {
-        DrawCircleV(coordinates, circle.radius, type1.rgb);
+        DrawCircleV(
+            Vector2{
+                center_x,
+                center_y,
+            },
+            radius, type1.rgb);
         DrawTextEx(font, type1.type.data(),
                    Vector2{
-                       .x = coordinates.x - (circle.radius * 0.5F),
-                       .y = coordinates.y - (font_size / 2.0F),
+                       .x = center_x - (radius * 0.5F),
+                       .y = center_y - (font_size / 2.0F),
                    },
                    font_size, font_spacing, type1_color);
     }
@@ -703,9 +713,10 @@ Generation::draw_circle_node(Dx::Type_encoding const type, Circle const circle,
 /// appropriate number of spaces to the string rather than adding an escaped
 /// tab.
 void
-Generation::draw_wrapping_message(Rectangle const canvas, Font const font,
+Generation::draw_wrapping_message(Rectangle const canvas,
                                   std::string_view message)
 {
+    Font const font = GuiGetFont();
     // Leave these constants here because you should consider scaling the font
     // based on the canvas size, not hard coded values.
     float const start_x = canvas.x + (canvas.width / 30.0F);

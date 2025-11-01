@@ -183,6 +183,9 @@ class Pokemon_links {
 
     [[nodiscard]] std::vector<Type_encoding> get_items() const;
 
+    [[nodiscard]] std::vector<Type_encoding>
+    get_items_for(Type_encoding type) const;
+
     [[nodiscard]] uint64_t get_num_items() const;
 
     [[nodiscard]] std::vector<Type_encoding> get_options() const;
@@ -466,6 +469,12 @@ std::vector<Type_encoding>
 items(Pokemon_links const &dlx)
 {
     return dlx.get_items();
+}
+
+std::vector<Type_encoding>
+items_for(Pokemon_links const &dlx, Type_encoding const type)
+{
+    return dlx.get_items_for(type);
 }
 
 std::vector<Type_encoding>
@@ -1184,6 +1193,28 @@ Pokemon_links::get_items() const
 }
 
 std::vector<Type_encoding>
+Pokemon_links::get_items_for(Type_encoding type) const
+{
+    uint64_t const option = find_option_index(type);
+    if (!option && links_[option].tag == hidden)
+    {
+        return {};
+    }
+    std::vector<Type_encoding> result{};
+    uint64_t i = option + 1;
+    while (links_[i].top_or_len > 0)
+    {
+        int const top = links_[i].top_or_len;
+        if (!links_[top].tag)
+        {
+            result.push_back(item_table_[top].name);
+        }
+        ++i;
+    }
+    return result;
+}
+
+std::vector<Type_encoding>
 Pokemon_links::get_hid_items() const
 {
     std::vector<Type_encoding> result = {};
@@ -1528,7 +1559,7 @@ Pokemon_links::find_item_index(Type_encoding item) const
         if (item > item_table_[cur_index].name)
         {
             base = cur_index + 1;
-            nremain--;
+            --nremain;
         }
     }
     // We know zero holds no value in the itemTable_ and this can double as a
