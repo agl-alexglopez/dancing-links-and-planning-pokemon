@@ -31,7 +31,7 @@ constexpr std::string_view font_path = "data/font/PokemonGb-RAeo.ttf";
 int run();
 
 /// Helper lambda for building a static table of rgb colors for types at compile
-/// time in the Generation colors table.
+/// time in the Generation colors table. Intended for use at compile time.
 auto const from_hex = [](uint32_t const hex_code) -> Color {
     return Color{
         .r = static_cast<unsigned char>((hex_code & 0xFF0000U) >> 16),
@@ -91,10 +91,9 @@ class Generation {
           "Exact Cover;Attack Overlapping Cover";
     static constexpr std::string_view graph_display_message
         = "Solution not yet requested. Select the Pokemon map and cover "
-          "problem you wish to solve from the dropdown menus. All types are "
-          "solved for by default. If you wish to solve for a subset of gyms, "
-          "select them on the minimap. Press 'Solve!' button to initiate a "
-          "solution.";
+          "problem from the dropdown menus. If you wish to solve for a subset "
+          "of gyms, select them on the minimap. Press the 'Solve!' button to "
+          "initiate a solution.";
     static constexpr std::string_view no_solution_message
         = "No solution could be found for this Pokemon generation and cover "
           "problem. Try a different cover problem, gym configuration, or "
@@ -141,6 +140,9 @@ class Generation {
     Dropdown dlx_solver_select;
 
     /// We should only be rendering a solution while one has been requested.
+    /// Otherwise, we might hitch the app every time the user changes the
+    /// selection and we start solving right away. Some solutions take a long
+    /// time.
     bool rendering_solution{false};
 
     /// The data from the current Pokemon generation map we have loaded in.
@@ -207,7 +209,7 @@ class Generation {
     static std::string_view
     get_token_with_trailing_delims(std::string_view view,
                                    std::string_view delim_set);
-    static Color select_max_contrast_text_color(Color const &background);
+    static Color select_max_contrast_black_or_white(Color const &background);
 };
 
 } // namespace
@@ -235,9 +237,7 @@ run()
         SetConfigFlags(FLAG_WINDOW_RESIZABLE);
         InitWindow(screen_width, screen_height,
                    "raylib [core] example - basic window");
-        int const old_default_font_size = GetFontDefault().baseSize;
-        Font gb_font
-            = LoadFontEx(font_path.data(), old_default_font_size, nullptr, 0);
+        Font gb_font = LoadFontEx(font_path.data(), 64, nullptr, 0);
         GenTextureMipmaps(&gb_font.texture);
         GuiSetFont(gb_font);
         SetTargetFPS(60);
@@ -588,19 +588,22 @@ Generation::draw_graph_cover(Rectangle const canvas)
     }
     float x = canvas.x + (canvas.width / 2);
     float y = canvas.y + (canvas.height / 2);
-    float const font_spacing = 2.0;
-    float const radius = 40;
+    float const font_scaling = std::min(canvas.width, canvas.height) / 6000.0F;
+    auto const font_size = static_cast<float>(font.baseSize) * font_scaling;
+    float const font_spacing = font_size * 0.2F;
+    float const radius = std::min(canvas.width, canvas.height) / 30.0F;
     for (Dx::Type_encoding t : *solution->begin())
     {
         std::pair<uint64_t, std::optional<uint64_t>> const type_indices
             = t.decode_indices();
         Type_node const &type1 = type_colors.at(type_indices.first);
-        Color const type1_color = select_max_contrast_text_color(type1.rgb);
+        Color const type1_color = select_max_contrast_black_or_white(type1.rgb);
         if (type_indices.second.has_value())
         {
             Type_node const &type2
                 = type_colors.at(type_indices.second.value());
-            Color const type2_color = select_max_contrast_text_color(type2.rgb);
+            Color const type2_color
+                = select_max_contrast_black_or_white(type2.rgb);
             DrawCircleSector(
                 Vector2{
                     .x = x,
@@ -616,16 +619,15 @@ Generation::draw_graph_cover(Rectangle const canvas)
             DrawTextEx(font, type1.type.data(),
                        Vector2{
                            .x = x - (radius * 0.5F),
-                           .y = y - static_cast<float>(font.baseSize)
-                                - (font_spacing * 2),
+                           .y = y - font_size,
                        },
-                       15.0, 2.0, type1_color);
+                       font_size, font_spacing, type1_color);
             DrawTextEx(font, type2.type.data(),
                        Vector2{
                            .x = x - (radius * 0.5F),
-                           .y = y + (font_spacing * 2),
+                           .y = y + font_size,
                        },
-                       15.0, font_spacing, type2_color);
+                       font_size, font_spacing, type2_color);
         }
         else
         {
@@ -638,9 +640,9 @@ Generation::draw_graph_cover(Rectangle const canvas)
             DrawTextEx(font, type1.type.data(),
                        Vector2{
                            .x = x - (radius * 0.5F),
-                           .y = y - static_cast<float>(font.baseSize / 2.0),
+                           .y = y - (font_size / 2.0F),
                        },
-                       15.0, font_spacing, type1_color);
+                       font_size, font_spacing, type1_color);
         }
         x += (radius * 2);
     }
@@ -662,14 +664,15 @@ Generation::draw_wrapping_message(Rectangle const canvas, Font const font,
 {
     // Leave these constants here because you should consider scaling the font
     // based on the canvas size, not hard coded values.
-    float const start_x = canvas.width / 4.0F;
-    float const end_x = canvas.width - (canvas.width / 4.0F);
-    auto const font_size = static_cast<float>(font.baseSize * 3.0);
-    float const font_x_spacing = 4.0;
-    float const font_y_spacing = 5.0;
-    float const font_scaling = font_size / static_cast<float>(font.baseSize);
+    float const start_x = canvas.x + (canvas.width / 30.0F);
+    float const end_x = canvas.x + canvas.width - (canvas.width / 30.0F);
+    float const end_y = canvas.y + canvas.height;
+    float const font_scaling = std::min(canvas.width, canvas.height) / 2000.0F;
+    auto const font_size = static_cast<float>(font.baseSize) * font_scaling;
+    float const font_x_spacing = font_size * 0.2F;
+    float const font_y_spacing = font_size * 0.8F;
     float cur_pos_x = start_x;
-    float cur_pos_y = canvas.height / 1.5F;
+    float cur_pos_y = canvas.y + (canvas.height / 3.5F);
 
     /// Returns the codepoint and the glyph width of the specified character.
     auto const get_glyph_info
@@ -708,7 +711,7 @@ Generation::draw_wrapping_message(Rectangle const canvas, Font const font,
         cur_pos_y += (static_cast<float>(font.baseSize) * font_scaling)
                      + font_y_spacing;
         // If we would write off the screen no point in continuing.
-        if (cur_pos_y > canvas.height)
+        if (cur_pos_y > end_y)
         {
             return false;
         }
@@ -784,8 +787,11 @@ Generation::get_token_with_trailing_delims(std::string_view view,
     return view.substr(0, first_found + end_of_delims);
 }
 
+/// Given a color returns black or white given which will have better contrast
+/// against the provided background color. This is to help display the text
+/// over Pokemon type nodes, but the concept could be applied anywhere.
 Color
-Generation::select_max_contrast_text_color(Color const &background)
+Generation::select_max_contrast_black_or_white(Color const &background)
 {
     float const luminance = (0.2126F * static_cast<float>(background.r))
                             + (0.7152F * static_cast<float>(background.g))
