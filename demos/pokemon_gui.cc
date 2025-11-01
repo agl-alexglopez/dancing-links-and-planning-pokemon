@@ -1,6 +1,7 @@
 ///////////////////   System headers   ////////////////////////////////////////
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <exception>
@@ -586,65 +587,80 @@ Generation::draw_graph_cover(Rectangle const canvas)
         draw_wrapping_message(canvas, font, no_solution_message);
         return;
     }
-    float x = canvas.x + (canvas.width / 2);
-    float y = canvas.y + (canvas.height / 2);
     float const font_scaling = std::min(canvas.width, canvas.height) / 6000.0F;
     auto const font_size = static_cast<float>(font.baseSize) * font_scaling;
     float const font_spacing = font_size * 0.2F;
-    float const radius = std::min(canvas.width, canvas.height) / 30.0F;
+    float const node_radius = std::min(canvas.width, canvas.height) / 30.0F;
+    size_t const solution_size = (*solution->begin()).size();
+    // Every type in the solution is given a segment of a circle and will be
+    // placed on intervals around a ring by steps of this segment in radians.
+    float const theta_angle = static_cast<float>(2.0F * std::numbers::pi)
+                              / static_cast<float>(solution_size);
+    // We want all of our solution types to gather at the center of the screen
+    // in the smallest ring possible without overlapping. The circle cord
+    // segment that passes through two center points of type nodes on this
+    // imaginary circle must be at least (2 * (radius of a node)).
+    //
+    // We can find the chord length between two points on a circle with the
+    // chord length formula (chord = 2Rsin(theta / 2)). We know theta is our
+    // angle we chose to evenly divide the circle across the number of nodes
+    // in our solution (chord = 2Rsin((2PI / solution size) / 2)), which
+    // simplifies to chord = 2Rsin(theta / 2). We know the chord length
+    // we want is (r = 2 * radius of a node) so we get
+    //
+    // 2r = 2Rsin(theta / 2)
+    // R = r / sin(theta / 2)
+    //
+    // where r is known, giving the perfect radius for the inner ring.
+    float const inner_ring_radius
+        = solution_size == 1 ? 0 : node_radius / std::sin(theta_angle / 2.0F);
+    float const center_x = canvas.x + (canvas.width / 2);
+    float const center_y = canvas.y + (canvas.height / 2);
+    // We can fill the circle clockwise from the North tip of circle.
+    float cur_theta = std::numbers::pi / 2.0F;
     for (Dx::Type_encoding t : *solution->begin())
     {
         std::pair<uint64_t, std::optional<uint64_t>> const type_indices
             = t.decode_indices();
         Type_node const &type1 = type_colors.at(type_indices.first);
         Color const type1_color = select_max_contrast_black_or_white(type1.rgb);
+        Vector2 const coordinates = Vector2{
+            .x = (inner_ring_radius * std::cos(cur_theta)) + center_x,
+            .y = (inner_ring_radius * std::sin(cur_theta)) + center_y,
+        };
         if (type_indices.second.has_value())
         {
             Type_node const &type2
                 = type_colors.at(type_indices.second.value());
             Color const type2_color
                 = select_max_contrast_black_or_white(type2.rgb);
-            DrawCircleSector(
-                Vector2{
-                    .x = x,
-                    .y = y,
-                },
-                radius, 360, 180, 100, type1.rgb);
-            DrawCircleSector(
-                Vector2{
-                    .x = x,
-                    .y = y,
-                },
-                radius, 0, 180, 100, type2.rgb);
+            DrawCircleSector(coordinates, node_radius, 360, 180, 100,
+                             type1.rgb);
+            DrawCircleSector(coordinates, node_radius, 0, 180, 100, type2.rgb);
             DrawTextEx(font, type1.type.data(),
                        Vector2{
-                           .x = x - (radius * 0.5F),
-                           .y = y - font_size,
+                           .x = coordinates.x - (node_radius * 0.5F),
+                           .y = coordinates.y - font_size,
                        },
                        font_size, font_spacing, type1_color);
             DrawTextEx(font, type2.type.data(),
                        Vector2{
-                           .x = x - (radius * 0.5F),
-                           .y = y + font_size,
+                           .x = coordinates.x - (node_radius * 0.5F),
+                           .y = coordinates.y + font_size,
                        },
                        font_size, font_spacing, type2_color);
         }
         else
         {
-            DrawCircleV(
-                Vector2{
-                    .x = x,
-                    .y = y,
-                },
-                radius, type1.rgb);
+            DrawCircleV(coordinates, node_radius, type1.rgb);
             DrawTextEx(font, type1.type.data(),
                        Vector2{
-                           .x = x - (radius * 0.5F),
-                           .y = y - (font_size / 2.0F),
+                           .x = coordinates.x - (node_radius * 0.5F),
+                           .y = coordinates.y - (font_size / 2.0F),
                        },
                        font_size, font_spacing, type1_color);
         }
-        x += (radius * 2);
+        cur_theta += theta_angle;
     }
 }
 
