@@ -622,13 +622,23 @@ Generation::draw_graph_cover(Rectangle const canvas)
     float const center_y = canvas.y + (canvas.height / 2);
     // We can fill the circle clockwise from the North tip of circle.
     float cur_theta = std::numbers::pi / 2.0F;
+    // We also have an imaginary outer circle that bounds the nodes that each
+    // type in our solution covers. Each type is given a segment of this circle
+    // to fill in with the other types that it covers. We will make this look
+    // like a directed graph with lines extending from the inner ring nodes
+    // to cover nodes distributed in this circle segment.
+    //
+    // The size of the nodes we cover will be adjusted to maximally fill the
+    // provided segment.
+    float const outer_ring_boundary_radius
+        = std::min(canvas.width, canvas.height) / 2;
     std::vector<Dx::Resistance> coverage{};
     coverage.reserve(Dx::num_items(*dlx));
     for (Dx::Type_encoding t : *solution->begin())
     {
         float i = 1;
         Dx::fill_items_for(*dlx, t, coverage);
-        for (auto const covered : coverage)
+        for (Dx::Resistance const &covered : coverage)
         {
             draw_type_node(covered.type(), node_radius,
                            ((inner_ring_radius + (i * node_radius * 2))
