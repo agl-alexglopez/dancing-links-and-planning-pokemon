@@ -156,7 +156,7 @@ struct Runner
 {
     std::string map;
     std::map<Dx::Type_encoding, std::set<Dx::Resistance>> interactions;
-    std::set<std::string> selected_gyms;
+    std::set<std::string_view> selected_gyms;
     Dx::Pokemon_links::Coverage_type type{
         Dx::Pokemon_links::Coverage_type::defense};
     Solution_type sol_type{Solution_type::exact};
@@ -514,17 +514,17 @@ break_line(size_t max_set_len, Table_type t)
     std::cout << std::left << std::setw(digit_width) << "";
     switch (t)
     {
-    case Table_type::first:
-        std::cout << "┌";
-        break;
-    case Table_type::normal:
-        std::cout << "├";
-        break;
-    case Table_type::last:
-        std::cout << "└";
-        break;
-    default:
-        std::cerr << "Unknown table type\n";
+        case Table_type::first:
+            std::cout << "┌";
+            break;
+        case Table_type::normal:
+            std::cout << "├";
+            break;
+        case Table_type::last:
+            std::cout << "└";
+            break;
+        default:
+            std::cerr << "Unknown table type\n";
     }
     for (size_t col = 0; col < max_set_len; ++col)
     {
@@ -534,17 +534,17 @@ break_line(size_t max_set_len, Table_type t)
         }
         switch (t)
         {
-        case Table_type::first:
-            std::cout << (col == max_set_len - 1 ? "┐" : "┬");
-            break;
-        case Table_type::normal:
-            std::cout << (col == max_set_len - 1 ? "┤" : "┼");
-            break;
-        case Table_type::last:
-            std::cout << (col == max_set_len - 1 ? "┘" : "┴");
-            break;
-        default:
-            std::cerr << "Unknown table type\n";
+            case Table_type::first:
+                std::cout << (col == max_set_len - 1 ? "┐" : "┬");
+                break;
+            case Table_type::normal:
+                std::cout << (col == max_set_len - 1 ? "┤" : "┼");
+                break;
+            case Table_type::last:
+                std::cout << (col == max_set_len - 1 ? "┘" : "┴");
+                break;
+            default:
+                std::cerr << "Unknown table type\n";
         }
     }
     std::cout << "\n";

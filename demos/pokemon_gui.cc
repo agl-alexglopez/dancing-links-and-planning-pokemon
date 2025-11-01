@@ -1,11 +1,13 @@
 ///////////////////   System headers   ////////////////////////////////////////
 #include <algorithm>
 #include <array>
+#include <cstdint>
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
 #include <iostream>
 #include <map>
+#include <optional>
 #include <set>
 #include <string_view>
 #include <utility>
@@ -53,11 +55,10 @@ class Generation {
 
     enum class Solution_request : int // NOLINT
     {
-        attack_exact_cover = 0,
+        attack_exact_cover,
         attack_overlapping_cover,
         defense_exact_cover,
         defense_overlapping_cover,
-        solutions_end,
     };
 
     struct Type_node
@@ -83,13 +84,18 @@ class Generation {
     static constexpr char const *const dst_relative_path = "data/dst/";
     /// The string provided to the solver drop down selection by Raylib.
     static constexpr char const *const dlx_solver_options
-        = "Defense Exact Cover;Defense Overlapping Cover;Attack Exact "
-          "Cover;Attack Overlapping Cover";
+        = "Defense Exact Cover;Defense Overlapping Cover;Attack "
+          "Exact Cover;Attack Overlapping Cover";
     static constexpr std::string_view graph_display_message
-        = "No solver selected. Select the Pokemon map and cover problem you "
-          "wish to solve from the dropdown menus. All types are solved for by "
-          "default. If you wish to solve for a subset of gyms, select them on "
-          "the minimap.";
+        = "Solution not yet requested. Select the Pokemon map and cover "
+          "problem you wish to solve from the dropdown menus. All types are "
+          "solved for by default. If you wish to solve for a subset of gyms, "
+          "select them on the minimap. Press 'Solve!' button to initiate a "
+          "solution.";
+    static constexpr std::string_view no_solution_message
+        = "No solution could be found for this Pokemon generation and cover "
+          "problem. Try a different cover problem, gym configuration, or "
+          "generation, then press the 'Solve!' button.";
     /// Nodes will use a backing color corresponding to a type as well as an
     /// abbreviation for the type name.
     static constexpr std::array<Type_node, 18> type_colors{
@@ -131,10 +137,8 @@ class Generation {
     /// The choice of attack or defense and exact or overlapping coverage.
     Dropdown dlx_solver_select;
 
-    /// The active solution requested from the solver select drop down. We will
-    /// do a simple switch statement on this value to dispatch to appropriate
-    /// dancing links solver.
-    Solution_request dlx_active_solver{};
+    /// We should only be rendering a solution while one has been requested.
+    bool rendering_solution{false};
 
     /// The data from the current Pokemon generation map we have loaded in.
     /// This data structure tells us where all the gyms are for this
@@ -168,7 +172,7 @@ class Generation {
     /// corresponding to the types at the active gyms.
     ///
     /// If the set is empty we solve for the entire generation and all types.
-    std::set<std::string> selected_gyms;
+    std::set<std::string_view> selected_gyms;
 
     /// The defensive dancing links solver. Loaded along with each new
     /// generation.
@@ -310,6 +314,9 @@ Generation::reload_generation()
                   << '.\n';
         std::abort();
     }
+    rendering_solution = false;
+    // Clear out any subsets of problems we wanted to solve.
+    selected_gyms.clear();
     // Clear the old gym toggles before loading new generation so we are not
     // left with references to map data that does not exist.
     gym_toggles.clear();
@@ -428,6 +435,7 @@ Generation::draw(int const window_width, int const window_height)
                 },
                 city_location_map_iterator->first.c_str(), &toggle_state))
         {
+            rendering_solution = false;
             if (toggle_state)
             {
                 selected_gyms.insert(city_location_map_iterator->first);
@@ -464,32 +472,29 @@ Generation::draw_controls(float const minimap_width, float const minimap_height)
         .x = minimap_origin_x + dst_map_select.dimensions.width,
         .y = minimap_origin_y + minimap_height,
     };
+    int const prev_map_selection = dst_map_select.active;
     if (GuiDropdownBox(dst_map_select.dimensions, dst_map_options.c_str(),
                        &dst_map_select.active, dst_map_select.editmode))
     {
+        if (dst_map_select.active != prev_map_selection)
+        {
+            rendering_solution = false;
+        }
         dst_map_select.editmode = !dst_map_select.editmode;
         if (!dst_map_select.editmode)
         {
             reload_generation();
         }
     }
+    int const prev_solution_selction = dlx_solver_select.active;
     if (GuiDropdownBox(dlx_solver_select.dimensions, dlx_solver_options,
                        &dlx_solver_select.active, dlx_solver_select.editmode))
     {
-        dlx_solver_select.editmode = !dlx_solver_select.editmode;
-        if (!dlx_solver_select.editmode)
+        if (dlx_solver_select.active != prev_solution_selction)
         {
-            if (dlx_solver_select.active < 0
-                || dlx_solver_select.active
-                       >= static_cast<int>(Solution_request::solutions_end))
-            {
-                std::cerr << "Error while selecting solver from dropdown. "
-                             "Solver is out of range\n";
-                std::abort();
-            }
-            dlx_active_solver
-                = static_cast<Solution_request>(dlx_solver_select.active);
+            rendering_solution = false;
         }
+        dlx_solver_select.editmode = !dlx_solver_select.editmode;
     }
     if (GuiButton(
             Rectangle{
@@ -501,11 +506,22 @@ Generation::draw_controls(float const minimap_width, float const minimap_height)
             },
             "Solve!"))
     {
-        if (!selected_gyms.empty())
+        rendering_solution = true;
+        auto const dlx_active_solver
+            = static_cast<Solution_request>(dlx_solver_select.active);
+        if (selected_gyms.empty())
+        {
+            Dx::reset_items(defense_dlx);
+            Dx::reset_items(attack_dlx);
+            std::cerr << "selected gyms set is empty\n";
+        }
+        else
         {
             std::set<Dx::Type_encoding> const subset_attack
                 = Dx::load_selected_gyms_attacks(
                     dst_map_list[dst_map_select.active], selected_gyms);
+            std::cerr << "Covering gyms with " << subset_attack.size()
+                      << " total attack types.\n";
             Dx::hide_items_except(defense_dlx, subset_attack);
             std::set<Dx::Type_encoding> const subset_defense
                 = Dx::load_selected_gyms_defenses(
@@ -540,18 +556,67 @@ void
 Generation::draw_graph_cover(Rectangle const canvas)
 {
     Font font = GetFontDefault();
-    bool const no_attack_solution_ready
-        = (dlx_active_solver == Solution_request::attack_exact_cover
-           || dlx_active_solver == Solution_request::attack_overlapping_cover)
-          && attack_solutions.empty();
-    bool const no_defense_solution_ready
-        = (dlx_active_solver == Solution_request::defense_exact_cover
-           || dlx_active_solver == Solution_request::defense_overlapping_cover)
-          && defense_solutions.empty();
-    if (no_attack_solution_ready || no_defense_solution_ready)
+    auto const dlx_active_solver
+        = static_cast<Solution_request>(dlx_solver_select.active);
+    if (!rendering_solution)
     {
         draw_wrapping_message(canvas, font, graph_display_message);
         return;
+    }
+    std::set<Ranked_set<Dx::Type_encoding>> const *solution{};
+    switch (dlx_active_solver)
+    {
+        case Solution_request::attack_exact_cover:
+        case Solution_request::attack_overlapping_cover:
+            solution = &attack_solutions;
+            break;
+        case Solution_request::defense_exact_cover:
+        case Solution_request::defense_overlapping_cover:
+            solution = &defense_solutions;
+            break;
+        default:
+            return;
+            break;
+    }
+    if (solution->empty())
+    {
+        draw_wrapping_message(canvas, font, no_solution_message);
+        return;
+    }
+    float x = canvas.width / 2;
+    float y = canvas.height / 2;
+    float const radius = 40;
+    for (Dx::Type_encoding t : *solution->begin())
+    {
+        std::pair<uint64_t, std::optional<uint64_t>> const type_indices
+            = t.decode_indices();
+        if (type_indices.second.has_value())
+        {
+            DrawCircleSector(
+                Vector2{
+                    .x = x,
+                    .y = y,
+                },
+                radius, 270.0, 90.0, 100,
+                type_colors.at(type_indices.first).rgb);
+            DrawCircleSector(
+                Vector2{
+                    .x = x,
+                    .y = y,
+                },
+                radius, 450.0, 270.0, 100,
+                type_colors.at(type_indices.second.value()).rgb);
+        }
+        else
+        {
+            DrawCircleV(
+                Vector2{
+                    .x = x,
+                    .y = y,
+                },
+                radius, type_colors.at(type_indices.first).rgb);
+        }
+        x += (radius * 2);
     }
 }
 
@@ -667,7 +732,7 @@ Generation::draw_wrapping_message(Rectangle const canvas, Font const font,
 /// delimiters are found. Leading delimiters in the set are skipped.
 /// However, all found trailing delimiters are included in the returned
 /// string view to aid in left justifying the text and preserving extra
-/// spaces, returns or other formatting.
+/// spaces, returns, or other formatting.
 std::string_view
 Generation::get_token_with_trailing_delims(std::string_view view,
                                            std::string_view delim_set)

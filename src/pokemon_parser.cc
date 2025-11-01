@@ -82,8 +82,8 @@ load_interaction_map(std::istream &source);
 /// @param selectedGyms the gyms G1-E4 that we are considering attacking.
 /// @return the set of all defensive types present in the selection of gyms.
 std::set<Type_encoding>
-load_selected_gyms_defenses(std::string const &selected_map,
-                            std::set<std::string> const &selected_gyms);
+load_selected_gyms_defenses(std::string_view selected_map,
+                            std::set<std::string_view> const &selected_gyms);
 
 /// @brief load_selected_gyms_attacks the user interacting with the GUI may want
 /// to defend themselves from only a selection of gyms. We will get the gym info
@@ -94,8 +94,8 @@ load_selected_gyms_defenses(std::string const &selected_map,
 /// @param selected the gyms they have selected.
 /// @return a set of all attack types present across those gyms.
 std::set<Type_encoding>
-load_selected_gyms_attacks(std::string const &selected_map,
-                           std::set<std::string> const &selected);
+load_selected_gyms_attacks(std::string_view selected_map,
+                           std::set<std::string_view> const &selected);
 
 } // namespace Dancing_links
 
@@ -191,8 +191,8 @@ set_resistances(std::map<Type_encoding, std::set<Resistance>> &result,
         Multiplier const multiplier_tag = get_multiplier(multiplier);
         for (auto const &t : types_in_multiplier)
         {
-            auto const type = t.template get<std::string>();
-            result[new_type].emplace(std::string_view{type}, multiplier_tag);
+            auto const type = t.template get<std::string_view>();
+            result[new_type].emplace(type, multiplier_tag);
         }
     }
 }
@@ -251,8 +251,8 @@ load_interaction_map(std::istream &source)
 }
 
 std::set<Type_encoding>
-load_selected_gyms_defenses(std::string const &selected_map,
-                            std::set<std::string> const &selected_gyms)
+load_selected_gyms_defenses(std::string_view selected_map,
+                            std::set<std::string_view> const &selected_gyms)
 {
     if (selected_gyms.empty())
     {
@@ -276,7 +276,7 @@ load_selected_gyms_defenses(std::string const &selected_map,
         for (auto const &t : attack_defense_map.at(gym_defense_key))
         {
             auto const type = t.template get<std::string>();
-            result.emplace(std::string_view{type});
+            result.emplace(type);
         }
     }
     if (confirmed.size() != selected_gyms.size())
@@ -300,8 +300,8 @@ load_selected_gyms_defenses(std::string const &selected_map,
 }
 
 std::set<Type_encoding>
-load_selected_gyms_attacks(std::string const &selected_map,
-                           std::set<std::string> const &selected_gyms)
+load_selected_gyms_attacks(std::string_view selected_map,
+                           std::set<std::string_view> const &selected_gyms)
 {
     if (selected_gyms.empty())
     {
@@ -323,8 +323,8 @@ load_selected_gyms_attacks(std::string const &selected_map,
         confirmed.push_back(gym);
         for (auto const &t : attack_defense_map.at(gym_attacks_key))
         {
-            auto const type = t.template get<std::string>();
-            result.emplace(std::string_view{type});
+            auto const type = t.template get<std::string_view>();
+            result.emplace(type);
         }
     }
     if (confirmed.size() != selected_gyms.size())

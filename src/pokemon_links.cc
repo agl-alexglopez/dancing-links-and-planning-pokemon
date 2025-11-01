@@ -88,7 +88,7 @@ class Pokemon_links {
     /// important that the data is passed in with a map because we need our
     /// dancing links items and options to be built and setup in lexicographic
     /// order for some additional functionality and runtime guarantees.
-    /// @param type_interactions map of pokemon types and their resistances
+    /// @param type_interactions map of Pokemon types and their resistances
     /// to attack types.
     /// @param requested_cover_solution  ATTACK or DEFENSE. Build a team or
     /// choose attack types.
