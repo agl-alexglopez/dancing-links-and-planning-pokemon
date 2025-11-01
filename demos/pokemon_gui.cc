@@ -622,17 +622,21 @@ Generation::draw_graph_cover(Rectangle const canvas)
     float const center_y = canvas.y + (canvas.height / 2);
     // We can fill the circle clockwise from the North tip of circle.
     float cur_theta = std::numbers::pi / 2.0F;
+    std::vector<Dx::Resistance> coverage{};
+    coverage.reserve(Dx::num_items(*dlx));
     for (Dx::Type_encoding t : *solution->begin())
     {
         float i = 1;
-        for (auto const covered : Dx::items_for(*dlx, t))
+        Dx::fill_items_for(*dlx, t, coverage);
+        for (auto const covered : coverage)
         {
-            draw_type_node(
-                covered, node_radius,
-                ((inner_ring_radius + (i * node_radius)) * std::cos(cur_theta))
-                    + center_x,
-                ((inner_ring_radius + (i * node_radius)) * std::sin(cur_theta))
-                    + center_y);
+            draw_type_node(covered.type(), node_radius,
+                           ((inner_ring_radius + (i * node_radius * 2))
+                            * std::cos(cur_theta))
+                               + center_x,
+                           ((inner_ring_radius + (i * node_radius * 2))
+                            * std::sin(cur_theta))
+                               + center_y);
             ++i;
         }
         draw_type_node(t, node_radius,

@@ -33,6 +33,7 @@ module;
 #include <map>
 #include <optional>
 #include <set>
+#include <span>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -146,7 +147,7 @@ class Pokemon_links {
 
     [[nodiscard]] bool hid_items_empty() const;
 
-    [[nodiscard]] std::vector<Type_encoding> get_hid_items() const;
+    void fill_hid_items(std::vector<Type_encoding> &output) const;
 
     [[nodiscard]] uint64_t get_num_hid_items() const;
 
@@ -171,7 +172,7 @@ class Pokemon_links {
 
     [[nodiscard]] bool hid_options_empty() const;
 
-    [[nodiscard]] std::vector<Type_encoding> get_hid_options() const;
+    void fill_hid_options(std::vector<Type_encoding> &output) const;
 
     [[nodiscard]] uint64_t get_num_hid_options() const;
 
@@ -181,24 +182,24 @@ class Pokemon_links {
 
     [[nodiscard]] bool reached_output_limit() const;
 
-    [[nodiscard]] std::vector<Type_encoding> get_items() const;
+    void fill_items(std::vector<Type_encoding> &output) const;
 
-    [[nodiscard]] std::vector<Type_encoding>
-    get_items_for(Type_encoding type) const;
+    void fill_items_for(Type_encoding type,
+                        std::vector<Resistance> &output) const;
 
     [[nodiscard]] uint64_t get_num_items() const;
 
-    [[nodiscard]] std::vector<Type_encoding> get_options() const;
+    void fill_options(std::vector<Type_encoding> &output) const;
 
     [[nodiscard]] uint64_t get_num_options() const;
 
     [[nodiscard]] Coverage_type get_links_type() const;
 
-    [[nodiscard]] std::vector<Poke_link> const &links() const;
+    [[nodiscard]] std::span<Poke_link const> links() const;
 
-    [[nodiscard]] std::vector<Type_name> const &item_table() const;
+    [[nodiscard]] std::span<Type_name const> item_table() const;
 
-    [[nodiscard]] std::vector<Encoding_index> const &option_table() const;
+    [[nodiscard]] std::span<Encoding_index const> option_table() const;
 
   private:
     //////////////////////  Dancing Links Internals and Implementation
@@ -465,22 +466,23 @@ coverage_type(Pokemon_links const &dlx)
     return dlx.get_links_type();
 }
 
-std::vector<Type_encoding>
-items(Pokemon_links const &dlx)
+void
+fill_items(Pokemon_links const &dlx, std::vector<Type_encoding> &output)
 {
-    return dlx.get_items();
+    dlx.fill_items(output);
 }
 
-std::vector<Type_encoding>
-items_for(Pokemon_links const &dlx, Type_encoding const type)
+void
+fill_items_for(Pokemon_links const &dlx, Type_encoding const type,
+               std::vector<Resistance> &output)
 {
-    return dlx.get_items_for(type);
+    dlx.fill_items_for(type, output);
 }
 
-std::vector<Type_encoding>
-options(Pokemon_links const &dlx)
+void
+fill_options(Pokemon_links const &dlx, std::vector<Type_encoding> &output)
 {
-    return dlx.get_options();
+    dlx.fill_options(output);
 }
 
 bool
@@ -532,10 +534,10 @@ hid_items_empty(Pokemon_links const &dlx)
     return dlx.hid_items_empty();
 }
 
-std::vector<Type_encoding>
-hid_items(Pokemon_links const &dlx)
+void
+fill_hid_items(Pokemon_links const &dlx, std::vector<Type_encoding> &output)
 {
-    return dlx.get_hid_items();
+    dlx.fill_hid_items(output);
 }
 
 void
@@ -593,10 +595,10 @@ hid_options_empty(Pokemon_links const &dlx)
     return dlx.hid_options_empty();
 }
 
-std::vector<Type_encoding>
-hid_options(Pokemon_links const &dlx)
+void
+fill_hid_options(Pokemon_links const &dlx, std::vector<Type_encoding> &output)
 {
-    return dlx.get_hid_options();
+    dlx.fill_hid_options(output);
 }
 
 void
@@ -1138,19 +1140,19 @@ Pokemon_links::overlapping_uncover_type(uint64_t const index_in_option)
 
 //////////////////////////////     Utility Functions
 
-std::vector<Pokemon_links::Poke_link> const &
+std::span<Pokemon_links::Poke_link const>
 Pokemon_links::links() const
 {
     return links_;
 }
 
-std::vector<Pokemon_links::Type_name> const &
+std::span<Pokemon_links::Type_name const>
 Pokemon_links::item_table() const
 {
     return item_table_;
 }
 
-std::vector<Pokemon_links::Encoding_index> const &
+std::span<Pokemon_links::Encoding_index const>
 Pokemon_links::option_table() const
 {
     return option_table_;
@@ -1180,56 +1182,53 @@ Pokemon_links::get_links_type() const
     return requested_cover_solution_;
 }
 
-std::vector<Type_encoding>
-Pokemon_links::get_items() const
+void
+Pokemon_links::fill_items(std::vector<Type_encoding> &output) const
 {
-    std::vector<Type_encoding> result = {};
     for (uint64_t i = item_table_[0].right; std::cmp_not_equal(i, 0);
          i = item_table_[i].right)
     {
-        result.push_back(item_table_[i].name);
+        output.push_back(item_table_[i].name);
     }
-    return result;
 }
 
-std::vector<Type_encoding>
-Pokemon_links::get_items_for(Type_encoding type) const
+void
+Pokemon_links::fill_items_for(Type_encoding type,
+                              std::vector<Resistance> &output) const
 {
+    output.clear();
     uint64_t const option = find_option_index(type);
     if (!option && links_[option].tag == hidden)
     {
-        return {};
+        return;
     }
-    std::vector<Type_encoding> result{};
     uint64_t i = option + 1;
     while (links_[i].top_or_len > 0)
     {
         int const top = links_[i].top_or_len;
         if (!links_[top].tag)
         {
-            result.push_back(item_table_[top].name);
+            output.emplace_back(item_table_[top].name, links_[i].multiplier);
         }
         ++i;
     }
-    return result;
 }
 
-std::vector<Type_encoding>
-Pokemon_links::get_hid_items() const
+void
+Pokemon_links::fill_hid_items(std::vector<Type_encoding> &output) const
 {
-    std::vector<Type_encoding> result = {};
-    result.reserve(hidden_items_.size());
+    output.clear();
+    output.reserve(hidden_items_.size());
     for (auto const &i : hidden_items_)
     {
-        result.push_back(item_table_[i].name);
+        output.push_back(item_table_[i].name);
     }
-    return result;
 }
 
-std::vector<Type_encoding>
-Pokemon_links::get_options() const
+void
+Pokemon_links::fill_options(std::vector<Type_encoding> &output) const
 {
-    std::vector<Type_encoding> result = {};
+    output.clear();
     // Hop from row title to row title, skip hidden options. Skip bookend node
     // that is placeholder.
     for (uint64_t i = item_table_.size(); i < links_.size() - 1;
@@ -1237,23 +1236,21 @@ Pokemon_links::get_options() const
     {
         if (links_[i].tag != hidden)
         {
-            result.push_back(
+            output.push_back(
                 option_table_[std::abs(links_[i].top_or_len)].name);
         }
     }
-    return result;
 }
 
-std::vector<Type_encoding>
-Pokemon_links::get_hid_options() const
+void
+Pokemon_links::fill_hid_options(std::vector<Type_encoding> &output) const
 {
-    std::vector<Type_encoding> result = {};
-    result.reserve(hidden_options_.size());
+    output.clear();
+    output.reserve(hidden_options_.size());
     for (auto const &i : hidden_options_)
     {
-        result.push_back(option_table_[std::abs(links_[i].top_or_len)].name);
+        output.push_back(option_table_[std::abs(links_[i].top_or_len)].name);
     }
-    return result;
 }
 
 bool
@@ -1288,6 +1285,7 @@ bool
 Pokemon_links::hide_requested_item(std::vector<Type_encoding> const &to_hide,
                                    std::vector<Type_encoding> &failed_to_hide)
 {
+    failed_to_hide.clear();
     bool result = true;
     for (auto const &t : to_hide)
     {
@@ -1400,6 +1398,7 @@ bool
 Pokemon_links::hide_requested_option(std::vector<Type_encoding> const &to_hide,
                                      std::vector<Type_encoding> &failed_to_hide)
 {
+    failed_to_hide.clear();
     bool result = true;
     for (auto const &h : to_hide)
     {
@@ -1458,7 +1457,7 @@ Pokemon_links::peek_hid_option() const
     if (!hidden_options_.empty())
     {
         // Row spacer tiles in the links hold their name as a negative index in
-        // the optionTable_
+        // the option table
         return option_table_[std::abs(
                                  links_[hidden_options_.back()].top_or_len)]
             .name;

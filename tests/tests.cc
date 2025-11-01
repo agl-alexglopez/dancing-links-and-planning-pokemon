@@ -131,8 +131,8 @@ operator<<(std::ostream &os, Pokemon_links::Type_name const &type)
 }
 
 bool
-operator==(std::vector<Pokemon_links::Poke_link> const &lhs,
-           std::vector<Pokemon_links::Poke_link> const &rhs)
+operator==(std::span<Pokemon_links::Poke_link const> lhs,
+           std::span<Pokemon_links::Poke_link const> rhs)
 {
     if (lhs.size() != rhs.size())
     {
@@ -149,15 +149,15 @@ operator==(std::vector<Pokemon_links::Poke_link> const &lhs,
 }
 
 bool
-operator!=(std::vector<Pokemon_links::Poke_link> const &lhs,
-           std::vector<Pokemon_links::Poke_link> const &rhs)
+operator!=(std::span<Pokemon_links::Poke_link const> lhs,
+           std::span<Pokemon_links::Poke_link const> rhs)
 {
     return !(lhs == rhs);
 }
 
 bool
-operator==(std::vector<Pokemon_links::Type_name> const &lhs,
-           std::vector<Pokemon_links::Type_name> const &rhs)
+operator==(std::span<Pokemon_links::Type_name const> lhs,
+           std::span<Pokemon_links::Type_name const> rhs)
 {
     if (lhs.size() != rhs.size())
     {
@@ -174,8 +174,8 @@ operator==(std::vector<Pokemon_links::Type_name> const &lhs,
 }
 
 bool
-operator!=(std::vector<Pokemon_links::Type_name> const &lhs,
-           std::vector<Pokemon_links::Type_name> const &rhs)
+operator!=(std::span<Pokemon_links::Type_name const> lhs,
+           std::span<Pokemon_links::Type_name const> rhs)
 {
     return !(lhs == rhs);
 }
@@ -268,8 +268,8 @@ operator<<(std::ostream &os, Pokemon_links::Encoding_index const &n_n)
 }
 
 bool
-operator==(std::vector<Pokemon_links::Encoding_index> const &lhs,
-           std::vector<Pokemon_links::Encoding_index> const &rhs)
+operator==(std::span<Pokemon_links::Encoding_index const> lhs,
+           std::span<Pokemon_links::Encoding_index const> rhs)
 {
     if (lhs.size() != rhs.size())
     {
@@ -286,15 +286,14 @@ operator==(std::vector<Pokemon_links::Encoding_index> const &lhs,
 }
 
 bool
-operator!=(std::vector<Pokemon_links::Encoding_index> const &lhs,
-           std::vector<Pokemon_links::Encoding_index> const &rhs)
+operator!=(std::span<Pokemon_links::Encoding_index const> lhs,
+           std::span<Pokemon_links::Encoding_index const> rhs)
 {
     return !(lhs == rhs);
 }
 
 std::ostream &
-operator<<(std::ostream &os,
-           std::vector<Pokemon_links::Encoding_index> const &n_n)
+operator<<(std::ostream &os, std::span<Pokemon_links::Encoding_index const> n_n)
 {
     for (auto const &i : n_n)
     {

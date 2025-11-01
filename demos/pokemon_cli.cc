@@ -294,10 +294,9 @@ solve(Runner const &runner)
         }
         Dx::hide_items_except(links, subset);
     }
-    Universe_sets const items_options = {
-        .items = Dx::items(links),
-        .options = Dx::options(links),
-    };
+    Universe_sets items_options = {};
+    Dx::fill_items(links, items_options.items);
+    Dx::fill_options(links, items_options.options);
     print_prep_message(items_options, runner.style);
     int const depth_limit
         = runner.type == Dx::Pokemon_links::Coverage_type::attack ? 24 : 6;
