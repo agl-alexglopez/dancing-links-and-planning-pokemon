@@ -69,6 +69,7 @@ class Type_encoding {
     [[nodiscard]] std::string to_string() const;
     [[nodiscard]] static constexpr std::span<std::string_view const>
     type_table();
+    [[nodiscard]] constexpr bool is_empty() const;
 
     constexpr bool operator==(Type_encoding rhs) const;
     constexpr std::strong_ordering operator<=>(Type_encoding rhs) const;
@@ -222,6 +223,12 @@ constexpr std::span<std::string_view const>
 Type_encoding::type_table()
 {
     return type_encoding_table;
+}
+
+constexpr bool
+Type_encoding::is_empty() const
+{
+    return 0 == encoding_;
 }
 
 constexpr bool
