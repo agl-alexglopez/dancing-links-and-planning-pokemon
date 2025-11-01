@@ -25,6 +25,9 @@ namespace Dx = Dancing_links;
 
 ////////////////////////    Prototypes     ////////////////////////////////////
 namespace {
+
+constexpr std::string_view font_path = "data/font/PokemonGb-RAeo.ttf";
+
 int run();
 
 /// Helper lambda for building a static table of rgb colors for types at compile
@@ -204,6 +207,7 @@ class Generation {
     static std::string_view
     get_token_with_trailing_delims(std::string_view view,
                                    std::string_view delim_set);
+    static Color select_max_contrast_text_color(Color const &background);
 };
 
 } // namespace
@@ -231,9 +235,12 @@ run()
         SetConfigFlags(FLAG_WINDOW_RESIZABLE);
         InitWindow(screen_width, screen_height,
                    "raylib [core] example - basic window");
-
+        int const old_default_font_size = GetFontDefault().baseSize;
+        Font gb_font
+            = LoadFontEx(font_path.data(), old_default_font_size, nullptr, 0);
+        GenTextureMipmaps(&gb_font.texture);
+        GuiSetFont(gb_font);
         SetTargetFPS(60);
-        GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
         Generation gen;
 
         while (!WindowShouldClose())
@@ -415,7 +422,7 @@ Generation::draw(int const window_width, int const window_height)
         }
     }
     // We may be mutating a buttons toggle state we mutably iterate.
-    for (auto &[city_location_map_iterator, toggle_state] : gym_toggles)
+    for (auto &[city_location_map_iterator, active_toggle_state] : gym_toggles)
     {
         Dx::Map_node const &file_coordinates
             = city_location_map_iterator->second;
@@ -426,17 +433,19 @@ Generation::draw(int const window_width, int const window_height)
         // center of the button. Buttons are drawn as squares with the top
         // left corner at the x and y point so move that corner so that the
         // center of the button is the center of node and line connections.
-        if (GuiToggle(
-                Rectangle{
-                    .height = minimap_button_size,
-                    .width = minimap_button_size,
-                    .x = scaled_coordinates.x - (minimap_button_size / 2),
-                    .y = scaled_coordinates.y - (minimap_button_size / 2),
-                },
-                city_location_map_iterator->first.c_str(), &toggle_state))
+        bool const prev_state = active_toggle_state;
+        GuiToggle(
+            Rectangle{
+                .height = minimap_button_size,
+                .width = minimap_button_size,
+                .x = scaled_coordinates.x - (minimap_button_size / 2),
+                .y = scaled_coordinates.y - (minimap_button_size / 2),
+            },
+            city_location_map_iterator->first.c_str(), &active_toggle_state);
+        if (active_toggle_state != prev_state)
         {
             rendering_solution = false;
-            if (toggle_state)
+            if (active_toggle_state)
             {
                 selected_gyms.insert(city_location_map_iterator->first);
             }
@@ -509,19 +518,13 @@ Generation::draw_controls(float const minimap_width, float const minimap_height)
         rendering_solution = true;
         auto const dlx_active_solver
             = static_cast<Solution_request>(dlx_solver_select.active);
-        if (selected_gyms.empty())
-        {
-            Dx::reset_items(defense_dlx);
-            Dx::reset_items(attack_dlx);
-            std::cerr << "selected gyms set is empty\n";
-        }
-        else
+        Dx::reset_items(defense_dlx);
+        Dx::reset_items(attack_dlx);
+        if (!selected_gyms.empty())
         {
             std::set<Dx::Type_encoding> const subset_attack
                 = Dx::load_selected_gyms_attacks(
                     dst_map_list[dst_map_select.active], selected_gyms);
-            std::cerr << "Covering gyms with " << subset_attack.size()
-                      << " total attack types.\n";
             Dx::hide_items_except(defense_dlx, subset_attack);
             std::set<Dx::Type_encoding> const subset_defense
                 = Dx::load_selected_gyms_defenses(
@@ -555,7 +558,7 @@ Generation::draw_controls(float const minimap_width, float const minimap_height)
 void
 Generation::draw_graph_cover(Rectangle const canvas)
 {
-    Font font = GetFontDefault();
+    Font font = GuiGetFont();
     auto const dlx_active_solver
         = static_cast<Solution_request>(dlx_solver_select.active);
     if (!rendering_solution)
@@ -583,29 +586,46 @@ Generation::draw_graph_cover(Rectangle const canvas)
         draw_wrapping_message(canvas, font, no_solution_message);
         return;
     }
-    float x = canvas.width / 2;
-    float y = canvas.height / 2;
+    float x = canvas.x + (canvas.width / 2);
+    float y = canvas.y + (canvas.height / 2);
+    float const font_spacing = 2.0;
     float const radius = 40;
     for (Dx::Type_encoding t : *solution->begin())
     {
         std::pair<uint64_t, std::optional<uint64_t>> const type_indices
             = t.decode_indices();
+        Type_node const &type1 = type_colors.at(type_indices.first);
+        Color const type1_color = select_max_contrast_text_color(type1.rgb);
         if (type_indices.second.has_value())
         {
+            Type_node const &type2
+                = type_colors.at(type_indices.second.value());
+            Color const type2_color = select_max_contrast_text_color(type2.rgb);
             DrawCircleSector(
                 Vector2{
                     .x = x,
                     .y = y,
                 },
-                radius, 270.0, 90.0, 100,
-                type_colors.at(type_indices.first).rgb);
+                radius, 360, 180, 100, type1.rgb);
             DrawCircleSector(
                 Vector2{
                     .x = x,
                     .y = y,
                 },
-                radius, 450.0, 270.0, 100,
-                type_colors.at(type_indices.second.value()).rgb);
+                radius, 0, 180, 100, type2.rgb);
+            DrawTextEx(font, type1.type.data(),
+                       Vector2{
+                           .x = x - (radius * 0.5F),
+                           .y = y - static_cast<float>(font.baseSize)
+                                - (font_spacing * 2),
+                       },
+                       15.0, 2.0, type1_color);
+            DrawTextEx(font, type2.type.data(),
+                       Vector2{
+                           .x = x - (radius * 0.5F),
+                           .y = y + (font_spacing * 2),
+                       },
+                       15.0, font_spacing, type2_color);
         }
         else
         {
@@ -614,7 +634,13 @@ Generation::draw_graph_cover(Rectangle const canvas)
                     .x = x,
                     .y = y,
                 },
-                radius, type_colors.at(type_indices.first).rgb);
+                radius, type1.rgb);
+            DrawTextEx(font, type1.type.data(),
+                       Vector2{
+                           .x = x - (radius * 0.5F),
+                           .y = y - static_cast<float>(font.baseSize / 2.0),
+                       },
+                       15.0, font_spacing, type1_color);
         }
         x += (radius * 2);
     }
@@ -638,7 +664,7 @@ Generation::draw_wrapping_message(Rectangle const canvas, Font const font,
     // based on the canvas size, not hard coded values.
     float const start_x = canvas.width / 4.0F;
     float const end_x = canvas.width - (canvas.width / 4.0F);
-    auto const font_size = static_cast<float>(font.baseSize * 4);
+    auto const font_size = static_cast<float>(font.baseSize * 3.0);
     float const font_x_spacing = 4.0;
     float const font_y_spacing = 5.0;
     float const font_scaling = font_size / static_cast<float>(font.baseSize);
@@ -756,6 +782,26 @@ Generation::get_token_with_trailing_delims(std::string_view view,
         return view;
     }
     return view.substr(0, first_found + end_of_delims);
+}
+
+Color
+Generation::select_max_contrast_text_color(Color const &background)
+{
+    float const luminance = (0.2126F * static_cast<float>(background.r))
+                            + (0.7152F * static_cast<float>(background.g))
+                            + (0.0722F * static_cast<float>(background.b));
+    float const saturation
+        = static_cast<float>(
+              (std::max({background.r, background.g, background.b})
+               - std::min({background.r, background.g, background.b})))
+          / static_cast<float>(
+              std::max({background.r, background.g, background.b}));
+    auto text_color = WHITE;
+    if (saturation <= 0.5 && luminance > 0.5)
+    {
+        text_color = BLACK;
+    }
+    return text_color;
 }
 
 Dx::Point
