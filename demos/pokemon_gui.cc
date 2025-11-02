@@ -122,6 +122,17 @@ class Generation {
         Type_display_info{.type = "Wtr", .rgb = from_hex(0x6390F0)},
     };
 
+    static constexpr std::array<Color, 7> multiplier_colors{
+        Color{},                                       // empty
+        Color{.r = 0, .g = 0, .b = 0, .a = 255},       // Immune
+        Color{.r = 0, .g = 255, .b = 0, .a = 255},     // x0.25
+        Color{.r = 0, .g = 0, .b = 255, .a = 255},     // x0.5
+        Color{.r = 128, .g = 128, .b = 128, .a = 255}, // x1.0
+        Color{.r = 212, .g = 175, .b = 55, .a = 255},  // x2.0
+        Color{.r = 255, .g = 0, .b = 0, .a = 255},     // x4.0
+
+    };
+
     //////////////////////   Data Structures  /////////////////////////////////
 
     /// The state we must track to successfully use a Raylib drop down.
@@ -461,13 +472,13 @@ Generation::draw(int const window_width, int const window_height)
             }
         }
     }
-    draw_controls(minimap_width, minimap_height);
     draw_graph_cover(Rectangle{
         .width = static_cast<float>(window_width),
         .height = static_cast<float>(window_height) - minimap_height,
         .x = minimap_origin_x,
         .y = minimap_origin_y + minimap_height + minimap_button_size,
     });
+    draw_controls(minimap_width, minimap_height);
 }
 
 void
@@ -572,6 +583,8 @@ Generation::draw_graph_cover(Rectangle const canvas)
     auto const [dlx_solver, solution_set] = ready_solution.value();
     float const node_radius = std::min(canvas.width, canvas.height) / 30.0F;
     size_t const solution_size = solution_set.begin()->size();
+    float const center_x = canvas.x + (canvas.width / 2);
+    float const center_y = canvas.y + (canvas.height / 2);
     // Every type in the solution is given a segment of a circle and will be
     // placed on intervals around a ring by steps of this segment in radians.
     float const theta_segment_angle
@@ -593,14 +606,15 @@ Generation::draw_graph_cover(Rectangle const canvas)
     // R = r / sin(theta / 2)
     //
     // where r is known, giving the perfect radius for the inner ring.
-    float const inner_ring_radius
+    float const inner_ring_node_center_radius
         = solution_size == 1
               ? 0
-              : node_radius / std::sin(theta_segment_angle / 2.0F);
-    float const center_x = canvas.x + (canvas.width / 2);
-    float const center_y = canvas.y + (canvas.height / 2);
-    // We can fill the circle clockwise from the North tip of circle.
-    float cur_theta = std::numbers::pi / 2.0F;
+              : node_radius / std::sin(theta_segment_angle * 0.5F);
+    // While the inner nodes sit directly on the previously calculated radius,
+    // we need an exclusive boundary for the circle segment that will hold the
+    // types each inner ring type covers.
+    float const inner_ring_annulus_radius
+        = inner_ring_node_center_radius + (node_radius * 1.5F);
     // We also have an imaginary outer circle that bounds the nodes that each
     // type in our solution covers. Each type is given a segment of this circle
     // to fill in with the other types that it covers. We will make this look
@@ -612,28 +626,99 @@ Generation::draw_graph_cover(Rectangle const canvas)
     // going to fill the area of the annulus segment wedge with the covered
     // nodes so that they do not overlap with the inner ring. The inner ring of
     // the annulus will encompass the inner ring of solution nodes.
-    float const outer_ring_boundary_radius
-        = std::min(canvas.width, canvas.height) / 2;
+    float const outer_ring_annulus_radius
+        = std::min(canvas.width, canvas.height) * 0.45F;
+    float const annulus_radius_difference
+        = (outer_ring_annulus_radius * outer_ring_annulus_radius)
+          - (inner_ring_annulus_radius * inner_ring_node_center_radius);
+    // Using area of Annulus: A = (theta / 2) * (R^2 - r^2), where R > r.
+    float const annulus_area
+        = (theta_segment_angle * 0.5F) * (annulus_radius_difference);
+    // We can fill the circle clockwise from the North tip of circle.
+    float cur_theta = std::numbers::pi * 0.5F;
     std::vector<Dx::Resistance> coverage{};
     coverage.reserve(Dx::num_items(dlx_solver));
     for (Dx::Type_encoding t : *solution_set.begin())
     {
-        float i = 1;
+        Vector2 const inner_ring_node{
+            .x
+            = (inner_ring_node_center_radius * std::cos(cur_theta)) + center_x,
+            .y
+            = (inner_ring_node_center_radius * std::sin(cur_theta)) + center_y,
+        };
         Dx::fill_items_for(dlx_solver, t, coverage);
-        for (Dx::Resistance const &covered : coverage)
+        auto const n = static_cast<float>(coverage.size());
+        auto const covered_node_radius
+            = std::min(sqrt(((theta_segment_angle * annulus_radius_difference)
+                             / (8.0F * n * 2.0F))),
+                       node_radius);
+        float theta = cur_theta;
+        float const theta_end = cur_theta + theta_segment_angle;
+        float radius = outer_ring_annulus_radius - covered_node_radius;
+        size_t placed = 0;
+        while (placed < coverage.size())
         {
-            draw_type_node(covered.type(), node_radius,
-                           ((inner_ring_radius + (i * node_radius * 2))
-                            * std::cos(cur_theta))
-                               + center_x,
-                           ((inner_ring_radius + (i * node_radius * 2))
-                            * std::sin(cur_theta))
-                               + center_y);
-            ++i;
+            DrawLineBezier(inner_ring_node,
+                           Vector2{
+                               .x = (std::cos(theta) * radius) + center_x,
+                               .y = (std::sin(theta) * radius) + center_y,
+                           },
+                           2.0,
+                           multiplier_colors.at(static_cast<size_t>(
+                               coverage[placed].multiplier())));
+            ++placed;
+            float const angle_step
+                = (2.0F
+                   * std::asin((0.5F * (2.0F * covered_node_radius) / radius)));
+            theta += angle_step;
+            if (theta + angle_step >= theta_end)
+            {
+                radius -= (2.0F * covered_node_radius);
+                theta = cur_theta;
+            }
+            if (radius < 0 || radius <= inner_ring_annulus_radius)
+            {
+                break;
+            }
         }
-        draw_type_node(t, node_radius,
-                       (inner_ring_radius * std::cos(cur_theta)) + center_x,
-                       (inner_ring_radius * std::sin(cur_theta)) + center_y);
+        cur_theta += theta_segment_angle;
+    }
+    for (Dx::Type_encoding t : *solution_set.begin())
+    {
+        Dx::fill_items_for(dlx_solver, t, coverage);
+        auto const n = static_cast<float>(coverage.size());
+        auto const covered_node_radius
+            = std::min(sqrt(((theta_segment_angle * annulus_radius_difference)
+                             / (8.0F * n * 2.0F))),
+                       node_radius);
+        float theta = cur_theta;
+        float const theta_end = cur_theta + theta_segment_angle;
+        float radius = outer_ring_annulus_radius - covered_node_radius;
+        size_t placed = 0;
+        while (placed < coverage.size())
+        {
+            draw_type_node(coverage[placed].type(), covered_node_radius,
+                           (std::cos(theta) * radius) + center_x,
+                           (std::sin(theta) * radius) + center_y);
+            ++placed;
+            float const angle_step
+                = (2.0F
+                   * std::asin((0.5F * (2.0F * covered_node_radius) / radius)));
+            theta += angle_step;
+            if (theta + angle_step >= theta_end)
+            {
+                radius -= (2.0F * covered_node_radius);
+                theta = cur_theta;
+            }
+            if (radius < 0 || radius <= inner_ring_annulus_radius)
+            {
+                break;
+            }
+        }
+        draw_type_node(
+            t, node_radius,
+            (inner_ring_node_center_radius * std::cos(cur_theta)) + center_x,
+            (inner_ring_node_center_radius * std::sin(cur_theta)) + center_y);
         cur_theta += theta_segment_angle;
     }
 }
