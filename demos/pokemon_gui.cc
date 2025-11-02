@@ -581,7 +581,7 @@ Generation::draw_graph_cover(Rectangle const canvas)
         return;
     }
     auto const [dlx_solver, solution_set] = ready_solution.value();
-    float const node_radius = std::min(canvas.width, canvas.height) / 30.0F;
+    float const node_radius = std::min(canvas.width, canvas.height) / 20.0F;
     size_t const solution_size = solution_set.begin()->size();
     float const center_x = canvas.x + (canvas.width / 2);
     float const center_y = canvas.y + (canvas.height / 2);
@@ -628,50 +628,60 @@ Generation::draw_graph_cover(Rectangle const canvas)
     // the annulus will encompass the inner ring of solution nodes.
     float const outer_ring_annulus_radius
         = std::min(canvas.width, canvas.height) * 0.45F;
-    float const annulus_radius_difference
+    float const annulus_radius_squared_difference
         = (outer_ring_annulus_radius * outer_ring_annulus_radius)
           - (inner_ring_annulus_radius * inner_ring_annulus_radius);
     // Using area of Annulus: A = (theta / 2) * (R^2 - r^2), where R > r.
     float const annulus_area
-        = (theta_segment_angle * 0.5F) * (annulus_radius_difference);
+        = (theta_segment_angle * 0.5F) * (annulus_radius_squared_difference);
     // We can fill the circle clockwise from the North tip of circle.
     float cur_theta = std::numbers::pi * 0.5F;
     std::vector<Dx::Resistance> coverage{};
     coverage.reserve(Dx::num_items(dlx_solver));
-    for (Dx::Type_encoding t : *solution_set.begin())
-    {
+
+    // We will use a macro like construct but C++'s version with functions
+    // and lambdas. We must loop through the set of points to draw twice. We
+    // need to draw all the lines first so the nodes go over top the lines.
+    //
+    // There are also many local variables that have been calculated based on
+    // screen proportions. So we will capture all of them by reference and
+    // expect a function to draw something on every interaction with one of
+    // the nodes an inner ring type covers in the outer annulus.
+    //
+    // The drawing functions will also be lambdas so everything inlines in
+    // the end and we don't have to worry about messing something up in a
+    // loop copied twice.
+    auto const for_each_annulus_point = [&](Dx::Type_encoding const &inner_type,
+                                            auto &&draw_fn) {
         Vector2 const inner_ring_node{
             .x
             = (inner_ring_node_center_radius * std::cos(cur_theta)) + center_x,
             .y
             = (inner_ring_node_center_radius * std::sin(cur_theta)) + center_y,
         };
-        Dx::fill_items_for(dlx_solver, t, coverage);
+        Dx::fill_items_for(dlx_solver, inner_type, coverage);
         auto const n = static_cast<float>(coverage.size());
         auto const covered_node_radius
-            = std::min(sqrt(((theta_segment_angle * annulus_radius_difference)
-                             / (8.0F * n * 2.0F))),
-                       node_radius);
+            = sqrt(((theta_segment_angle * annulus_radius_squared_difference)
+                    / (8.0F * n * 4.0F)));
         float theta = cur_theta;
         float const theta_end = cur_theta + theta_segment_angle;
         float radius = outer_ring_annulus_radius - covered_node_radius;
         size_t placed = 0;
         while (placed < coverage.size())
         {
-            DrawLineBezier(inner_ring_node,
-                           Vector2{
-                               .x = (std::cos(theta) * radius) + center_x,
-                               .y = (std::sin(theta) * radius) + center_y,
-                           },
-                           2.0,
-                           multiplier_colors.at(static_cast<size_t>(
-                               coverage[placed].multiplier())));
+            draw_fn(inner_ring_node,
+                    Vector2{
+                        .x = (std::cos(theta) * radius) + center_x,
+                        .y = (std::sin(theta) * radius) + center_y,
+                    },
+                    covered_node_radius, coverage[placed]);
             ++placed;
             float const angle_step
                 = (2.0F
                    * std::asin((0.5F * (2.0F * covered_node_radius) / radius)));
             theta += angle_step;
-            if (theta + angle_step >= theta_end)
+            if (theta + angle_step > theta_end - 1e-4F)
             {
                 radius -= (2.0F * covered_node_radius);
                 theta = cur_theta;
@@ -681,46 +691,47 @@ Generation::draw_graph_cover(Rectangle const canvas)
                 break;
             }
         }
+    };
+
+    // Drawing lines just connects two points at their true center locations.
+    auto const draw_line = [](Vector2 const &inner_point,
+                              Vector2 const &outer_point,
+                              [[maybe_unused]] float const outer_radius,
+                              Dx::Resistance const &outer_type) {
+        DrawLineBezier(
+            inner_point, outer_point, 2.0,
+            multiplier_colors.at(static_cast<size_t>(outer_type.multiplier())));
+    };
+    // A node has much more complex drawing logic, text, and possibly two
+    // colors so it will deal with its own function.
+    auto const draw_node
+        = []([[maybe_unused]] Vector2 const &inner_point,
+             Vector2 const &outer_point, float const outer_radius,
+             Dx::Resistance const &outer_type) {
+              draw_type_node(outer_type.type(), outer_radius, outer_point.x,
+                             outer_point.y);
+          };
+
+    // Use our macro like for each loop.
+    for (Dx::Type_encoding t : *solution_set.begin())
+    {
+        for_each_annulus_point(t, draw_line);
         cur_theta += theta_segment_angle;
     }
     for (Dx::Type_encoding t : *solution_set.begin())
     {
-        Dx::fill_items_for(dlx_solver, t, coverage);
-        auto const n = static_cast<float>(coverage.size());
-        auto const covered_node_radius
-            = std::min(sqrt(((theta_segment_angle * annulus_radius_difference)
-                             / (8.0F * n * 2.0F))),
-                       node_radius);
-        float theta = cur_theta;
-        float const theta_end = cur_theta + theta_segment_angle;
-        float radius = outer_ring_annulus_radius - covered_node_radius;
-        size_t placed = 0;
-        while (placed < coverage.size())
-        {
-            draw_type_node(coverage[placed].type(), covered_node_radius,
-                           (std::cos(theta) * radius) + center_x,
-                           (std::sin(theta) * radius) + center_y);
-            ++placed;
-            float const angle_step
-                = (2.0F
-                   * std::asin((0.5F * (2.0F * covered_node_radius) / radius)));
-            theta += angle_step;
-            if (theta + angle_step >= theta_end)
-            {
-                radius -= (2.0F * covered_node_radius);
-                theta = cur_theta;
-            }
-            if (radius < 0 || radius <= inner_ring_annulus_radius)
-            {
-                break;
-            }
-        }
+        for_each_annulus_point(t, draw_node);
+        // Draw the inner ring last just in case. It is the most important
+        // visual element.
         draw_type_node(
             t, node_radius,
             (inner_ring_node_center_radius * std::cos(cur_theta)) + center_x,
             (inner_ring_node_center_radius * std::sin(cur_theta)) + center_y);
         cur_theta += theta_segment_angle;
     }
+    // Should we get real crazy and do a third iteration to help the user
+    // with a pop up text prompt when hovering over a node with the full
+    // type name.
 }
 
 void
