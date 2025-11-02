@@ -65,12 +65,6 @@ class Generation {
         defense_overlapping_cover,
     };
 
-    struct Type_display_info
-    {
-        std::string_view type;
-        Color rgb;
-    };
-
     //////////////////////   Constants       //////////////////////////////////
 
     enum : uint8_t
@@ -101,25 +95,30 @@ class Generation {
           "generation, then press the 'Solve!' button.";
     /// Nodes will use a backing color corresponding to a type as well as an
     /// abbreviation for the type name.
-    static constexpr std::array<Type_display_info, 18> type_colors{
-        Type_display_info{.type = "Bug", .rgb = from_hex(0xA6B91A)},
-        Type_display_info{.type = "Drk", .rgb = from_hex(0x705746)},
-        Type_display_info{.type = "Drg", .rgb = from_hex(0x6F35FC)},
-        Type_display_info{.type = "Elc", .rgb = from_hex(0xF7D02C)},
-        Type_display_info{.type = "Fry", .rgb = from_hex(0xD685AD)},
-        Type_display_info{.type = "Fgt", .rgb = from_hex(0xC22E28)},
-        Type_display_info{.type = "Fir", .rgb = from_hex(0xEE8130)},
-        Type_display_info{.type = "Fly", .rgb = from_hex(0xA98FF3)},
-        Type_display_info{.type = "Ghs", .rgb = from_hex(0x735797)},
-        Type_display_info{.type = "Grs", .rgb = from_hex(0x7AC74C)},
-        Type_display_info{.type = "Gnd", .rgb = from_hex(0xE2BF65)},
-        Type_display_info{.type = "Ice", .rgb = from_hex(0x96D9D6)},
-        Type_display_info{.type = "Nml", .rgb = from_hex(0xA8A77A)},
-        Type_display_info{.type = "Psn", .rgb = from_hex(0xA33EA1)},
-        Type_display_info{.type = "Psy", .rgb = from_hex(0xF95587)},
-        Type_display_info{.type = "Rck", .rgb = from_hex(0xB6A136)},
-        Type_display_info{.type = "Stl", .rgb = from_hex(0xB7B7CE)},
-        Type_display_info{.type = "Wtr", .rgb = from_hex(0x6390F0)},
+    static constexpr std::array<Color, 18> type_colors{
+        from_hex(0xA6B91A), // Bug
+        from_hex(0x705746), // Dark
+        from_hex(0x6F35FC), // Dragon
+        from_hex(0xF7D02C), // Electric
+        from_hex(0xD685AD), // Fairy
+        from_hex(0xC22E28), // Fighting
+        from_hex(0xEE8130), // Fire
+        from_hex(0xA98FF3), // Flying
+        from_hex(0x735797), // Ghost
+        from_hex(0x7AC74C), // Grass
+        from_hex(0xE2BF65), // Ground
+        from_hex(0x96D9D6), // Ice
+        from_hex(0xA8A77A), // Normal
+        from_hex(0xA33EA1), // Poison
+        from_hex(0xF95587), // Psychic
+        from_hex(0xB6A136), // Rock
+        from_hex(0xB7B7CE), // Steel
+        from_hex(0x6390F0), // Water
+    };
+
+    static constexpr std::array<std::string_view, 18> type_string_abbrev{
+        "Bug", "Drk", "Drg", "Elc", "Fry", "Fgt", "Fir", "Fly", "Ghs",
+        "Grs", "Gnd", "Ice", "Nml", "Psn", "Psy", "Rck", "Stl", "Wtr",
     };
 
     static constexpr std::array<Color, 7> multiplier_colors{
@@ -225,10 +224,18 @@ class Generation {
     get_token_with_trailing_delims(std::string_view view,
                                    std::string_view delim_set);
     static Color select_max_contrast_black_or_white(Color const &background);
-    static void draw_type_node(Dx::Type_encoding type, float radius,
-                               float center_x, float center_y);
+    static void draw_type_node(
+        std::pair<std::string_view, std::optional<std::string_view>> const
+            &type_string,
+        std::pair<Color, std::optional<Color>> const &type_colors, float radius,
+        float center_x, float center_y);
     static void draw_type_popup(Rectangle const &canvas, Dx::Type_encoding type,
                                 float radius, float center_x, float center_y);
+    static std::pair<Color, std::optional<Color>>
+    get_colors(std::pair<uint64_t, std::optional<uint64_t>> const &indices);
+    static std::pair<std::string_view, std::optional<std::string_view>>
+    get_string_abbreviation(
+        std::pair<uint64_t, std::optional<uint64_t>> const &indices);
 };
 
 } // namespace
@@ -707,13 +714,16 @@ Generation::draw_graph_cover(Rectangle const canvas)
     };
     // A node has much more complex drawing logic, text, and possibly two
     // colors so it will deal with its own function.
-    auto const draw_node
-        = []([[maybe_unused]] Vector2 const &inner_point,
-             Vector2 const &outer_point, float const outer_radius,
-             Dx::Resistance const &outer_type) {
-              draw_type_node(outer_type.type(), outer_radius, outer_point.x,
-                             outer_point.y);
-          };
+    auto const draw_node = []([[maybe_unused]] Vector2 const &inner_point,
+                              Vector2 const &outer_point,
+                              float const outer_radius,
+                              Dx::Resistance const &outer_type) {
+        std::pair<uint64_t, std::optional<uint64_t>> const outer_type_indices
+            = outer_type.type().decode_indices();
+        draw_type_node(get_string_abbreviation(outer_type_indices),
+                       get_colors(outer_type_indices), outer_radius,
+                       outer_point.x, outer_point.y);
+    };
     auto const draw_popup
         = [&canvas]([[maybe_unused]] Vector2 const &inner_point,
                     Vector2 const &outer_point, float const outer_radius,
@@ -734,8 +744,11 @@ Generation::draw_graph_cover(Rectangle const canvas)
         for_each_annulus_point(t, draw_node);
         // Draw the inner ring last just in case. It is the most important
         // visual element.
+        std::pair<uint64_t, std::optional<uint64_t>> const inner_node_indices
+            = t.decode_indices();
         draw_type_node(
-            t, node_radius,
+            get_string_abbreviation(inner_node_indices),
+            get_colors(inner_node_indices), node_radius,
             (inner_ring_node_center_radius * std::cos(cur_theta)) + center_x,
             (inner_ring_node_center_radius * std::sin(cur_theta)) + center_y);
         cur_theta += theta_segment_angle;
@@ -768,118 +781,85 @@ Generation::draw_type_popup(Rectangle const &canvas,
         return;
     }
     Font const font = GuiGetFont();
-    Vector2 const popup_size{
-        .x = std::min(canvas.width, canvas.height) / 5.0F,
-        .y = std::min(canvas.width, canvas.height) / 7.0F,
+    Vector2 const popup_bounding_square{
+        .x = std::min(canvas.width, canvas.height) / 4.0F,
+        .y = std::min(canvas.width, canvas.height) / 4.0F,
     };
     // We will flip the pop up so it doesn't run off screen. Only a concern
     // as we increase toward higher x and y because at the top of the screen
     // the text box always starts from mouse and goes down.
     Vector2 point_origin = mouse;
-    if (((mouse.x - canvas.x) + popup_size.x > canvas.width)
-        || ((mouse.y - canvas.y) + popup_size.y > canvas.height))
+    if (((mouse.x - canvas.x) + popup_bounding_square.x > canvas.width)
+        || ((mouse.y - canvas.y) + popup_bounding_square.y > canvas.height))
     {
-        point_origin.x = mouse.x - popup_size.x;
-        point_origin.y = mouse.y - popup_size.y;
+        point_origin.x = mouse.x - popup_bounding_square.x;
+        point_origin.y = mouse.y - popup_bounding_square.y;
     }
-    float const font_scaling = popup_size.x / 700.0F;
-    auto const font_size = static_cast<float>(font.baseSize) * font_scaling;
-    float const font_spacing = font_size * 0.2F;
-    std::pair<uint64_t, std::optional<uint64_t>> const type_indices
-        = type.decode_indices();
-    Type_display_info const &type1 = type_colors.at(type_indices.first);
-    std::pair<std::string_view, std::optional<std::string_view>> const
-        full_type_strings
-        = type.decode_type();
-    Color const type1_color = select_max_contrast_black_or_white(type1.rgb);
-    if (type_indices.second.has_value() && full_type_strings.second.has_value())
-    {
-        Type_display_info const &type2
-            = type_colors.at(type_indices.second.value());
-        Color const type2_color = select_max_contrast_black_or_white(type2.rgb);
-        DrawRectangleV(point_origin,
-                       Vector2{
-                           .x = popup_size.x,
-                           .y = popup_size.y / 2,
-                       },
-                       type1.rgb);
-        DrawRectangleV(
-            Vector2{
-                .x = point_origin.x,
-                .y = point_origin.y + (popup_size.y / 2),
-            },
-            Vector2{
-                .x = popup_size.x,
-                .y = popup_size.y / 2,
-            },
-            type2.rgb);
-        DrawTextEx(font, full_type_strings.first.data(),
-                   Vector2{
-                       .x = point_origin.x + (font_spacing * 2),
-                       .y = point_origin.y + (popup_size.y / 2) - font_size,
-                   },
-                   font_size, font_spacing, type1_color);
-        DrawTextEx(font, full_type_strings.second.value().data(),
-                   Vector2{
-                       .x = point_origin.x + (font_spacing * 2),
-                       .y = point_origin.y + (popup_size.y / 2) + font_size,
-                   },
-                   font_size, font_spacing, type2_color);
-    }
-    else
-    {
-        DrawRectangleV(point_origin, popup_size, type1.rgb);
-        DrawTextEx(font, full_type_strings.first.data(),
-                   Vector2{
-                       .x = point_origin.x + (font_spacing * 2),
-                       .y = point_origin.y + (popup_size.y / 2),
-                   },
-                   font_size, font_spacing, type1_color);
-    }
+    Vector2 const popup_circle_center{
+        point_origin.x + (popup_bounding_square.x / 2.0F),
+        point_origin.y + (popup_bounding_square.x / 2.0F),
+    };
+    draw_type_node(type.decode_type(), get_colors(type.decode_indices()),
+                   popup_bounding_square.x / 2.0F, popup_circle_center.x,
+                   popup_circle_center.y);
 }
 
 void
-Generation::draw_type_node(Dx::Type_encoding const type, float const radius,
-                           float const center_x, float const center_y)
+Generation::draw_type_node(
+    std::pair<std::string_view, std::optional<std::string_view>> const
+        &type_string,
+    std::pair<Color, std::optional<Color>> const &type_colors,
+    float const radius, float const center_x, float const center_y)
 {
     Font const font = GuiGetFont();
-    float const font_scaling
-        = (2.0F * static_cast<float>(std::numbers::pi) * radius) / 1200.0F;
-    auto const font_size = static_cast<float>(font.baseSize) * font_scaling;
-    float const font_spacing = font_size * 0.2F;
-    std::pair<uint64_t, std::optional<uint64_t>> const type_indices
-        = type.decode_indices();
-    Type_display_info const &type1 = type_colors.at(type_indices.first);
-    Color const type1_color = select_max_contrast_black_or_white(type1.rgb);
-    if (type_indices.second.has_value())
+    auto const base_size = static_cast<float>(font.baseSize);
+    float font_spacing = base_size * 0.2F;
+    std::string_view max_string = type_string.first;
+    if (type_string.second.has_value()
+        && max_string.length() < type_string.second.value().length())
     {
-        Type_display_info const &type2
-            = type_colors.at(type_indices.second.value());
-        Color const type2_color = select_max_contrast_black_or_white(type2.rgb);
+        max_string = type_string.second.value();
+    }
+    Vector2 const measured_dimensions
+        = MeasureTextEx(font, max_string.data(), base_size, font_spacing);
+    // We find the imaginary largest bounding square that fits inside of a
+    // circle which has the diagonal of the circle diameter and side length
+    // of radius * sqrt(2). Then ensure what we measured fits in square.
+    float const font_scaling
+        = (radius * std::numbers::sqrt2_v<float>)
+          / std::max(measured_dimensions.x, measured_dimensions.y);
+    float const font_size = base_size * font_scaling;
+    font_spacing = font_size * 0.2F;
+    Color const type1_text_color
+        = select_max_contrast_black_or_white(type_colors.first);
+    if (type_string.second.has_value() && type_colors.second.has_value())
+    {
+        Color const type2_text_color
+            = select_max_contrast_black_or_white(type_colors.second.value());
         DrawCircleSector(
             Vector2{
                 center_x,
                 center_y,
             },
-            radius, 360, 180, 100, type1.rgb);
+            radius, 360, 180, 100, type_colors.first);
         DrawCircleSector(
             Vector2{
                 center_x,
                 center_y,
             },
-            radius, 0, 180, 100, type2.rgb);
-        DrawTextEx(font, type1.type.data(),
+            radius, 0, 180, 0, type_colors.second.value());
+        DrawTextEx(font, type_string.first.data(),
                    Vector2{
-                       .x = center_x - (radius * 0.5F),
+                       .x = center_x - (radius * 0.8F),
                        .y = center_y - font_size,
                    },
-                   font_size, font_spacing, type1_color);
-        DrawTextEx(font, type2.type.data(),
+                   font_size, font_spacing, type1_text_color);
+        DrawTextEx(font, type_string.second.value().data(),
                    Vector2{
-                       .x = center_x - (radius * 0.5F),
-                       .y = center_y + font_size,
+                       .x = center_x - (radius * 0.8F),
+                       .y = center_y + (font_size / 2.0F),
                    },
-                   font_size, font_spacing, type2_color);
+                   font_size, font_spacing, type2_text_color);
     }
     else
     {
@@ -888,13 +868,13 @@ Generation::draw_type_node(Dx::Type_encoding const type, float const radius,
                 center_x,
                 center_y,
             },
-            radius, type1.rgb);
-        DrawTextEx(font, type1.type.data(),
+            radius, type_colors.first);
+        DrawTextEx(font, type_string.first.data(),
                    Vector2{
-                       .x = center_x - (radius * 0.5F),
+                       .x = center_x - (radius * 0.8F),
                        .y = center_y - (font_size / 2.0F),
                    },
-                   font_size, font_spacing, type1_color);
+                   font_size, font_spacing, type1_text_color);
     }
 }
 
@@ -1073,6 +1053,29 @@ Generation::get_token_with_trailing_delims(std::string_view view,
         return view;
     }
     return view.substr(0, first_found + end_of_delims);
+}
+
+std::pair<Color, std::optional<Color>>
+Generation::get_colors(
+    std::pair<uint64_t, std::optional<uint64_t>> const &indices)
+{
+    return {
+        type_colors.at(indices.first),
+        indices.second.has_value() ? type_colors.at(indices.second.value())
+                                   : std::optional<Color>{},
+    };
+}
+
+std::pair<std::string_view, std::optional<std::string_view>>
+Generation::get_string_abbreviation(
+    std::pair<uint64_t, std::optional<uint64_t>> const &indices)
+{
+    return {
+        type_string_abbrev.at(indices.first),
+        indices.second.has_value()
+            ? type_string_abbrev.at(indices.second.value())
+            : std::optional<std::string_view>{},
+    };
 }
 
 /// Given a color returns black or white given which will have better contrast
