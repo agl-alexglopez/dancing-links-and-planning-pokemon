@@ -198,6 +198,9 @@ class Generation {
     //////////////////////    Functions ///////////////////////////////////
 
     void draw_graph_cover(Rectangle canvas);
+    std::optional<std::pair<Dx::Pokemon_links const &,
+                            std::set<Ranked_set<Dx::Type_encoding>> const &>>
+    get_current_solution(Rectangle const &canvas);
     void draw_controls(float minimap_width, float minimap_height);
     void reload_generation();
     static Dx::Point scale_point(Dx::Point const &p,
@@ -561,38 +564,14 @@ Generation::draw_controls(float const minimap_width, float const minimap_height)
 void
 Generation::draw_graph_cover(Rectangle const canvas)
 {
-    auto const dlx_active_solver
-        = static_cast<Solution_request>(dlx_solver_select.active);
-    if (!rendering_solution)
+    auto const ready_solution = get_current_solution(canvas);
+    if (!ready_solution.has_value())
     {
-        draw_wrapping_message(canvas, graph_display_message);
         return;
     }
-    std::set<Ranked_set<Dx::Type_encoding>> const *solution{};
-    Dx::Pokemon_links const *dlx{};
-    switch (dlx_active_solver)
-    {
-        case Solution_request::attack_exact_cover:
-        case Solution_request::attack_overlapping_cover:
-            solution = &attack_solutions;
-            dlx = &attack_dlx;
-            break;
-        case Solution_request::defense_exact_cover:
-        case Solution_request::defense_overlapping_cover:
-            solution = &defense_solutions;
-            dlx = &defense_dlx;
-            break;
-        default:
-            return;
-            break;
-    }
-    if (solution->empty())
-    {
-        draw_wrapping_message(canvas, no_solution_message);
-        return;
-    }
+    auto const [dlx_solver, solution_set] = ready_solution.value();
     float const node_radius = std::min(canvas.width, canvas.height) / 30.0F;
-    size_t const solution_size = (*solution->begin()).size();
+    size_t const solution_size = solution_set.begin()->size();
     // Every type in the solution is given a segment of a circle and will be
     // placed on intervals around a ring by steps of this segment in radians.
     float const theta_segment_angle
@@ -629,15 +608,18 @@ Generation::draw_graph_cover(Rectangle const canvas)
     // to cover nodes distributed in this circle segment.
     //
     // The size of the nodes we cover will be adjusted to maximally fill the
-    // provided segment.
+    // provided segment. Together these circles form an annulus and we are
+    // going to fill the area of the annulus segment wedge with the covered
+    // nodes so that they do not overlap with the inner ring. The inner ring of
+    // the annulus will encompass the inner ring of solution nodes.
     float const outer_ring_boundary_radius
         = std::min(canvas.width, canvas.height) / 2;
     std::vector<Dx::Resistance> coverage{};
-    coverage.reserve(Dx::num_items(*dlx));
-    for (Dx::Type_encoding t : *solution->begin())
+    coverage.reserve(Dx::num_items(dlx_solver));
+    for (Dx::Type_encoding t : *solution_set.begin())
     {
         float i = 1;
-        Dx::fill_items_for(*dlx, t, coverage);
+        Dx::fill_items_for(dlx_solver, t, coverage);
         for (Dx::Resistance const &covered : coverage)
         {
             draw_type_node(covered.type(), node_radius,
@@ -714,6 +696,43 @@ Generation::draw_type_node(Dx::Type_encoding const type, float const radius,
                    },
                    font_size, font_spacing, type1_color);
     }
+}
+
+std::optional<std::pair<Dx::Pokemon_links const &,
+                        std::set<Ranked_set<Dx::Type_encoding>> const &>>
+Generation::get_current_solution(Rectangle const &canvas)
+{
+    auto const dlx_active_solver
+        = static_cast<Solution_request>(dlx_solver_select.active);
+    if (!rendering_solution)
+    {
+        draw_wrapping_message(canvas, graph_display_message);
+        return {};
+    }
+    std::set<Ranked_set<Dx::Type_encoding>> const *solution{};
+    Dx::Pokemon_links const *dlx{};
+    switch (dlx_active_solver)
+    {
+        case Solution_request::attack_exact_cover:
+        case Solution_request::attack_overlapping_cover:
+            solution = &attack_solutions;
+            dlx = &attack_dlx;
+            break;
+        case Solution_request::defense_exact_cover:
+        case Solution_request::defense_overlapping_cover:
+            solution = &defense_solutions;
+            dlx = &defense_dlx;
+            break;
+        default:
+            return {};
+            break;
+    }
+    if (solution->empty())
+    {
+        draw_wrapping_message(canvas, no_solution_message);
+        return {};
+    }
+    return {{*dlx, *solution}};
 }
 
 /// Attempts to display a helpful directions with word wrapping near the center
