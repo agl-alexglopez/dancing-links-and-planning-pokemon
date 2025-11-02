@@ -828,14 +828,14 @@ Generation::draw_wrapping_message(Rectangle const canvas,
                 }
                 continue;
             }
-            std::pair<int, float> const glyph_info = get_glyph_info(&c);
-            DrawTextCodepoint(font, glyph_info.first,
+            auto const [codepoint, glyph_width] = get_glyph_info(&c);
+            DrawTextCodepoint(font, codepoint,
                               Vector2{
                                   .x = cur_pos_x,
                                   .y = cur_pos_y,
                               },
                               font_size, BLACK);
-            cur_pos_x += glyph_info.second + font_x_spacing;
+            cur_pos_x += glyph_width + font_x_spacing;
         }
         // The word we got back as a token may have skipped leading delimiters
         // in the original message so be sure to cut those off by using the
