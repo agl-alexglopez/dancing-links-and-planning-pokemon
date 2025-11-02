@@ -8,7 +8,7 @@ The `json` files contain the most recent type interaction information I could ge
 
 The `types-introduced-by-gen.json` file is a helpful file I used to more accurately create the generation `json` files. It has the name of every type that exists as of Generation 9 of pokemon and the first generation in which that type was introduced. Any retroactive changes to Pokemon that GameFreak performed are not counted in that generation retroactively. Consider the Fairy case, as described in the previous paragraph.
 
-The `all-maps.json` file accompanies all `.dst` files that are added to the project. It contains the name of the `.dst` file and the eight gyms plus elite four that goes along with that map. It contains the attack and defensive types that can be found in each location. If you add a new map, complete its gym typing information in the `all-maps.json` file.
+The `all-maps.json` file accompanies all `.dst` files that are added to the project. It contains the name of the `.dst` file and the eight gyms plus elite four that goes along with that map. It contains the attack and defensive types that can be found in each location. If you add a new map, complete its gym typing information in the `all-maps.json` file. Some generations call the elite four something else like Galar (Gen 8) has the Champions Cup which is entered as CC rather than E4.
 
 ## DST Files
 
