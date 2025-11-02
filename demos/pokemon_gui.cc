@@ -630,7 +630,7 @@ Generation::draw_graph_cover(Rectangle const canvas)
         = std::min(canvas.width, canvas.height) * 0.45F;
     float const annulus_radius_difference
         = (outer_ring_annulus_radius * outer_ring_annulus_radius)
-          - (inner_ring_annulus_radius * inner_ring_node_center_radius);
+          - (inner_ring_annulus_radius * inner_ring_annulus_radius);
     // Using area of Annulus: A = (theta / 2) * (R^2 - r^2), where R > r.
     float const annulus_area
         = (theta_segment_angle * 0.5F) * (annulus_radius_difference);
