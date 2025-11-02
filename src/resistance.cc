@@ -52,6 +52,7 @@ class Resistance {
     Resistance(Resistance &&other) noexcept = default;
     Resistance &operator=(Resistance &&other) = default;
     Resistance &operator=(Resistance const &other) = default;
+    Resistance() = default;
     ~Resistance() = default;
 
     [[nodiscard]] Type_encoding type() const;
@@ -142,27 +143,27 @@ operator<<(std::ostream &out, Resistance const &res)
     out << res.type() << " x";
     switch (res.multiplier())
     {
-    case Multiplier::emp:
-        out << "NIL";
-        break;
-    case Multiplier::imm:
-        out << "0.0";
-        break;
-    case Multiplier::f14:
-        out << "0.25";
-        break;
-    case Multiplier::f12:
-        out << "0.5";
-        break;
-    case Multiplier::nrm:
-        out << "1.0";
-        break;
-    case Multiplier::dbl:
-        out << "2.0";
-        break;
-    case Multiplier::qdr:
-        out << "4.0";
-        break;
+        case Multiplier::emp:
+            out << "NIL";
+            break;
+        case Multiplier::imm:
+            out << "0.0";
+            break;
+        case Multiplier::f14:
+            out << "0.25";
+            break;
+        case Multiplier::f12:
+            out << "0.5";
+            break;
+        case Multiplier::nrm:
+            out << "1.0";
+            break;
+        case Multiplier::dbl:
+            out << "2.0";
+            break;
+        case Multiplier::qdr:
+            out << "4.0";
+            break;
     }
     return out;
 }
@@ -173,27 +174,27 @@ operator<<(std::ostream &out, Multiplier const &mult)
     out << "Resistance::";
     switch (mult)
     {
-    case Multiplier::emp:
-        out << "Multiplier::emp";
-        break;
-    case Multiplier::imm:
-        out << "Multiplier::imm";
-        break;
-    case Multiplier::f14:
-        out << "Multiplier::f14";
-        break;
-    case Multiplier::f12:
-        out << "Multiplier::f12";
-        break;
-    case Multiplier::nrm:
-        out << "Multiplier::nrm";
-        break;
-    case Multiplier::dbl:
-        out << "Multiplier::dbl";
-        break;
-    case Multiplier::qdr:
-        out << "Multiplier::qdr";
-        break;
+        case Multiplier::emp:
+            out << "Multiplier::emp";
+            break;
+        case Multiplier::imm:
+            out << "Multiplier::imm";
+            break;
+        case Multiplier::f14:
+            out << "Multiplier::f14";
+            break;
+        case Multiplier::f12:
+            out << "Multiplier::f12";
+            break;
+        case Multiplier::nrm:
+            out << "Multiplier::nrm";
+            break;
+        case Multiplier::dbl:
+            out << "Multiplier::dbl";
+            break;
+        case Multiplier::qdr:
+            out << "Multiplier::qdr";
+            break;
     }
     return out;
 }

@@ -79,6 +79,7 @@ class Generation {
     static constexpr float minimap_button_size = 30;
     static constexpr float text_label_font_size = 5.0;
     static constexpr float map_pad = 3.0;
+    static constexpr float default_line_thickness = 2.0;
     static constexpr char const *const dst_relative_path = "data/dst/";
     /// The string provided to the solver drop down selection by Raylib.
     static constexpr char const *const dlx_solver_options
@@ -129,7 +130,10 @@ class Generation {
         Color{.r = 128, .g = 128, .b = 128, .a = 255}, // x1.0
         Color{.r = 212, .g = 175, .b = 55, .a = 255},  // x2.0
         Color{.r = 255, .g = 0, .b = 0, .a = 255},     // x4.0
+    };
 
+    static constexpr std::array<std::string_view, 7> multiplier_strings{
+        "", "x.00", "x.25", "x.50", "x1.0", "x2.0", "x4.0",
     };
 
     //////////////////////   Data Structures  /////////////////////////////////
@@ -229,8 +233,11 @@ class Generation {
             &type_string,
         std::pair<Color, std::optional<Color>> const &type_colors, float radius,
         float center_x, float center_y);
-    static void draw_type_popup(Rectangle const &canvas, Dx::Type_encoding type,
-                                float radius, float center_x, float center_y);
+    static void draw_type_popup(Rectangle const &canvas,
+                                Dx::Type_encoding inner_type,
+                                Vector2 const &inner_point, float inner_radius,
+                                Dx::Resistance outer_type, float outer_radius,
+                                Vector2 const &outer_point);
     static std::pair<Color, std::optional<Color>>
     get_colors(std::pair<uint64_t, std::optional<uint64_t>> const &indices);
     static std::pair<std::string_view, std::optional<std::string_view>>
@@ -596,9 +603,8 @@ Generation::draw_graph_cover(Rectangle const canvas)
     float const center_y = canvas.y + (canvas.height / 2);
     // Every type in the solution is given a segment of a circle and will be
     // placed on intervals around a ring by steps of this segment in radians.
-    float const theta_segment_angle
-        = static_cast<float>(2.0F * std::numbers::pi)
-          / static_cast<float>(solution_size);
+    float const theta_segment_angle = (2.0F * std::numbers::pi_v<float>)
+                                      / static_cast<float>(solution_size);
     // We want all of our solution types to gather at the center of the screen
     // in the smallest ring possible without overlapping. The circle cord
     // segment that passes through two center points of type nodes on this
@@ -644,7 +650,7 @@ Generation::draw_graph_cover(Rectangle const canvas)
     float const annulus_area
         = (theta_segment_angle * 0.5F) * (annulus_radius_squared_difference);
     // We can fill the circle clockwise from the North tip of circle.
-    float const start_theta = std::numbers::pi * 0.5F;
+    float const start_theta = std::numbers::pi_v<float> * 0.5F;
     float cur_theta = start_theta;
     std::vector<Dx::Resistance> coverage{};
     coverage.reserve(Dx::num_items(dlx_solver));
@@ -686,7 +692,7 @@ Generation::draw_graph_cover(Rectangle const canvas)
                         .x = (std::cos(theta) * radius) + center_x,
                         .y = (std::sin(theta) * radius) + center_y,
                     },
-                    covered_node_radius, coverage[placed]);
+                    covered_node_radius, inner_type, coverage[placed]);
             ++placed;
             float const angle_step
                 = (2.0F
@@ -705,34 +711,39 @@ Generation::draw_graph_cover(Rectangle const canvas)
     };
 
     // Drawing lines just connects two points at their true center locations.
-    auto const draw_line = [](Vector2 const &inner_point,
-                              Vector2 const &outer_point,
-                              [[maybe_unused]] float const outer_radius,
-                              Dx::Resistance const &outer_type) {
-        DrawLineBezier(
-            inner_point, outer_point, 2.0,
-            multiplier_colors.at(static_cast<size_t>(outer_type.multiplier())));
-    };
+    auto const draw_line
+        = [](Vector2 const &inner_point, Vector2 const &outer_point,
+             [[maybe_unused]] float const outer_radius,
+             [[maybe_unused]] Dx::Type_encoding const inner_type,
+             Dx::Resistance const &outer_type) {
+              DrawLineBezier(inner_point, outer_point, default_line_thickness,
+                             multiplier_colors.at(
+                                 static_cast<size_t>(outer_type.multiplier())));
+          };
     // A node has much more complex drawing logic, text, and possibly two
     // colors so it will deal with its own function.
-    auto const draw_node = []([[maybe_unused]] Vector2 const &inner_point,
-                              Vector2 const &outer_point,
-                              float const outer_radius,
-                              Dx::Resistance const &outer_type) {
-        std::pair<uint64_t, std::optional<uint64_t>> const outer_type_indices
-            = outer_type.type().decode_indices();
-        draw_type_node(get_string_abbreviation(outer_type_indices),
-                       get_colors(outer_type_indices), outer_radius,
-                       outer_point.x, outer_point.y);
-    };
+    auto const draw_outer_node
+        = []([[maybe_unused]] Vector2 const &inner_point,
+             Vector2 const &outer_point, float const outer_radius,
+             [[maybe_unused]] Dx::Type_encoding const inner_type,
+             Dx::Resistance const &outer_type) {
+              std::pair<uint64_t, std::optional<uint64_t>> const
+                  outer_type_indices
+                  = outer_type.type().decode_indices();
+              draw_type_node(get_string_abbreviation(outer_type_indices),
+                             get_colors(outer_type_indices), outer_radius,
+                             outer_point.x, outer_point.y);
+          };
     // Final layer is a pop up zoom-like feature that gives the full name of
     // a type node if we hover over with the mouse.
     auto const draw_popup
-        = [&canvas]([[maybe_unused]] Vector2 const &inner_point,
-                    Vector2 const &outer_point, float const outer_radius,
-                    Dx::Resistance const &outer_type) {
-              draw_type_popup(canvas, outer_type.type(), outer_radius,
-                              outer_point.x, outer_point.y);
+        = [&canvas, &node_radius]([[maybe_unused]] Vector2 const &inner_point,
+                                  Vector2 const &outer_point,
+                                  float const outer_radius,
+                                  Dx::Type_encoding const inner_type,
+                                  Dx::Resistance const &outer_type) {
+              draw_type_popup(canvas, inner_type, inner_point, node_radius,
+                              outer_type, outer_radius, outer_point);
           };
 
     // Use our macro like for each loop.
@@ -747,7 +758,7 @@ Generation::draw_graph_cover(Rectangle const canvas)
     cur_theta = start_theta;
     for (Dx::Type_encoding t : *solution_set.begin())
     {
-        for_each_annulus_point(t, draw_node);
+        for_each_annulus_point(t, draw_outer_node);
         // Draw the inner ring last just in case. It is the most important
         // visual element.
         std::pair<uint64_t, std::optional<uint64_t>> const inner_node_indices
@@ -765,10 +776,15 @@ Generation::draw_graph_cover(Rectangle const canvas)
     for (Dx::Type_encoding t : *solution_set.begin())
     {
         for_each_annulus_point(t, draw_popup);
-        draw_type_popup(
-            canvas, t, node_radius,
-            (inner_ring_node_center_radius * std::cos(cur_theta)) + center_x,
-            (inner_ring_node_center_radius * std::sin(cur_theta)) + center_y);
+        Vector2 const point{
+            .x
+            = (inner_ring_node_center_radius * std::cos(cur_theta)) + center_x,
+            .y
+            = (inner_ring_node_center_radius * std::sin(cur_theta)) + center_y,
+        };
+        draw_type_popup(canvas, t, point, node_radius,
+                        Dx::Resistance(t, Dx::Multiplier::emp), node_radius,
+                        point);
         cur_theta += theta_segment_angle;
     }
 }
@@ -778,18 +794,38 @@ Generation::draw_graph_cover(Rectangle const canvas)
 /// screen and adjusts accordingly.
 void
 Generation::draw_type_popup(Rectangle const &canvas,
-                            Dx::Type_encoding const type, float const radius,
-                            float const center_x, float const center_y)
+                            Dx::Type_encoding const inner_type,
+                            Vector2 const &inner_point,
+                            float const inner_radius,
+                            Dx::Resistance const outer_type,
+                            float const outer_radius,
+                            Vector2 const &outer_point)
 {
     Vector2 const mouse = GetMousePosition();
     if (!CheckCollisionPointCircle(mouse,
                                    Vector2{
-                                       .x = center_x,
-                                       .y = center_y,
+                                       .x = outer_point.x,
+                                       .y = outer_point.y,
                                    },
-                                   radius))
+                                   outer_radius))
     {
         return;
+    }
+    bool const is_outer_popup
+        = inner_point.x != outer_point.x || inner_point.y != outer_point.y;
+    if (is_outer_popup)
+    {
+        DrawLineBezier(
+            inner_point, outer_point, default_line_thickness * 3,
+            multiplier_colors.at(static_cast<size_t>(outer_type.multiplier())));
+        auto const inner_indices = inner_type.decode_indices();
+        auto const outer_indices = outer_type.type().decode_indices();
+        draw_type_node(get_string_abbreviation(outer_indices),
+                       get_colors(outer_indices), outer_radius, outer_point.x,
+                       outer_point.y);
+        draw_type_node(get_string_abbreviation(inner_indices),
+                       get_colors(inner_indices), inner_radius, inner_point.x,
+                       inner_point.y);
     }
     Font const font = GuiGetFont();
     Vector2 const popup_bounding_square{
@@ -808,11 +844,41 @@ Generation::draw_type_popup(Rectangle const &canvas,
     }
     Vector2 const popup_circle_center{
         point_origin.x + (popup_bounding_square.x / 2.0F),
-        point_origin.y + (popup_bounding_square.x / 2.0F),
+        point_origin.y + (popup_bounding_square.y / 2.0F),
     };
-    draw_type_node(type.decode_type(), get_colors(type.decode_indices()),
-                   popup_bounding_square.x / 2.0F, popup_circle_center.x,
+    float const popup_node_radius = popup_bounding_square.x / 2.0F;
+    draw_type_node(outer_type.type().decode_type(),
+                   get_colors(outer_type.type().decode_indices()),
+                   popup_node_radius, popup_circle_center.x,
                    popup_circle_center.y);
+    if (is_outer_popup)
+    {
+        auto const multiplier_index
+            = static_cast<size_t>(outer_type.multiplier());
+        std::string_view const multiplier_string
+            = multiplier_strings.at(multiplier_index);
+        Font const font = GuiGetFont();
+        auto const base_size = static_cast<float>(font.baseSize);
+        float font_spacing = base_size * 0.2F;
+        Vector2 const measured_dimensions = MeasureTextEx(
+            font, multiplier_string.data(), base_size, font_spacing);
+        float const font_scaling
+            = (popup_bounding_square.x * 0.5F)
+              / std::max(measured_dimensions.x, measured_dimensions.y);
+        float const font_size = base_size * font_scaling;
+        font_spacing = font_size * 0.2F;
+        DrawTextEx(
+            font, multiplier_strings.at(multiplier_index).data(),
+            Vector2{
+                .x = (popup_node_radius
+                      * std::cos(5.0F * (std::numbers::pi_v<float>) / 4.0F))
+                     + popup_circle_center.x,
+                .y = (popup_node_radius
+                      * std::sin(5.0F * (std::numbers::pi_v<float>) / 4.0F))
+                     + popup_circle_center.y,
+            },
+            font_size, font_spacing, multiplier_colors.at(multiplier_index));
+    }
 }
 
 /// Draws a node for a Pokemon type. The provided text is the type name which
