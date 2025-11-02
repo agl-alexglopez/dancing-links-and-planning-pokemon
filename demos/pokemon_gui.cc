@@ -1,3 +1,44 @@
+/// Author: Alexander Lopez
+///
+/// This file implements an interactive Dancing Links graph cover visualizer.
+/// The user is able to load in any of 9 generation Pokemon maps and solve
+/// various graph cover questions. These questions basically boil down to
+/// the following:
+///
+/// What team of at most 6 Pokemon can I choose to be resilient to any attack
+/// type I will encounter in the game?
+///
+/// Of my 24 attack slots for my 6 Pokemon, which attack types can I choose to
+/// give them so that I am super effective against any defensive types I will
+/// encounter in the game?
+///
+/// These questions can be answered for an entire game or a subset of maps to
+/// choose from on the mini map.
+///
+/// If a solution exists, it will be shown as the inner ring of attack or
+/// defensive types that covers all the requested attack or defensive types
+/// that surround this inner ring. The inner ring has edges that lead to the
+/// types that are covered. These edges are color coded to indicate the quality
+/// of the solution.
+///
+/// A line is colored based on the multiplier of the type interaction. If the
+/// inner ring is defensive types than the edges indicate what resistance
+/// multiplier the defensive type receives against the type it covers. The
+/// multiplier could be 0.5, 0.25, or 0.0. These are all good but obviously
+/// a 0.0 multiplier is best because it means immunity from damage.
+///
+/// If the inner ring is attack types the edges indicate the damage multiplier
+/// these types do against the defensive types they cover. The multiplier could
+/// be 2 or 4. Both are good but a 4x multiplier is best.
+///
+/// The solution that is shown is the best among all candidate solutions that
+/// were generated as viable covers for the graph. A ranked set system is used
+/// so that the best solution has the highest number of better multipliers.
+///
+/// Hovering over nodes will show their full type names. If hovering over
+/// covered nodes in the surrounding circle, the multiplier is indicated and
+/// the text matches the edge color.
+///
 ///////////////////   System headers   ////////////////////////////////////////
 #include <algorithm>
 #include <array>
@@ -133,7 +174,7 @@ class Generation {
     };
 
     static constexpr std::array<std::string_view, 7> multiplier_strings{
-        "", "x.00", "x.25", "x.50", "x1.0", "x2.0", "x4.0",
+        "", "0.00x", "0.25x", "0.50x", "1.00x", "2.00x", "4.00x",
     };
 
     //////////////////////   Data Structures  /////////////////////////////////
@@ -680,7 +721,7 @@ Generation::draw_graph_cover(Rectangle const canvas)
         auto const n = static_cast<float>(coverage.size());
         auto const covered_node_radius
             = sqrt(((theta_segment_angle * annulus_radius_squared_difference)
-                    / (8.0F * n * 4.0F)));
+                    / (8.0F * n * 3.5F)));
         float theta = cur_theta;
         float const theta_end = cur_theta + theta_segment_angle;
         float radius = outer_ring_annulus_radius - covered_node_radius;
