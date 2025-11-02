@@ -213,11 +213,11 @@ class Generation {
     get_current_solution(Rectangle const &canvas);
     void draw_controls(float minimap_width, float minimap_height);
     void reload_generation();
-    static Dx::Point scale_point(Dx::Point const &p,
-                                 Dx::Min_max const &x_data_bounds,
-                                 Dx::Min_max const &x_draw_bounds,
-                                 Dx::Min_max const &y_data_bounds,
-                                 Dx::Min_max const &y_draw_bounds);
+    static Dx::Point scale_map_point(Dx::Point const &p,
+                                     Dx::Min_max const &x_data_bounds,
+                                     Dx::Min_max const &x_draw_bounds,
+                                     Dx::Min_max const &y_data_bounds,
+                                     Dx::Min_max const &y_draw_bounds);
     static void draw_wrapping_message(Rectangle canvas,
                                       std::string_view message);
     static std::string_view
@@ -426,13 +426,13 @@ Generation::draw(int const window_width, int const window_height)
 
     for (auto const &[city_string, node_info] : generation.gen_map.network)
     {
-        Dx::Point const src = scale_point(
+        Dx::Point const src = scale_map_point(
             node_info.coordinates, generation.gen_map.x_data_bounds,
             x_draw_bounds, generation.gen_map.y_data_bounds, y_draw_bounds);
         for (std::string const *edge : node_info.edges)
         {
             Dx::Map_node const dst_info = generation.gen_map.network.at(*edge);
-            Dx::Point const dst = scale_point(
+            Dx::Point const dst = scale_map_point(
                 dst_info.coordinates, generation.gen_map.x_data_bounds,
                 x_draw_bounds, generation.gen_map.y_data_bounds, y_draw_bounds);
             DrawLineV(
@@ -452,7 +452,7 @@ Generation::draw(int const window_width, int const window_height)
     {
         Dx::Map_node const &file_coordinates
             = city_location_map_iterator->second;
-        Dx::Point const scaled_coordinates = scale_point(
+        Dx::Point const scaled_coordinates = scale_map_point(
             file_coordinates.coordinates, generation.gen_map.x_data_bounds,
             x_draw_bounds, generation.gen_map.y_data_bounds, y_draw_bounds);
         // We want the lines that connect the button nodes to run through the
@@ -650,8 +650,9 @@ Generation::draw_graph_cover(Rectangle const canvas)
     coverage.reserve(Dx::num_items(dlx_solver));
 
     // We will use a macro like construct but C++'s version with functions
-    // and lambdas. We must loop through the set of points to draw twice. We
-    // need to draw all the lines first so the nodes go over top the lines.
+    // and lambdas. We must loop through the set of points a few times to draw
+    // multiple layers. We need to draw all the lines first so the nodes go over
+    // top the lines.
     //
     // There are also many local variables that have been calculated based on
     // screen proportions. So we will capture all of them by reference and
@@ -660,7 +661,7 @@ Generation::draw_graph_cover(Rectangle const canvas)
     //
     // The drawing functions will also be lambdas so everything inlines in
     // the end and we don't have to worry about messing something up in a
-    // loop copied twice.
+    // loop copied multiple times.
     auto const for_each_annulus_point = [&](Dx::Type_encoding const &inner_type,
                                             auto &&draw_fn) {
         Vector2 const inner_ring_node{
@@ -724,6 +725,8 @@ Generation::draw_graph_cover(Rectangle const canvas)
                        get_colors(outer_type_indices), outer_radius,
                        outer_point.x, outer_point.y);
     };
+    // Final layer is a pop up zoom-like feature that gives the full name of
+    // a type node if we hover over with the mouse.
     auto const draw_popup
         = [&canvas]([[maybe_unused]] Vector2 const &inner_point,
                     Vector2 const &outer_point, float const outer_radius,
@@ -738,6 +741,9 @@ Generation::draw_graph_cover(Rectangle const canvas)
         for_each_annulus_point(t, draw_line);
         cur_theta += theta_segment_angle;
     }
+    // It would not be a problem for theta to continue incrementing but reset
+    // just to be safe as I'm not sure how Raylib handles multiple rotations
+    // around the unit circle.
     cur_theta = start_theta;
     for (Dx::Type_encoding t : *solution_set.begin())
     {
@@ -754,6 +760,8 @@ Generation::draw_graph_cover(Rectangle const canvas)
         cur_theta += theta_segment_angle;
     }
     cur_theta = start_theta;
+    // It can be nice for large solution sets to be able to hover over small
+    // covered nodes and see the full type name.
     for (Dx::Type_encoding t : *solution_set.begin())
     {
         for_each_annulus_point(t, draw_popup);
@@ -765,6 +773,9 @@ Generation::draw_graph_cover(Rectangle const canvas)
     }
 }
 
+/// Draws a large readable version of a type node with the full type name
+/// rather than an abbreviation. The pop up also detects if it will run off
+/// screen and adjusts accordingly.
 void
 Generation::draw_type_popup(Rectangle const &canvas,
                             Dx::Type_encoding const type, float const radius,
@@ -804,6 +815,10 @@ Generation::draw_type_popup(Rectangle const &canvas,
                    popup_circle_center.y);
 }
 
+/// Draws a node for a Pokemon type. The provided text is the type name which
+/// may be a dual type. The colors represent the RGB color of the background,
+/// possibly split in two for dual types. This function will try to make the
+/// text as large as possible within the node so that it still fits.
 void
 Generation::draw_type_node(
     std::pair<std::string_view, std::optional<std::string_view>> const
@@ -878,6 +893,10 @@ Generation::draw_type_node(
     }
 }
 
+/// There are many possible combinations of solver request and solution so
+/// we will handle that complexity here so drawing code does not care.
+///
+/// None is returned if no solution is ready.
 std::optional<std::pair<Dx::Pokemon_links const &,
                         std::set<Ranked_set<Dx::Type_encoding>> const &>>
 Generation::get_current_solution(Rectangle const &canvas)
@@ -1055,6 +1074,7 @@ Generation::get_token_with_trailing_delims(std::string_view view,
     return view.substr(0, first_found + end_of_delims);
 }
 
+/// Find the appropriate colors in the color table for a single or dual type.
 std::pair<Color, std::optional<Color>>
 Generation::get_colors(
     std::pair<uint64_t, std::optional<uint64_t>> const &indices)
@@ -1066,6 +1086,7 @@ Generation::get_colors(
     };
 }
 
+/// Find the appropriate string abbreviation for display node type names.
 std::pair<std::string_view, std::optional<std::string_view>>
 Generation::get_string_abbreviation(
     std::pair<uint64_t, std::optional<uint64_t>> const &indices)
@@ -1101,11 +1122,14 @@ Generation::select_max_contrast_black_or_white(Color const &background)
     return text_color;
 }
 
+/// Scales a gym on the map appropriately so it takes as much space as possible
+/// while maintaining the original graph shape construction.
 Dx::Point
-Generation::scale_point(Dx::Point const &p, Dx::Min_max const &x_data_bounds,
-                        Dx::Min_max const &x_draw_bounds,
-                        Dx::Min_max const &y_data_bounds,
-                        Dx::Min_max const &y_draw_bounds)
+Generation::scale_map_point(Dx::Point const &p,
+                            Dx::Min_max const &x_data_bounds,
+                            Dx::Min_max const &x_draw_bounds,
+                            Dx::Min_max const &y_data_bounds,
+                            Dx::Min_max const &y_draw_bounds)
 {
     return Dx::Point{
         .x
