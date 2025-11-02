@@ -227,6 +227,8 @@ class Generation {
     static Color select_max_contrast_black_or_white(Color const &background);
     static void draw_type_node(Dx::Type_encoding type, float radius,
                                float center_x, float center_y);
+    static void draw_type_popup(Rectangle const &canvas, Dx::Type_encoding type,
+                                float radius, float center_x, float center_y);
 };
 
 } // namespace
@@ -635,7 +637,8 @@ Generation::draw_graph_cover(Rectangle const canvas)
     float const annulus_area
         = (theta_segment_angle * 0.5F) * (annulus_radius_squared_difference);
     // We can fill the circle clockwise from the North tip of circle.
-    float cur_theta = std::numbers::pi * 0.5F;
+    float const start_theta = std::numbers::pi * 0.5F;
+    float cur_theta = start_theta;
     std::vector<Dx::Resistance> coverage{};
     coverage.reserve(Dx::num_items(dlx_solver));
 
@@ -711,6 +714,13 @@ Generation::draw_graph_cover(Rectangle const canvas)
               draw_type_node(outer_type.type(), outer_radius, outer_point.x,
                              outer_point.y);
           };
+    auto const draw_popup
+        = [&canvas]([[maybe_unused]] Vector2 const &inner_point,
+                    Vector2 const &outer_point, float const outer_radius,
+                    Dx::Resistance const &outer_type) {
+              draw_type_popup(canvas, outer_type.type(), outer_radius,
+                              outer_point.x, outer_point.y);
+          };
 
     // Use our macro like for each loop.
     for (Dx::Type_encoding t : *solution_set.begin())
@@ -718,6 +728,7 @@ Generation::draw_graph_cover(Rectangle const canvas)
         for_each_annulus_point(t, draw_line);
         cur_theta += theta_segment_angle;
     }
+    cur_theta = start_theta;
     for (Dx::Type_encoding t : *solution_set.begin())
     {
         for_each_annulus_point(t, draw_node);
@@ -729,9 +740,102 @@ Generation::draw_graph_cover(Rectangle const canvas)
             (inner_ring_node_center_radius * std::sin(cur_theta)) + center_y);
         cur_theta += theta_segment_angle;
     }
-    // Should we get real crazy and do a third iteration to help the user
-    // with a pop up text prompt when hovering over a node with the full
-    // type name.
+    cur_theta = start_theta;
+    for (Dx::Type_encoding t : *solution_set.begin())
+    {
+        for_each_annulus_point(t, draw_popup);
+        draw_type_popup(
+            canvas, t, node_radius,
+            (inner_ring_node_center_radius * std::cos(cur_theta)) + center_x,
+            (inner_ring_node_center_radius * std::sin(cur_theta)) + center_y);
+        cur_theta += theta_segment_angle;
+    }
+}
+
+void
+Generation::draw_type_popup(Rectangle const &canvas,
+                            Dx::Type_encoding const type, float const radius,
+                            float const center_x, float const center_y)
+{
+    Vector2 const mouse = GetMousePosition();
+    if (!CheckCollisionPointCircle(mouse,
+                                   Vector2{
+                                       .x = center_x,
+                                       .y = center_y,
+                                   },
+                                   radius))
+    {
+        return;
+    }
+    Font const font = GuiGetFont();
+    Vector2 const popup_size{
+        .x = std::min(canvas.width, canvas.height) / 5.0F,
+        .y = std::min(canvas.width, canvas.height) / 7.0F,
+    };
+    // We will flip the pop up so it doesn't run off screen. Only a concern
+    // as we increase toward higher x and y because at the top of the screen
+    // the text box always starts from mouse and goes down.
+    Vector2 point_origin = mouse;
+    if (((mouse.x - canvas.x) + popup_size.x > canvas.width)
+        || ((mouse.y - canvas.y) + popup_size.y > canvas.height))
+    {
+        point_origin.x = mouse.x - popup_size.x;
+        point_origin.y = mouse.y - popup_size.y;
+    }
+    float const font_scaling = popup_size.x / 700.0F;
+    auto const font_size = static_cast<float>(font.baseSize) * font_scaling;
+    float const font_spacing = font_size * 0.2F;
+    std::pair<uint64_t, std::optional<uint64_t>> const type_indices
+        = type.decode_indices();
+    Type_display_info const &type1 = type_colors.at(type_indices.first);
+    std::pair<std::string_view, std::optional<std::string_view>> const
+        full_type_strings
+        = type.decode_type();
+    Color const type1_color = select_max_contrast_black_or_white(type1.rgb);
+    if (type_indices.second.has_value() && full_type_strings.second.has_value())
+    {
+        Type_display_info const &type2
+            = type_colors.at(type_indices.second.value());
+        Color const type2_color = select_max_contrast_black_or_white(type2.rgb);
+        DrawRectangleV(point_origin,
+                       Vector2{
+                           .x = popup_size.x,
+                           .y = popup_size.y / 2,
+                       },
+                       type1.rgb);
+        DrawRectangleV(
+            Vector2{
+                .x = point_origin.x,
+                .y = point_origin.y + (popup_size.y / 2),
+            },
+            Vector2{
+                .x = popup_size.x,
+                .y = popup_size.y / 2,
+            },
+            type2.rgb);
+        DrawTextEx(font, full_type_strings.first.data(),
+                   Vector2{
+                       .x = point_origin.x + (font_spacing * 2),
+                       .y = point_origin.y + (popup_size.y / 2) - font_size,
+                   },
+                   font_size, font_spacing, type1_color);
+        DrawTextEx(font, full_type_strings.second.value().data(),
+                   Vector2{
+                       .x = point_origin.x + (font_spacing * 2),
+                       .y = point_origin.y + (popup_size.y / 2) + font_size,
+                   },
+                   font_size, font_spacing, type2_color);
+    }
+    else
+    {
+        DrawRectangleV(point_origin, popup_size, type1.rgb);
+        DrawTextEx(font, full_type_strings.first.data(),
+                   Vector2{
+                       .x = point_origin.x + (font_spacing * 2),
+                       .y = point_origin.y + (popup_size.y / 2),
+                   },
+                   font_size, font_spacing, type1_color);
+    }
 }
 
 void
