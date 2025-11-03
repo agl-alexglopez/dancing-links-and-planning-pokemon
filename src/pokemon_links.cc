@@ -118,16 +118,22 @@ class Pokemon_links {
     ///////////////////  See Dancing_links.h for Documented Free Functions
 
     [[nodiscard]] std::set<Ranked_set<Type_encoding>>
-    exact_coverages_functional(int choice_limit);
+    exact_covers_functional(int choice_limit);
 
     [[nodiscard]] std::set<Ranked_set<Type_encoding>>
-    exact_coverages_stack(int choice_limit);
+    exact_covers_stack(int choice_limit);
+
+    [[nodiscard]] Ranked_set<Type_encoding>
+    best_exact_cover_stack(int choice_limit);
 
     [[nodiscard]] std::set<Ranked_set<Type_encoding>>
-    overlapping_coverages_functional(int choice_limit);
+    overlapping_covers_functional(int choice_limit);
 
     [[nodiscard]] std::set<Ranked_set<Type_encoding>>
-    overlapping_coverages_stack(int choice_limit);
+    overlapping_covers_stack(int choice_limit);
+
+    [[nodiscard]] Ranked_set<Type_encoding>
+    best_overlapping_cover_stack(int choice_limit);
 
     [[nodiscard]] bool hide_requested_item(Type_encoding to_hide);
 
@@ -422,25 +428,37 @@ class Pokemon_links {
 std::set<Ranked_set<Type_encoding>>
 exact_cover_functional(Pokemon_links &dlx, int choice_limit)
 {
-    return dlx.exact_coverages_functional(choice_limit);
+    return dlx.exact_covers_functional(choice_limit);
 }
 
 std::set<Ranked_set<Type_encoding>>
 exact_cover_stack(Pokemon_links &dlx, int choice_limit)
 {
-    return dlx.exact_coverages_stack(choice_limit);
+    return dlx.exact_covers_stack(choice_limit);
+}
+
+Ranked_set<Type_encoding>
+best_exact_cover_stack(Pokemon_links &dlx, int choice_limit)
+{
+    return dlx.best_exact_cover_stack(choice_limit);
 }
 
 std::set<Ranked_set<Type_encoding>>
 overlapping_cover_functional(Pokemon_links &dlx, int choice_limit)
 {
-    return dlx.overlapping_coverages_functional(choice_limit);
+    return dlx.overlapping_covers_functional(choice_limit);
 }
 
 std::set<Ranked_set<Type_encoding>>
 overlapping_cover_stack(Pokemon_links &dlx, int choice_limit)
 {
-    return dlx.overlapping_coverages_stack(choice_limit);
+    return dlx.overlapping_covers_stack(choice_limit);
+}
+
+Ranked_set<Type_encoding>
+best_overlapping_cover_stack(Pokemon_links &dlx, int choice_limit)
+{
+    return dlx.best_overlapping_cover_stack(choice_limit);
 }
 
 bool
@@ -667,7 +685,7 @@ namespace Dancing_links {
 /////////////////////////    Algorithm X via Dancing Links
 
 std::set<Ranked_set<Type_encoding>>
-Pokemon_links::exact_coverages_stack(int choice_limit)
+Pokemon_links::exact_covers_stack(int choice_limit)
 {
     hit_limit_ = false;
     if (choice_limit <= 0)
@@ -742,8 +760,93 @@ Pokemon_links::exact_coverages_stack(int choice_limit)
     return coverages;
 }
 
+Ranked_set<Type_encoding>
+Pokemon_links::best_exact_cover_stack(int choice_limit)
+{
+    hit_limit_ = false;
+    if (choice_limit <= 0)
+    {
+        return {};
+    }
+    uint64_t generated = 0;
+    Ranked_set<Type_encoding> best_coverage = {};
+    best_coverage.reserve(choice_limit);
+    Ranked_set<Type_encoding> coverage{};
+    coverage.reserve(choice_limit);
+    uint64_t const start = choose_item();
+    // A true recursive stack. We will only have O(depth) branches on the stack
+    // equivalent to current search path.
+    std::vector<Branch> dfs{Branch{
+        .item = start,
+        .option = start,
+        .score = {},
+    }};
+    dfs.reserve(choice_limit);
+    while (!dfs.empty())
+    {
+        Branch &cur = dfs.back();
+        // If we return down the stack to any state again, it is time to move on
+        // from this option. This also ensures that proper cleanup happens when
+        // we are done with the entire search space.
+        if (cur.score)
+        {
+            uncover_type(cur.option);
+            static_cast<void>(coverage.erase(cur.score.value().score,
+                                             cur.score.value().name));
+            ++choice_limit;
+        }
+        // This is a caching mechanism so that if we return to this level of
+        // recursion we will know how many options we have tried already. See
+        // the for loop in the functional version if this is confusing.
+        cur.option = links_[cur.option].down;
+        if (cur.option == cur.item)
+        {
+            dfs.pop_back();
+            continue;
+        }
+        cur.score = cover_type(cur.option);
+        static_cast<void>(
+            coverage.insert(cur.score.value().score, cur.score.value().name));
+        --choice_limit;
+
+        if (item_table_[0].right == 0 && choice_limit >= 0)
+        {
+            if ((requested_cover_solution_ == Coverage_type::attack
+                 && coverage.rank() > best_coverage.rank())
+                || (requested_cover_solution_ == Coverage_type::defense
+                    && coverage.rank() < best_coverage.rank()))
+            {
+                best_coverage = coverage;
+            }
+            ++generated;
+            if (generated < max_output_)
+            {
+                continue;
+            }
+            hit_limit_ = true;
+            while (!dfs.empty())
+            {
+                uncover_type(dfs.back().option);
+                dfs.pop_back();
+            }
+            return best_coverage;
+        }
+
+        uint64_t const next_to_cover = choose_item();
+        if (!next_to_cover || choice_limit <= 0)
+        {
+            continue;
+        }
+        // We will know we encountered this branch for the first time if it does
+        // not have a score.
+        dfs.emplace_back(next_to_cover, next_to_cover,
+                         std::optional<Encoding_score>{});
+    }
+    return best_coverage;
+}
+
 std::set<Ranked_set<Type_encoding>>
-Pokemon_links::exact_coverages_functional(int const choice_limit)
+Pokemon_links::exact_covers_functional(int const choice_limit)
 {
     std::set<Ranked_set<Type_encoding>> coverages = {};
     Ranked_set<Type_encoding> coverage{};
@@ -968,7 +1071,7 @@ Pokemon_links::choose_item() const
 ///////////////////////   Overlapping Coverage via Dancing Links
 
 std::set<Ranked_set<Type_encoding>>
-Pokemon_links::overlapping_coverages_stack(int choice_limit)
+Pokemon_links::overlapping_covers_stack(int choice_limit)
 {
     hit_limit_ = false;
     if (choice_limit <= 0)
@@ -1046,8 +1149,96 @@ Pokemon_links::overlapping_coverages_stack(int choice_limit)
     return coverages;
 }
 
+Ranked_set<Type_encoding>
+Pokemon_links::best_overlapping_cover_stack(int choice_limit)
+{
+    hit_limit_ = false;
+    if (choice_limit <= 0)
+    {
+        return {};
+    }
+    uint64_t generated = 0;
+    Ranked_set<Type_encoding> best_coverage = {};
+    best_coverage.reserve(choice_limit);
+    Ranked_set<Type_encoding> coverage{};
+    coverage.reserve(choice_limit);
+    uint64_t const start = choose_item();
+    // A true recursive stack. We will only have O(depth) branches on the stack
+    // equivalent to current search path.
+    std::vector<Branch> dfs{{
+        .item = start,
+        .option = start,
+        .score = {},
+    }};
+    dfs.reserve(choice_limit);
+    while (!dfs.empty())
+    {
+        Branch &cur = dfs.back();
+        // If we return down the stack to any state again, it is time to move on
+        // from this option. This also ensures that proper cleanup happens when
+        // we are done with the entire search space.
+        if (cur.score)
+        {
+            overlapping_uncover_type(cur.option);
+            static_cast<void>(coverage.erase(cur.score.value().score,
+                                             cur.score.value().name));
+            ++choice_limit;
+        }
+        // This is a caching mechanism so that if we return to this level of
+        // recursion we will know how many options we have tried already. See
+        // the for loop in the functional version if this is confusing.
+        cur.option = links_[cur.option].down;
+        if (cur.option == cur.item)
+        {
+            dfs.pop_back();
+            continue;
+        }
+        cur.score = overlapping_cover_type({
+            .index = cur.option,
+            .tag = choice_limit,
+        });
+        static_cast<void>(
+            coverage.insert(cur.score.value().score, cur.score.value().name));
+        --choice_limit;
+
+        if (item_table_[0].right == 0 && choice_limit >= 0)
+        {
+            if ((requested_cover_solution_ == Coverage_type::attack
+                 && coverage.rank() > best_coverage.rank())
+                || (requested_cover_solution_ == Coverage_type::defense
+                    && coverage.rank() < best_coverage.rank()))
+            {
+                best_coverage = coverage;
+            }
+            ++generated;
+            if (generated < max_output_)
+            {
+                continue;
+            }
+            hit_limit_ = true;
+            while (!dfs.empty())
+            {
+                overlapping_uncover_type(dfs.back().option);
+                dfs.pop_back();
+            }
+            return best_coverage;
+        }
+
+        uint64_t const next_to_cover = choose_item();
+        if (!next_to_cover || choice_limit <= 0)
+        {
+            continue;
+        }
+        // We will know we encountered this branch for the first time if it does
+        // not have a score.
+        dfs.emplace_back(next_to_cover, next_to_cover,
+                         std::optional<Encoding_score>{});
+    }
+    return best_coverage;
+}
+
 std::set<Ranked_set<Type_encoding>>
-Pokemon_links::overlapping_coverages_functional(int const choice_limit)
+Pokemon_links::overlapping_covers_functional(int const choice_limit)
 {
     std::set<Ranked_set<Type_encoding>> coverages = {};
     Ranked_set<Type_encoding> coverage = {};

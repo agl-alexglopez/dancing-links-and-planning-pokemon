@@ -96,9 +96,8 @@ class Generation {
     Generation();
     [[nodiscard]] static Rectangle get_ui_canvas(int window_width,
                                                  int window_height);
-    [[nodiscard]] std::optional<
-        std::pair<Dx::Pokemon_links const &,
-                  std::set<Ranked_set<Dx::Type_encoding>> const &>>
+    [[nodiscard]] std::optional<std::pair<
+        Dx::Pokemon_links const &, Ranked_set<Dx::Type_encoding> const &>>
     get_current_solution(Rectangle const &canvas) const;
     void draw_minimap(int window_width, int window_height);
 
@@ -213,14 +212,14 @@ class Generation {
 
     /// The most recent solution to the defense dlx problem rendered every
     /// frame if non-empty and defense solutions was selected.
-    std::set<Ranked_set<Dx::Type_encoding>> defense_solutions;
+    Ranked_set<Dx::Type_encoding> best_defense_solution;
 
     /// The attack dancing links solver. Loaded along with each new generation.
     Dx::Pokemon_links attack_dlx;
 
     /// The most recent solution to the attack dlx problem rendered every
     /// frame if non-empty and defense solutions was selected.
-    std::set<Ranked_set<Dx::Type_encoding>> attack_solutions;
+    Ranked_set<Dx::Type_encoding> best_attack_solution;
 
     //////////////////////    Functions ///////////////////////////////////
 
@@ -254,10 +253,9 @@ class Generation {
 ///////////////////////////////////////////////////////////////////////////////
 class Graph_draw {
   public:
-    static void
-    draw_graph_cover(Rectangle const &canvas,
-                     Dx::Pokemon_links const &dlx_solver,
-                     std::set<Ranked_set<Dx::Type_encoding>> const &solution);
+    static void draw_graph_cover(Rectangle const &canvas,
+                                 Dx::Pokemon_links const &dlx_solver,
+                                 Ranked_set<Dx::Type_encoding> const &solution);
 
   private:
     static constexpr float default_line_thickness = 2.0;
@@ -373,8 +371,7 @@ run()
             };
             std::optional<
                 std::pair<Dx::Pokemon_links const &,
-                          std::set<Ranked_set<Dx::Type_encoding>>>> const
-                solution
+                          Ranked_set<Dx::Type_encoding> const &>> const solution
                 = gen.get_current_solution(graph_canvas);
             if (solution.has_value())
             {
@@ -678,16 +675,16 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
         {
             case Solution_request::attack_exact_cover:
             case Solution_request::defense_exact_cover:
-                attack_solutions
-                    = Dx::exact_cover_stack(attack_dlx, attack_slots);
-                defense_solutions
-                    = Dx::exact_cover_stack(defense_dlx, pokemon_party_size);
+                best_attack_solution
+                    = Dx::best_exact_cover_stack(attack_dlx, attack_slots);
+                best_defense_solution = Dx::best_exact_cover_stack(
+                    defense_dlx, pokemon_party_size);
                 break;
             case Solution_request::attack_overlapping_cover:
             case Solution_request::defense_overlapping_cover:
-                attack_solutions
-                    = Dx::overlapping_cover_stack(attack_dlx, attack_slots);
-                defense_solutions = Dx::overlapping_cover_stack(
+                best_attack_solution = Dx::best_overlapping_cover_stack(
+                    attack_dlx, attack_slots);
+                best_defense_solution = Dx::best_overlapping_cover_stack(
                     defense_dlx, pokemon_party_size);
                 break;
             default:
@@ -702,8 +699,8 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
 /// we will handle that complexity here so drawing code does not care.
 ///
 /// None is returned if no solution is ready.
-std::optional<std::pair<Dx::Pokemon_links const &,
-                        std::set<Ranked_set<Dx::Type_encoding>> const &>>
+std::optional<
+    std::pair<Dx::Pokemon_links const &, Ranked_set<Dx::Type_encoding> const &>>
 Generation::get_current_solution(Rectangle const &canvas) const
 {
     auto const dlx_active_solver
@@ -713,18 +710,18 @@ Generation::get_current_solution(Rectangle const &canvas) const
         draw_wrapping_message(canvas, graph_display_message);
         return {};
     }
-    std::set<Ranked_set<Dx::Type_encoding>> const *solution{};
+    Ranked_set<Dx::Type_encoding> const *solution{};
     Dx::Pokemon_links const *dlx{};
     switch (dlx_active_solver)
     {
         case Solution_request::attack_exact_cover:
         case Solution_request::attack_overlapping_cover:
-            solution = &attack_solutions;
+            solution = &best_attack_solution;
             dlx = &attack_dlx;
             break;
         case Solution_request::defense_exact_cover:
         case Solution_request::defense_overlapping_cover:
-            solution = &defense_solutions;
+            solution = &best_defense_solution;
             dlx = &defense_dlx;
             break;
         default:
@@ -964,12 +961,12 @@ Generation::scale_map_point(Dx::Point const &p,
 /// which I find fun. Might be confusing if people think it means importance
 /// but I think it provides good visual balance. Research alternatives.
 void
-Graph_draw::draw_graph_cover(
-    Rectangle const &canvas, Dx::Pokemon_links const &dlx_solver,
-    std::set<Ranked_set<Dx::Type_encoding>> const &solution_set)
+Graph_draw::draw_graph_cover(Rectangle const &canvas,
+                             Dx::Pokemon_links const &dlx_solver,
+                             Ranked_set<Dx::Type_encoding> const &solution_set)
 {
     float const node_radius = std::min(canvas.width, canvas.height) / 20.0F;
-    size_t const solution_size = solution_set.begin()->size();
+    size_t const solution_size = solution_set.size();
     float const center_x = canvas.x + (canvas.width / 2);
     float const center_y = canvas.y + (canvas.height / 2);
     // Every type in the solution is given a segment of a circle and will be
@@ -1129,7 +1126,7 @@ Graph_draw::draw_graph_cover(
           };
 
     // Use our macro like for each loop.
-    for (Dx::Type_encoding t : *solution_set.begin())
+    for (Dx::Type_encoding t : solution_set)
     {
         for_each_annulus_point(t, draw_line);
         cur_theta += theta_segment_angle;
@@ -1138,7 +1135,7 @@ Graph_draw::draw_graph_cover(
     // just to be safe as I'm not sure how Raylib handles multiple rotations
     // around the unit circle.
     cur_theta = start_theta;
-    for (Dx::Type_encoding t : *solution_set.begin())
+    for (Dx::Type_encoding t : solution_set)
     {
         for_each_annulus_point(t, draw_outer_node);
         // Draw the inner ring last just in case. It is the most important
@@ -1155,7 +1152,7 @@ Graph_draw::draw_graph_cover(
     cur_theta = start_theta;
     // It can be nice for large solution sets to be able to hover over small
     // covered nodes and see the full type name.
-    for (Dx::Type_encoding t : *solution_set.begin())
+    for (Dx::Type_encoding t : solution_set)
     {
         for_each_annulus_point(t, draw_popup);
         Vector2 const point{
