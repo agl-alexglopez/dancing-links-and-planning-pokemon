@@ -25,6 +25,7 @@
 /// For a more detailed writeup see the DancingLinks.h file and README.md in
 /// this repository.
 module;
+#include <cassert>
 #include <climits>
 #include <cmath>
 #include <cstdint>
@@ -186,6 +187,16 @@ class Pokemon_links {
 
     void fill_items_for(Type_encoding type,
                         std::vector<Resistance> &output) const;
+
+    [[nodiscard]] uint64_t items_count_for(Type_encoding type) const;
+
+    [[nodiscard]] Poke_link const *items_for_begin(Type_encoding type) const;
+
+    [[nodiscard]] static Poke_link const *items_for_end();
+
+    [[nodiscard]] Poke_link const *items_for_next(Poke_link const *iter) const;
+
+    [[nodiscard]] Resistance item_resistance_from(Poke_link const *iter) const;
 
     [[nodiscard]] uint64_t get_num_items() const;
 
@@ -370,6 +381,8 @@ class Pokemon_links {
     /// links array.
     void unhide_option(uint64_t row_index);
 
+    [[nodiscard]] Poke_link const *next_valid_item(uint64_t start) const;
+
     ////////////////   Dancing Links Instantiation and Building
 
     /// @brief build_defense_links defensive links have all typings for a
@@ -477,6 +490,38 @@ fill_items_for(Pokemon_links const &dlx, Type_encoding const type,
                std::vector<Resistance> &output)
 {
     dlx.fill_items_for(type, output);
+}
+
+uint64_t
+items_count_for(Pokemon_links const &dlx, Type_encoding const type)
+{
+    return dlx.items_count_for(type);
+}
+
+Pokemon_links::Poke_link const *
+items_for_begin(Pokemon_links const &dlx, Type_encoding const type)
+{
+    return dlx.items_for_begin(type);
+}
+
+Pokemon_links::Poke_link const *
+items_for_end()
+{
+    return Pokemon_links::items_for_end();
+}
+
+Pokemon_links::Poke_link const *
+items_for_next(Pokemon_links const &dlx,
+               Pokemon_links::Poke_link const *const iter)
+{
+    return dlx.items_for_next(iter);
+}
+
+Resistance
+item_resistance_from(Pokemon_links const &dlx,
+                     Pokemon_links::Poke_link const *const iter)
+{
+    return dlx.item_resistance_from(iter);
 }
 
 void
@@ -1214,6 +1259,103 @@ Pokemon_links::fill_items_for(Type_encoding type,
     }
 }
 
+uint64_t
+Pokemon_links::items_count_for(Type_encoding type) const
+{
+    uint64_t const option = find_option_index(type);
+    if (!option && links_[option].tag == hidden)
+    {
+        return 0;
+    }
+    uint64_t count = 0;
+    uint64_t i = option + 1;
+    while (links_[i].top_or_len > 0)
+    {
+        int const top = links_[i].top_or_len;
+        if (!links_[top].tag)
+        {
+            ++count;
+        }
+        ++i;
+    }
+    return count;
+}
+
+Pokemon_links::Poke_link const *
+Pokemon_links::items_for_begin(Type_encoding type) const
+{
+    uint64_t const option = find_option_index(type);
+    if (!option && links_[option].tag == hidden)
+    {
+        return nullptr;
+    }
+    uint64_t i = option + 1;
+    return next_valid_item(i);
+}
+
+Pokemon_links::Poke_link const *
+Pokemon_links::items_for_next(Pokemon_links::Poke_link const *iter) const
+{
+    if (!iter || links_.empty())
+    {
+        return nullptr;
+    }
+    uint64_t i = iter - links_.data();
+    if (!i || i + 1 >= links_.size() - 1)
+    {
+        return nullptr;
+    }
+    ++i;
+    return next_valid_item(i);
+}
+
+Pokemon_links::Poke_link const *
+Pokemon_links::items_for_end()
+{
+    return nullptr;
+}
+
+// Finds the next valid item assuming start is valid and currently resides
+// in the items section of the array for an option. Hidden items cannot be
+// returned. The nullptr is returned if a valid item cannot be found.
+Pokemon_links::Poke_link const *
+Pokemon_links::next_valid_item(uint64_t start) const
+{
+    assert(start);
+    assert(links_.size());
+    assert(start < links_.size() - 1);
+    while (links_[start].top_or_len > 0)
+    {
+        int const top = links_[start].top_or_len;
+        if (!links_[top].tag)
+        {
+            return &links_[start];
+        }
+        ++start;
+    }
+    return nullptr;
+}
+
+Resistance
+Pokemon_links::item_resistance_from(Pokemon_links::Poke_link const *iter) const
+{
+    if (!iter || links_.empty() || item_table_.empty())
+    {
+        return {};
+    }
+    uint64_t const i = iter - links_.data();
+    if (!i || i >= links_.size() - 1)
+    {
+        return {};
+    }
+    uint64_t const top = links_[i].top_or_len;
+    if (top <= 0 || links_[top].tag)
+    {
+        return {};
+    }
+    return {item_table_[top].name, links_[i].multiplier};
+}
+
 void
 Pokemon_links::fill_hid_items(std::vector<Type_encoding> &output) const
 {
@@ -1545,20 +1687,19 @@ Pokemon_links::unhide_option(uint64_t row_index)
 uint64_t
 Pokemon_links::find_item_index(Type_encoding item) const
 {
-    for (uint64_t nremain = item_table_.size(), base = 0; nremain != 0;
-         nremain >>= 1)
+    for (uint64_t n = item_table_.size(), base = 0; n != 0; n >>= 1)
     {
-        uint64_t const cur_index = base + (nremain >> 1);
-        if (item_table_[cur_index].name == item)
+        uint64_t const i = base + (n >> 1);
+        if (item_table_[i].name == item)
         {
             // This is the index where we can find the header for this items
             // column.
-            return cur_index;
+            return i;
         }
-        if (item > item_table_[cur_index].name)
+        if (item > item_table_[i].name)
         {
-            base = cur_index + 1;
-            --nremain;
+            base = i + 1;
+            --n;
         }
     }
     // We know zero holds no value in the itemTable_ and this can double as a
@@ -1569,20 +1710,19 @@ Pokemon_links::find_item_index(Type_encoding item) const
 uint64_t
 Pokemon_links::find_option_index(Type_encoding option) const
 {
-    for (uint64_t nremain = option_table_.size(), base = 0; nremain != 0;
-         nremain >>= 1)
+    for (uint64_t n = option_table_.size(), base = 0; n != 0; n >>= 1)
     {
-        uint64_t const cur_index = base + (nremain >> 1);
-        if (option_table_[cur_index].name == option)
+        uint64_t const i = base + (n >> 1);
+        if (option_table_[i].name == option)
         {
             // This is the index corresponding to the spacer node for an option
             // in the links.
-            return option_table_[cur_index].index;
+            return option_table_[i].index;
         }
-        if (option > option_table_[cur_index].name)
+        if (option > option_table_[i].name)
         {
-            base = cur_index + 1;
-            nremain--;
+            base = i + 1;
+            --n;
         }
     }
     // We know zero holds no value in the optionTable_ and this can double as a

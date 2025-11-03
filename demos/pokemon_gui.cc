@@ -693,22 +693,24 @@ Generation::draw_graph_cover(Rectangle const canvas)
     // We can fill the circle clockwise from the North tip of circle.
     float const start_theta = std::numbers::pi_v<float> * 0.5F;
     float cur_theta = start_theta;
-    std::vector<Dx::Resistance> coverage{};
-    coverage.reserve(Dx::num_items(dlx_solver));
 
-    // We will use a macro like construct but C++'s version with functions
-    // and lambdas. We must loop through the set of points a few times to draw
-    // multiple layers. We need to draw all the lines first so the nodes go over
-    // top the lines.
+    // There are at least three passes over the same data that must occur and
+    // it is important not to allocate and free any memory in such a hot loop
+    // if we can help it. So we use a c-macro like approach but with C++
+    // lambdas and functions.
     //
-    // There are also many local variables that have been calculated based on
-    // screen proportions. So we will capture all of them by reference and
-    // expect a function to draw something on every interaction with one of
-    // the nodes an inner ring type covers in the outer annulus.
+    // Lines between nodes must be drawn first, then nodes, than any hover pop
+    // up windows. We use the same exact math for placing these elements on
+    // the screen in each iteration and only differ in what we draw and how
+    // we use the coordinates. So accept a draw function and use the same
+    // iteration and calculation pattern every time. A few cycles for the math
+    // used to calculate the coordinates on our circles is better than
+    // going to memory to record and retrieve all the point data and interacting
+    // with the heap at construction and deconstruction.
     //
-    // The drawing functions will also be lambdas so everything inlines in
-    // the end and we don't have to worry about messing something up in a
-    // loop copied multiple times.
+    // I don't like the current approach but we have to calculate so many
+    // local variables and use them slightly differently on every pass so
+    // it is hard to unify the logic.
     auto const for_each_annulus_point = [&](Dx::Type_encoding const &inner_type,
                                             auto &&draw_fn) {
         Vector2 const inner_ring_node{
@@ -717,24 +719,27 @@ Generation::draw_graph_cover(Rectangle const canvas)
             .y
             = (inner_ring_node_center_radius * std::sin(cur_theta)) + center_y,
         };
-        Dx::fill_items_for(dlx_solver, inner_type, coverage);
-        auto const n = static_cast<float>(coverage.size());
-        auto const covered_node_radius
+        auto const n
+            = static_cast<float>(Dx::items_count_for(dlx_solver, inner_type));
+        float const covered_node_radius
             = sqrt(((theta_segment_angle * annulus_radius_squared_difference)
                     / (8.0F * n * 3.5F)));
         float theta = cur_theta;
         float const theta_end = cur_theta + theta_segment_angle;
         float radius = outer_ring_annulus_radius - covered_node_radius;
-        size_t placed = 0;
-        while (placed < coverage.size())
+        for (Dx::Pokemon_links::Poke_link const *iter
+             = Dx::items_for_begin(dlx_solver, inner_type);
+             iter != Dx::items_for_end();
+             iter = Dx::items_for_next(dlx_solver, iter))
         {
+            Dx::Resistance const cur_covered
+                = Dx::item_resistance_from(dlx_solver, iter);
             draw_fn(inner_ring_node,
                     Vector2{
                         .x = (std::cos(theta) * radius) + center_x,
                         .y = (std::sin(theta) * radius) + center_y,
                     },
-                    covered_node_radius, inner_type, coverage[placed]);
-            ++placed;
+                    covered_node_radius, inner_type, cur_covered);
             float const angle_step
                 = (2.0F
                    * std::asin((0.5F * (2.0F * covered_node_radius) / radius)));
@@ -746,6 +751,8 @@ Generation::draw_graph_cover(Rectangle const canvas)
             }
             if (radius < 0 || radius <= inner_ring_annulus_radius)
             {
+                std::cerr << "nodes are not packed in annular segment "
+                             "correctly, quitting early.\n";
                 break;
             }
         }
