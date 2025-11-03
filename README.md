@@ -11,6 +11,8 @@
 
 This project makes use of new C++ module features and therefore must be built with CMake >= 3.28.1, Clang >= 17.0.6, and Ninja >= 1.11.1. The C++ standard used is C++ 20 to enable use of modules and many other convenient features that cut down on lines of code significantly.
 
+## Pokémon Planning GUI Usage Instructions
+
 This file implements an interactive Dancing Links graph cover visualizer. The user is able to load in any of 9 generation Pokemon maps and solve various graph cover questions. These questions basically boil down to the following:
 
 What team of at most 6 Pokemon can I choose to be resilient to any attack type I will encounter in the game?
@@ -28,8 +30,6 @@ If the inner ring is attack types the edges indicate the damage multiplier these
 The solution that is shown is the best among all candidate solutions that were generated as viable covers for the graph. A ranked set system is used so that the best solution has the highest number of better multipliers.
 
 Hovering over nodes will show their full type names. If hovering over covered nodes in the surrounding circle, the multiplier is indicated and the text matches the edge color.
-
-## Pokémon Planning GUI Usage Instructions
 
 1. Clone the repository.
 2. Build the project from the root of the repository.
