@@ -5,8 +5,8 @@
 /// road network and graphs of Pokemon Maps. I will likely make use of it
 /// again when the graph cover and Pokemon map visualizer is complete. I
 /// modified the entire program to be compliant with C++ 20 and use no
-/// Stanford Internal libraries, instead using the stl where needed. Finally,
-/// I adjusted the structure to suppport C++ modules.
+/// Stanford Internal libraries, instead using the STL where needed. Finally,
+/// I adjusted the structure to support C++ modules.
 module;
 #include <algorithm>
 #include <cstdint>
