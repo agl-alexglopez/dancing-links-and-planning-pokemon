@@ -361,7 +361,7 @@ run()
             screen_width = GetScreenWidth();
             screen_height = GetScreenHeight();
             BeginDrawing();
-            ClearBackground(RAYWHITE);
+            ClearBackground(WHITE);
             Rectangle const ui_canvas
                 = Generation::get_ui_canvas(screen_width, screen_height);
             Rectangle const graph_canvas{
