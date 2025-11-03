@@ -721,6 +721,10 @@ Generation::draw_graph_cover(Rectangle const canvas)
         };
         auto const n
             = static_cast<float>(Dx::items_count_for(dlx_solver, inner_type));
+        // We want to be conservative so we try to calculate how many nodes
+        // we could fit in an annular segment by saying we will need to fit
+        // more nodes in than we need. 8.0 is the approximation based on a
+        // hexagonal packing and we add a fudging factor at the end.
         float const covered_node_radius
             = sqrt(((theta_segment_angle * annulus_radius_squared_difference)
                     / (8.0F * n * 3.5F)));
