@@ -753,7 +753,7 @@ Generation::draw_graph_cover(Rectangle const canvas)
             {
                 std::cerr << "nodes are not packed in annular segment "
                              "correctly, quitting early.\n";
-                break;
+                std::abort();
             }
         }
     };
