@@ -1,6 +1,6 @@
 # Dancing Links and Planning Pokémon
 
-![cli-app](/images/pokemon-cli.png)
+![gui-app](/images/pokemon-gui.png)
 
 ## Navigation
 - Pokémon Planning
@@ -11,9 +11,35 @@
 
 This project makes use of new C++ module features and therefore must be built with CMake >= 3.28.1, Clang >= 17.0.6, and Ninja >= 1.11.1. The C++ standard used is C++ 20 to enable use of modules and many other convenient features that cut down on lines of code significantly.
 
-## Pokémon Planning Usage Instructions
+This file implements an interactive Dancing Links graph cover visualizer. The user is able to load in any of 9 generation Pokemon maps and solve various graph cover questions. These questions basically boil down to the following:
 
-I have created a small Command Line Interface program to demonstrate the interesting problems that the Dancing Links algorithm can solve. Read the Overview and breakdown of the algorithm below, but here is a quick start guide to see output in the terminal right away.
+What team of at most 6 Pokemon can I choose to be resilient to any attack type I will encounter in the game?
+
+Of my 24 attack slots for my 6 Pokemon, which attack types can I choose to give them so that I am super effective against any defensive types I will encounter in the game?
+
+These questions can be answered for an entire game or a subset of maps to choose from on the mini map.
+
+If a solution exists, it will be shown as the inner ring of attack or defensive types that covers all the requested attack or defensive types that surround this inner ring. The inner ring has edges that lead to the types that are covered. These edges are color coded to indicate the quality of the solution.
+
+A line is colored based on the multiplier of the type interaction. If the inner ring is defensive types than the edges indicate what resistance multiplier the defensive type receives against the type it covers. The multiplier could be 0.5, 0.25, or 0.0. These are all good but obviously a 0.0 multiplier is best because it means immunity from damage.
+
+If the inner ring is attack types the edges indicate the damage multiplier these types do against the defensive types they cover. The multiplier could be 2 or 4. Both are good but a 4x multiplier is best.
+
+The solution that is shown is the best among all candidate solutions that were generated as viable covers for the graph. A ranked set system is used so that the best solution has the highest number of better multipliers.
+
+Hovering over nodes will show their full type names. If hovering over covered nodes in the surrounding circle, the multiplier is indicated and the text matches the edge color.
+
+## Pokémon Planning GUI Usage Instructions
+
+1. Clone the repository.
+2. Build the project from the root of the repository.
+    - There is a provided configuration in `CMakePresets.json` and `CMakeUserPresets.json` that looks for `clang++` and the `Ninja` build generator to support building C++ modules. Alter any of these flags and settings to your liking if you cannot build.
+    - Use the cmake preset for realease mode `cmake --preset=rel` or with the provided convenience Makefile `make rel`.
+3. Run the Command Line Interface application `./build/bin/pokemon_gui`.
+
+## Pokémon Planning CLI Usage Instructions
+
+I have created a small Command Line Interface program to demonstrate the interesting problems that the Dancing Links algorithm can solve. Read the Overview and breakdown of the algorithm in the blog post, but here is a quick start guide to see output in the terminal right away.
 
 1. Clone the repository.
 2. Build the project from the root of the repository.
@@ -62,6 +88,3 @@ For the `all-maps.json` file, I got the information on gyms and the attack and d
 
 - https://serebii.net
 
-## Next Steps
-
-The graph cover visualizer is a work in progress. Thanks for reading!
