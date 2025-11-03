@@ -40,6 +40,7 @@
 module;
 #include <array>
 #include <bit>
+#include <climits>
 #include <compare>
 #include <cstdint>
 #include <optional>
@@ -57,23 +58,23 @@ export namespace Dancing_links {
 class Type_encoding {
 
   public:
-    Type_encoding() = default;
+    constexpr Type_encoding() = default;
     // If encoding cannot be found encoding_ is set the falsey value 0.
-    Type_encoding(std::string_view type); // NOLINT
-    [[nodiscard]] uint32_t encoding() const;
-    [[nodiscard]] std::pair<std::string_view, std::string_view>
+    constexpr Type_encoding(std::string_view type); // NOLINT
+    [[nodiscard]] constexpr uint32_t encoding() const;
+    [[nodiscard]] constexpr std::pair<std::string_view, std::string_view>
     decode_type() const;
-    [[nodiscard]] std::pair<uint64_t, std::optional<uint64_t>>
+    [[nodiscard]] constexpr std::pair<uint64_t, std::optional<uint64_t>>
     decode_indices() const;
     [[nodiscard]] std::string to_string() const;
-    [[nodiscard]] static std::span<const std::string_view> type_table();
+    [[nodiscard]] static constexpr std::span<std::string_view const>
+    type_table();
+    [[nodiscard]] constexpr bool is_empty() const;
 
-    bool operator==(Type_encoding rhs) const;
-    std::strong_ordering operator<=>(Type_encoding rhs) const;
+    constexpr bool operator==(Type_encoding rhs) const;
+    constexpr std::strong_ordering operator<=>(Type_encoding rhs) const;
 
   private:
-    uint32_t encoding_;
-    static uint64_t type_bit_index(std::string_view type);
     // Any and all Type_encodings will have one global string_view of the type
     // strings for decoding.
     static constexpr std::array<std::string_view, 18> type_encoding_table = {
@@ -83,6 +84,8 @@ class Type_encoding {
         "Fire",   "Flying", "Ghost",   "Grass",    "Ground", "Ice",
         "Normal", "Poison", "Psychic", "Rock",     "Steel",  "Water",
     };
+    uint32_t encoding_;
+    static constexpr uint64_t type_bit_index(std::string_view type);
 };
 
 ///////////////////      Overloaded Operator for a String View
@@ -110,13 +113,13 @@ template <> struct hash<Dancing_links::Type_encoding>
 
 namespace Dancing_links {
 
-Type_encoding::Type_encoding(std::string_view type) : encoding_(0)
+constexpr Type_encoding::Type_encoding(std::string_view type) : encoding_(0)
 {
     if (type.empty())
     {
         return;
     }
-    const uint64_t delim = type.find('-');
+    uint64_t const delim = type.find('-');
     uint64_t found = type_bit_index(type.substr(0, delim));
     if (found == type_encoding_table.size())
     {
@@ -136,20 +139,22 @@ Type_encoding::Type_encoding(std::string_view type) : encoding_(0)
     encoding_ |= (1U << found);
 }
 
-std::pair<std::string_view, std::string_view>
+constexpr std::pair<std::string_view, std::string_view>
 Type_encoding::decode_type() const
 {
     if (!encoding_)
     {
         return {};
     }
-    const uint32_t width = 31;
-    const uint32_t lesser_lexicographic_bit_index = std::countr_zero(encoding_);
-    const uint32_t greater_lexicographic_bit_index
-        = width - std::countl_zero(encoding_);
+    uint32_t const lesser_lexicographic_bit_index = std::countr_zero(encoding_);
+    uint32_t const greater_lexicographic_bit_index
+        = (sizeof(Type_encoding) * CHAR_BIT) - std::countl_zero(encoding_) - 1;
     if (lesser_lexicographic_bit_index == greater_lexicographic_bit_index)
     {
-        return {type_encoding_table.at(lesser_lexicographic_bit_index), {}};
+        return {
+            type_encoding_table.at(lesser_lexicographic_bit_index),
+            {},
+        };
     }
     return {
         type_encoding_table.at(lesser_lexicographic_bit_index),
@@ -157,31 +162,36 @@ Type_encoding::decode_type() const
     };
 }
 
-std::pair<uint64_t, std::optional<uint64_t>>
+constexpr std::pair<uint64_t, std::optional<uint64_t>>
 Type_encoding::decode_indices() const
 {
     if (!encoding_)
     {
         return {};
     }
-    const uint64_t width = 31;
-    const uint64_t lesser_lexicographic_bit_index = std::countr_zero(encoding_);
-    const uint64_t greater_lexicographic_bit_index
-        = width - std::countl_zero(encoding_);
+    uint64_t const lesser_lexicographic_bit_index = std::countr_zero(encoding_);
+    uint64_t const greater_lexicographic_bit_index
+        = (sizeof(Type_encoding) * CHAR_BIT) - std::countl_zero(encoding_) - 1;
     if (lesser_lexicographic_bit_index == greater_lexicographic_bit_index)
     {
-        return {lesser_lexicographic_bit_index, std::optional<uint64_t>{}};
+        return {
+            lesser_lexicographic_bit_index,
+            std::optional<uint64_t>{},
+        };
     }
-    return {lesser_lexicographic_bit_index, greater_lexicographic_bit_index};
+    return {
+        lesser_lexicographic_bit_index,
+        greater_lexicographic_bit_index,
+    };
 }
 
-uint64_t
+constexpr uint64_t
 Type_encoding::type_bit_index(std::string_view type)
 {
     // Linear search seems slow but actually beats binary search by a TON
     // because table is small.
     uint64_t i = 0;
-    for (const auto &t : type_encoding_table)
+    for (auto const &t : type_encoding_table)
     {
         if (t == type)
         {
@@ -195,7 +205,7 @@ Type_encoding::type_bit_index(std::string_view type)
 std::string
 Type_encoding::to_string() const
 {
-    const std::pair<std::string_view, std::string_view> types = decode_type();
+    std::pair<std::string_view, std::string_view> const types = decode_type();
     if (types.second.empty())
     {
         return std::string(types.first);
@@ -203,32 +213,38 @@ Type_encoding::to_string() const
     return std::string(types.first).append("-").append(types.second);
 }
 
-uint32_t
+constexpr uint32_t
 Type_encoding::encoding() const
 {
     return encoding_;
 }
 
-std::span<const std::string_view>
+constexpr std::span<std::string_view const>
 Type_encoding::type_table()
 {
     return type_encoding_table;
 }
 
-bool
+constexpr bool
+Type_encoding::is_empty() const
+{
+    return 0 == encoding_;
+}
+
+constexpr bool
 Type_encoding::operator==(Type_encoding rhs) const
 {
     return this->encoding_ == rhs.encoding_;
 }
 
-std::strong_ordering
+constexpr std::strong_ordering
 Type_encoding::operator<=>(Type_encoding rhs) const
 {
     if (this->encoding_ == rhs.encoding_)
     {
         return std::strong_ordering::equal;
     }
-    const auto rightmost_bit_cmp
+    auto const rightmost_bit_cmp
         = std::countr_zero(this->encoding_) <=> std::countr_zero(rhs.encoding_);
     if (rightmost_bit_cmp != std::strong_ordering::equal)
     {
@@ -237,7 +253,7 @@ Type_encoding::operator<=>(Type_encoding rhs) const
     // A single type that tied for the low bit will be sorted correctly as well
     // as any two dual types. For example this check ensures that "Bug" comes
     // before "Bug-Dark" while also sorting any two dual types.
-    const auto leftmost_bit_cmp
+    auto const leftmost_bit_cmp
         = std::countl_zero(this->encoding_) <=> std::countl_zero(rhs.encoding_);
     // Not a mistake! We want the bits in a uint32_t to be sorted like strings.
     // Checking from the left means fewer zeros is closer to largest
@@ -258,7 +274,7 @@ Type_encoding::operator<=>(Type_encoding rhs) const
 std::ostream &
 operator<<(std::ostream &out, Type_encoding tp)
 {
-    const std::pair<std::string_view, std::string_view> to_print
+    std::pair<std::string_view, std::string_view> const to_print
         = tp.decode_type();
     out << to_print.first;
     if (!to_print.second.empty())

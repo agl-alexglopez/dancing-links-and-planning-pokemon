@@ -18,10 +18,12 @@ Checks: >
    -fuchsia-overloaded-operator,
    -android-cloexec-accept,
    -misc-include-cleaner,
-   -readability-redundant-declaration
-
-WarningsAsErrors:
-   '*'
+   -readability-redundant-declaration,
+   -llvm-prefer-static-over-anonymous-namespace,
+   -bugprone-easily-swappable-parameters,
+   -bugprone-suspicious-stringview-data-usage,
+   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+   -misc-no-recursion
 
 CheckOptions:
    - { key: hicpp-signed-bitwise.IgnorePositiveIntegerLiterals, value: true }

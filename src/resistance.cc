@@ -29,7 +29,7 @@ import :type_encoding;
 
 export namespace Dancing_links {
 
-enum Multiplier : uint8_t
+enum class Multiplier : uint8_t
 {
     /// It would not make sense for someone to let a multiplier in a Resistance
     /// default to IMMUNE, because that is a valuable multiplier to have for a
@@ -46,12 +46,13 @@ enum Multiplier : uint8_t
 
 class Resistance {
   public:
-    Resistance(const Type_encoding &type, const Multiplier &multiplier);
+    Resistance(Type_encoding const &type, Multiplier const &multiplier);
 
-    Resistance(const Resistance &other) = default;
+    Resistance(Resistance const &other) = default;
     Resistance(Resistance &&other) noexcept = default;
     Resistance &operator=(Resistance &&other) = default;
-    Resistance &operator=(const Resistance &other) = default;
+    Resistance &operator=(Resistance const &other) = default;
+    Resistance() = default;
     ~Resistance() = default;
 
     [[nodiscard]] Type_encoding type() const;
@@ -59,33 +60,33 @@ class Resistance {
     [[nodiscard]] Multiplier multiplier() const;
 
     bool
-    operator<(const Resistance &rhs) const
+    operator<(Resistance const &rhs) const
     {
         return this->type() < rhs.type();
     }
     bool
-    operator==(const Resistance &rhs) const
+    operator==(Resistance const &rhs) const
     {
         return this->type() == rhs.type()
                && this->multiplier() == rhs.multiplier();
     }
     bool
-    operator>(const Resistance &rhs) const
+    operator>(Resistance const &rhs) const
     {
         return rhs < *this;
     }
     bool
-    operator>=(const Resistance &rhs) const
+    operator>=(Resistance const &rhs) const
     {
         return !(*this < rhs);
     }
     bool
-    operator<=(const Resistance &rhs) const
+    operator<=(Resistance const &rhs) const
     {
         return !(*this > rhs);
     }
     bool
-    operator!=(const Resistance &rhs) const
+    operator!=(Resistance const &rhs) const
     {
         return !(*this == rhs);
     }
@@ -95,19 +96,19 @@ class Resistance {
     Multiplier multiplier_;
 };
 
-std::ostream &operator<<(std::ostream &out, const Resistance &res);
-std::ostream &operator<<(std::ostream &out, const Multiplier &mult);
+std::ostream &operator<<(std::ostream &out, Resistance const &res);
+std::ostream &operator<<(std::ostream &out, Multiplier const &mult);
 
 ////////////////////////      Free Functions for TypeResistance.h
 
 Type_encoding
-type(const Resistance &res)
+type(Resistance const &res)
 {
     return res.type();
 }
 
 Multiplier
-multiplier(const Resistance &res)
+multiplier(Resistance const &res)
 {
     return res.multiplier();
 }
@@ -120,7 +121,7 @@ namespace Dancing_links {
 
 /////////////////////////     Resistance Helper Class
 
-Resistance::Resistance(const Type_encoding &type, const Multiplier &multiplier)
+Resistance::Resistance(Type_encoding const &type, Multiplier const &multiplier)
     : type_(type), multiplier_(multiplier)
 {}
 
@@ -137,63 +138,63 @@ Resistance::multiplier() const
 }
 
 std::ostream &
-operator<<(std::ostream &out, const Resistance &res)
+operator<<(std::ostream &out, Resistance const &res)
 {
     out << res.type() << " x";
     switch (res.multiplier())
     {
-    case emp:
-        out << "NIL";
-        break;
-    case imm:
-        out << "0.0";
-        break;
-    case f14:
-        out << "0.25";
-        break;
-    case f12:
-        out << "0.5";
-        break;
-    case nrm:
-        out << "1.0";
-        break;
-    case dbl:
-        out << "2.0";
-        break;
-    case qdr:
-        out << "4.0";
-        break;
+        case Multiplier::emp:
+            out << "NIL";
+            break;
+        case Multiplier::imm:
+            out << "0.0";
+            break;
+        case Multiplier::f14:
+            out << "0.25";
+            break;
+        case Multiplier::f12:
+            out << "0.5";
+            break;
+        case Multiplier::nrm:
+            out << "1.0";
+            break;
+        case Multiplier::dbl:
+            out << "2.0";
+            break;
+        case Multiplier::qdr:
+            out << "4.0";
+            break;
     }
     return out;
 }
 
 std::ostream &
-operator<<(std::ostream &out, const Multiplier &mult)
+operator<<(std::ostream &out, Multiplier const &mult)
 {
     out << "Resistance::";
     switch (mult)
     {
-    case emp:
-        out << "emp";
-        break;
-    case imm:
-        out << "imm";
-        break;
-    case f14:
-        out << "f14";
-        break;
-    case f12:
-        out << "f12";
-        break;
-    case nrm:
-        out << "nrm";
-        break;
-    case dbl:
-        out << "dbl";
-        break;
-    case qdr:
-        out << "qdr";
-        break;
+        case Multiplier::emp:
+            out << "Multiplier::emp";
+            break;
+        case Multiplier::imm:
+            out << "Multiplier::imm";
+            break;
+        case Multiplier::f14:
+            out << "Multiplier::f14";
+            break;
+        case Multiplier::f12:
+            out << "Multiplier::f12";
+            break;
+        case Multiplier::nrm:
+            out << "Multiplier::nrm";
+            break;
+        case Multiplier::dbl:
+            out << "Multiplier::dbl";
+            break;
+        case Multiplier::qdr:
+            out << "Multiplier::qdr";
+            break;
     }
     return out;
 }
