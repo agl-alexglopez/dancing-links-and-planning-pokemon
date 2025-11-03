@@ -39,6 +39,8 @@ Hovering over nodes will show their full type names. If hovering over covered no
 
 ## Pokémon Planning CLI Usage Instructions
 
+![cli-app](/images/pokemon-cli.png)
+
 I have created a small Command Line Interface program to demonstrate the interesting problems that the Dancing Links algorithm can solve. Read the Overview and breakdown of the algorithm in the blog post, but here is a quick start guide to see output in the terminal right away.
 
 1. Clone the repository.
