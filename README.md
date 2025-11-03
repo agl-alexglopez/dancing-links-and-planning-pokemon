@@ -80,7 +80,7 @@ This project grew more than I thought it would. I was able to bring in some grea
 
 As mentioned in the intro, the core ideas of Algorithm X via Dancing Links belongs to Knuth, I just implemented it a few different ways.
 
-Stanford Course staff and Keith Schwarz is responsible for writing the graph drawing algorithm that makes working with `.dst` files so easy, found in `map_parser.cc`. This will likely become more helpful when I make more progress with the graph cover visualizer.
+The method for drawing the Pokemon generation mini map at the top of the GUI is based on work by Stanford University course staff and Keith Schwarz. This makes layout out the map in a visually appealing way regardless of window size easier. 
 
 For the `all-types.json` file, I got the information on type interactions from the following website.
 
