@@ -811,10 +811,11 @@ Pokemon_links::best_exact_cover_stack(int choice_limit)
 
         if (item_table_[0].right == 0 && choice_limit >= 0)
         {
-            if ((requested_cover_solution_ == Coverage_type::attack
-                 && coverage.rank() > best_coverage.rank())
-                || (requested_cover_solution_ == Coverage_type::defense
-                    && coverage.rank() < best_coverage.rank()))
+            if (best_coverage.empty()
+                || ((requested_cover_solution_ == Coverage_type::attack
+                     && coverage.rank() > best_coverage.rank())
+                    || (requested_cover_solution_ == Coverage_type::defense
+                        && coverage.rank() < best_coverage.rank())))
             {
                 best_coverage = coverage;
             }
@@ -1203,10 +1204,11 @@ Pokemon_links::best_overlapping_cover_stack(int choice_limit)
 
         if (item_table_[0].right == 0 && choice_limit >= 0)
         {
-            if ((requested_cover_solution_ == Coverage_type::attack
-                 && coverage.rank() > best_coverage.rank())
-                || (requested_cover_solution_ == Coverage_type::defense
-                    && coverage.rank() < best_coverage.rank()))
+            if (best_coverage.empty()
+                || ((requested_cover_solution_ == Coverage_type::attack
+                     && coverage.rank() > best_coverage.rank())
+                    || (requested_cover_solution_ == Coverage_type::defense
+                        && coverage.rank() < best_coverage.rank())))
             {
                 best_coverage = coverage;
             }
