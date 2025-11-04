@@ -128,7 +128,7 @@ class Generation {
 
     //////////////////////   Constants       //////////////////////////////////
 
-    enum : uint8_t
+    enum : uint8_t // NOLINT
     {
         pokemon_party_size = 6,
         attack_slots = pokemon_party_size * 4,
@@ -1082,7 +1082,7 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
           };
 
     // Use our macro like for each loop.
-    for (Dx::Type_encoding t : solution_set)
+    for (Dx::Type_encoding const t : solution_set)
     {
         for_each_annulus_point(t, draw_line);
         cur_theta += theta_segment_angle;
@@ -1091,7 +1091,7 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
     // just to be safe as I'm not sure how Raylib handles multiple rotations
     // around the unit circle.
     cur_theta = start_theta;
-    for (Dx::Type_encoding t : solution_set)
+    for (Dx::Type_encoding const t : solution_set)
     {
         for_each_annulus_point(t, draw_outer_node);
         // Draw the inner ring last just in case. It is the most important
@@ -1108,7 +1108,7 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
     cur_theta = start_theta;
     // It can be nice for large solution sets to be able to hover over small
     // covered nodes and see the full type name.
-    for (Dx::Type_encoding t : solution_set)
+    for (Dx::Type_encoding const t : solution_set)
     {
         for_each_annulus_point(t, draw_popup);
         Vector2 const point{
@@ -1165,7 +1165,6 @@ Graph_draw::draw_type_popup(Rectangle const &canvas,
                        get_colors(inner_indices), inner_radius, inner_point.x,
                        inner_point.y);
     }
-    Font const font = GuiGetFont();
     Vector2 const popup_bounding_square{
         .x = std::min(canvas.width, canvas.height) / 4.0F,
         .y = std::min(canvas.width, canvas.height) / 4.0F,
@@ -1426,9 +1425,9 @@ draw_wrapping_message(Rectangle const &canvas, std::string_view message,
     std::string_view const delim_set(" \r\t\n\v\f");
     while (!message.empty())
     {
-        std::string_view word
+        std::string_view const word
             = get_token_with_trailing_delims(message, delim_set);
-        float word_width = get_word_width(word);
+        float const word_width = get_word_width(word);
         if (cur_pos_x + word_width > end_x
             && !advance_new_line(cur_pos_x, cur_pos_y))
         {

@@ -1510,8 +1510,7 @@ Pokemon_links::items_for_begin(Type_encoding type) const
     {
         return nullptr;
     }
-    uint64_t i = option + 1;
-    return next_valid_item(i);
+    return next_valid_item(option + 1);
 }
 
 Pokemon_links::Poke_link const *
@@ -1543,7 +1542,7 @@ Pokemon_links::Poke_link const *
 Pokemon_links::next_valid_item(uint64_t start) const
 {
     assert(start);
-    assert(links_.size());
+    assert(!links_.empty());
     assert(start < links_.size() - 1);
     while (links_[start].top_or_len > 0)
     {
