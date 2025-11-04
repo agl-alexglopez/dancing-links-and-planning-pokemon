@@ -909,14 +909,17 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
                              Dx::Pokemon_links const &dlx_solver,
                              Ranked_set<Dx::Type_encoding> const &solution_set)
 {
-    float const node_radius = std::min(canvas.width, canvas.height) / 20.0F;
+    float const node_radius = std::min(canvas.width, canvas.height) * 0.06F;
     size_t const solution_size = solution_set.size();
     float const center_x = canvas.x + (canvas.width / 2);
     float const center_y = canvas.y + (canvas.height / 2);
     // Every type in the solution is given a segment of a circle and will be
     // placed on intervals around a ring by steps of this segment in radians.
-    float const theta_segment_angle = (2.0F * std::numbers::pi_v<float>)
-                                      / static_cast<float>(solution_size);
+    // If there is only one node, give it half the circle for its coverage. This
+    // covers display and drawing edge cases.
+    float const theta_segment_angle
+        = (2.0F * std::numbers::pi_v<float>)
+          / static_cast<float>(solution_size == 1 ? 2 : solution_size);
     // We want all of our solution types to gather at the center of the screen
     // in the smallest ring possible without overlapping. The circle cord
     // segment that passes through two center points of type nodes on this
@@ -935,13 +938,13 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
     // where r is known, giving the perfect radius for the inner ring.
     float const inner_ring_node_center_radius
         = solution_size == 1
-              ? 0
+              ? 0.0F
               : node_radius / std::sin(theta_segment_angle * 0.5F);
     // While the inner nodes sit directly on the previously calculated radius,
     // we need an exclusive boundary for the circle segment that will hold the
     // types each inner ring type covers.
     float const inner_ring_annulus_radius
-        = inner_ring_node_center_radius + (node_radius * 1.5F);
+        = inner_ring_node_center_radius + node_radius;
     // We also have an imaginary outer circle that bounds the nodes that each
     // type in our solution covers. Each type is given a segment of this circle
     // to fill in with the other types that it covers. We will make this look
@@ -958,13 +961,9 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
     float const annulus_radius_squared_difference
         = (outer_ring_annulus_radius * outer_ring_annulus_radius)
           - (inner_ring_annulus_radius * inner_ring_annulus_radius);
-    // Using area of Annulus: A = (theta / 2) * (R^2 - r^2), where R > r.
-    float const annulus_area
-        = (theta_segment_angle * 0.5F) * (annulus_radius_squared_difference);
     // We can fill the circle clockwise from the North tip of circle.
     float const start_theta = std::numbers::pi_v<float> * 0.5F;
     float cur_theta = start_theta;
-
     // There are at least three passes over the same data that must occur and
     // it is important not to allocate and free any memory in such a hot loop
     // if we can help it. So we use a c-macro like approach but with C++
@@ -992,15 +991,26 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
         };
         auto const n
             = static_cast<float>(Dx::items_count_for(dlx_solver, inner_type));
-        // We want to be conservative so we try to calculate how many nodes
-        // we could fit in an annular segment by saying we will need to fit
-        // more nodes in than we need. 8.0 is the approximation based on a
-        // hexagonal packing and we add a fudging factor at the end.
-        float const covered_node_radius = sqrt(
-            (((theta_segment_angle / 2.0F) * annulus_radius_squared_difference)
-             / (8.0F * n * 1.1F)));
+        // This is based on circle packing. However, I don't want to mess with
+        // circle packing. It's hard. So we use the estimated density ratio of
+        // a hexagonal grid (pi / 2sqrt(3)) to determine our circle radius.
+        //
+        //                     pi      theta(R² - r²)
+        //   n * pi * r²  <=  ----- * --------------
+        //                     2√3         2
+        //
+        //   r <= sqrt( (theta(R² - r²)) / (4n√3) )
+        //
+        // Where theta is our angle allotment for this inner node to cover the
+        // outer nodes. Then, instead of 4n√3 in the denominator we just make
+        // it a constant we can bump up manually to make the nodes smaller if
+        // needed. I think determining window size can be a little buggy on
+        // raylib so we have to adjust manually.
+        float const covered_node_radius
+            = sqrt((theta_segment_angle * annulus_radius_squared_difference)
+                   / (12.0F * n));
         float const theta_end = cur_theta + theta_segment_angle;
-        float radius = outer_ring_annulus_radius - (covered_node_radius / 2.0F);
+        float radius = outer_ring_annulus_radius - (covered_node_radius * 0.5F);
         float theta
             = cur_theta
               + (std::asin((0.5F * (2.0F * covered_node_radius) / radius)));
@@ -1027,12 +1037,6 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
                 theta = cur_theta
                         + (std::asin(
                             (0.5F * (2.0F * covered_node_radius) / radius)));
-            }
-            if (radius < 0)
-            {
-                std::cerr << "nodes are not packed in annular segment "
-                             "correctly, quitting early.\n";
-                std::abort();
             }
         }
     };
@@ -1119,6 +1123,9 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
 /// Draws a large readable version of a type node with the full type name
 /// rather than an abbreviation. The pop up also detects if it will run off
 /// screen and adjusts accordingly.
+///
+/// Pass in the same point twice if it is an inner node with no line or
+/// multiplier that needs to be drawn.
 void
 Graph_draw::draw_type_popup(Rectangle const &canvas,
                             Dx::Type_encoding const inner_type,

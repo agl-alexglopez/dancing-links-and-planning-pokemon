@@ -813,7 +813,7 @@ Pokemon_links::best_exact_cover_stack(int choice_limit)
 
         if (item_table_[0].right == 0 && choice_limit >= 0)
         {
-            bool const prioritize_min_size_solution
+            bool const size_breaks_tie
                 = coverage.rank() == best_coverage.rank()
                   && coverage.size() < best_coverage.size();
             bool const is_lower_rank = coverage.rank() < best_coverage.rank();
@@ -821,13 +821,13 @@ Pokemon_links::best_exact_cover_stack(int choice_limit)
             switch (requested_cover_solution_)
             {
                 case Coverage_type::attack:
-                    if (is_higher_rank || prioritize_min_size_solution)
+                    if (is_higher_rank || size_breaks_tie)
                     {
                         best_coverage = coverage;
                     }
                     break;
                 case Coverage_type::defense:
-                    if (is_lower_rank || prioritize_min_size_solution)
+                    if (is_lower_rank || size_breaks_tie)
                     {
                         best_coverage = coverage;
                     }
@@ -1220,7 +1220,7 @@ Pokemon_links::best_overlapping_cover_stack(int choice_limit)
 
         if (item_table_[0].right == 0 && choice_limit >= 0)
         {
-            bool const prioritize_min_size_solution
+            bool const size_breaks_tie
                 = coverage.rank() == best_coverage.rank()
                   && coverage.size() < best_coverage.size();
             bool const is_lower_rank = coverage.rank() < best_coverage.rank();
@@ -1228,13 +1228,13 @@ Pokemon_links::best_overlapping_cover_stack(int choice_limit)
             switch (requested_cover_solution_)
             {
                 case Coverage_type::attack:
-                    if (is_higher_rank || prioritize_min_size_solution)
+                    if (is_higher_rank || size_breaks_tie)
                     {
                         best_coverage = coverage;
                     }
                     break;
                 case Coverage_type::defense:
-                    if (is_lower_rank || prioritize_min_size_solution)
+                    if (is_lower_rank || size_breaks_tie)
                     {
                         best_coverage = coverage;
                     }
