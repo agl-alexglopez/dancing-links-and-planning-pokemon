@@ -1,3 +1,4 @@
+///////////////////////////////////////////////////////////////////////////////
 /// Author: Alexander Lopez
 ///
 /// This file implements an interactive Dancing Links graph cover visualizer.
@@ -38,10 +39,11 @@
 /// Hovering over nodes will show their full type names. If hovering over
 /// covered nodes in the surrounding circle, the multiplier is indicated and
 /// the text matches the edge color.
-///
-///////////////////   System headers   ////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 #include <algorithm>
 #include <array>
+#include <cassert>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -52,6 +54,7 @@
 #include <optional>
 #include <set>
 #include <string_view>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -79,7 +82,7 @@ constexpr std::string_view const no_solution_message
 int run();
 
 /// Helper lambda for building a static table of rgb colors for types at compile
-/// time in the Generation colors table. Intended for use at compile time.
+/// time in the Generation colors table.
 auto const from_hex = [](uint32_t const hex_code) -> Color {
     return Color{
         .r = static_cast<unsigned char>((hex_code & 0xFF0000U) >> 16),
@@ -103,9 +106,12 @@ class Generation {
     [[nodiscard]] bool is_solution_requested() const;
     [[nodiscard]] static Rectangle get_ui_canvas(int window_width,
                                                  int window_height);
-    [[nodiscard]] std::optional<std::pair<
-        Dx::Pokemon_links const &, Ranked_set<Dx::Type_encoding> const &>>
+    [[nodiscard]] std::optional<
+        std::tuple<Dx::Pokemon_links const &,
+                   std::vector<Ranked_set<Dx::Type_encoding>> const &, size_t>>
     get_current_solution() const;
+    void set_current_solution(size_t cur);
+
     void draw_minimap(int window_width, int window_height);
 
   private:
@@ -217,14 +223,19 @@ class Generation {
 
     /// The most recent solution to the defense dlx problem rendered every
     /// frame if non-empty and defense solutions was selected.
-    Ranked_set<Dx::Type_encoding> best_defense_solution;
+    std::vector<Ranked_set<Dx::Type_encoding>> best_defense_solutions;
 
     /// The attack dancing links solver. Loaded along with each new generation.
     Dx::Pokemon_links attack_dlx;
 
     /// The most recent solution to the attack dlx problem rendered every
     /// frame if non-empty and defense solutions was selected.
-    Ranked_set<Dx::Type_encoding> best_attack_solution;
+    std::vector<Ranked_set<Dx::Type_encoding>> best_attack_solutions;
+
+    /// We will allow the user to cycle through equivalent solutions with the
+    /// best rank, from smallest to largest. This state must be remembered
+    /// somewhere when passing to the graph drawing code.
+    size_t cur_solution{0};
 
     //////////////////////    Functions ///////////////////////////////////
 
@@ -238,6 +249,9 @@ class Generation {
                                      Dx::Min_max const &y_draw_bounds);
     static Vector2 get_menu_button_size(float minimap_width,
                                         float minimap_height);
+    static void
+    move_best_solutions(std::vector<Ranked_set<Dx::Type_encoding>> &fill,
+                        std::set<Ranked_set<Dx::Type_encoding>> &&move_from);
 }; // class Generation
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -254,9 +268,10 @@ class Generation {
 ///////////////////////////////////////////////////////////////////////////////
 class Graph_draw {
   public:
-    static void draw_graph_cover(Rectangle const &canvas,
-                                 Dx::Pokemon_links const &dlx_solver,
-                                 Ranked_set<Dx::Type_encoding> const &solution);
+    static size_t draw_graph_cover(
+        Rectangle const &canvas, Dx::Pokemon_links const &dlx_solver,
+        std::vector<Ranked_set<Dx::Type_encoding>> const &solutions,
+        size_t cur_solution);
 
   private:
     static constexpr float default_line_thickness = 2.0;
@@ -313,6 +328,9 @@ class Graph_draw {
                                 Vector2 const &inner_point, float inner_radius,
                                 Dx::Resistance outer_type, float outer_radius,
                                 Vector2 const &outer_point);
+    static size_t draw_solution_selectors(Rectangle const &canvas,
+                                          size_t num_solutions,
+                                          size_t cur_solution);
     static std::pair<Color, std::optional<Color>>
     get_colors(std::pair<uint64_t, std::optional<uint64_t>> const &indices);
     static std::pair<std::string_view, std::optional<std::string_view>>
@@ -383,18 +401,18 @@ run()
             };
             if (gen.is_solution_requested())
             {
-                std::optional<
-                    std::pair<Dx::Pokemon_links const &,
-                              Ranked_set<Dx::Type_encoding> const &>> const
-                    solution
+                std::optional<std::tuple<
+                    Dx::Pokemon_links const &,
+                    std::vector<Ranked_set<Dx::Type_encoding>> const &,
+                    size_t>> const solution
                     = gen.get_current_solution();
                 if (solution.has_value())
                 {
-                    auto const [dlx, solution_set] = solution.value();
+                    auto const [dlx, solution_set, index] = solution.value();
                     // Drawing solutions requires no persistent state which is
                     // important for performance as this can be a hot path.
-                    Graph_draw::draw_graph_cover(graph_canvas, dlx,
-                                                 solution_set);
+                    gen.set_current_solution(Graph_draw::draw_graph_cover(
+                        graph_canvas, dlx, solution_set, index));
                 }
                 else
                 {
@@ -691,6 +709,7 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
             },
             "Solve!"))
     {
+        cur_solution = 0;
         requesting_solution = true;
         auto const dlx_active_solver
             = static_cast<Solution_request>(dlx_solver_select.active);
@@ -711,23 +730,27 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
         switch (dlx_active_solver)
         {
             case Solution_request::attack_exact_cover:
-                best_attack_solution
-                    = Dx::best_exact_cover_stack(attack_dlx, attack_slots);
+                move_best_solutions(
+                    best_attack_solutions,
+                    Dx::exact_cover_stack(attack_dlx, attack_slots));
                 solver = &attack_dlx;
                 break;
             case Solution_request::defense_exact_cover:
-                best_defense_solution = Dx::best_exact_cover_stack(
-                    defense_dlx, pokemon_party_size);
+                move_best_solutions(
+                    best_defense_solutions,
+                    Dx::exact_cover_stack(defense_dlx, pokemon_party_size));
                 solver = &defense_dlx;
                 break;
             case Solution_request::attack_overlapping_cover:
-                best_attack_solution = Dx::best_overlapping_cover_stack(
-                    attack_dlx, attack_slots);
+                move_best_solutions(
+                    best_attack_solutions,
+                    Dx::overlapping_cover_stack(attack_dlx, attack_slots));
                 solver = &attack_dlx;
                 break;
             case Solution_request::defense_overlapping_cover:
-                best_defense_solution = Dx::best_overlapping_cover_stack(
-                    defense_dlx, pokemon_party_size);
+                move_best_solutions(best_defense_solutions,
+                                    Dx::overlapping_cover_stack(
+                                        defense_dlx, pokemon_party_size));
                 solver = &defense_dlx;
                 break;
             default:
@@ -739,6 +762,34 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
         {
             rendering_too_many_solutions = true;
         }
+    }
+}
+
+/// Fills the vector with the solutions tied for the best rank.
+/// Rank is determined first by the integer rank and then ties among rank are
+/// broken by the smallest solution size winning.
+void
+Generation::move_best_solutions(
+    std::vector<Ranked_set<Dx::Type_encoding>> &fill,
+    std::set<Ranked_set<Dx::Type_encoding>> &&move_from)
+{
+    fill.clear();
+    std::set<Ranked_set<Dx::Type_encoding>> moved = std::move(move_from);
+    if (moved.empty())
+    {
+        return;
+    }
+    int prev_rank = moved.begin()->rank();
+    for (auto iter = moved.begin(); iter != moved.end();)
+    {
+        if (prev_rank != iter->rank())
+        {
+            return;
+        }
+        auto next = std::next(iter);
+        auto extraced = moved.extract(iter);
+        fill.emplace_back(std::move(extraced.value()));
+        iter = next;
     }
 }
 
@@ -779,7 +830,8 @@ Generation::draw_too_many_solutions_message(Rectangle const &popup_canvas)
 ///
 /// None is returned if no solution is ready.
 std::optional<
-    std::pair<Dx::Pokemon_links const &, Ranked_set<Dx::Type_encoding> const &>>
+    std::tuple<Dx::Pokemon_links const &,
+               std::vector<Ranked_set<Dx::Type_encoding>> const &, size_t>>
 Generation::get_current_solution() const
 {
     auto const dlx_active_solver
@@ -788,18 +840,18 @@ Generation::get_current_solution() const
     {
         return {};
     }
-    Ranked_set<Dx::Type_encoding> const *solution{};
+    std::vector<Ranked_set<Dx::Type_encoding>> const *solution{};
     Dx::Pokemon_links const *dlx{};
     switch (dlx_active_solver)
     {
         case Solution_request::attack_exact_cover:
         case Solution_request::attack_overlapping_cover:
-            solution = &best_attack_solution;
+            solution = &best_attack_solutions;
             dlx = &attack_dlx;
             break;
         case Solution_request::defense_exact_cover:
         case Solution_request::defense_overlapping_cover:
-            solution = &best_defense_solution;
+            solution = &best_defense_solutions;
             dlx = &defense_dlx;
             break;
         default:
@@ -810,7 +862,16 @@ Generation::get_current_solution() const
     {
         return {};
     }
-    return {{*dlx, *solution}};
+    return {{*dlx, *solution, cur_solution}};
+}
+
+void
+Generation::set_current_solution(size_t const cur)
+{
+    if (get_current_solution().has_value())
+    {
+        cur_solution = cur;
+    }
 }
 
 /// Returns how much space is taken by the mini map and menu UI button
@@ -904,13 +965,14 @@ Generation::is_solution_requested() const
 /// have so that they are readable. This means nodes will be different sizes
 /// which I find fun. Might be confusing if people think it means importance
 /// but I think it provides good visual balance. Research alternatives.
-void
-Graph_draw::draw_graph_cover(Rectangle const &canvas,
-                             Dx::Pokemon_links const &dlx_solver,
-                             Ranked_set<Dx::Type_encoding> const &solution_set)
+size_t
+Graph_draw::draw_graph_cover(
+    Rectangle const &canvas, Dx::Pokemon_links const &dlx_solver,
+    std::vector<Ranked_set<Dx::Type_encoding>> const &solutions,
+    size_t cur_solution)
 {
     float const node_radius = std::min(canvas.width, canvas.height) * 0.06F;
-    size_t const solution_size = solution_set.size();
+    size_t const solution_size = solutions.at(cur_solution).size();
     float const center_x = canvas.x + (canvas.width / 2);
     float const center_y = canvas.y + (canvas.height / 2);
     // Every type in the solution is given a segment of a circle and will be
@@ -1008,9 +1070,9 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
         // raylib so we have to adjust manually.
         float const covered_node_radius
             = sqrt((theta_segment_angle * annulus_radius_squared_difference)
-                   / (12.0F * n));
+                   / (14.0F * n));
         float const theta_end = cur_theta + theta_segment_angle;
-        float radius = outer_ring_annulus_radius - (covered_node_radius * 0.5F);
+        float radius = outer_ring_annulus_radius - (covered_node_radius * 0.6F);
         float theta
             = cur_theta
               + (std::asin((0.5F * (2.0F * covered_node_radius) / radius)));
@@ -1082,7 +1144,7 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
           };
 
     // Use our macro like for each loop.
-    for (Dx::Type_encoding const t : solution_set)
+    for (Dx::Type_encoding const &t : solutions.at(cur_solution))
     {
         for_each_annulus_point(t, draw_line);
         cur_theta += theta_segment_angle;
@@ -1091,7 +1153,7 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
     // just to be safe as I'm not sure how Raylib handles multiple rotations
     // around the unit circle.
     cur_theta = start_theta;
-    for (Dx::Type_encoding const t : solution_set)
+    for (Dx::Type_encoding const &t : solutions.at(cur_solution))
     {
         for_each_annulus_point(t, draw_outer_node);
         // Draw the inner ring last just in case. It is the most important
@@ -1108,7 +1170,7 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
     cur_theta = start_theta;
     // It can be nice for large solution sets to be able to hover over small
     // covered nodes and see the full type name.
-    for (Dx::Type_encoding const t : solution_set)
+    for (Dx::Type_encoding const &t : solutions.at(cur_solution))
     {
         for_each_annulus_point(t, draw_popup);
         Vector2 const point{
@@ -1122,6 +1184,7 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
                         point);
         cur_theta += theta_segment_angle;
     }
+    return draw_solution_selectors(canvas, solutions.size(), cur_solution);
 }
 
 /// Draws a large readable version of a type node with the full type name
@@ -1294,6 +1357,77 @@ Graph_draw::draw_type_node(
                    },
                    font_size, font_spacing, type1_text_color);
     }
+}
+
+size_t
+Graph_draw::draw_solution_selectors(Rectangle const &graph_canvas,
+                                    size_t const num_solutions,
+                                    size_t cur_solution)
+{
+    assert(num_solutions);
+    float const button_size
+        = std::min(graph_canvas.width, graph_canvas.height) * 0.05F;
+    Rectangle const prev_button{
+        .width = button_size,
+        .height = button_size,
+        .x = graph_canvas.x,
+        .y = graph_canvas.y,
+    };
+    Rectangle const next_button{
+        .width = button_size,
+        .height = button_size,
+        .x = graph_canvas.x + button_size,
+        .y = graph_canvas.y,
+    };
+    if (GuiButton(prev_button, GuiIconText(ICON_PLAYER_PREVIOUS, "")))
+    {
+        cur_solution = cur_solution ? cur_solution - 1 : num_solutions - 1;
+    }
+    else if (GuiButton(next_button, GuiIconText(ICON_PLAYER_NEXT, "")))
+    {
+        ++cur_solution %= num_solutions;
+    }
+    // Maximum digits possible for 64 bit integer + null term.
+    std::array<char, 20 + 1> cur_solution_string{};
+    size_t digits = cur_solution + 1;
+    size_t placed = 0;
+    while (digits && placed < cur_solution_string.size())
+    {
+        cur_solution_string.at(placed)
+            = static_cast<char>((digits % 10U) + '0');
+        digits /= 10;
+        ++placed;
+    }
+    std::reverse(cur_solution_string.begin(),
+                 cur_solution_string.begin() + placed);
+    if (placed == cur_solution_string.size())
+    {
+        cur_solution_string.back() = '\0';
+    }
+    else
+    {
+        cur_solution_string.at(placed) = '\0';
+    }
+    Font font = GuiGetFont();
+    auto const base_size = static_cast<float>(font.baseSize);
+    float font_spacing = base_size * 0.2F;
+    Vector2 const measured_dimensions = MeasureTextEx(
+        font, cur_solution_string.data(), base_size, font_spacing);
+    // We find the imaginary largest bounding square that fits inside of a
+    // circle which has the diagonal of the circle diameter and side length
+    // of radius * sqrt(2). Then ensure what we measured fits in square.
+    float const font_scaling
+        = (button_size * 2)
+          / std::max(measured_dimensions.x, measured_dimensions.y);
+    float const font_size = base_size * font_scaling;
+    font_spacing = font_size * 0.2F;
+    DrawTextEx(font, cur_solution_string.data(),
+               Vector2{
+                   .x = graph_canvas.x,
+                   .y = graph_canvas.y + button_size,
+               },
+               font_size, font_spacing, BLACK);
+    return cur_solution;
 }
 
 /// Find the appropriate colors in the color table for a single or dual type.
