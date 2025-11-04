@@ -329,9 +329,9 @@ class Graph_draw {
                                 Vector2 const &inner_point, float inner_radius,
                                 Dx::Resistance outer_type, float outer_radius,
                                 Vector2 const &outer_point);
-    static size_t draw_solution_selectors(Rectangle const &canvas,
-                                          size_t num_solutions,
-                                          size_t cur_solution);
+    static size_t draw_solution_navigation(Rectangle const &canvas,
+                                           size_t num_solutions,
+                                           size_t cur_solution);
     static std::pair<Color, std::optional<Color>>
     get_colors(std::pair<uint64_t, std::optional<uint64_t>> const &indices);
     static std::pair<std::string_view, std::optional<std::string_view>>
@@ -1185,7 +1185,7 @@ Graph_draw::draw_graph_cover(
                         point);
         cur_theta += theta_segment_angle;
     }
-    return draw_solution_selectors(canvas, solutions.size(), cur_solution);
+    return draw_solution_navigation(canvas, solutions.size(), cur_solution);
 }
 
 /// Draws a large readable version of a type node with the full type name
@@ -1361,9 +1361,9 @@ Graph_draw::draw_type_node(
 }
 
 size_t
-Graph_draw::draw_solution_selectors(Rectangle const &graph_canvas,
-                                    size_t const num_solutions,
-                                    size_t cur_solution)
+Graph_draw::draw_solution_navigation(Rectangle const &graph_canvas,
+                                     size_t const num_solutions,
+                                     size_t cur_solution)
 {
     assert(num_solutions);
     float const button_size
