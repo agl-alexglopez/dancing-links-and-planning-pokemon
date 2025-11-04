@@ -1109,9 +1109,8 @@ Graph_draw::draw_graph_cover(
             // theta_step = 2 * asin(opposite / hypotenuse)
             //
             // where the right triangle has formed at 1/2 the length of the
-            // desired cored, in this case one radius of a covered node. Then
-            // we step by two of those angle increments so that nodes do not
-            // overlap.
+            // desired cord, in this case one radius of a covered node. Then
+            // we step by two of those angle increments so no overlap.
             float const angle_of_node_radius
                 = std::asin(covered_node_radius / radius_row);
             theta_col += 2.0F * angle_of_node_radius;
