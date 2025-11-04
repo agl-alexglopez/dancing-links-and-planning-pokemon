@@ -1211,8 +1211,8 @@ Graph_draw::draw_graph_cover(
     return draw_solution_navigation(canvas, solutions.size(), cur_solution);
 }
 
-/// Draws a Bezier curve between nodes with an arrow indicating the directed
-/// graph relationship.
+/// Draws a line with an arrow indicating the direction of the graph and the
+/// relationship being inner covering outer.
 void
 Graph_draw::draw_directed_line(Vector2 const &inner_point,
                                Dx::Resistance const outer_type,
@@ -1220,10 +1220,10 @@ Graph_draw::draw_directed_line(Vector2 const &inner_point,
                                Vector2 const &outer_point,
                                float const thickness)
 {
-    float const angle = std::atan2(outer_point.y - inner_point.y,
-                                   outer_point.x - inner_point.x);
-    float const cos_angle = std::cos(angle);
-    float const sin_angle = std::sin(angle);
+    float const angle_radians = std::atan2(outer_point.y - inner_point.y,
+                                           outer_point.x - inner_point.x);
+    float const cos_angle = std::cos(angle_radians);
+    float const sin_angle = std::sin(angle_radians);
     float const arrow_length = thickness * 3;
     Vector2 const arrow_tip = {
         outer_point.x - (cos_angle * (outer_radius + arrow_length)),
@@ -1232,7 +1232,7 @@ Graph_draw::draw_directed_line(Vector2 const &inner_point,
     Color const &color
         = multiplier_colors.at(static_cast<size_t>(outer_type.multiplier()));
     DrawLineEx(inner_point, arrow_tip, thickness, color);
-    DrawPoly(arrow_tip, 3, arrow_length, angle * RAD2DEG, color);
+    DrawPoly(arrow_tip, 3, arrow_length, angle_radians * RAD2DEG, color);
 }
 
 /// Draws a large readable version of a type node with the full type name
