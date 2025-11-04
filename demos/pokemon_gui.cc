@@ -266,6 +266,9 @@ class Generation {
 /// Any internal tables or state should be constant and static so that only
 /// one instance exists for the program of that data.
 ///
+/// Try to maintain the constraint that all member functions are static and
+/// there are not state data member variables.
+///
 ///////////////////////////////////////////////////////////////////////////////
 class Graph_draw {
   public:
@@ -1073,10 +1076,20 @@ Graph_draw::draw_graph_cover(
             = sqrt((theta_segment_angle * annulus_radius_squared_difference)
                    / (14.0F * n));
         float const theta_end = cur_theta + theta_segment_angle;
-        float radius = outer_ring_annulus_radius - (covered_node_radius * 0.6F);
-        float theta
+        // Conceptually the radius is our row and the theta angle is our col
+        // that helps determine where the next node should be drawn.
+        float radius_row
+            = outer_ring_annulus_radius - (covered_node_radius * 0.6F);
+        // This starting column is nudged inside our angle allotment by one
+        // covered node circle radius using right triangle identity
+        //
+        // theta_col = 2 * asin(opposite / hypotenuse)
+        //
+        // where the right triangle has formed at 1/2 the length of a cord
+        // equal to the radius of our covered node.
+        float theta_col
             = cur_theta
-              + (std::asin((0.5F * (2.0F * covered_node_radius) / radius)));
+              + (2.0F * std::asin((covered_node_radius * 0.5F) / radius_row));
         for (Dx::Pokemon_links::Poke_link const *iter
              = Dx::items_for_begin(dlx_solver, inner_type);
              iter != Dx::items_for_end();
@@ -1086,24 +1099,32 @@ Graph_draw::draw_graph_cover(
                 = Dx::item_resistance_from(dlx_solver, iter);
             draw_fn(inner_ring_node,
                     Vector2{
-                        .x = (std::cos(theta) * radius) + center_x,
-                        .y = (std::sin(theta) * radius) + center_y,
+                        .x = (std::cos(theta_col) * radius_row) + center_x,
+                        .y = (std::sin(theta_col) * radius_row) + center_y,
                     },
                     covered_node_radius, inner_type, cur_covered);
-            // We are iterating from the outer perimeter of the pie slice
-            // toward the center in an arc. Step clockwise by calculating the
-            // angle from the distance and step inward by reducing the radius.
-            float const angle_step
-                = (2.0F
-                   * std::asin((0.5F * (2.0F * covered_node_radius) / radius)));
-            theta += angle_step;
-            if (theta + angle_step > theta_end)
+            // Here we step by 2 covered node radii so that nodes don't overlap
+            // with the right triangle identity
+            //
+            // theta_step = 2 * asin(opposite / hypotenuse)
+            //
+            // where the right triangle has formed at 1/2 the length of the
+            // desired cored, in this case one radius of a covered node. Then
+            // we step by two of those angle increments so that nodes do not
+            // overlap.
+            float const angle_of_node_radius
+                = std::asin(covered_node_radius / radius_row);
+            theta_col += 2.0F * angle_of_node_radius;
+            // Double check that drawing a new circle at this position would
+            // not encroach on the next segments allotted space.
+            if (theta_col + angle_of_node_radius > theta_end)
             {
-                radius -= (2.0F * covered_node_radius);
+                radius_row -= (2.0F * covered_node_radius);
                 // Reset to the starting angle of the pie slice.
-                theta = cur_theta
-                        + (std::asin(
-                            (0.5F * (2.0F * covered_node_radius) / radius)));
+                theta_col = cur_theta
+                            + (2.0F
+                               * std::asin((covered_node_radius * 0.5F)
+                                           / radius_row));
             }
         }
     };
