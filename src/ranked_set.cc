@@ -158,18 +158,29 @@ export template <class T> class Ranked_set {
     explicit
     operator bool() const
     {
-        return this->rank_ != 0 || !this->flat_set_.empty();
+        return rank_ != 0 || !flat_set_.empty();
     }
     bool
     operator==(Ranked_set<T> const &rhs) const
     {
-        return this->rank_ == rhs.rank_ && this->flat_set_ == rhs.flat_set_;
+        return rank_ == rhs.rank_ && flat_set_.size() == rhs.size()
+               && flat_set_ == rhs.flat_set_;
     }
-    std::weak_ordering
+
+    std::strong_ordering
     operator<=>(Ranked_set<T> const &rhs) const
     {
-        return this->rank_ == rhs.rank_ ? this->flat_set_ <=> rhs.flat_set_
-                                        : this->rank_ <=> rhs.rank_;
+        std::strong_ordering cmp = rank_ <=> rhs.rank_;
+        if (std::strong_ordering::equal != cmp)
+        {
+            return cmp;
+        }
+        cmp = flat_set_.size() <=> rhs.flat_set_.size();
+        if (std::strong_ordering::equal != cmp)
+        {
+            return cmp;
+        }
+        return flat_set_ <=> rhs.flat_set_;
     }
 
   private:
