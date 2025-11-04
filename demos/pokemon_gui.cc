@@ -1027,6 +1027,9 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
                         .y = (std::sin(theta) * radius) + center_y,
                     },
                     covered_node_radius, inner_type, cur_covered);
+            // We are iterating from the outer perimeter of the pie slice
+            // toward the center in an arc. Step clockwise by calculating the
+            // angle from the distance and step inward by reducing the radius.
             float const angle_step
                 = (2.0F
                    * std::asin((0.5F * (2.0F * covered_node_radius) / radius)));
@@ -1034,6 +1037,7 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
             if (theta + angle_step > theta_end)
             {
                 radius -= (2.0F * covered_node_radius);
+                // Reset to the starting angle of the pie slice.
                 theta = cur_theta
                         + (std::asin(
                             (0.5F * (2.0F * covered_node_radius) / radius)));
