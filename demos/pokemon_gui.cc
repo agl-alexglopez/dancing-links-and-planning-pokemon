@@ -1413,9 +1413,6 @@ Graph_draw::draw_solution_selectors(Rectangle const &graph_canvas,
     float font_spacing = base_size * 0.2F;
     Vector2 const measured_dimensions = MeasureTextEx(
         font, cur_solution_string.data(), base_size, font_spacing);
-    // We find the imaginary largest bounding square that fits inside of a
-    // circle which has the diagonal of the circle diameter and side length
-    // of radius * sqrt(2). Then ensure what we measured fits in square.
     float const font_scaling
         = (button_size * 2)
           / std::max(measured_dimensions.x, measured_dimensions.y);
