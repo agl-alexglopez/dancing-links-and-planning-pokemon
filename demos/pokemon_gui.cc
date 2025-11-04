@@ -780,10 +780,10 @@ Generation::move_best_solutions(
     {
         return;
     }
-    int prev_rank = moved.begin()->rank();
+    int const leading_rank = moved.begin()->rank();
     for (auto iter = moved.begin(); iter != moved.end();)
     {
-        if (prev_rank != iter->rank())
+        if (leading_rank != iter->rank())
         {
             return;
         }
@@ -1409,7 +1409,7 @@ Graph_draw::draw_solution_navigation(Rectangle const &graph_canvas,
     {
         cur_solution_string.at(placed) = '\0';
     }
-    Font font = GuiGetFont();
+    Font const font = GuiGetFont();
     auto const base_size = static_cast<float>(font.baseSize);
     float font_spacing = base_size * 0.2F;
     Vector2 const measured_dimensions = MeasureTextEx(
