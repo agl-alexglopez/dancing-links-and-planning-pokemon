@@ -13,21 +13,16 @@ This project makes use of new C++ module features and therefore must be built wi
 
 ## Pokémon Planning GUI Usage Instructions
 
-This file implements an interactive Dancing Links graph cover visualizer. The user is able to load in any of 9 generation Pokemon maps and solve various graph cover questions. These questions basically boil down to the following:
+This program implements an interactive Dancing Links graph cover visualizer. The user is able to load in any of 9 generation Pokemon maps and solve various graph cover questions. These questions basically boil down to the following:
 
-What team of at most 6 Pokemon can I choose to be resilient to any attack type I will encounter in the game?
+- What team of at most 6 Pokemon can I choose to be resilient to any attack type I will encounter in the game?
+- Of my 24 attack slots for my 6 Pokemon, which attack types can I choose to give them so that I am super effective against any defensive types I will encounter in the game?
 
-Of my 24 attack slots for my 6 Pokemon, which attack types can I choose to give them so that I am super effective against any defensive types I will encounter in the game?
+These questions can be answered for an entire game or a subset of maps to choose from on the mini map. If solutions exist, the best will be shown as the inner ring of attack or defensive types that covers all the requested attack or defensive types that surround this inner ring. The inner ring has edges that lead to the types that are covered. These edges are color coded to indicate the quality of the solution.
 
-These questions can be answered for an entire game or a subset of maps to choose from on the mini map.
+A line is colored based on the multiplier of the type interaction. If the inner ring is defensive types than the edges indicate what resistance multiplier the defensive type receives against the type it covers. The multiplier could be 0.5, 0.25, or 0.0. These are all good but obviously a 0.0 multiplier is best because it means immunity from damage. If the inner ring is attack types the edges indicate the damage multiplier these types do against the defensive types they cover. The multiplier could be 2 or 4. Both are good but a 4x multiplier is best.  
 
-If a solution exists, it will be shown as the inner ring of attack or defensive types that covers all the requested attack or defensive types that surround this inner ring. The inner ring has edges that lead to the types that are covered. These edges are color coded to indicate the quality of the solution.
-
-A line is colored based on the multiplier of the type interaction. If the inner ring is defensive types than the edges indicate what resistance multiplier the defensive type receives against the type it covers. The multiplier could be 0.5, 0.25, or 0.0. These are all good but obviously a 0.0 multiplier is best because it means immunity from damage.
-
-If the inner ring is attack types the edges indicate the damage multiplier these types do against the defensive types they cover. The multiplier could be 2 or 4. Both are good but a 4x multiplier is best.
-
-The solution that is shown is the best among all candidate solutions that were generated as viable covers for the graph. A ranked set system is used so that the best solution has the highest number of better multipliers.
+The user can cycle through the top ranked solutions provided. All solutions shown tied for the best rank among all solutions. Solutions are ranked based on the quality of their beneficial multipliers against other types. When ranks are tied, the smaller set wins. As the user cycles through the solutions that tied with the highest rank, smaller solutions sets will be shown first. The reasoning is that while building a Pokemon team or selecting types for attack slots, using as few slots as possible frees up space in the team for other purposes. 
 
 Hovering over nodes will show their full type names. If hovering over covered nodes in the surrounding circle, the multiplier is indicated and the text matches the edge color.
 
