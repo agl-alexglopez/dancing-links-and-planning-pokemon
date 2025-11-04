@@ -332,6 +332,10 @@ class Graph_draw {
                                 Vector2 const &inner_point, float inner_radius,
                                 Dx::Resistance outer_type, float outer_radius,
                                 Vector2 const &outer_point);
+    static void draw_directed_line(Vector2 const &inner_point,
+                                   Dx::Resistance outer_type,
+                                   float outer_radius,
+                                   Vector2 const &outer_point, float thickness);
     static size_t draw_solution_navigation(Rectangle const &canvas,
                                            size_t num_solutions,
                                            size_t cur_solution);
@@ -1131,12 +1135,11 @@ Graph_draw::draw_graph_cover(
     // Drawing lines just connects two points at their true center locations.
     auto const draw_line
         = [](Vector2 const &inner_point, Vector2 const &outer_point,
-             [[maybe_unused]] float const outer_radius,
+             float const outer_radius,
              [[maybe_unused]] Dx::Type_encoding const inner_type,
              Dx::Resistance const &outer_type) {
-              DrawLineBezier(inner_point, outer_point, default_line_thickness,
-                             multiplier_colors.at(
-                                 static_cast<size_t>(outer_type.multiplier())));
+              draw_directed_line(inner_point, outer_type, outer_radius,
+                                 outer_point, default_line_thickness);
           };
     // A node has much more complex drawing logic, text, and possibly two
     // colors so it will deal with its own function.
@@ -1208,6 +1211,30 @@ Graph_draw::draw_graph_cover(
     return draw_solution_navigation(canvas, solutions.size(), cur_solution);
 }
 
+/// Draws a Bezier curve between nodes with an arrow indicating the directed
+/// graph relationship.
+void
+Graph_draw::draw_directed_line(Vector2 const &inner_point,
+                               Dx::Resistance const outer_type,
+                               float const outer_radius,
+                               Vector2 const &outer_point,
+                               float const thickness)
+{
+    float const angle = std::atan2(outer_point.y - inner_point.y,
+                                   outer_point.x - inner_point.x);
+    float const cos_angle = std::cos(angle);
+    float const sin_angle = std::sin(angle);
+    float const arrow_length = thickness * 3;
+    Vector2 const arrow_tip = {
+        outer_point.x - (cos_angle * (outer_radius + arrow_length)),
+        outer_point.y - (sin_angle * (outer_radius + arrow_length)),
+    };
+    Color const &color
+        = multiplier_colors.at(static_cast<size_t>(outer_type.multiplier()));
+    DrawLineEx(inner_point, arrow_tip, thickness, color);
+    DrawPoly(arrow_tip, 3, arrow_length, angle * RAD2DEG, color);
+}
+
 /// Draws a large readable version of a type node with the full type name
 /// rather than an abbreviation. The pop up also detects if it will run off
 /// screen and adjusts accordingly.
@@ -1237,9 +1264,8 @@ Graph_draw::draw_type_popup(Rectangle const &canvas,
         = inner_point.x != outer_point.x || inner_point.y != outer_point.y;
     if (is_outer_popup)
     {
-        DrawLineBezier(
-            inner_point, outer_point, default_line_thickness * 3,
-            multiplier_colors.at(static_cast<size_t>(outer_type.multiplier())));
+        draw_directed_line(inner_point, outer_type, outer_radius, outer_point,
+                           default_line_thickness * 3);
         auto const inner_indices = inner_type.decode_indices();
         auto const outer_indices = outer_type.type().decode_indices();
         draw_type_node(get_string_abbreviation(outer_indices),
