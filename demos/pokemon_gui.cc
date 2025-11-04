@@ -68,7 +68,13 @@ namespace Dx = Dancing_links;
 ////////////////////////    Prototypes     ////////////////////////////////////
 namespace {
 
-constexpr std::string_view font_path = "data/font/PokemonGb-RAeo.ttf";
+constexpr std::string_view const font_path = "data/font/PokemonGb-RAeo.ttf";
+constexpr std::string_view const graph_idle_message
+    = "Solution not yet requested. Configure dropdown menus then press the "
+      "'Solve!' button.";
+constexpr std::string_view const no_solution_message
+    = "No solution exists for this cover problem. Try  different "
+      "configurations, then press the 'Solve!' button.";
 
 int run();
 
@@ -94,11 +100,12 @@ auto const from_hex = [](uint32_t const hex_code) -> Color {
 class Generation {
   public:
     Generation();
+    [[nodiscard]] bool is_solution_requested() const;
     [[nodiscard]] static Rectangle get_ui_canvas(int window_width,
                                                  int window_height);
     [[nodiscard]] std::optional<std::pair<
         Dx::Pokemon_links const &, Ranked_set<Dx::Type_encoding> const &>>
-    get_current_solution(Rectangle const &canvas) const;
+    get_current_solution() const;
     void draw_minimap(int window_width, int window_height);
 
   private:
@@ -138,15 +145,9 @@ class Generation {
     static constexpr char const *const dlx_solver_options
         = "Defense Exact Cover;Defense Overlapping Cover;Attack "
           "Exact Cover;Attack Overlapping Cover";
-    static constexpr std::string_view graph_display_message
-        = "Solution not yet requested. Select the Pokemon map and cover "
-          "problem from the dropdown menus. If you wish to solve for a subset "
-          "of gyms, select them on the minimap. Press the 'Solve!' button to "
-          "initiate a solution.";
-    static constexpr std::string_view no_solution_message
-        = "No solution could be found for this Pokemon generation and cover "
-          "problem. Try a different cover problem, gym configuration, or "
-          "generation, then press the 'Solve!' button.";
+    static constexpr std::string_view too_many_solutions_message
+        = "Too many solutions! The leading solution is shown. The best "
+          "solution is unknown. Click to close.";
 
     //////////////////////   Data Structures  /////////////////////////////////
 
@@ -170,7 +171,11 @@ class Generation {
     /// Otherwise, we might hitch the app every time the user changes the
     /// selection and we start solving right away. Some solutions take a long
     /// time.
-    bool rendering_solution{false};
+    bool requesting_solution{false};
+
+    /// If a cover problem generated too many solutions we can make a pop up
+    /// to warn the user of this fact.
+    bool rendering_too_many_solutions{false};
 
     /// The data from the current Pokemon generation map we have loaded in.
     /// This data structure tells us where all the gyms are for this
@@ -224,17 +229,13 @@ class Generation {
     //////////////////////    Functions ///////////////////////////////////
 
     void draw_ui_controls(Rectangle const &minimap_canvas);
+    void draw_too_many_solutions_message(Rectangle const &popup_canvas);
     void reload_generation();
     static Dx::Point scale_map_point(Dx::Point const &p,
                                      Dx::Min_max const &x_data_bounds,
                                      Dx::Min_max const &x_draw_bounds,
                                      Dx::Min_max const &y_data_bounds,
                                      Dx::Min_max const &y_draw_bounds);
-    static void draw_wrapping_message(Rectangle canvas,
-                                      std::string_view message);
-    static std::string_view
-    get_token_with_trailing_delims(std::string_view view,
-                                   std::string_view delim_set);
     static Vector2 get_menu_button_size(float minimap_width,
                                         float minimap_height);
 }; // class Generation
@@ -319,6 +320,17 @@ class Graph_draw {
         std::pair<uint64_t, std::optional<uint64_t>> const &indices);
 }; // class Graph
 
+///////////////////////////////////////////////////////////////////////////////
+///
+///  Free Functions
+///
+///////////////////////////////////////////////////////////////////////////////
+
+void draw_wrapping_message(Rectangle const &canvas, std::string_view message,
+                           Color const &tint);
+std::string_view get_token_with_trailing_delims(std::string_view view,
+                                                std::string_view delim_set);
+
 } // namespace
 
 //////////////////////////     Main           /////////////////////////////////
@@ -369,23 +381,37 @@ run()
                 .x = ui_canvas.x,
                 .y = ui_canvas.y + ui_canvas.height,
             };
-            std::optional<
-                std::pair<Dx::Pokemon_links const &,
-                          Ranked_set<Dx::Type_encoding> const &>> const solution
-                = gen.get_current_solution(graph_canvas);
-            if (solution.has_value())
+            if (gen.is_solution_requested())
             {
-                auto const [dlx, solution_set] = solution.value();
-                // Drawing solutions requires no persistent state which is
-                // important for performance as this can be a hot path.
-                Graph_draw::draw_graph_cover(graph_canvas, dlx, solution_set);
+                std::optional<
+                    std::pair<Dx::Pokemon_links const &,
+                              Ranked_set<Dx::Type_encoding> const &>> const
+                    solution
+                    = gen.get_current_solution();
+                if (solution.has_value())
+                {
+                    auto const [dlx, solution_set] = solution.value();
+                    // Drawing solutions requires no persistent state which is
+                    // important for performance as this can be a hot path.
+                    Graph_draw::draw_graph_cover(graph_canvas, dlx,
+                                                 solution_set);
+                }
+                else
+                {
+                    draw_wrapping_message(graph_canvas, no_solution_message,
+                                          RED);
+                }
+            }
+            else
+            {
+                draw_wrapping_message(graph_canvas, graph_idle_message, BLACK);
             }
             // Even though the user interacts with the menu before solving
             // we want it drawn last so drop down menus cover graph solutions.
             gen.draw_minimap(screen_width, screen_height);
             EndDrawing();
         }
-        CloseWindow(); // Close window and OpenGL context
+        CloseWindow();
         return 0;
     } catch (std::exception const &e)
     {
@@ -462,7 +488,8 @@ Generation::reload_generation()
                   << '.\n';
         std::abort();
     }
-    rendering_solution = false;
+    rendering_too_many_solutions = false;
+    requesting_solution = false;
     // Clear out any subsets of problems we wanted to solve.
     selected_gyms.clear();
     // Clear the old gym toggles before loading new generation so we are not
@@ -585,7 +612,8 @@ Generation::draw_minimap(int const window_width, int const window_height)
             city_location_map_iterator->first.c_str(), &active_toggle_state);
         if (active_toggle_state != prev_state)
         {
-            rendering_solution = false;
+            requesting_solution = false;
+            rendering_too_many_solutions = false;
             if (active_toggle_state)
             {
                 selected_gyms.insert(city_location_map_iterator->first);
@@ -597,6 +625,12 @@ Generation::draw_minimap(int const window_width, int const window_height)
         }
     }
     draw_ui_controls(Rectangle{
+        .width = minimap_width,
+        .height = minimap_height,
+        .x = minimap_origin_x,
+        .y = minimap_origin_y,
+    });
+    draw_too_many_solutions_message(Rectangle{
         .width = minimap_width,
         .height = minimap_height,
         .x = minimap_origin_x,
@@ -627,7 +661,8 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
     {
         if (dst_map_select.active != prev_map_selection)
         {
-            rendering_solution = false;
+            requesting_solution = false;
+            rendering_too_many_solutions = false;
         }
         dst_map_select.editmode = !dst_map_select.editmode;
         if (!dst_map_select.editmode)
@@ -641,7 +676,8 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
     {
         if (dlx_solver_select.active != prev_solution_selction)
         {
-            rendering_solution = false;
+            requesting_solution = false;
+            rendering_too_many_solutions = false;
         }
         dlx_solver_select.editmode = !dlx_solver_select.editmode;
     }
@@ -655,7 +691,7 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
             },
             "Solve!"))
     {
-        rendering_solution = true;
+        requesting_solution = true;
         auto const dlx_active_solver
             = static_cast<Solution_request>(dlx_solver_select.active);
         Dx::reset_items(defense_dlx);
@@ -671,28 +707,71 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
                     dst_map_list[dst_map_select.active], selected_gyms);
             Dx::hide_items_except(attack_dlx, subset_defense);
         }
+        Dx::Pokemon_links const *solver{};
         switch (dlx_active_solver)
         {
             case Solution_request::attack_exact_cover:
-            case Solution_request::defense_exact_cover:
                 best_attack_solution
                     = Dx::best_exact_cover_stack(attack_dlx, attack_slots);
+                solver = &attack_dlx;
+                break;
+            case Solution_request::defense_exact_cover:
                 best_defense_solution = Dx::best_exact_cover_stack(
                     defense_dlx, pokemon_party_size);
+                solver = &defense_dlx;
                 break;
             case Solution_request::attack_overlapping_cover:
-            case Solution_request::defense_overlapping_cover:
                 best_attack_solution = Dx::best_overlapping_cover_stack(
                     attack_dlx, attack_slots);
+                solver = &attack_dlx;
+                break;
+            case Solution_request::defense_overlapping_cover:
                 best_defense_solution = Dx::best_overlapping_cover_stack(
                     defense_dlx, pokemon_party_size);
+                solver = &defense_dlx;
                 break;
             default:
                 std::cerr << "unmatchable dlx active solver\n";
                 std::abort();
                 break;
         }
+        if (Dx::has_max_solutions(*solver))
+        {
+            rendering_too_many_solutions = true;
+        }
     }
+}
+
+/// Draws a warning to the user that the shown solution may not be the best
+/// among candidates due to how many solutions were generated. The solver
+/// may cut off solution generation due to the problem space of some solutions.
+///
+/// Overlapping cover especially can have so many solutions they are not
+/// countable on a human time scale.
+void
+Generation::draw_too_many_solutions_message(Rectangle const &popup_canvas)
+{
+    if (!rendering_too_many_solutions)
+    {
+        return;
+    }
+    if (CheckCollisionPointRec(GetMousePosition(), popup_canvas)
+        && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        rendering_too_many_solutions = false;
+        return;
+    }
+    float const border
+        = std::max(popup_canvas.width, popup_canvas.height) * 0.01F;
+    GuiDrawRectangle(popup_canvas, static_cast<int>(border), RED, WHITE);
+    draw_wrapping_message(
+        Rectangle{
+            .width = popup_canvas.width - border,
+            .height = popup_canvas.height - border,
+            .x = popup_canvas.x + border,
+            .y = popup_canvas.y + border,
+        },
+        too_many_solutions_message, RED);
 }
 
 /// There are many possible combinations of solver request and solution so
@@ -701,13 +780,12 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
 /// None is returned if no solution is ready.
 std::optional<
     std::pair<Dx::Pokemon_links const &, Ranked_set<Dx::Type_encoding> const &>>
-Generation::get_current_solution(Rectangle const &canvas) const
+Generation::get_current_solution() const
 {
     auto const dlx_active_solver
         = static_cast<Solution_request>(dlx_solver_select.active);
-    if (!rendering_solution)
+    if (!requesting_solution)
     {
-        draw_wrapping_message(canvas, graph_display_message);
         return {};
     }
     Ranked_set<Dx::Type_encoding> const *solution{};
@@ -730,150 +808,9 @@ Generation::get_current_solution(Rectangle const &canvas) const
     }
     if (solution->empty())
     {
-        draw_wrapping_message(canvas, no_solution_message);
         return {};
     }
     return {{*dlx, *solution}};
-}
-
-/// Attempts to display a helpful directions with word wrapping near the center
-/// of the screen. Because solving cover problems can be CPU intensive and take
-/// some time, we don't solve by default. The user must request a solution with
-/// the solve button so a message helps facilitate that.
-///
-/// This function will respect some escaped characters in a string like the
-/// usual newline or return characters (\n or \r). However, some will not be
-/// rendered correctly such as escaped tabs (\t). For spaces just add the
-/// appropriate number of spaces to the string rather than adding an escaped
-/// tab.
-void
-Generation::draw_wrapping_message(Rectangle const canvas,
-                                  std::string_view message)
-{
-    Font const font = GuiGetFont();
-    // Leave these constants here because you should consider scaling the font
-    // based on the canvas size, not hard coded values.
-    float const start_x = canvas.x + (canvas.width / 30.0F);
-    float const end_x = canvas.x + canvas.width - (canvas.width / 30.0F);
-    float const end_y = canvas.y + canvas.height;
-    float const font_scaling = std::min(canvas.width, canvas.height) / 2000.0F;
-    auto const font_size = static_cast<float>(font.baseSize) * font_scaling;
-    float const font_x_spacing = font_size * 0.2F;
-    float const font_y_spacing = font_size * 0.8F;
-    float cur_pos_x = start_x;
-    float cur_pos_y = canvas.y + (canvas.height / 3.5F);
-
-    /// Returns the codepoint and the glyph width of the specified character.
-    auto const get_glyph_info
-        = [=](char const *const c) -> std::pair<int, float> {
-        int codepoint_byte_count = 0;
-        int const codepoint = GetCodepoint(c, &codepoint_byte_count);
-        int const glyph_index = GetGlyphIndex(font, codepoint);
-        float const glyph_width
-            = font.glyphs[glyph_index].advanceX == 0
-                  ? font.recs[glyph_index].width * font_scaling
-                  : static_cast<float>(font.glyphs[glyph_index].advanceX)
-                        * font_scaling;
-        return {
-            codepoint,
-            glyph_width,
-        };
-    };
-
-    /// Returns the width of a word according the glyph width of each character
-    /// and the added spacing we have specified between letters.
-    auto const get_word_width = [=](std::string_view word) -> float {
-        float word_width = 0;
-        for (char const &c : word)
-        {
-            float const glyph_width = get_glyph_info(&c).second;
-            word_width += glyph_width + font_x_spacing;
-        }
-        return word_width;
-    };
-
-    /// Advances x and y positions and returns if there is space for a new
-    /// line below the current. Returns true if there is more space for new
-    /// lines or false if the window is exhausted for space.
-    auto const advance_new_line
-        = [=](float &cur_pos_x, float &cur_pos_y) -> bool {
-        cur_pos_y += (static_cast<float>(font.baseSize) * font_scaling)
-                     + font_y_spacing;
-        // If we would write off the screen no point in continuing.
-        if (cur_pos_y > end_y)
-        {
-            return false;
-        }
-        cur_pos_x = start_x;
-        return true;
-    };
-
-    std::string_view const delim_set(" \r\t\n\v\f");
-    while (!message.empty())
-    {
-        std::string_view word
-            = get_token_with_trailing_delims(message, delim_set);
-        float word_width = get_word_width(word);
-        if (cur_pos_x + word_width > end_x
-            && !advance_new_line(cur_pos_x, cur_pos_y))
-        {
-            return;
-        }
-        for (char const &c : word)
-        {
-            if (c == '\n' || c == '\r' || c == '\r\n')
-            {
-                if (!advance_new_line(cur_pos_x, cur_pos_y))
-                {
-                    return;
-                }
-                continue;
-            }
-            auto const [codepoint, glyph_width] = get_glyph_info(&c);
-            DrawTextCodepoint(font, codepoint,
-                              Vector2{
-                                  .x = cur_pos_x,
-                                  .y = cur_pos_y,
-                              },
-                              font_size, BLACK);
-            cur_pos_x += glyph_width + font_x_spacing;
-        }
-        // The word we got back as a token may have skipped leading delimiters
-        // in the original message so be sure to cut those off by using the
-        // true underlying pointer arithmetic, not just word size.
-        message.remove_prefix((word.data() + word.size()) - message.data());
-    }
-}
-
-/// Tokenize a view into the first occurrence of a word before any delimiter
-/// specified in the delimiter set. The original word is returned if no
-/// delimiters are found. Leading delimiters in the set are skipped.
-/// However, all found trailing delimiters are included in the returned
-/// string view to aid in left justifying the text and preserving extra
-/// spaces, returns, or other formatting.
-std::string_view
-Generation::get_token_with_trailing_delims(std::string_view view,
-                                           std::string_view delim_set)
-{
-    size_t const skip_leading = view.find_first_not_of(delim_set);
-    if (skip_leading == std::string_view::npos)
-    {
-        return view;
-    }
-    view.remove_prefix(skip_leading);
-    size_t const first_found = view.find_first_of(delim_set);
-    if (first_found == std::string_view::npos)
-    {
-        return view;
-    }
-    size_t const end_of_delims
-        = view.substr(first_found, view.length() - first_found)
-              .find_first_not_of(delim_set);
-    if (end_of_delims == std::string_view::npos)
-    {
-        return view;
-    }
-    return view.substr(0, first_found + end_of_delims);
 }
 
 /// Returns how much space is taken by the mini map and menu UI button
@@ -923,6 +860,13 @@ Generation::scale_map_point(Dx::Point const &p,
            * (y_draw_bounds.max - y_draw_bounds.min))
           + y_draw_bounds.min + minimap_origin_y,
     };
+}
+
+/// Returns true if the solution should be rendered.
+bool
+Generation::is_solution_requested() const
+{
+    return requesting_solution;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1052,12 +996,14 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
         // we could fit in an annular segment by saying we will need to fit
         // more nodes in than we need. 8.0 is the approximation based on a
         // hexagonal packing and we add a fudging factor at the end.
-        float const covered_node_radius
-            = sqrt(((theta_segment_angle * annulus_radius_squared_difference)
-                    / (8.0F * n * 3.5F)));
-        float theta = cur_theta;
+        float const covered_node_radius = sqrt(
+            (((theta_segment_angle / 2.0F) * annulus_radius_squared_difference)
+             / (8.0F * n * 1.1F)));
         float const theta_end = cur_theta + theta_segment_angle;
-        float radius = outer_ring_annulus_radius - covered_node_radius;
+        float radius = outer_ring_annulus_radius - (covered_node_radius / 2.0F);
+        float theta
+            = cur_theta
+              + (std::asin((0.5F * (2.0F * covered_node_radius) / radius)));
         for (Dx::Pokemon_links::Poke_link const *iter
              = Dx::items_for_begin(dlx_solver, inner_type);
              iter != Dx::items_for_end();
@@ -1075,12 +1021,14 @@ Graph_draw::draw_graph_cover(Rectangle const &canvas,
                 = (2.0F
                    * std::asin((0.5F * (2.0F * covered_node_radius) / radius)));
             theta += angle_step;
-            if (theta + angle_step > theta_end - 1e-4F)
+            if (theta + angle_step > theta_end)
             {
                 radius -= (2.0F * covered_node_radius);
-                theta = cur_theta;
+                theta = cur_theta
+                        + (std::asin(
+                            (0.5F * (2.0F * covered_node_radius) / radius)));
             }
-            if (radius < 0 || radius <= inner_ring_annulus_radius)
+            if (radius < 0)
             {
                 std::cerr << "nodes are not packed in annular segment "
                              "correctly, quitting early.\n";
@@ -1384,6 +1332,152 @@ Graph_draw::select_max_contrast_black_or_white(Color const &background)
         text_color = BLACK;
     }
     return text_color;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///
+/// Free Function Implementations
+///
+///////////////////////////////////////////////////////////////////////////////
+
+/// Attempts to display a helpful directions with word wrapping near the center
+/// of the screen. Because solving cover problems can be CPU intensive and take
+/// some time, we don't solve by default. The user must request a solution with
+/// the solve button so a message helps facilitate that.
+///
+/// This function will respect some escaped characters in a string like the
+/// usual newline or return characters (\n or \r). However, some will not be
+/// rendered correctly such as escaped tabs (\t). For spaces just add the
+/// appropriate number of spaces to the string rather than adding an escaped
+/// tab.
+void
+draw_wrapping_message(Rectangle const &canvas, std::string_view message,
+                      Color const &tint)
+{
+    Font const font = GuiGetFont();
+    // Leave these constants here because you should consider scaling the font
+    // based on the canvas size, not hard coded values.
+    float const start_x = canvas.x + (canvas.width * 0.01F);
+    float const end_x = canvas.x + canvas.width;
+    float const end_y = canvas.y + canvas.height;
+    float const font_scaling = std::min(canvas.width, canvas.height) / 1700.0F;
+    auto const font_size = static_cast<float>(font.baseSize) * font_scaling;
+    float const font_x_spacing = font_size * 0.2F;
+    float const font_y_spacing = font_size * 0.8F;
+    float cur_pos_x = start_x;
+    float cur_pos_y = canvas.y + (canvas.height / 3.5F);
+
+    /// Returns the codepoint and the glyph width of the specified character.
+    auto const get_glyph_info
+        = [=](char const *const c) -> std::pair<int, float> {
+        int codepoint_byte_count = 0;
+        int const codepoint = GetCodepoint(c, &codepoint_byte_count);
+        int const glyph_index = GetGlyphIndex(font, codepoint);
+        float const glyph_width
+            = font.glyphs[glyph_index].advanceX == 0
+                  ? font.recs[glyph_index].width * font_scaling
+                  : static_cast<float>(font.glyphs[glyph_index].advanceX)
+                        * font_scaling;
+        return {
+            codepoint,
+            glyph_width,
+        };
+    };
+
+    /// Returns the width of a word according the glyph width of each character
+    /// and the added spacing we have specified between letters.
+    auto const get_word_width = [=](std::string_view word) -> float {
+        float word_width = 0;
+        for (char const &c : word)
+        {
+            float const glyph_width = get_glyph_info(&c).second;
+            word_width += glyph_width + font_x_spacing;
+        }
+        return word_width;
+    };
+
+    /// Advances x and y positions and returns if there is space for a new
+    /// line below the current. Returns true if there is more space for new
+    /// lines or false if the window is exhausted for space.
+    auto const advance_new_line
+        = [=](float &cur_pos_x, float &cur_pos_y) -> bool {
+        cur_pos_y += (static_cast<float>(font.baseSize) * font_scaling)
+                     + font_y_spacing;
+        // If we would write off the screen no point in continuing.
+        if (cur_pos_y > end_y)
+        {
+            return false;
+        }
+        cur_pos_x = start_x;
+        return true;
+    };
+
+    std::string_view const delim_set(" \r\t\n\v\f");
+    while (!message.empty())
+    {
+        std::string_view word
+            = get_token_with_trailing_delims(message, delim_set);
+        float word_width = get_word_width(word);
+        if (cur_pos_x + word_width > end_x
+            && !advance_new_line(cur_pos_x, cur_pos_y))
+        {
+            return;
+        }
+        for (char const &c : word)
+        {
+            if (c == '\n' || c == '\r' || c == '\r\n')
+            {
+                if (!advance_new_line(cur_pos_x, cur_pos_y))
+                {
+                    return;
+                }
+                continue;
+            }
+            auto const [codepoint, glyph_width] = get_glyph_info(&c);
+            DrawTextCodepoint(font, codepoint,
+                              Vector2{
+                                  .x = cur_pos_x,
+                                  .y = cur_pos_y,
+                              },
+                              font_size, tint);
+            cur_pos_x += glyph_width + font_x_spacing;
+        }
+        // The word we got back as a token may have skipped leading delimiters
+        // in the original message so be sure to cut those off by using the
+        // true underlying pointer arithmetic, not just word size.
+        message.remove_prefix((word.data() + word.size()) - message.data());
+    }
+}
+
+/// Tokenize a view into the first occurrence of a word before any delimiter
+/// specified in the delimiter set. The original word is returned if no
+/// delimiters are found. Leading delimiters in the set are skipped.
+/// However, all found trailing delimiters are included in the returned
+/// string view to aid in left justifying the text and preserving extra
+/// spaces, returns, or other formatting.
+std::string_view
+get_token_with_trailing_delims(std::string_view view,
+                               std::string_view delim_set)
+{
+    size_t const skip_leading = view.find_first_not_of(delim_set);
+    if (skip_leading == std::string_view::npos)
+    {
+        return view;
+    }
+    view.remove_prefix(skip_leading);
+    size_t const first_found = view.find_first_of(delim_set);
+    if (first_found == std::string_view::npos)
+    {
+        return view;
+    }
+    size_t const end_of_delims
+        = view.substr(first_found, view.length() - first_found)
+              .find_first_not_of(delim_set);
+    if (end_of_delims == std::string_view::npos)
+    {
+        return view;
+    }
+    return view.substr(0, first_found + end_of_delims);
 }
 
 } // namespace

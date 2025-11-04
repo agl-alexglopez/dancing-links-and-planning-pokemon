@@ -769,7 +769,9 @@ Pokemon_links::best_exact_cover_stack(int choice_limit)
         return {};
     }
     uint64_t generated = 0;
-    Ranked_set<Type_encoding> best_coverage = {};
+    Ranked_set<Type_encoding> best_coverage(
+        requested_cover_solution_ == Coverage_type::attack ? INT_MIN : INT_MAX,
+        {});
     best_coverage.reserve(choice_limit);
     Ranked_set<Type_encoding> coverage{};
     coverage.reserve(choice_limit);
@@ -811,13 +813,25 @@ Pokemon_links::best_exact_cover_stack(int choice_limit)
 
         if (item_table_[0].right == 0 && choice_limit >= 0)
         {
-            if (best_coverage.empty()
-                || ((requested_cover_solution_ == Coverage_type::attack
-                     && coverage.rank() > best_coverage.rank())
-                    || (requested_cover_solution_ == Coverage_type::defense
-                        && coverage.rank() < best_coverage.rank())))
+            bool const prioritize_min_size_solution
+                = coverage.rank() == best_coverage.rank()
+                  && coverage.size() < best_coverage.size();
+            bool const is_lower_rank = coverage.rank() < best_coverage.rank();
+            bool const is_higher_rank = coverage.rank() > best_coverage.rank();
+            switch (requested_cover_solution_)
             {
-                best_coverage = coverage;
+                case Coverage_type::attack:
+                    if (is_higher_rank || prioritize_min_size_solution)
+                    {
+                        best_coverage = coverage;
+                    }
+                    break;
+                case Coverage_type::defense:
+                    if (is_lower_rank || prioritize_min_size_solution)
+                    {
+                        best_coverage = coverage;
+                    }
+                    break;
             }
             ++generated;
             if (generated < max_output_)
@@ -1159,7 +1173,9 @@ Pokemon_links::best_overlapping_cover_stack(int choice_limit)
         return {};
     }
     uint64_t generated = 0;
-    Ranked_set<Type_encoding> best_coverage = {};
+    Ranked_set<Type_encoding> best_coverage(
+        requested_cover_solution_ == Coverage_type::attack ? INT_MIN : INT_MAX,
+        {});
     best_coverage.reserve(choice_limit);
     Ranked_set<Type_encoding> coverage{};
     coverage.reserve(choice_limit);
@@ -1204,13 +1220,25 @@ Pokemon_links::best_overlapping_cover_stack(int choice_limit)
 
         if (item_table_[0].right == 0 && choice_limit >= 0)
         {
-            if (best_coverage.empty()
-                || ((requested_cover_solution_ == Coverage_type::attack
-                     && coverage.rank() > best_coverage.rank())
-                    || (requested_cover_solution_ == Coverage_type::defense
-                        && coverage.rank() < best_coverage.rank())))
+            bool const prioritize_min_size_solution
+                = coverage.rank() == best_coverage.rank()
+                  && coverage.size() < best_coverage.size();
+            bool const is_lower_rank = coverage.rank() < best_coverage.rank();
+            bool const is_higher_rank = coverage.rank() > best_coverage.rank();
+            switch (requested_cover_solution_)
             {
-                best_coverage = coverage;
+                case Coverage_type::attack:
+                    if (is_higher_rank || prioritize_min_size_solution)
+                    {
+                        best_coverage = coverage;
+                    }
+                    break;
+                case Coverage_type::defense:
+                    if (is_lower_rank || prioritize_min_size_solution)
+                    {
+                        best_coverage = coverage;
+                    }
+                    break;
             }
             ++generated;
             if (generated < max_output_)
