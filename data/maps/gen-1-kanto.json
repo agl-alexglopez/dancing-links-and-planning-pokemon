@@ -1,0 +1,97 @@
+{
+    "Pewter City": {
+        "code": "PWT",
+        "point": [
+            3,
+            4
+        ],
+        "edges": [
+            "Cerulean City",
+            "Viridian City"
+        ]
+    },
+    "Cerulean City": {
+        "code": "CRL",
+        "point": [
+            8, 
+            3
+        ],
+        "edges": [
+            "Saffron City",
+            "Pewter City"
+        ]
+    },
+    "Vermillion City": {
+        "code": "VRM",
+        "point": [
+            8, 
+            7
+        ],
+        "edges": [
+            "Saffron City",
+            "Fuschia City"
+        ]
+    },
+    "Celadon City": {
+        "code": "CLD",
+        "point": [
+            6, 
+            5
+        ],
+        "edges": [
+            "Saffron City"
+        ]
+    },
+    "Fuchsia City": {
+        "code": "FSA",
+        "point": [
+            7, 
+            10
+        ],
+        "edges": [
+            "Vermillion City"
+        ]
+    },
+    "Saffron City": {
+        "code": "SFR",
+        "point": [
+            8, 
+            5
+        ],
+        "edges": [
+            "Vermillion City",
+            "Celadon City",
+            "Cerulean City"
+        ]
+    },
+    "Cinnabar Island": {
+        "code": "CNB",
+        "point": [
+            3, 
+            11
+        ],
+        "edges": [
+        ]
+    },
+    "Viridian City": {
+        "code": "VRD",
+        "point": [
+            3, 
+            7
+        ],
+        "edges": [
+            "Pewter City",
+            "Indigo Plateau"
+        ]
+    },
+    "Indigo Plateau": {
+        "code": "IND",
+        "point": [
+            1, 
+            3
+        ],
+        "edges": [
+            "Viridian City"
+        ]
+    }
+}
