@@ -979,10 +979,11 @@ Graph_draw::draw_graph_cover(
     std::vector<Ranked_set<Dx::Type_encoding>> const &solutions,
     size_t cur_solution)
 {
-    float const node_radius = std::min(canvas.width, canvas.height) * 0.06F;
+    float const center_node_radius
+        = std::min(canvas.width, canvas.height) * 0.06F;
     size_t const solution_size = solutions.at(cur_solution).size();
-    float const center_x = canvas.x + (canvas.width / 2);
-    float const center_y = canvas.y + (canvas.height / 2);
+    float const origin_x = canvas.x + (canvas.width / 2);
+    float const origin_y = canvas.y + (canvas.height / 2);
     // Every type in the solution is given a segment of a circle and will be
     // placed on intervals around a ring by steps of this segment in radians.
     // If there is only one node, give it half the circle for its coverage. This
@@ -1009,12 +1010,12 @@ Graph_draw::draw_graph_cover(
     float const inner_ring_node_center_radius
         = solution_size == 1
               ? 0.0F
-              : node_radius / std::sin(theta_segment_angle * 0.5F);
+              : center_node_radius / std::sin(theta_segment_angle * 0.5F);
     // While the inner nodes sit directly on the previously calculated radius,
     // we need an exclusive boundary for the circle segment that will hold the
     // types each inner ring type covers.
     float const inner_ring_annulus_radius
-        = inner_ring_node_center_radius + node_radius;
+        = inner_ring_node_center_radius + center_node_radius;
     // We also have an imaginary outer circle that bounds the nodes that each
     // type in our solution covers. Each type is given a segment of this circle
     // to fill in with the other types that it covers. We will make this look
@@ -1034,180 +1035,168 @@ Graph_draw::draw_graph_cover(
     // We can fill the circle clockwise from the North tip of circle.
     float const start_theta = std::numbers::pi_v<float> * 0.5F;
     float cur_theta = start_theta;
-    // There are at least three passes over the same data that must occur and
-    // it is important not to allocate and free any memory in such a hot loop
-    // if we can help it. So we use a c-macro like approach but with C++
-    // lambdas and functions.
+
+    // Here we step by 2 covered node radii so that nodes don't overlap
+    // with the right triangle identity
     //
-    // Lines between nodes must be drawn first, then nodes, than any hover pop
-    // up windows. We use the same exact math for placing these elements on
-    // the screen in each iteration and only differ in what we draw and how
-    // we use the coordinates. So accept a draw function and use the same
-    // iteration and calculation pattern every time. A few cycles for the math
-    // used to calculate the coordinates on our circles is better than
-    // going to memory to record and retrieve all the point data and interacting
-    // with the heap at construction and deconstruction.
+    // theta_step = 2 * asin(opposite / hypotenuse)
     //
-    // I don't like the current approach but we have to calculate so many
-    // local variables and use them slightly differently on every pass so
-    // it is hard to unify the logic.
-    auto const for_each_annulus_point = [&](Dx::Type_encoding const &inner_type,
-                                            auto &&draw_fn) {
-        Vector2 const inner_ring_node{
-            .x
-            = (inner_ring_node_center_radius * std::cos(cur_theta)) + center_x,
-            .y
-            = (inner_ring_node_center_radius * std::sin(cur_theta)) + center_y,
-        };
-        auto const n
-            = static_cast<float>(Dx::items_count_for(dlx_solver, inner_type));
-        // This is based on circle packing. However, I don't want to mess with
-        // circle packing. It's hard. So we use the estimated density ratio of
-        // a hexagonal grid (pi / 2sqrt(3)) to determine our circle radius.
-        //
-        //                     pi      theta(R² - r²)
-        //   n * pi * r²  <=  ----- * --------------
-        //                     2√3         2
-        //
-        //   r <= sqrt( (theta(R² - r²)) / (4n√3) )
-        //
-        // Where theta is our angle allotment for this inner node to cover the
-        // outer nodes. Then, instead of 4n√3 in the denominator we just make
-        // it a constant we can bump up manually to make the nodes smaller if
-        // needed. I think determining window size can be a little buggy on
-        // raylib so we have to adjust manually.
-        float const covered_node_radius
-            = sqrt((theta_segment_angle * annulus_radius_squared_difference)
-                   / (14.0F * n));
-        float const theta_end = cur_theta + theta_segment_angle;
-        // Conceptually the radius is our row and the theta angle is our col
-        // that helps determine where the next node should be drawn.
-        float radius_row
-            = outer_ring_annulus_radius - (covered_node_radius * 0.6F);
-        // This starting column is nudged inside our angle allotment by one
-        // covered node circle radius using right triangle identity
-        //
-        // theta_col = 2 * asin(opposite / hypotenuse)
-        //
-        // where the right triangle has formed at 1/2 the length of a cord
-        // equal to the radius of our covered node.
-        float theta_col
+    // where the right triangle has formed at 1/2 the length of the
+    // desired cord, in this case one radius of a covered node. Then
+    // we step by two of those angle increments so no overlap.
+    auto const next_row_col
+        = [](float const cur_theta, float radius_row, float theta_col,
+             float const covered_node_radius,
+             float const theta_end) -> std::pair<float, float> {
+        float const one_radius_rotation
+            = std::asin(covered_node_radius / radius_row);
+        theta_col += 2.0F * one_radius_rotation;
+        // Double check that drawing a new circle at this position would
+        // not encroach on the next segments allotted space.
+        if (theta_col + one_radius_rotation > theta_end)
+        {
+            radius_row -= (2.0F * covered_node_radius);
+            // Reset to the starting angle of the pie slice.
+            theta_col
+                = cur_theta
+                  + (2.0F
+                     * std::asin((covered_node_radius * 0.5F) / radius_row));
+        }
+        return {radius_row, theta_col};
+    };
+
+    // This is based on circle packing. However, I don't want to mess with
+    // circle packing. It's hard. So we use the estimated density ratio of
+    // a hexagonal grid (pi / 2sqrt(3)) to determine our circle radius.
+    //
+    //                     pi      theta(R² - r²)
+    //   n * pi * r²  <=  ----- * --------------
+    //                     2√3         2
+    //
+    //   r <= sqrt( (theta(R² - r²)) / (4n√3) )
+    //
+    // Where theta is our angle allotment for this inner node to cover the
+    // outer nodes. Then, instead of 4n√3 in the denominator we just make
+    // it a constant we can bump up manually to make the nodes smaller if
+    // needed. I think determining window size can be a little buggy on
+    // raylib so we have to adjust manually.
+    auto const pack_radius
+        = [&annulus_radius_squared_difference](float const theta_segment_angle,
+                                               float n_circles) -> float {
+        return sqrt((theta_segment_angle * annulus_radius_squared_difference)
+                    / (14.0F * n_circles));
+    };
+
+    // Conceptually the radius is our row and the theta angle is our col
+    // that helps determine where the next node should be drawn.
+    // This starting column is nudged inside our angle allotment by one
+    // covered node circle radius using right triangle identity
+    //
+    // theta_col = 2 * asin(opposite / hypotenuse)
+    //
+    // where the right triangle has formed at 1/2 the length of a cord
+    // equal to the radius of our covered node.
+    auto const set_start_row_col
+        = [](float const outer_ring_annulus_radius, float const packing_radius,
+             float const cur_theta) -> std::pair<float, float> {
+        float const radius_row
+            = outer_ring_annulus_radius - (packing_radius * 0.6F);
+        float const theta_col
             = cur_theta
-              + (2.0F * std::asin((covered_node_radius * 0.5F) / radius_row));
+              + (2.0F * std::asin((packing_radius * 0.5F) / radius_row));
+        return {radius_row, theta_col};
+    };
+
+    // Returns the center point of the circle that is radius distance away from
+    // the origin at theta angle.
+    auto const get_circle_center
+        = [&origin_x, &origin_y](float const radius,
+                                 float const theta) -> Vector2 {
+        return Vector2{
+            .x = (radius * std::cos(theta)) + origin_x,
+            .y = (radius * std::sin(theta)) + origin_y,
+
+        };
+    };
+
+    // Because we draw our nodes from the perimeter of the circle inward and
+    // guarantee that no nodes overlap, we can draw our entire graph in one
+    // pass. Nodes will layer over lines correctly.
+    for (Dx::Type_encoding const &t : solutions.at(cur_solution))
+    {
+        Vector2 const inner_ring_node
+            = get_circle_center(inner_ring_node_center_radius, cur_theta);
+        auto const n = static_cast<float>(Dx::items_count_for(dlx_solver, t));
+        float const packing_radius = pack_radius(theta_segment_angle, n);
+        float const theta_end = cur_theta + theta_segment_angle;
+        auto [radius_row, theta_col] = set_start_row_col(
+            outer_ring_annulus_radius, packing_radius, cur_theta);
         for (Dx::Pokemon_links::Poke_link const *iter
-             = Dx::items_for_begin(dlx_solver, inner_type);
+             = Dx::items_for_begin(dlx_solver, t);
              iter != Dx::items_for_end();
              iter = Dx::items_for_next(dlx_solver, iter))
         {
-            Dx::Resistance const cur_covered
+            Dx::Resistance const covered_type
                 = Dx::item_resistance_from(dlx_solver, iter);
-            draw_fn(inner_ring_node,
-                    Vector2{
-                        .x = (std::cos(theta_col) * radius_row) + center_x,
-                        .y = (std::sin(theta_col) * radius_row) + center_y,
-                    },
-                    covered_node_radius, inner_type, cur_covered);
-            // Here we step by 2 covered node radii so that nodes don't overlap
-            // with the right triangle identity
-            //
-            // theta_step = 2 * asin(opposite / hypotenuse)
-            //
-            // where the right triangle has formed at 1/2 the length of the
-            // desired cord, in this case one radius of a covered node. Then
-            // we step by two of those angle increments so no overlap.
-            float const angle_of_node_radius
-                = std::asin(covered_node_radius / radius_row);
-            theta_col += 2.0F * angle_of_node_radius;
-            // Double check that drawing a new circle at this position would
-            // not encroach on the next segments allotted space.
-            if (theta_col + angle_of_node_radius > theta_end)
-            {
-                radius_row -= (2.0F * covered_node_radius);
-                // Reset to the starting angle of the pie slice.
-                theta_col = cur_theta
-                            + (2.0F
-                               * std::asin((covered_node_radius * 0.5F)
-                                           / radius_row));
-            }
+            Vector2 const covered_type_center
+                = get_circle_center(radius_row, theta_col);
+            auto const covered_type_idx = covered_type.type().decode_indices();
+            draw_directed_line(inner_ring_node, covered_type, packing_radius,
+                               covered_type_center, default_line_thickness);
+            draw_type_node(get_string_abbreviation(covered_type_idx),
+                           get_colors(covered_type_idx), packing_radius,
+                           covered_type_center.x, covered_type_center.y);
+            auto const [next_row, next_col] = next_row_col(
+                cur_theta, radius_row, theta_col, packing_radius, theta_end);
+            radius_row = next_row;
+            theta_col = next_col;
         }
-    };
-
-    // Drawing lines just connects two points at their true center locations.
-    auto const draw_line
-        = [](Vector2 const &inner_point, Vector2 const &outer_point,
-             float const outer_radius,
-             [[maybe_unused]] Dx::Type_encoding const inner_type,
-             Dx::Resistance const &outer_type) {
-              draw_directed_line(inner_point, outer_type, outer_radius,
-                                 outer_point, default_line_thickness);
-          };
-    // A node has much more complex drawing logic, text, and possibly two
-    // colors so it will deal with its own function.
-    auto const draw_outer_node
-        = []([[maybe_unused]] Vector2 const &inner_point,
-             Vector2 const &outer_point, float const outer_radius,
-             [[maybe_unused]] Dx::Type_encoding const inner_type,
-             Dx::Resistance const &outer_type) {
-              std::pair<uint64_t, std::optional<uint64_t>> const
-                  outer_type_indices
-                  = outer_type.type().decode_indices();
-              draw_type_node(get_string_abbreviation(outer_type_indices),
-                             get_colors(outer_type_indices), outer_radius,
-                             outer_point.x, outer_point.y);
-          };
-    // Final layer is a pop up zoom-like feature that gives the full name of
-    // a type node if we hover over with the mouse.
-    auto const draw_popup
-        = [&canvas, &node_radius]([[maybe_unused]] Vector2 const &inner_point,
-                                  Vector2 const &outer_point,
-                                  float const outer_radius,
-                                  Dx::Type_encoding const inner_type,
-                                  Dx::Resistance const &outer_type) {
-              draw_type_popup(canvas, inner_type, inner_point, node_radius,
-                              outer_type, outer_radius, outer_point);
-          };
-
-    // Use our macro like for each loop.
-    for (Dx::Type_encoding const &t : solutions.at(cur_solution))
-    {
-        for_each_annulus_point(t, draw_line);
-        cur_theta += theta_segment_angle;
-    }
-    // It would not be a problem for theta to continue incrementing but reset
-    // just to be safe as I'm not sure how Raylib handles multiple rotations
-    // around the unit circle.
-    cur_theta = start_theta;
-    for (Dx::Type_encoding const &t : solutions.at(cur_solution))
-    {
-        for_each_annulus_point(t, draw_outer_node);
-        // Draw the inner ring last just in case. It is the most important
-        // visual element.
-        std::pair<uint64_t, std::optional<uint64_t>> const inner_node_indices
-            = t.decode_indices();
-        draw_type_node(
-            get_string_abbreviation(inner_node_indices),
-            get_colors(inner_node_indices), node_radius,
-            (inner_ring_node_center_radius * std::cos(cur_theta)) + center_x,
-            (inner_ring_node_center_radius * std::sin(cur_theta)) + center_y);
+        auto const inner_node_idx = t.decode_indices();
+        draw_type_node(get_string_abbreviation(inner_node_idx),
+                       get_colors(inner_node_idx), center_node_radius,
+                       inner_ring_node.x, inner_ring_node.y);
         cur_theta += theta_segment_angle;
     }
     cur_theta = start_theta;
-    // It can be nice for large solution sets to be able to hover over small
-    // covered nodes and see the full type name.
+    // The only reason we need the second pass is to ensure pop ups cover all
+    // other nodes and lines on screens. Only draw the pop ups not all nodes
+    // again. Because we saved a pass during graph drawing and do not otherwise
+    // allocate any memory for graph drawing, I prefer to do another pass rather
+    // that use a hash set to remember all the points we have seen just for
+    // one mouse click check. This would be a wasteful and slow allocation
+    // in a hot loop.
     for (Dx::Type_encoding const &t : solutions.at(cur_solution))
     {
-        for_each_annulus_point(t, draw_popup);
-        Vector2 const point{
-            .x
-            = (inner_ring_node_center_radius * std::cos(cur_theta)) + center_x,
-            .y
-            = (inner_ring_node_center_radius * std::sin(cur_theta)) + center_y,
-        };
-        draw_type_popup(canvas, t, point, node_radius,
-                        Dx::Resistance(t, Dx::Multiplier::emp), node_radius,
-                        point);
+        Vector2 const inner_ring_node
+            = get_circle_center(inner_ring_node_center_radius, cur_theta);
+        auto const n = static_cast<float>(Dx::items_count_for(dlx_solver, t));
+        float const packing_radius = pack_radius(theta_segment_angle, n);
+        float const theta_end = cur_theta + theta_segment_angle;
+        auto [radius_row, theta_col] = set_start_row_col(
+            outer_ring_annulus_radius, packing_radius, cur_theta);
+        for (Dx::Pokemon_links::Poke_link const *iter
+             = Dx::items_for_begin(dlx_solver, t);
+             iter != Dx::items_for_end();
+             iter = Dx::items_for_next(dlx_solver, iter))
+        {
+            Dx::Resistance const covered_type
+                = Dx::item_resistance_from(dlx_solver, iter);
+            Vector2 const covered_type_center
+                = get_circle_center(radius_row, theta_col);
+            auto const covered_type_idx = covered_type.type().decode_indices();
+            draw_type_popup(canvas, t, inner_ring_node, center_node_radius,
+                            covered_type, packing_radius, covered_type_center);
+            auto const [next_row, next_col] = next_row_col(
+                cur_theta, radius_row, theta_col, packing_radius, theta_end);
+            radius_row = next_row;
+            theta_col = next_col;
+        }
+        draw_type_popup(canvas, t, inner_ring_node, center_node_radius,
+                        Dx::Resistance(t, Dx::Multiplier::emp),
+                        center_node_radius, inner_ring_node);
         cur_theta += theta_segment_angle;
     }
+    // Finally draw the solution navigation arrows.
     return draw_solution_navigation(canvas, solutions.size(), cur_solution);
 }
 
