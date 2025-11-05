@@ -153,7 +153,7 @@ class Generation {
         = "Defense Exact Cover;Defense Overlapping Cover;Attack "
           "Exact Cover;Attack Overlapping Cover";
     static constexpr std::string_view too_many_solutions_message
-        = "Too many solutions! The leading solution is shown. The best "
+        = "Too many solutions! The leading solutions are shown. The best rank "
           "solution is unknown. Click to close.";
 
     //////////////////////   Data Structures  /////////////////////////////////

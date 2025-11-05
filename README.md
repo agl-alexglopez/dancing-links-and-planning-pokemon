@@ -75,7 +75,7 @@ This project grew more than I thought it would. I was able to bring in some grea
 
 As mentioned in the intro, the core ideas of Algorithm X via Dancing Links belongs to Knuth, I just implemented it a few different ways.
 
-The method for drawing the Pokemon generation mini map at the top of the GUI is based on work by Stanford University course staff and Keith Schwarz. This makes layout out the map in a visually appealing way regardless of window size easier. 
+The method for drawing the mini map at the top of the GUI is based on work by Stanford University course staff and Keith Schwarz. This makes the layout of maps easier so they fill the available space. 
 
 For the `all-types.json` file, I got the information on type interactions from the following website.
 
