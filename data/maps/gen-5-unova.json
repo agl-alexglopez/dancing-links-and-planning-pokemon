@@ -1,0 +1,259 @@
+{
+    "5": {
+        "Unova": {
+            "Striation City": {
+                "code": "STR",
+                "point": [
+                    1,
+                    10
+                ],
+                "edges": [
+                    "Nacrene City"
+                ],
+                "attack": [
+                    "Normal",
+                    "Dark"
+                ],
+                "defense": [
+                    "Normal",
+                    "Flying-Normal"
+                ]
+            },
+            "Nacrene City": {
+                "code": "NCR",
+                "point": [
+                    4, 
+                    8
+                ],
+                "edges": [
+                    "Striation City",
+                    "Driftveil City",
+                    "Mistralton City"
+                ],
+                "attack": [
+                    "Poison",
+                    "Normal",
+                    "Ground",
+                    "Rock"
+                ],
+                "defense": [
+                    "Poison",
+                    "Bug-Poison"
+                ]
+            },
+            "Castelia City": {
+                "code": "CSL",
+                "point": [
+                    8,
+                    8
+                ],
+                "edges": [
+                    "Nimbasa City"
+                ],
+                "attack": [
+                    "Bug",
+                    "Rock",
+                    "Dark",
+                    "Grass",
+                    "Poison",
+                    "Ghost",
+                    "Flying"
+                ],
+                "defense": [
+                    "Bug-Rock",
+                    "Bug",
+                    "Bug-Grass"
+                ]
+            },
+            "Nimbasa City": {
+                "code": "NMB",
+                "point": [
+                    8,
+                    6
+                ],
+                "edges": [
+                    "Castelia City",
+                    "Driftveil City",
+                    "Opelucid City"
+                ],
+                "attack": [
+                    "Electric",
+                    "Flying",
+                    "Normal",
+                    "Dark",
+                    "Bug",
+                    "Grass",
+                    "Fire",
+                    "Ghost"
+                ],
+                "defense": [
+                    "Electric-Flying",
+                    "Electric",
+                    "Bug-Electric"
+                ]
+            },
+            "Driftveil City": {
+                "code": "DFV",
+                "point": [
+                    5,
+                    6
+                ],
+                "edges": [
+                    "Mistralton City",
+                    "Nacrene City",
+                    "Nimbasa City"
+                ],
+                "attack": [
+                    "Rock",
+                    "Ground",
+                    "Dark",
+                    "Rock",
+                    "Normal",
+                    "Steel"
+                ],
+                "defense": [
+                    "Dark-Ground",
+                    "Ground",
+                    "Ground-Rock",
+                    "Ground-Steel"
+                ]
+            },
+            "Mistralton City": {
+                "code": "MTL",
+                "point": [
+                    2,
+                    4
+                ],
+                "edges": [
+                    "Driftveil City",
+                    "Icirrus City"
+                ],
+                "attack": [
+                    "Psychic",
+                    "Flying",
+                    "Grass",
+                    "Bug",
+                    "Steel",
+                    "Water"
+                ],
+                "defense": [
+                    "Flying-Psychic",
+                    "Flying-Steel",
+                    "Flying-Water"
+                ]
+            },
+            "Icirrus City": {
+                "code": "ICR",
+                "point": [
+                    8,
+                    3
+                ],
+                "edges": [
+                    "Mistralton City",
+                    "Opelucid City"
+                ],
+                "attack": [
+                    "Dragon",
+                    "Fighting",
+                    "Rock",
+                    "Dark",
+                    "Ground",
+                    "Normal",
+                    "Fire",
+                    "Bug"
+                ],
+                "defense": [
+                    "Dragon",
+                    "Dragon-Ground",
+                    "Dragon-Flying"
+                ]
+            },
+            "Opelucid City": {
+                "code": "OPL",
+                "point": [
+                    15,
+                    2
+                ],
+                "edges": [
+                    "Icirrus City",
+                    "Nimbasa City",
+                    "Pokemon League"
+                ],
+                "attack": [
+                    "Water",
+                    "Ice",
+                    "Ground",
+                    "Dark",
+                    "Rock",
+                    "Normal",
+                    "Flying",
+                    "Ghost",
+                    "Grass"
+                ],
+                "defense": [
+                    "Rock-Water",
+                    "Water",
+                    "Flying-Water",
+                    "Ghost-Water"
+                ]
+            },
+            "Pokemon League": {
+                "code": "PKL",
+                "point": [
+                    11,
+                    1
+                ],
+                "edges": [
+                    "Opelucid City"
+                ],
+                "attack": [
+                    "Fire",
+                    "Grass",
+                    "Psychic",
+                    "Ghost",
+                    "Electric",
+                    "Flying",
+                    "Steel",
+                    "Ground",
+                    "Fighting",
+                    "Dark",
+                    "Grass",
+                    "Normal",
+                    "Poison",
+                    "Rock",
+                    "Dragon",
+                    "Bug",
+                    "Ice",
+                    "Water"
+                ],
+                "defense": [
+                    "Ghost",
+                    "Flying-Ghost",
+                    "Ghost-Ground",
+                    "Fire-Ghost",
+                    "Dark",
+                    "Dark-Fighting",
+                    "Dark-Ground",
+                    "Dark-Steel",
+                    "Psychic",
+                    "Flying-Psychic",
+                    "Psychic-Steel",
+                    "Fighting",
+                    "Fighting-Steel",
+                    "Dark-Dragon",
+                    "Dragon",
+                    "Flying-Rock",
+                    "Rock-Steel",
+                    "Ice-Water",
+                    "Ghost-Poison",
+                    "Ghost-Ice",
+                    "Dark-Flying",
+                    "Dark-Fire",
+                    "Dark-Rock",
+                    "Fighting-Psychic",
+                    "Dragon-Flying"
+                ]
+            }
+        }
+    }
+}

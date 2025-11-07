@@ -1,0 +1,199 @@
+{
+    "1": {
+        "Kanto": {
+            "Pewter City": {
+                "code": "PWT",
+                "point": [
+                    3,
+                    4
+                ],
+                "edges": [
+                    "Cerulean City",
+                    "Viridian City"
+                ],
+                "attack": [
+                    "Normal"
+                ],
+                "defense": [
+                    "Ground-Rock"
+                ]
+            },
+            "Cerulean City": {
+                "code": "CRL",
+                "point": [
+                    8, 
+                    3
+                ],
+                "edges": [
+                    "Saffron City",
+                    "Pewter City"
+                ],
+                "attack": [
+                    "Normal",
+                    "Water"
+                ],
+                "defense": [
+                    "Water"
+                ]
+            },
+            "Vermillion City": {
+                "code": "VRM",
+                "point": [
+                    8, 
+                    7
+                ],
+                "edges": [
+                    "Saffron City",
+                    "Fuchsia City"
+                ],
+                "attack": [
+                    "Normal",
+                    "Electric"
+                ],
+                "defense": [
+                    "Electric"
+                ]
+            },
+            "Celadon City": {
+                "code": "CLD",
+                "point": [
+                    6, 
+                    5
+                ],
+                "edges": [
+                    "Saffron City"
+                ],
+                "attack": [
+                    "Normal",
+                    "Poison",
+                    "Grass"
+                ],
+                "defense": [
+                    "Grass-Poison"
+                ]
+            },
+            "Fuchsia City": {
+                "code": "FSA",
+                "point": [
+                    7, 
+                    10
+                ],
+                "edges": [
+                    "Vermillion City"
+                ],
+                "attack": [
+                    "Normal",
+                    "Poison"
+                ],
+                "defense": [
+                    "Poison"
+                ]
+            },
+            "Saffron City": {
+                "code": "SFR",
+                "point": [
+                    8, 
+                    5
+                ],
+                "edges": [
+                    "Vermillion City",
+                    "Celadon City",
+                    "Cerulean City"
+                ],
+                "attack": [
+                    "Psychic",
+                    "Normal",
+                    "Poison",
+                    "Bug",
+                    "Grass"
+                ],
+                "defense": [
+                    "Psychic",
+                    "Bug-Poison"
+                ]
+            },
+            "Cinnabar Island": {
+                "code": "CNB",
+                "point": [
+                    3, 
+                    11
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Fire",
+                    "Normal"
+                ],
+                "defense": [
+                    "Fire"
+                ]
+            },
+            "Viridian City": {
+                "code": "VRD",
+                "point": [
+                    3, 
+                    7
+                ],
+                "edges": [
+                    "Pewter City",
+                    "Indigo Plateau"
+                ],
+                "attack": [
+                    "Normal",
+                    "Ground",
+                    "Poison"
+                ],
+                "defense": [
+                    "Ground-Rock",
+                    "Ground",
+                    "Ground-Poison"
+                ]
+            },
+            "Indigo Plateau": {
+                "code": "IDG",
+                "point": [
+                    1, 
+                    3
+                ],
+                "edges": [
+                    "Viridian City"
+                ],
+                "attack": [
+                    "Ice",
+                    "Normal",
+                    "Water",
+                    "Rock",
+                    "Fire",
+                    "Electric",
+                    "Fighting",
+                    "Ground",
+                    "Ghost",
+                    "Psychic",
+                    "Flying",
+                    "Poison",
+                    "Dragon",
+                    "Grass"
+                ],
+                "defense": [
+                    "Ice-Water",
+                    "Psychic-Water",
+                    "Ice-Psychic",
+                    "Ghost-Poison",
+                    "Flying-Poison",
+                    "Poison",
+                    "Flying-Water",
+                    "Dragon",
+                    "Flying-Rock",
+                    "Dragon-Flying",
+                    "Flying-Normal",
+                    "Psychic",
+                    "Ground-Rock",
+                    "Grass-Psychic",
+                    "Fire-Flying",
+                    "Fire",
+                    "Water"
+                ]
+            }
+        }
+    }
+}

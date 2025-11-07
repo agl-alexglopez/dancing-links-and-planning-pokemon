@@ -1,0 +1,251 @@
+{
+    "4": {
+        "Sinnoh": {
+            "Oreburgh City": {
+                "code": "OBG",
+                "point": [
+                    4,
+                    8
+                ],
+                "edges": [
+                    "Eterna City",
+                    "Hearthome City",
+                    "Canalave City"
+                ],
+                "attack": [
+                    "Rock",
+                    "Normal",
+                    "Dark"
+                ],
+                "defense": [
+                    "Ground-Rock",
+                    "Rock"
+                ]
+            },
+            "Eterna City": {
+                "code": "ETR",
+                "point": [
+                    4, 
+                    4
+                ],
+                "edges": [
+                    "Oreburgh City",
+                    "Snowpoint City",
+                    "Canalave City",
+                    "Hearthome City",
+                    "Veilstone City"
+                ],
+                "attack": [
+                    "Grass",
+                    "Poison"
+                ],
+                "defense": [
+                    "Grass",
+                    "Grass-Poison"
+                ]
+            },
+            "Veilstone City": {
+                "code": "VLS",
+                "point": [
+                    9,
+                    5
+                ],
+                "edges": [
+                    "Snowpoint City",
+                    "Eterna City",
+                    "Hearthome City",
+                    "Pastoria City",
+                    "Sunnyshore City"
+                ],
+                "attack": [
+                    "Fighting",
+                    "Rock",
+                    "Normal",
+                    "Steel",
+                    "Ground"
+                ],
+                "defense": [
+                    "Psychic",
+                    "Fighting",
+                    "Fighting-Steel"
+                ]
+            },
+            "Pastoria City": {
+                "code": "PTR",
+                "point": [
+                    8, 
+                    9
+                ],
+                "edges": [
+                    "Hearthome City",
+                    "Veilstone City",
+                    "Sunnyshore City"
+                ],
+                "attack": [
+                    "Water",
+                    "Dark",
+                    "Dragon",
+                    "Rock",
+                    "Normal",
+                    "Ground",
+                    "Ice"
+                ],
+                "defense": [
+                    "Flying-Water",
+                    "Ground-Water",
+                    "Water"
+                ]
+            },
+            "Hearthome City": {
+                "code": "HTM",
+                "point": [6, 7],
+                "edges": [
+                    "Oreburgh City",
+                    "Eterna City",
+                    "Snowpoint City",
+                    "Veilstone City",
+                    "Pastoria City"
+                ],
+                "attack": [
+                    "Fire",
+                    "Ghost",
+                    "Dark",
+                    "Psychic",
+                    "Grass"
+                ],
+                "defense": [
+                    "Ghost",
+                    "Ghost-Poison"
+                ]
+            },
+            "Canalave City": {
+                "code": "CLV",
+                "point": [1, 8],
+                "edges": [
+                    "Oreburgh City",
+                    "Eterna City"
+                ],
+                "attack": [
+                    "Steel",
+                    "Electric",
+                    "Normal",
+                    "Ground",
+                    "Ice",
+                    "Rock"
+                ],
+                "defense": [
+                    "Electric-Steel",
+                    "Ground-Steel",
+                    "Rock-Steel"
+                ]
+            },
+            "Snowpoint City": {
+                "code": "SNP",
+                "point": [
+                    5, 
+                    1
+                ],
+                "edges": [
+                    "Eterna City",
+                    "Hearthome City",
+                    "Veilstone City"
+                ],
+                "attack": [
+                    "Dark",
+                    "Ice",
+                    "Normal",
+                    "Flying",
+                    "Ground",
+                    "Rock",
+                    "Grass",
+                    "Fighting",
+                    "Water",
+                    "Ghost",
+                    "Psychic"
+                ],
+                "defense": [
+                    "Dark-Ice",
+                    "Ground-Ice",
+                    "Grass-Ice",
+                    "Ghost-Ice"
+                ]
+            },
+            "Sunnyshore City": {
+                "code": "SNY",
+                "point": [
+                    11,
+                    8
+                ],
+                "edges": [
+                    "Pastoria City",
+                    "Veilstone City"
+                ],
+                "attack": [
+                    "Electric",
+                    "Steel",
+                    "Normal",
+                    "Bug",
+                    "Fighting",
+                    "Ice",
+                    "Fire",
+                    "Dark"
+                ],
+                "defense": [
+                    "Electric"
+                ]
+            },
+            "Pokemon League": {
+                "code": "PKL",
+                "point": [
+                    11,
+                    5
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Flying",
+                    "Bug",
+                    "Steel",
+                    "Dark",
+                    "Normal",
+                    "Rock",
+                    "Fighting",
+                    "Poison",
+                    "Ice",
+                    "Ground",
+                    "Water",
+                    "Psychic",
+                    "Fire",
+                    "Electric",
+                    "Poison",
+                    "Grass",
+                    "Ghost",
+                    "Dragon"
+                ],
+                "defense": [
+                    "Bug-Flying",
+                    "Bug-Steel",
+                    "Bug-Flying",
+                    "Bug-Fighting",
+                    "Dark-Poison",
+                    "Ground-Water",
+                    "Flying-Ground",
+                    "Ground",
+                    "Ground-Rock",
+                    "Dark-Fire",
+                    "Fire",
+                    "Fighting-Fire",
+                    "Psychic",
+                    "Psychic-Steel",
+                    "Fighting-Psychic",
+                    "Dark-Ghost",
+                    "Grass-Poison",
+                    "Flying-Normal",
+                    "Fighting-Steel",
+                    "Water",
+                    "Dragon-Ground"
+                ]
+            }
+        }
+    }
+}

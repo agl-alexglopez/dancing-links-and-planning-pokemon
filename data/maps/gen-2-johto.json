@@ -1,0 +1,217 @@
+{
+    "2": {
+        "Johto": {
+            "Violet City": {
+                "code": "VLT",
+                "point": [
+                    7,
+                    5
+                ],
+                "edges": [
+                    "Goldenrod City",
+                    "Ecruteak City",
+                    "Azalea Town",
+                    "Indigo Plateau"
+                ],
+                "attack": [
+                    "Normal",
+                    "Flying"
+                ],
+                "defense": [
+                    "Flying-Normal"
+                ]
+            },
+            "Azalea Town": {
+                "code": "AZL",
+                "point": [
+                    6,
+                    8
+                ],
+                "edges": [
+                    "Goldenrod City",
+                    "Violet City"
+                ],
+                "attack": [
+                    "Normal",
+                    "Bug",
+                    "Poison"
+                ],
+                "defense": [
+                    "Bug",
+                    "Bug-Flying",
+                    "Bug-Poison"
+                ]
+            },
+            "Goldenrod City": {
+                "code": "GLD",
+                "point": [
+                    5, 
+                    6
+                ],
+                "edges": [
+                    "Ecruteak City",
+                    "Violet City",
+                    "Azalea Town"
+                ],
+                "attack": [
+                    "Normal"
+                ],
+                "defense": [
+                    "Normal"
+                ]
+            },
+            "Ecruteak City": {
+                "code": "ETK",
+                "point": [
+                    6,
+                    4
+                ],
+                "edges": [
+                    "Violet City",
+                    "Olivine City",
+                    "Goldenrod City",
+                    "Mahogany Town"
+                ],
+                "attack": [
+                    "Ghost",
+                    "Psychic",
+                    "Dark"
+                ],
+                "defense": [
+                    "Ghost-Poison"
+                ]
+            },
+            "Cianwood City": {
+                "code": "CWD",
+                "point": [
+                    2,
+                    6
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Fighting",
+                    "Rock",
+                    "Psychic",
+                    "Water"
+                ],
+                "defense": [
+                    "Fighting",
+                    "Fighting-Water"
+                ]
+            },
+            "Olivine City": {
+                "code": "OLV",
+                "point": [
+                    4,
+                    5
+                ],
+                "edges": [
+                    "Ecruteak City"
+                ],
+                "attack": [
+                    "Electric",
+                    "Normal",
+                    "Rock",
+                    "Steel"
+                ],
+                "defense": [
+                    "Electric-Steel",
+                    "Ground-Steel"
+                ]
+            },
+            "Mahogany Town": {
+                "code": "MHG",
+                "point": [
+                    8,
+                    4
+                ],
+                "edges": [
+                    "Ecruteak City",
+                    "Blackthorn City"
+                ],
+                "attack": [
+                    "Ice",
+                    "Normal",
+                    "Ground"
+                ],
+                "defense": [
+                    "Water",
+                    "Ice-Water",
+                    "Ground-Ice"
+                ]
+            },
+            "Blackthorn City": {
+                "code": "BKN",
+                "point": [
+                    10,
+                    4
+                ],
+                "edges": [
+                    "Mahogany Town",
+                    "Indigo Plateau"
+                ],
+                "attack": [
+                    "Dragon",
+                    "Dark",
+                    "Electric",
+                    "Fire",
+                    "Normal",
+                    "Water"
+                ],
+                "defense": [
+                    "Flying-Water",
+                    "Dragon",
+                    "Dragon-Water"
+                ]
+            },
+            "Indigo Plateau": {
+                "code": "IDG",
+                "point": [
+                    14,
+                    5
+                ],
+                "edges": [
+                    "Blackthorn City"
+                ],
+                "attack": [
+                    "Bug",
+                    "Psychic",
+                    "Ghost",
+                    "Normal",
+                    "Ice",
+                    "Water",
+                    "Flying",
+                    "Poison",
+                    "Grass",
+                    "Ground",
+                    "Fighting",
+                    "Electric",
+                    "Fire",
+                    "Dragon",
+                    "Rock",
+                    "Dark"
+                ],
+                "defense": [
+                    "Flying-Psychic",
+                    "Ice-Psychic",
+                    "Grass-Psychic",
+                    "Psychic-Water",
+                    "Bug-Poison",
+                    "Bug-Steel",
+                    "Poison",
+                    "Flying-Poison",
+                    "Dark",
+                    "Grass-Poison",
+                    "Ghost-Poison",
+                    "Dark-Flying",
+                    "Dark-Fire",
+                    "Flying-Water",
+                    "Dragon-Flying",
+                    "Flying-Rock",
+                    "Fire-Flying"
+                ]
+            }
+        }
+    }
+}

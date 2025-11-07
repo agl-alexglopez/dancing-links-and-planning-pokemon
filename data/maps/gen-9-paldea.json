@@ -1,0 +1,246 @@
+{
+    "9": {
+        "Paldea": {
+            "Cortondo": {
+                "code": "CRT",
+                "point": [
+                    3, 
+                    9
+                ],
+                "edges": [
+                    "Artazon",
+                    "Cascarrafa",
+                    "Tulip",
+                    "Pokemon League"
+                ],
+                "attack": [
+                    "Bug",
+                    "Fighting"
+                ],
+                "defense": [
+                    "Bug",
+                    "Normal"
+                ]
+            },
+            "Artazon": {
+                "code": "ART",
+                "point": [
+                    9, 
+                    9
+                ],
+                "edges": [
+                    "Cortondo",
+                    "Pokemon League",
+                    "Levincia",
+                    "Glaseado"
+                ],
+                "attack": [
+                    "Grass",
+                    "Normal",
+                    "Rock"
+                ],
+                "defense": [
+                    "Grass",
+                    "Grass-Normal",
+                    "Rock"
+                ]
+            },
+            "Levincia": {
+                "code": "LVI",
+                "point": [
+                    10, 
+                    7
+                ],
+                "edges": [
+                    "Artazon",
+                    "Glaseado"
+                ],
+                "attack": [
+                    "Normal",
+                    "Electric",
+                    "Flying",
+                    "Water",
+                    "Dark",
+                    "Ghost"
+                ],
+                "defense": [
+                    "Electric-Flying",
+                    "Electric",
+                    "Ghost"
+                ]
+            },
+            "Cascarrafa": {
+                "code": "CSR",
+                "point": [
+                    4, 
+                    6
+                ],
+                "edges": [
+                    "Cortondo",
+                    "Medali"
+                ],
+                "attack": [
+                    "Normal",
+                    "Flying",
+                    "Water",
+                    "Ground",
+                    "Fighting"
+                ],
+                "defense": [
+                    "Psychic-Water",
+                    "Water",
+                    "Fighting-Ice"
+                ]
+            },
+            "Medali": {
+                "code": "MDL",
+                "point": [
+                    5, 
+                    5
+                ],
+                "edges": [
+                    "Cascarrafa",
+                    "Glaseado",
+                    "Montenevera"
+                ],
+                "attack": [
+                    "Normal",
+                    "Dark",
+                    "Ground",
+                    "Flying"
+                ],
+                "defense": [
+                    "Normal",
+                    "Flying-Normal"
+                ]
+            },
+            "Montenevera": {
+                "code": "MNT",
+                "point": [
+                    7, 
+                    3
+                ],
+                "edges": [
+                    "Medali",
+                    "Glaseado"
+                ],
+                "attack": [
+                    "Ice",
+                    "Dark",
+                    "Ghost",
+                    "Normal",
+                    "Fairy"
+                ],
+                "defense": [
+                    "Ghost",
+                    "Fairy-Ghost",
+                    "Electric-Poison"
+                ]
+            },
+            "Tulip": {
+                "code": "TLP",
+                "point": [
+                    2, 
+                    10
+                ],
+                "edges": [
+                    "Cortondo"
+                ],
+                "attack": [
+                    "Dark",
+                    "Psychic",
+                    "Grass",
+                    "Normal",
+                    "Ghost",
+                    "Fairy"
+                ],
+                "defense": [
+                    "Normal-Psychic",
+                    "Fairy-Psychic",
+                    "Psychic",
+                    "Fairy"
+                ]
+            },
+            "Glaseado": {
+                "code": "GLS",
+                "point": [
+                    7, 
+                    4
+                ],
+                "edges": [
+                    "Montenevera",
+                    "Medali",
+                    "Levincia",
+                    "Artazon"
+                ],
+                "attack": [
+                    "Ice",
+                    "Bug",
+                    "Flying",
+                    "Water",
+                    "Ground",
+                    "Dragon",
+                    "Fairy",
+                    "Flying"
+                ],
+                "defense": [
+                    "Bug-Ice",
+                    "Ice",
+                    "Dragon-Flying"
+                ]
+            },
+            "Pokemon League": {
+                "code": "PKL",
+                "point": [
+                    6, 
+                    8
+                ],
+                "edges": [
+                    "Cortondo",
+                    "Artazon"
+                ],
+                "attack": [
+                    "Ground",
+                    "Water",
+                    "Ice",
+                    "Psychic",
+                    "Fire",
+                    "Steel",
+                    "Normal",
+                    "Rock",
+                    "Poison",
+                    "Dark",
+                    "Fairy",
+                    "Psychic",
+                    "Flying",
+                    "Fighting",
+                    "Dragon",
+                    "Grass",
+                    "Electric"
+                ],
+                "defense": [
+                    "Steel",
+                    "Electric-Steel",
+                    "Psychic-Steel",
+                    "Flying-Steel",
+                    "Fairy-Steel",
+                    "Flying-Grass",
+                    "Electric-Flying",
+                    "Dragon-Flying",
+                    "Flying-Normal",
+                    "Fighting-Flying",
+                    "Dragon",
+                    "Dragon-Poison",
+                    "Dragon-Grass",
+                    "Dragon-Ice",
+                    "Psychic",
+                    "Grass",
+                    "Psychic-Water",
+                    "Ice",
+                    "Dark-Steel",
+                    "Poison-Rock"
+                ]
+            }
+        }
+    }
+}
