@@ -1140,5 +1140,992 @@
                 ]
             }
         }
+    },
+    "6": {
+        "Kalos": {
+            "Santalune City": {
+                "code": "SNT",
+                "point": [
+                    11,
+                    6
+                ],
+                "edges": [
+                    "Lumiose City",
+                    "Pokemon League"
+                ],
+                "attack": [
+                    "Normal",
+                    "Water",
+                    "Bug"
+                ],
+                "defense": [
+                    "Bug-Water",
+                    "Bug-Flying"
+                ]
+            },
+            "Cyllage City": {
+                "code": "CYL",
+                "point": [
+                    4,
+                    7
+                ],
+                "edges": [
+                    "Shalour City",
+                    "Lumiose City"
+                ],
+                "attack": [
+                    "Dark",
+                    "Rock",
+                    "Normal",
+                    "Electric",
+                    "Ice"
+                ],
+                "defense": [
+                    "Dragon-Rock",
+                    "Ice-Rock"
+                ]
+            },
+            "Shalour City": {
+                "code": "SHl",
+                "point": [
+                    3,
+                    4
+                ],
+                "edges": [
+                    "Courmaline City",
+                    "Cyllage City"
+                ],
+                "attack": [
+                    "Normal",
+                    "Fighting",
+                    "Rock"
+                ],
+                "defense": [
+                    "Fighting",
+                    "Fighting-Flying"
+                ]
+            },
+            "Courmaline City": {
+                "code": "COR",
+                "point": [
+                    6,
+                    3
+                ],
+                "edges": [
+                    "Shalour City",
+                    "Lumiose City"
+                ],
+                "attack": [
+                    "Grass",
+                    "Flying",
+                    "Ground",
+                    "Normal",
+                    "Poison"
+                ],
+                "defense": [
+                    "Flying-Grass",
+                    "Grass",
+                    "Grass-Poison"
+                ]
+            },
+            "Lumiose City": {
+                "code": "LUM",
+                "point": [
+                    10,
+                    4
+                ],
+                "edges": [
+                    "Courmaline City",
+                    "Santalune City",
+                    "Laverre City",
+                    "Anistar City"
+                ],
+                "attack": [
+                    "Electric",
+                    "Normal",
+                    "Flying",
+                    "Steel",
+                    "Grass"
+                ],
+                "defense": [
+                    "Electric-Flying",
+                    "Electric-Steel",
+                    "Electric-Normal"
+                ]
+            },
+            "Laverre City": {
+                "code": "LVR",
+                "point": [
+                    10, 
+                    2
+                ],
+                "edges": [
+                    "Lumiose City",
+                    "Anistar City"
+                ],
+                "attack": [
+                    "Dark",
+                    "Steel",
+                    "Psychic",
+                    "Normal",
+                    "Fairy"
+                ],
+                "defense": [
+                    "Fairy-Steel",
+                    "Fairy-Psychic",
+                    "Fairy"
+                ]
+            },
+            "Anistar City": {
+                "code": "ANS",
+                "point": [
+                    15, 
+                    4
+                ],
+                "edges": [
+                    "Laverre City",
+                    "Lumiose City",
+                    "Snowbelle City"
+                ],
+                "attack": [
+                    "Psychic",
+                    "Flying",
+                    "Rock",
+                    "Normal",
+                    "Ghost"
+                ],
+                "defense": [
+                    "Flying-Psychic",
+                    "Psychic-Water",
+                    "Psychic"
+                ]
+            },
+            "Snowbelle City": {
+                "code": "SNO",
+                "point": [
+                    15, 
+                    6
+                ],
+                "edges": [
+                    "Pokemon League",
+                    "Santalune City",
+                    "Anistar City"
+                ],
+                "attack": [
+                    "Ice",
+                    "Grass",
+                    "Ghost",
+                    "Steel",
+                    "Dark"
+                ],
+                "defense": [
+                    "Grass-Ice",
+                    "Ice"
+                ]
+            },
+            "Pokemon League": {
+                "code": "PKL",
+                "point": [
+                    13, 
+                    5
+                ],
+                "edges": [
+                    "Santalune City",
+                    "Snowbelle City"
+                ],
+                "attack": [
+                    "Normal",
+                    "Fire",
+                    "Electric",
+                    "Rock",
+                    "Ground",
+                    "Ghost",
+                    "Flying",
+                    "Fairy",
+                    "Dark",
+                    "Bug",
+                    "Fighting",
+                    "Steel",
+                    "Poison",
+                    "Water",
+                    "Dragon",
+                    "Grass"
+                ],
+                "defense": [
+                    "Fire-Normal",
+                    "Fire",
+                    "Fire-Ghost",
+                    "Fire-Flying",
+                    "Fairy-Steel",
+                    "Rock-Steel",
+                    "Bug-Steel",
+                    "Ghost-Steel",
+                    "Dragon-Poison",
+                    "Dragon-Flying",
+                    "Dragon",
+                    "Water",
+                    "Psychic-Water",
+                    "Flying-Water",
+                    "Rock-Water",
+                    "Fighting-Flying",
+                    "Dragon-Rock",
+                    "Ice-Rock",
+                    "Ghost-Grass",
+                    "Fairy-Psychic"
+                ]
+            }
+        }
+    },
+    "7": {
+        "Alola": {
+            "Hau'oli City": {
+                "code": "HAU",
+                "point": [
+                    6, 
+                    3
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Normal",
+                    "Fire",
+                    "Water",
+                    "Dark",
+                    "Grass",
+                    "Psychic"
+                ],
+                "defense": [
+                    "Normal"
+                ]
+            },
+            "Konikoni City": {
+                "code": "KON",
+                "point": [
+                    8, 
+                    3
+                ],
+                "edges": [
+                    "Paniola Town",
+                    "Lush Jungle"
+                ],
+                "attack": [
+                    "Water",
+                    "Electric",
+                    "Ice",
+                    "Ground",
+                    "Normal",
+                    "Bug",
+                    "Dark"
+                ],
+                "defense": [
+                    "Electric-Water",
+                    "Ice-Water",
+                    "Bug-Water"
+                ]
+            },
+            "Paniola Town": {
+                "code": "PAN",
+                "point": [
+                    8, 
+                    4
+                ],
+                "edges": [
+                    "Lush Jungle"
+                ],
+                "attack": [
+                    "Dark",
+                    "Fire",
+                    "Normal",
+                    "Flying",
+                    "Ghost",
+                    "Ground"
+                ],
+                "defense": [
+                    "Fire",
+                    "Fire-Flying",
+                    "Fire-Ghost"
+                ]
+            },
+            "Lush Jungle": {
+                "code": "LUS",
+                "point": [
+                    9, 
+                    3
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Grass",
+                    "Ghost",
+                    "Fairy",
+                    "Psychic",
+                    "Fighting",
+                    "Bug"
+                ],
+                "defense": [
+                    "Ghost-Grass",
+                    "Fairy-Grass",
+                    "Grass"
+                ]
+            },
+            "Sophocles": {
+                "code": "SOP",
+                "point": [
+                    11, 
+                    7
+                ],
+                "edges": [
+                    "Acerola",
+                    "Pokemon League"
+                ],
+                "attack": [
+                    "Electric",
+                    "Grass",
+                    "Bug",
+                    "Steel",
+                    "Normal",
+                    "Fire",
+                    "Flying",
+                    "Rock"
+                ],
+                "defense": [
+                    "Electric-Steel",
+                    "Electric",
+                    "Bug-Electric",
+                    "Electric-Rock"
+                ]
+            },
+            "Acerola": {
+                "code": "ACE",
+                "point": [
+                    11, 
+                    8
+                ],
+                "edges": [
+                    "Pokemon League"
+                ],
+                "attack": [
+                    "Ghost",
+                    "Dark",
+                    "Bug",
+                    "Electric",
+                    "Fire",
+                    "Psychic",
+                    "Normal",
+                    "Steel",
+                    "Ground",
+                    "Ice",
+                    "Poison",
+                    "Grass"
+                ],
+                "defense": [
+                    "Ghost",
+                    "Flying-Ghost",
+                    "Ghost-Grass",
+                    "Ghost-Ice",
+                    "Ghost-Ground"
+                ]
+            },
+            "Poni Island": {
+                "code": "PON",
+                "point": [
+                    4, 
+                    8
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Bug",
+                    "Fairy",
+                    "Steel",
+                    "Dark",
+                    "Ground",
+                    "Rock",
+                    "Grass",
+                    "Psychic",
+                    "Normal",
+                    "Fire",
+                    "Ice"
+                ],
+                "defense": [
+                    "Fairy",
+                    "Fairy-Steel",
+                    "Fairy-Grass",
+                    "Fairy-Normal",
+                    "Bug-Fairy"
+                ]
+            },
+            "Pokemon League": {
+                "code": "PKL",
+                "point": [
+                    10, 
+                    8
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Ground",
+                    "Electric",
+                    "Steel",
+                    "Dark",
+                    "Bug",
+                    "Normal",
+                    "Psychic",
+                    "Ground",
+                    "Rock",
+                    "Grass",
+                    "Ghost",
+                    "Ice",
+                    "Flying",
+                    "Poison",
+                    "Fighting",
+                    "Fairy",
+                    "Dragon",
+                    "Water"
+                ],
+                "defense": [
+                    "Fairy-Steel",
+                    "Dark-Steel",
+                    "Electric-Steel",
+                    "Psychic-Steel",
+                    "Ground-Steel",
+                    "Bug-Rock",
+                    "Grass-Rock",
+                    "Rock",
+                    "Rock-Steel",
+                    "Ghost",
+                    "Flying-Ghost",
+                    "Ghost-Grass",
+                    "Ghost-Ice",
+                    "Ghost-Ground",
+                    "Flying-Normal",
+                    "Fighting-Flying",
+                    "Fire-Flying",
+                    "Dark-Flying",
+                    "Electric-Psychic",
+                    "Normal",
+                    "Dragon-Flying",
+                    "Fighting-Ice",
+                    "Fairy-Water",
+                    "Fire",
+                    "Water",
+                    "Grass",
+                    "Dark-Fire"
+                ]
+            }
+        }
+    },
+    "8": {
+        "Galar": {
+            "Turffield": {
+                "code": "TRF",
+                "point": [
+                    2,
+                    13
+                ],
+                "edges": [
+                    "Hulbury",
+                    "Motostoke"
+                ],
+                "attack": [
+                    "Grass",
+                    "Normal"
+                ],
+                "defense": [
+                    "Grass"
+                ]
+            },
+            "Hulbury": {
+                "code": "HUL",
+                "point": [
+                    6,
+                    13
+                ],
+                "edges": [
+                    "Turffield",
+                    "Motostoke",
+                    "Hammerlocke",
+                    "Spikemuth"
+                ],
+                "attack": [
+                    "Water",
+                    "Normal",
+                    "Dark"
+                ],
+                "defense": [
+                    "Water",
+                    "Rock-Water"
+                ]
+            },
+            "Motostoke": {
+                "code": "MTO",
+                "point": [
+                    4,
+                    15
+                ],
+                "edges": [
+                    "Turffield",
+                    "Hulbury"
+                ],
+                "attack": [
+                    "Fire",
+                    "Normal",
+                    "Dark",
+                    "Poison",
+                    "Bug"
+                ],
+                "defense": [
+                    "Fire",
+                    "Bug-Fire"
+                ]
+            },
+            "Stow-on-Side": {
+                "code": "STO",
+                "point": [
+                    2,
+                    10
+                ],
+                "edges": [
+                    "Ballonlea",
+                    "Hammerlocke"
+                ],
+                "attack": [
+                    "Fighting",
+                    "Normal",
+                    "Steel",
+                    "Dark",
+                    "Ghost",
+                    "Normal",
+                    "Fairy",
+                    "Rock",
+                    "Psychic",
+                    "Poison"
+                ],
+                "defense": [
+                    "Fighting",
+                    "Dark-Fighting",
+                    "Ghost-Ground",
+                    "Fairy-Ghost",
+                    "Ghost",
+                    "Ghost-Poison"
+                ]
+            },
+            "Ballonlea": {
+                "code": "BAL",
+                "point": [
+                    2,
+                    8
+                ],
+                "edges": [
+                    "Stow-on-Side"
+                ],
+                "attack": [
+                    "Poison",
+                    "Fairy",
+                    "Normal",
+                    "Fairy",
+                    "Dark",
+                    "Ghost",
+                    "Flying",
+                    "Rock"
+                ],
+                "defense": [
+                    "Fairy-Poison",
+                    "Fairy-Steel",
+                    "Fairy-Flying",
+                    "Fairy"
+                ]
+            },
+            "Circhester": {
+                "code": "CIR",
+                "point": [
+                    7,
+                    9
+                ],
+                "edges": [
+                    "Spikemuth",
+                    "Hammerlocke"
+                ],
+                "attack": [
+                    "Normal",
+                    "Rock",
+                    "Water",
+                    "Bug",
+                    "Fire",
+                    "Ice",
+                    "Water"
+                ],
+                "defense": [
+                    "Rock-Water",
+                    "Bug-Rock",
+                    "Rock",
+                    "Fire-Rock",
+                    "Bug-Ice",
+                    "Ice",
+                    "Ice-Water"
+                ]
+            },
+            "Spikemuth": {
+                "code": "SPK",
+                "point": [
+                    8, 
+                    11
+                ],
+                "edges": [
+                    "Circhester",
+                    "Hammerlocke",
+                    "Hulbury"
+                ],
+                "attack": [
+                    "Dark",
+                    "Ground",
+                    "Fighting",
+                    "Psychic",
+                    "Poison",
+                    "Ghost"
+                ],
+                "defense": [
+                    "Dark-Fighting",
+                    "Dark-Psychic",
+                    "Dark-Poison",
+                    "Dark-Normal"
+                ]
+            },
+            "Hammerlocke": {
+                "code": "HMR",
+                "point": [
+                    4, 
+                    11
+                ],
+                "edges": [
+                    "Stow-on-Side",
+                    "Spikemuth",
+                    "Circhester",
+                    "Wyndon"
+                ],
+                "attack": [
+                    "Rock",
+                    "Ground",
+                    "Fighting",
+                    "Electric",
+                    "Dark",
+                    "Steel",
+                    "Dragon",
+                    "Fire"
+                ],
+                "defense": [
+                    "Rock",
+                    "Dragon-Ground",
+                    "Ground",
+                    "Dragon-Steel"
+                ]
+            },
+            "Wyndon": {
+                "code": "WYN",
+                "point": [
+                    4,
+                    5
+                ],
+                "edges": [
+                    "Hammerlocke"
+                ],
+                "attack": [
+                    "Dark",
+                    "Poison",
+                    "Fighting",
+                    "Grass",
+                    "Electric",
+                    "Fairy",
+                    "Normal",
+                    "Psychic",
+                    "Steel",
+                    "Flying",
+                    "Ghost",
+                    "Ground",
+                    "Water",
+                    "Ice",
+                    "Fire",
+                    "Bug",
+                    "Rock",
+                    "Dragon"
+                ],
+                "defense": [
+                    "Dark",
+                    "Fighting-Poison",
+                    "Dark-Fighting",
+                    "Dark-Electric",
+                    "Dark-Fairy",
+                    "Normal",
+                    "Flying-Steel",
+                    "Electric",
+                    "Water",
+                    "Grass",
+                    "Fire",
+                    "Fairy-Psychic",
+                    "Bug-Water",
+                    "Flying-Water",
+                    "Rock-Water",
+                    "Fighting-Flying",
+                    "Fighting",
+                    "Ghost",
+                    "Fire-Ghost",
+                    "Ghost-Poison",
+                    "Dragon",
+                    "Dragon-Fire",
+                    "Dragon-Ground",
+                    "Dragon-Steel",
+                    "Ghost-Steel",
+                    "Dragon-Ghost",
+                    "Ground-Water",
+                    "Fire-Flying",
+                    "Ice-Psychic",
+                    "Ground-Rock"
+                ]
+            }
+        }
+    },
+    "9": {
+        "Paldea": {
+            "Cortondo": {
+                "code": "CRT",
+                "point": [
+                    3, 
+                    9
+                ],
+                "edges": [
+                    "Artazon",
+                    "Cascarrafa",
+                    "Tulip",
+                    "Pokemon League"
+                ],
+                "attack": [
+                    "Bug",
+                    "Fighting"
+                ],
+                "defense": [
+                    "Bug",
+                    "Normal"
+                ]
+            },
+            "Artazon": {
+                "code": "ART",
+                "point": [
+                    9, 
+                    9
+                ],
+                "edges": [
+                    "Cortondo",
+                    "Pokemon League",
+                    "Levincia",
+                    "Glaseado"
+                ],
+                "attack": [
+                    "Grass",
+                    "Normal",
+                    "Rock"
+                ],
+                "defense": [
+                    "Grass",
+                    "Grass-Normal",
+                    "Rock"
+                ]
+            },
+            "Levincia": {
+                "code": "LVI",
+                "point": [
+                    10, 
+                    7
+                ],
+                "edges": [
+                    "Artazon",
+                    "Glaseado"
+                ],
+                "attack": [
+                    "Normal",
+                    "Electric",
+                    "Flying",
+                    "Water",
+                    "Dark",
+                    "Ghost"
+                ],
+                "defense": [
+                    "Electric-Flying",
+                    "Electric",
+                    "Ghost"
+                ]
+            },
+            "Cascarrafa": {
+                "code": "CSR",
+                "point": [
+                    4, 
+                    6
+                ],
+                "edges": [
+                    "Cortondo",
+                    "Medali"
+                ],
+                "attack": [
+                    "Normal",
+                    "Flying",
+                    "Water",
+                    "Ground",
+                    "Fighting"
+                ],
+                "defense": [
+                    "Psychic-Water",
+                    "Water",
+                    "Fighting-Ice"
+                ]
+            },
+            "Medali": {
+                "code": "MDL",
+                "point": [
+                    5, 
+                    5
+                ],
+                "edges": [
+                    "Cascarrafa",
+                    "Glaseado",
+                    "Montenevera"
+                ],
+                "attack": [
+                    "Normal",
+                    "Dark",
+                    "Ground",
+                    "Flying"
+                ],
+                "defense": [
+                    "Normal",
+                    "Flying-Normal"
+                ]
+            },
+            "Montenevera": {
+                "code": "MNT",
+                "point": [
+                    7, 
+                    3
+                ],
+                "edges": [
+                    "Medali",
+                    "Glaseado"
+                ],
+                "attack": [
+                    "Ice",
+                    "Dark",
+                    "Ghost",
+                    "Normal",
+                    "Fairy"
+                ],
+                "defense": [
+                    "Ghost",
+                    "Fairy-Ghost",
+                    "Electric-Poison"
+                ]
+            },
+            "Tulip": {
+                "code": "TLP",
+                "point": [
+                    2, 
+                    10
+                ],
+                "edges": [
+                    "Cortondo"
+                ],
+                "attack": [
+                    "Dark",
+                    "Psychic",
+                    "Grass",
+                    "Normal",
+                    "Ghost",
+                    "Fairy"
+                ],
+                "defense": [
+                    "Normal-Psychic",
+                    "Fairy-Psychic",
+                    "Psychic",
+                    "Fairy"
+                ]
+            },
+            "Glaseado": {
+                "code": "GLS",
+                "point": [
+                    7, 
+                    4
+                ],
+                "edges": [
+                    "Montenevera",
+                    "Medali",
+                    "Levincia",
+                    "Artazon"
+                ],
+                "attack": [
+                    "Ice",
+                    "Bug",
+                    "Flying",
+                    "Water",
+                    "Ground",
+                    "Dragon",
+                    "Fairy",
+                    "Flying"
+                ],
+                "defense": [
+                    "Bug-Ice",
+                    "Ice",
+                    "Dragon-Flying"
+                ]
+            },
+            "Pokemon League": {
+                "code": "PKL",
+                "point": [
+                    6, 
+                    8
+                ],
+                "edges": [
+                    "Cortondo",
+                    "Artazon"
+                ],
+                "attack": [
+                    "Ground",
+                    "Water",
+                    "Ice",
+                    "Psychic",
+                    "Fire",
+                    "Steel",
+                    "Normal",
+                    "Rock",
+                    "Poison",
+                    "Dark",
+                    "Fairy",
+                    "Psychic",
+                    "Flying",
+                    "Fighting",
+                    "Dragon",
+                    "Grass",
+                    "Electric"
+                ],
+                "defense": [
+                    "Steel",
+                    "Electric-Steel",
+                    "Psychic-Steel",
+                    "Flying-Steel",
+                    "Fairy-Steel",
+                    "Flying-Grass",
+                    "Electric-Flying",
+                    "Dragon-Flying",
+                    "Flying-Normal",
+                    "Fighting-Flying",
+                    "Dragon",
+                    "Dragon-Poison",
+                    "Dragon-Grass",
+                    "Dragon-Ice",
+                    "Psychic",
+                    "Grass",
+                    "Psychic-Water",
+                    "Ice",
+                    "Dark-Steel",
+                    "Poison-Rock"
+                ]
+            }
+        }
     }
 }

@@ -982,6 +982,28 @@
                 "Ghost-Ground"
             ]
         },
+        "G7": {
+            "attack": [
+                "Bug",
+                "Fairy",
+                "Steel",
+                "Dark",
+                "Ground",
+                "Rock",
+                "Grass",
+                "Psychic",
+                "Normal",
+                "Fire",
+                "Ice"
+            ],
+            "defense": [
+                "Fairy",
+                "Fairy-Steel",
+                "Fairy-Grass",
+                "Fairy-Normal",
+                "Bug-Fairy"
+            ]
+        },
         "E4": {
             "attack": [
                 "Ground",
