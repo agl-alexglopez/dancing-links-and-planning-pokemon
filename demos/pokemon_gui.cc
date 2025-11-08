@@ -846,10 +846,10 @@ Generation::draw_too_many_solutions_message(Rectangle const &popup_canvas)
     GuiDrawRectangle(popup_canvas, static_cast<int>(border), RED, WHITE);
     draw_wrapping_message(
         Rectangle{
-            .width = popup_canvas.width - (border * 2.0F * 1.01F),
-            .height = popup_canvas.height - (border * 2.0F * 1.01F),
-            .x = popup_canvas.x + (border * 2.0F * 1.01F),
-            .y = popup_canvas.y + (border * 2.0F * 1.01F),
+            .width = popup_canvas.width - (border + (border * 2.0F * 1.01F)),
+            .height = popup_canvas.height - (border + (border * 2.0F * 1.01F)),
+            .x = popup_canvas.x + (border + (border * 1.01F)),
+            .y = popup_canvas.y + (border + (border * 1.01F)),
         },
         too_many_solutions_message, RED);
 }
