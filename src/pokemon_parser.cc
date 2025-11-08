@@ -11,7 +11,6 @@ module;
 #include <iostream>
 #include <map>
 #include <set>
-#include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -153,15 +152,15 @@ constexpr std::array<
     std::tuple<std::string_view, std::string_view, std::string_view>, 10>
     generation_type_rules_json = {{
         {"", "", ""},
-        {"1", "Kanto", "data/json/gen-1-types.json"},
-        {"2", "Johto", "data/json/gen-2-types.json"},
-        {"3", "Hoenn", "data/json/gen-3-types.json"},
-        {"4", "Sinnoh", "data/json/gen-4-types.json"},
-        {"5", "Unova", "data/json/gen-5-types.json"},
-        {"6", "Kalos", "data/json/gen-6-types.json"},
-        {"7", "Alola", "data/json/gen-7-types.json"},
-        {"8", "Galar", "data/json/gen-8-types.json"},
-        {"9", "Paldea", "data/json/gen-9-types.json"},
+        {"1", "Kanto", "data/types/gen-1-types.json"},
+        {"2", "Johto", "data/types/gen-2-types.json"},
+        {"3", "Hoenn", "data/types/gen-3-types.json"},
+        {"4", "Sinnoh", "data/types/gen-4-types.json"},
+        {"5", "Unova", "data/types/gen-5-types.json"},
+        {"6", "Kalos", "data/types/gen-6-types.json"},
+        {"7", "Alola", "data/types/gen-7-types.json"},
+        {"8", "Galar", "data/types/gen-8-types.json"},
+        {"9", "Paldea", "data/types/gen-9-types.json"},
     }};
 
 constexpr std::array<
