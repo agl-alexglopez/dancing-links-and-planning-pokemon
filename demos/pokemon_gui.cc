@@ -63,6 +63,10 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
+#if defined(PLATFORM_WEB)
+#    include <emscripten/emscripten.h>
+#endif
+
 ///////////////////   Project based internal modules   ////////////////////////
 import dancing_links;
 
@@ -323,6 +327,12 @@ class Graph_draw {
         "", "0.00x", "0.25x", "0.50x", "1.00x", "2.00x", "4.00x",
     };
 
+    // Emscripten cannot handle std::numbers yet.
+    static constexpr float pi
+        = static_cast<float>(3.141592653589793238462643383279502884L); // NOLINT
+    static constexpr float sqrt2
+        = static_cast<float>(1.414213562373095048801688724209698079L); // NOLINT
+
     static Color select_max_contrast_black_or_white(Color const &background);
     static void draw_type_node(
         std::pair<std::string_view, std::optional<std::string_view>> const
@@ -358,6 +368,7 @@ void draw_wrapping_message(Rectangle const &canvas, std::string_view message,
                            Color const &tint);
 std::string_view get_token_with_trailing_delims(std::string_view view,
                                                 std::string_view delim_set);
+void update_draw_frame(void *);
 
 } // namespace
 
@@ -379,81 +390,90 @@ run()
 {
     try
     {
-        int screen_width = 800;
-        int screen_height = 450;
-
         SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-        InitWindow(screen_width, screen_height,
-                   "Dancing Links and Planning Pokemon");
+        InitWindow(720, 480, "Dancing Links and Planning Pokemon");
         Font pokemon_gameboy_font
             = LoadFontEx(font_path.data(), 64, nullptr, 0);
         GenTextureMipmaps(&pokemon_gameboy_font.texture);
         GuiSetFont(pokemon_gameboy_font);
-        SetTargetFPS(60);
         // The generation is a stateful object, unfortunately. But this keeps
         // all the necessary constants and tables in one class rather than
         // global state.
         Generation gen;
+#if defined(PLATFORM_WEB)
+        emscripten_set_main_loop_arg(update_draw_frame,
+                                     static_cast<void *>(&gen), 60, 1);
+#else
+        SetTargetFPS(60);
         while (!WindowShouldClose())
         {
-            screen_width = GetScreenWidth();
-            screen_height = GetScreenHeight();
-            BeginDrawing();
-            ClearBackground(WHITE);
-            Rectangle const ui_canvas
-                = Generation::get_ui_canvas(screen_width, screen_height);
-            Rectangle const graph_canvas{
-
-                .width = static_cast<float>(screen_width),
-                .height = static_cast<float>(screen_height) - ui_canvas.height,
-                .x = ui_canvas.x,
-                .y = ui_canvas.y + ui_canvas.height,
-            };
-            // Nice for messages to have padding.
-            Rectangle const graph_canvas_message_box{
-                .width = graph_canvas.width - (graph_canvas.width * 0.01F),
-                .height = graph_canvas.height - (graph_canvas.height * 0.01F),
-                .x = graph_canvas.x + (graph_canvas.width * 0.01F),
-                .y = graph_canvas.y + (graph_canvas.height * 0.01F),
-            };
-            if (gen.is_solution_requested())
-            {
-                std::optional<std::tuple<
-                    Dx::Pokemon_links const &,
-                    std::vector<Ranked_set<Dx::Type_encoding>> const &,
-                    size_t>> const solution
-                    = gen.get_current_solution();
-                if (solution.has_value())
-                {
-                    auto const [dlx, solution_set, index] = solution.value();
-                    // Drawing solutions requires no persistent state which is
-                    // important for performance as this can be a hot path.
-                    gen.set_current_solution(Graph_draw::draw_graph_cover(
-                        graph_canvas, dlx, solution_set, index));
-                }
-                else
-                {
-                    draw_wrapping_message(graph_canvas_message_box,
-                                          no_solution_message, RED);
-                }
-            }
-            else
-            {
-                draw_wrapping_message(graph_canvas_message_box,
-                                      graph_idle_message, BLACK);
-            }
-            // Even though the user interacts with the menu before solving
-            // we want it drawn last so drop down menus cover graph solutions.
-            gen.draw_minimap(screen_width, screen_height);
-            EndDrawing();
+            update_draw_frame(&gen);
         }
+#endif
         CloseWindow();
+        UnloadFont(pokemon_gameboy_font);
         return 0;
     } catch (std::exception const &e)
     {
         std::cerr << "exception caught: " << e.what() << std::flush;
         return 1;
     }
+}
+
+void
+update_draw_frame(void *generation)
+{
+    auto gen = static_cast<Generation *>(generation);
+    BeginDrawing();
+    float const screen_width = GetScreenWidth();
+    float const screen_height = GetScreenHeight();
+    ClearBackground(WHITE);
+    Rectangle const ui_canvas
+        = Generation::get_ui_canvas(screen_width, screen_height);
+    Rectangle const graph_canvas{
+
+        .width = static_cast<float>(screen_width),
+        .height = static_cast<float>(screen_height) - ui_canvas.height,
+        .x = ui_canvas.x,
+        .y = ui_canvas.y + ui_canvas.height,
+    };
+    // Nice for messages to have padding.
+    Rectangle const graph_canvas_message_box{
+        .width = graph_canvas.width - (graph_canvas.width * 0.01F),
+        .height = graph_canvas.height - (graph_canvas.height * 0.01F),
+        .x = graph_canvas.x + (graph_canvas.width * 0.01F),
+        .y = graph_canvas.y + (graph_canvas.height * 0.01F),
+    };
+    if (gen->is_solution_requested())
+    {
+        std::optional<std::tuple<
+            Dx::Pokemon_links const &,
+            std::vector<Ranked_set<Dx::Type_encoding>> const &, size_t>> const
+            solution
+            = gen->get_current_solution();
+        if (solution.has_value())
+        {
+            auto const [dlx, solution_set, index] = solution.value();
+            // Drawing solutions requires no persistent state which is
+            // important for performance as this can be a hot path.
+            gen->set_current_solution(Graph_draw::draw_graph_cover(
+                graph_canvas, dlx, solution_set, index));
+        }
+        else
+        {
+            draw_wrapping_message(graph_canvas_message_box, no_solution_message,
+                                  RED);
+        }
+    }
+    else
+    {
+        draw_wrapping_message(graph_canvas_message_box, graph_idle_message,
+                              BLACK);
+    }
+    // Even though the user interacts with the menu before solving
+    // we want it drawn last so drop down menus cover graph solutions.
+    gen->draw_minimap(screen_width, screen_height);
+    EndDrawing();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1010,7 +1030,7 @@ Graph_draw::draw_graph_cover(
     // If there is only one node, give it half the circle for its coverage. This
     // covers display and drawing edge cases.
     float const theta_segment_angle
-        = (2.0F * std::numbers::pi_v<float>)
+        = (2.0F * pi)
           / static_cast<float>(solution_size == 1 ? 2 : solution_size);
     // We want all of our solution types to gather at the center of the screen
     // in the smallest ring possible without overlapping. The circle cord
@@ -1054,7 +1074,7 @@ Graph_draw::draw_graph_cover(
         = (outer_ring_annulus_radius * outer_ring_annulus_radius)
           - (inner_ring_annulus_radius * inner_ring_annulus_radius);
     // We can fill the circle clockwise from the North tip of circle.
-    float const start_theta = std::numbers::pi_v<float> * 0.5F;
+    float const start_theta = pi * 0.5F;
     float cur_theta = start_theta;
 
     // Here we step by 2 covered node radii so that nodes don't overlap
@@ -1142,7 +1162,7 @@ Graph_draw::draw_graph_cover(
 
     // Because we draw our nodes from the perimeter of the circle inward and
     // guarantee that no nodes overlap, we can draw our entire graph in one
-    // pass. Nodes will layer over lines correctly.
+    // pass over the outer nodes and one pass over inner.
     for (Dx::Type_encoding const &t : solutions.at(cur_solution))
     {
         Vector2 const inner_ring_node
@@ -1172,13 +1192,19 @@ Graph_draw::draw_graph_cover(
             radius_row = next_row;
             theta_col = next_col;
         }
+        cur_theta += theta_segment_angle;
+    }
+    cur_theta = start_theta;
+    for (Dx::Type_encoding const &t : solutions.at(cur_solution))
+    {
+        Vector2 const inner_ring_node
+            = get_circle_center(inner_ring_node_center_radius, cur_theta);
         auto const inner_node_idx = t.decode_indices();
         draw_type_node(get_string_abbreviation(inner_node_idx),
                        get_colors(inner_node_idx), center_node_radius,
                        inner_ring_node.x, inner_ring_node.y);
         cur_theta += theta_segment_angle;
     }
-    cur_theta = start_theta;
     // The only reason we need the second pass is to ensure pop ups cover all
     // other nodes and lines on screens. Only draw the pop ups not all nodes
     // again. Because we saved a pass during graph drawing and do not otherwise
@@ -1324,17 +1350,15 @@ Graph_draw::draw_type_popup(Rectangle const &canvas,
               / std::max(measured_dimensions.x, measured_dimensions.y);
         float const font_size = base_size * font_scaling;
         font_spacing = font_size * 0.2F;
-        DrawTextEx(
-            font, multiplier_strings.at(multiplier_index).data(),
-            Vector2{
-                .x = (popup_node_radius
-                      * std::cos(5.0F * (std::numbers::pi_v<float>) / 4.0F))
-                     + popup_circle_center.x,
-                .y = (popup_node_radius
-                      * std::sin(5.0F * (std::numbers::pi_v<float>) / 4.0F))
-                     + popup_circle_center.y,
-            },
-            font_size, font_spacing, multiplier_colors.at(multiplier_index));
+        DrawTextEx(font, multiplier_strings.at(multiplier_index).data(),
+                   Vector2{
+                       .x = (popup_node_radius * std::cos(5.0F * (pi) / 4.0F))
+                            + popup_circle_center.x,
+                       .y = (popup_node_radius * std::sin(5.0F * (pi) / 4.0F))
+                            + popup_circle_center.y,
+                   },
+                   font_size, font_spacing,
+                   multiplier_colors.at(multiplier_index));
     }
 }
 
@@ -1364,7 +1388,7 @@ Graph_draw::draw_type_node(
     // circle which has the diagonal of the circle diameter and side length
     // of radius * sqrt(2). Then ensure what we measured fits in square.
     float const font_scaling
-        = (radius * std::numbers::sqrt2_v<float>)
+        = (radius * sqrt2)
           / std::max(measured_dimensions.x, measured_dimensions.y);
     float const font_size = base_size * font_scaling;
     font_spacing = font_size * 0.2F;

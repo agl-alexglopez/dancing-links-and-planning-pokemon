@@ -248,7 +248,7 @@ load_map_from_json(std::string_view const region_name)
                   table.emplace_back(type_view);
               }
           };
-    auto const *const generation_map = std::ranges::find(
+    auto const generation_map = std::ranges::find(
         generation_region_maps_json, region_name,
         [](std::tuple<std::string_view, std::string_view,
                       std::string_view> const &t) { return std::get<1>(t); });
@@ -313,7 +313,7 @@ load_map_from_json(std::string_view const region_name)
 std::map<Type_encoding, std::set<Resistance>>
 load_interaction_map(std::string_view region_name)
 {
-    auto const *const interaction_map = std::ranges::find(
+    auto const interaction_map = std::ranges::find(
         generation_type_rules_json, region_name,
         [](std::tuple<std::string_view, std::string_view,
                       std::string_view> const &t) { return std::get<1>(t); });

@@ -22,3 +22,4 @@ target_sources(dancing_links
       ${PROJECT_SOURCE_DIR}/src/resistance.cc
 )
 target_link_libraries(dancing_links nlohmann_json::nlohmann_json)
+target_compile_features(dancing_links PUBLIC cxx_std_20)

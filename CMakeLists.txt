@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(dancing-links-and-planning-pokemon CXX)
+project(dancing_links_and_planning_pokemon CXX)
 
 if(${PROJECT_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "Project must be built outside its source directory, e.g. `cmake -B build`.")
@@ -10,8 +10,12 @@ include(etc/scanners.cmake)
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
 include_directories("${PROJECT_SOURCE_DIR}/demos")
-include_directories("${PROJECT_SOURCE_DIR}/tests")
+if (NOT EMSCRIPTEN)
+    include_directories("${PROJECT_SOURCE_DIR}/tests")
+endif()
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/src")
 add_subdirectory("${PROJECT_SOURCE_DIR}/demos")
-add_subdirectory("${PROJECT_SOURCE_DIR}/tests")
+if (NOT EMSCRIPTEN)
+    add_subdirectory("${PROJECT_SOURCE_DIR}/tests")
+endif()

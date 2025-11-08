@@ -1,6 +1,8 @@
-# Simpler command line application.
-add_executable(pokemon_cli pokemon_cli.cc)
-target_link_libraries(pokemon_cli dancing_links)
+if (NOT EMSCRIPTEN)
+    # Simpler command line application.
+    add_executable(pokemon_cli pokemon_cli.cc)
+    target_link_libraries(pokemon_cli dancing_links)
+endif()
 project(pokemon_gui CXX)
 
 # Dependencies
@@ -40,6 +42,14 @@ target_compile_options(raygui INTERFACE "-w")
 
 add_executable(${PROJECT_NAME} pokemon_gui.cc)
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib raygui dancing_links)
+
+if (EMSCRIPTEN)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY -s GL_ENABLE_GET_PROC_ADDRESS=1")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY -s GL_ENABLE_GET_PROC_ADDRESS=1")
+  set(CMAKE_EXECUTABLE_SUFFIX ".html") # This line is used to set your executable to build with the emscripten html template so that you can directly open it.
+  set_target_properties(pokemon_gui PROPERTIES
+        LINK_FLAGS "--preload-file ${CMAKE_SOURCE_DIR}/data@data")
+endif ()
 
 # Checks if OSX and links appropriate frameworks (Only required on MacOS)
 if (APPLE)

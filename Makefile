@@ -1,4 +1,4 @@
-.PHONY: default rel deb build format tidy dtest rtest clean
+.PHONY: default rel deb emsdk emrun webrel build format tidy dtest rtest clean
 
 MAKE := $(MAKE)
 MAKEFLAGS += --no-print-directory
@@ -8,6 +8,12 @@ JOBS ?= $(shell (command -v nproc > /dev/null 2>&1 && echo "-j$$(nproc)") || (co
 
 default: build
 
+emsdk:
+	cd deps/emsdk && ./emsdk install latest && ./emsdk activate latest
+
+emrun:
+	./deps/emsdk/upstream/emscripten/emrun ./build/bin/pokemon_gui.html
+
 rel:
 	cmake --preset=rel
 	cmake --build build/ $(JOBS)
@@ -15,6 +21,10 @@ rel:
 deb:
 	cmake --preset=deb
 	cmake --build build/ $(JOBS)
+
+webrel:
+	cmake --preset=webrel
+	cmake --build build/ $(JOBS) --target pokemon_gui
 
 build:
 	cmake --build build/ $(JOBS)
