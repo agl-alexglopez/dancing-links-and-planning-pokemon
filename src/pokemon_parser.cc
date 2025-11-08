@@ -2,12 +2,12 @@ module;
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 
+#include <algorithm>
 #include <array>
+#include <cassert>
 #include <cstdlib>
-#include <exception>
 #include <fstream>
 #include <iostream>
-#include <istream>
 #include <map>
 #include <set>
 #include <stdexcept>
@@ -16,13 +16,55 @@ module;
 #include <utility>
 #include <vector>
 export module dancing_links:pokemon_parser;
-import :map_parser;
 import :resistance;
 import :type_encoding;
 
 ///////////////////////////////////   Exported Interface
 
 export namespace Dancing_links {
+
+struct Point
+{
+    float x;
+    float y;
+};
+
+struct Min_max
+{
+    float min;
+    float max;
+};
+
+// This type is critical to how the network is stored and traversed. Every
+// entry in our network map will have a std::string key and this node as
+// the value. Only one std::string name for every city will ever be allocated
+// and it will be stored as the key for that city in the map. Then the edges
+// are simply pointers back to the keys in the map that already exist as our
+// string names.
+//
+// This way we do not waste tons of repetitive tiny string allocations on the
+// heap for the same city name in well connected networks. Instead we have a
+// set of trivially copyable pointers. These pointers will be searched and
+// stored in the set by their pointer address but this is OK because every
+// key in the map will be unique. Obviously, it's a map!
+struct Map_node
+{
+    // Every city is given a 3 letter abbreviation code. Add null terminator.
+    std::array<char, 4> code;
+    // Where the user has specified the location of this city should be in
+    // their dst file. This is true to what they wrote in the file. We can
+    // adjust this to display as needed later in the GUI.
+    Point coordinates;
+    // The set of pointers to other string keys in the map that serve as our
+    // city edge connections. Simple pointers, no wasted strings.
+    std::set<Map_node *> edges;
+    // The maximum number of attack types you would ever see at a gym are all
+    // 18 types. This rarely, if ever, happens.
+    std::array<Type_encoding, 18> attack;
+    // The maximum number of defensive types at any one gym occurs if the
+    // Elite Four has all four members with full 6 Pokemon teams.
+    std::array<Type_encoding, 24> defense;
+};
 
 /// Leave a comment at the first line of the Pokemon Generation .dst file you
 /// want to construct with the pokemon generation in base 10 numbers. This will
@@ -46,6 +88,9 @@ export namespace Dancing_links {
 /// specification.
 struct Pokemon_test
 {
+    std::map<std::string, Map_node> network;
+    struct Min_max x_data_bounds{};
+    struct Min_max y_data_bounds{};
     /// This map will hold all types--dual types included--and a map of defense
     /// multipliers ranging from x0.0,x0.25,x0.5,x1.0,x2.0,x4.0. In these maps
     /// will be the type as the key and all the single attack types that have
@@ -55,7 +100,6 @@ struct Pokemon_test
     /// decide to draw some types might be missing. For example, generation one
     /// Pokemon did not have types like Fairy, Dark, or Steel.
     std::map<Type_encoding, std::set<Resistance>> interactions;
-    Map_test gen_map{};
 };
 
 /// @brief load_pokemon_generation builds the PokemonTest needed to interact
@@ -63,7 +107,7 @@ struct Pokemon_test
 /// @param source the file with the map that gives us info on which gen
 /// to build.
 /// @return the completed pokemon test with map drawing and Pokemon info.
-Pokemon_test load_pokemon_generation(std::istream &source);
+Pokemon_test load_pokemon_generation(std::string_view region_name);
 
 /// @brief load_interaction_map builds the PokemonTest needed to interact with a
 /// generation's map in the Pokemon Planning GUI.
@@ -71,7 +115,7 @@ Pokemon_test load_pokemon_generation(std::istream &source);
 /// build.
 /// @return the completed pokemon test with map drawing and Pokemon info.
 std::map<Type_encoding, std::set<Resistance>>
-load_interaction_map(std::istream &source);
+load_interaction_map(std::string_view region_name);
 
 /// @brief load_selected_gyms_defenses when interacting with the GUI, the user
 /// can choose subsets of gyms on the current map they are viewing. If they make
@@ -107,24 +151,43 @@ namespace {
 
 namespace nlo = nlohmann;
 
+constexpr float file_coordinate_pad = 1.0;
+
 constexpr std::string_view json_all_maps_file = "data/json/all-maps.json";
 constexpr std::string_view gym_attacks_key = "attack";
 constexpr std::string_view gym_defense_key = "defense";
 
 // There is no 0th generation so we will make it easier to select the right file
 // by leaving 0 "".
-constexpr std::array<std::string_view, 10> generation_json_files = {
-    "",
-    "data/json/gen-1-types.json",
-    "data/json/gen-2-types.json",
-    "data/json/gen-3-types.json",
-    "data/json/gen-4-types.json",
-    "data/json/gen-5-types.json",
-    "data/json/gen-6-types.json",
-    "data/json/gen-7-types.json",
-    "data/json/gen-8-types.json",
-    "data/json/gen-9-types.json",
-};
+constexpr std::array<
+    std::tuple<std::string_view, std::string_view, std::string_view>, 10>
+    generation_type_rules_json = {{
+        {"", "", ""},
+        {"1", "Kanto", "data/json/gen-1-types.json"},
+        {"2", "Johto", "data/json/gen-2-types.json"},
+        {"3", "Hoenn", "data/json/gen-3-types.json"},
+        {"4", "Sinnoh", "data/json/gen-4-types.json"},
+        {"5", "Unova", "data/json/gen-5-types.json"},
+        {"6", "Kalos", "data/json/gen-6-types.json"},
+        {"7", "Alola", "data/json/gen-7-types.json"},
+        {"8", "Galar", "data/json/gen-8-types.json"},
+        {"9", "Paldea", "data/json/gen-9-types.json"},
+    }};
+
+constexpr std::array<
+    std::tuple<std::string_view, std::string_view, std::string_view>, 10>
+    generation_region_maps_json{{
+        {"", "", ""},
+        {"1", "Kanto", "data/maps/gen-1-kanto.json"},
+        {"2", "Johto", "data/maps/gen-2-johto.json"},
+        {"3", "Hoenn", "data/maps/gen-3-hoenn.json"},
+        {"4", "Sinnoh", "data/maps/gen-4-sinnoh.json"},
+        {"5", "Unova", "data/maps/gen-5-unova.json"},
+        {"6", "Kalos", "data/maps/gen-6-kalos.json"},
+        {"7", "Alola", "data/maps/gen-7-alola.json"},
+        {"8", "Galar", "data/maps/gen-8-galar.json"},
+        {"9", "Paldea", "data/maps/gen-9-paldea.json"},
+    }};
 
 std::array<std::pair<std::string_view, Multiplier>, 6> const damage_multipliers
     = {{
@@ -149,37 +212,24 @@ get_multiplier(std::string const &key)
     throw std::logic_error("Out of bounds. Key not found. ");
 }
 
-void
-print_generation_error(std::exception const &ex)
-{
-    std::cerr << "Found this: " << ex.what();
-    std::cerr
-        << "Could not choose the correct generation from first line of file.\n";
-    std::cerr << "Comment first line as follows. Any other comment can start "
-                 "on the next line\n";
-    std::cerr << "# 1\n";
-    std::cerr << "# Above, I want to load in this map as Generation One. "
-                 "Choose 1-9\n";
-}
-
 nlo::json
 get_json_object(std::string_view path_to_json)
 {
-    std::ifstream json_file(std::string{path_to_json});
+    std::ifstream json_file(path_to_json.data());
     if (!json_file.is_open())
     {
         std::cerr << "Could not open json file: ." << path_to_json << "\n";
         json_file.close();
         std::abort();
     }
-    nlo::json map_data = nlo::json::parse(json_file);
+    nlo::json data = nlo::json::parse(json_file);
     json_file.close();
-    if (map_data.is_discarded())
+    if (data.is_discarded())
     {
         std::cerr << "Error parsing all map data to json object.\n";
         std::abort();
     }
-    return map_data;
+    return data;
 }
 
 void
@@ -197,11 +247,132 @@ set_resistances(std::map<Type_encoding, std::set<Resistance>> &result,
     }
 }
 
-std::map<Type_encoding, std::set<Resistance>>
-from_json_to_map(int generation)
+void
+fill_type_table(
+    std::span<Type_encoding> table,
+    std::tuple_element_t<
+        1, nlohmann::detail::iteration_proxy_value<
+               nlohmann::detail::iter_impl<nlohmann::basic_json<> const>> const>
+        e)
 {
-    std::string_view const path_to_json = generation_json_files.at(generation);
-    nlo::json const json_types = get_json_object(path_to_json);
+    size_t i = 0;
+    for (auto const &type : e)
+    {
+        assert(i < table.size());
+        auto const type_view = type.get<std::string_view>();
+        table[i++] = Type_encoding(type_view);
+    }
+}
+
+std::map<std::string, Map_node>
+load_map_from_json(std::string_view const region_name)
+{
+    auto const *const generation_map = std::ranges::find(
+        generation_region_maps_json, region_name,
+        [](std::tuple<std::string_view, std::string_view,
+                      std::string_view> const &t) { return std::get<1>(t); });
+    if (generation_map == generation_region_maps_json.end())
+    {
+        std::cerr << "could not find generation region map data for "
+                  << region_name << '\n';
+        std::abort();
+    }
+    std::map<std::string, Map_node> network{};
+    nlo::json generation = get_json_object(std::get<2>(*generation_map));
+    auto const &region = generation[std::get<0>(*generation_map).data()]
+                                   [std::get<1>(*generation_map).data()];
+    for (auto const &[city_name, city_data] : region.items())
+    {
+        auto inserted = network.try_emplace(city_name, Map_node{});
+        Map_node &attributes = inserted.first->second;
+        for (auto const &[key, val] : city_data.items())
+        {
+            if (key == "code")
+            {
+                auto const three_lettters = val.get<std::string_view>();
+                assert(three_lettters.length() == 3);
+                std::ranges::copy(three_lettters, attributes.code.begin());
+                attributes.code.back() = '\0';
+            }
+            else if (key == "point")
+            {
+                assert(val.is_array());
+                auto const &[x, y] = val.get<std::pair<float, float>>();
+                attributes.coordinates = Point{.x = x, .y = y};
+            }
+            else if (key == "edges")
+            {
+                assert(val.is_array());
+                for (auto const &edge : val)
+                {
+                    auto const edge_view = edge.get<std::string_view>();
+                    auto const ensure_inserted = network.try_emplace(
+                        std::string(edge_view), Map_node{});
+                    attributes.edges.insert(&ensure_inserted.first->second);
+                }
+            }
+            else if (key == "attack")
+            {
+                fill_type_table(attributes.attack, val);
+            }
+            else if (key == "defense")
+            {
+                fill_type_table(attributes.defense, val);
+            }
+            else
+            {
+                std::cerr << "unknown json field in region map: " << key;
+                std::abort();
+            }
+        }
+    }
+    return network;
+}
+
+} // namespace
+
+Pokemon_test
+load_pokemon_generation(std::string_view region_name)
+{
+    Pokemon_test generation;
+    generation.network = load_map_from_json(region_name);
+    generation.interactions = load_interaction_map(region_name);
+    generation.x_data_bounds.min = std::numeric_limits<float>::infinity();
+    generation.y_data_bounds.min = std::numeric_limits<float>::infinity();
+    generation.x_data_bounds.max = -std::numeric_limits<float>::infinity();
+    generation.y_data_bounds.max = -std::numeric_limits<float>::infinity();
+    for (auto const &[_, node] : generation.network)
+    {
+        generation.x_data_bounds.min
+            = std::min(generation.x_data_bounds.min, node.coordinates.x);
+        generation.y_data_bounds.min
+            = std::min(generation.y_data_bounds.min, node.coordinates.y);
+        generation.x_data_bounds.max
+            = std::max(generation.x_data_bounds.max, node.coordinates.x);
+        generation.y_data_bounds.max
+            = std::max(generation.y_data_bounds.max, node.coordinates.y);
+    }
+    generation.x_data_bounds.min -= file_coordinate_pad;
+    generation.y_data_bounds.min -= file_coordinate_pad;
+    generation.x_data_bounds.max += file_coordinate_pad;
+    generation.y_data_bounds.max += file_coordinate_pad;
+    return generation;
+}
+
+std::map<Type_encoding, std::set<Resistance>>
+load_interaction_map(std::string_view region_name)
+{
+    auto const *const interaction_map = std::ranges::find(
+        generation_type_rules_json, region_name,
+        [](std::tuple<std::string_view, std::string_view,
+                      std::string_view> const &t) { return std::get<1>(t); });
+    if (interaction_map == generation_type_rules_json.end())
+    {
+        std::cerr << "could not find generation type interaction data for "
+                  << region_name << '\n';
+        std::abort();
+    }
+    nlo::json const json_types = get_json_object(std::get<2>(*interaction_map));
     std::map<Type_encoding, std::set<Resistance>> result = {};
     for (auto const &[type, resistances] : json_types.items())
     {
@@ -210,44 +381,6 @@ from_json_to_map(int generation)
         set_resistances(result, encoded, resistances);
     }
     return result;
-}
-
-std::map<Type_encoding, std::set<Resistance>>
-load_generation_from_json(std::istream &source)
-{
-    std::string line;
-    std::getline(source, line);
-    std::string const after_hashtag = line.substr(1, line.length() - 1);
-    try
-    {
-        int const generation = std::stoi(after_hashtag);
-        return from_json_to_map(generation);
-    } catch (std::out_of_range const &oor)
-    {
-        print_generation_error(oor);
-        std::abort();
-    } catch (std::invalid_argument const &ia)
-    {
-        print_generation_error(ia);
-        std::abort();
-    }
-}
-
-} // namespace
-
-Pokemon_test
-load_pokemon_generation(std::istream &source)
-{
-    Pokemon_test generation;
-    generation.interactions = load_generation_from_json(source);
-    generation.gen_map = load_map(source);
-    return generation;
-}
-
-std::map<Type_encoding, std::set<Resistance>>
-load_interaction_map(std::istream &source)
-{
-    return load_generation_from_json(source);
 }
 
 std::set<Type_encoding>

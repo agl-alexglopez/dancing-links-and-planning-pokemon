@@ -213,9 +213,10 @@ run(std::span<char const *const> const args)
                                  "simultaneously. Specify one.\n";
                     return 1;
                 }
+                runner.interactions
+                    = Dancing_links::load_interaction_map(arg_str);
                 auto const owned = std::string(arg_str);
                 std::ifstream f(owned);
-                runner.interactions = Dancing_links::load_interaction_map(f);
                 runner.map = owned.substr(owned.find_last_of('/') + 1);
             }
             else if (arg_str.starts_with('G') || arg_str == "E4")

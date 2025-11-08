@@ -31,7 +31,6 @@
 #include <bit>
 #include <cstdint>
 #include <ctime>
-#include <fstream>
 #include <functional>
 #include <iostream>
 #include <optional>
@@ -227,38 +226,55 @@ operator!=(Pokemon_links::Encoding_index const &lhs,
 bool
 operator==(Map_node const &lhs, Map_node const &rhs)
 {
-    if (lhs.coordinates != rhs.coordinates
-        || lhs.edges.size() != rhs.edges.size())
+    if (lhs.coordinates.x != rhs.coordinates.x
+        || lhs.coordinates.y != rhs.coordinates.y
+        || lhs.edges.size() != rhs.edges.size() || lhs.code != rhs.code
+        || lhs.attack != rhs.attack || lhs.defense != rhs.defense)
     {
         return false;
     }
-    auto const hash_str = [](std::string const *s) noexcept {
-        return std::hash<std::string>{}(*s);
+    auto const hash_map_node = [](Map_node const *n) noexcept {
+        return std::hash<std::string_view>{}(std::string_view{n->code.data()});
     };
-    auto const cmp_strs = [](std::string const *a,
-                             std::string const *b) -> bool { return *a == *b; };
-    std::unordered_set<std::string const *, decltype(hash_str),
-                       decltype(cmp_strs)>
-        seen_strings{};
-    for (std::string const *str : lhs.edges)
+    auto const cmp_map_nodes
+        = [](Map_node const *a, Map_node const *b) -> bool {
+        return a->code == b->code;
+    };
+    std::unordered_set<Map_node const *, decltype(hash_map_node),
+                       decltype(cmp_map_nodes)>
+        seen_nodes{};
+    for (Map_node const *node : lhs.edges)
     {
-        seen_strings.insert(str);
+        seen_nodes.insert(node);
     }
     return std::ranges::all_of(rhs.edges.begin(), rhs.edges.end(),
-                               [&](std::string const *str) -> bool {
-                                   return seen_strings.contains(str);
+                               [&](Map_node const *node) -> bool {
+                                   return seen_nodes.contains(node);
                                });
 }
 
 std::ostream &
 operator<<(std::ostream &os, Map_node const &n)
 {
-    os << "{ { " << n.coordinates.x << ", " << n.coordinates.y << " }, { ";
-    for (auto const &edge : n.edges)
+    os << '{' << n.code.data() << ",{" << n.coordinates.x << ','
+       << n.coordinates.y << "},{" << n.edges.size() << " edge(s)},{";
+    for (Type_encoding const &t : n.attack)
     {
-        os << *edge << ", ";
+        if (!t.is_empty())
+        {
+            os << t << ',';
+        }
     }
-    return os << " } }";
+    os << "},";
+    os << "{";
+    for (Type_encoding const &t : n.defense)
+    {
+        if (!t.is_empty())
+        {
+            os << t << ',';
+        }
+    }
+    return os << "}}\n";
 }
 
 std::ostream &
@@ -309,54 +325,132 @@ operator<<(std::ostream &os, std::span<Pokemon_links::Encoding_index const> n_n)
 TEST(ParserTests, CheckMapParserLoadsInMapCorrectly)
 {
     Pokemon_test expected = {
-        .interactions {},
-        .gen_map = {
-            .network = {
-                {"G1", Map_node{.coordinates = Point(3.0, 4.0), .edges = {}}},
-                {"G2", Map_node{.coordinates = Point(8.0, 3.0), .edges = {}}},
-                {"G3", Map_node{.coordinates = Point(8.0, 7.0), .edges = {}}},
-                {"G4", Map_node{.coordinates = Point(6.0, 5.0), .edges = {}}},
-                {"G5", Map_node{.coordinates = Point(6.0, 10.0), .edges = {}}},
-                {"G6", Map_node{.coordinates = Point(8.0, 5.0), .edges = {}}},
-                {"G7", Map_node{.coordinates = Point(3.0, 11.0), .edges = {}}},
-                {"G8", Map_node{.coordinates = Point(3.0, 7.0), .edges = {}}},
-                {"E4", Map_node{.coordinates = Point(1.0, 3.0), .edges = {}}},
-            },
-        },
+        .network
+        = {{"Pewter City",
+            Map_node{
+                .code{'P', 'W', 'T', '\0'},
+                .coordinates = Point{.x = 3.0F, .y = 4.0F},
+                .edges = {},
+                .attack = {Type_encoding("Normal")},
+                .defense = {Type_encoding("Ground-Rock")},
+            }},
+           {"Cerulean City",
+            Map_node{
+                .code{'C', 'R', 'L', '\0'},
+                .coordinates = Point{.x = 8.0F, .y = 3.0F},
+                .edges = {},
+                .attack = {Type_encoding("Normal"), Type_encoding("Water")},
+                .defense = {Type_encoding("Water")},
+            }},
+           {"Vermillion City",
+            Map_node{
+                .code{'V', 'R', 'M', '\0'},
+                .coordinates = Point{.x = 8.0F, .y = 7.0F},
+                .edges = {},
+                .attack = {Type_encoding("Normal"), Type_encoding("Electric")},
+                .defense = {Type_encoding("Electric")},
+            }},
+           {"Celadon City",
+            Map_node{
+                .code{'C', 'L', 'D', '\0'},
+                .coordinates = Point{.x = 6.0F, .y = 5.0F},
+                .edges = {},
+                .attack = {Type_encoding("Normal"), Type_encoding("Poison"),
+                           Type_encoding("Grass")},
+                .defense = {Type_encoding("Grass-Poison")},
+            }},
+           {"Fuchsia City",
+            Map_node{
+                .code{'F', 'S', 'A', '\0'},
+                .coordinates = Point{.x = 7.0F, .y = 10.0F},
+                .edges = {},
+                .attack = {Type_encoding("Normal"), Type_encoding("Poison")},
+                .defense = {Type_encoding("Poison")},
+            }},
+           {"Saffron City",
+            Map_node{
+                .code{'S', 'F', 'R', '\0'},
+                .coordinates = Point{.x = 8.0F, .y = 5.0F},
+                .edges = {},
+                .attack = {Type_encoding("Psychic"), Type_encoding("Normal"),
+                           Type_encoding("Poison"), Type_encoding("Bug"),
+                           Type_encoding("Grass")},
+                .defense
+                = {Type_encoding("Psychic"), Type_encoding("Bug-Poison")},
+            }},
+           {"Cinnabar Island",
+            Map_node{
+                .code{'C', 'N', 'B', '\0'},
+                .coordinates = Point{.x = 3.0F, .y = 11.0F},
+                .edges = {},
+                .attack = {Type_encoding("Fire"), Type_encoding("Normal")},
+                .defense = {Type_encoding("Fire")},
+            }},
+           {"Viridian City",
+            Map_node{
+                .code{'V', 'R', 'D', '\0'},
+                .coordinates = Point{.x = 3.0F, .y = 7.0F},
+                .edges = {},
+                .attack = {Type_encoding("Normal"), Type_encoding("Ground"),
+                           Type_encoding("Poison")},
+                .defense
+                = {Type_encoding("Ground-Rock"), Type_encoding("Ground"),
+                   Type_encoding("Ground-Poison")},
+            }},
+           {"Indigo Plateau",
+            Map_node{
+                .code{'I', 'D', 'G', '\0'},
+                .coordinates = Point{.x = 1.0F, .y = 3.0F},
+                .edges = {},
+                .attack = {Type_encoding("Ice"), Type_encoding("Normal"),
+                           Type_encoding("Water"), Type_encoding("Rock"),
+                           Type_encoding("Fire"), Type_encoding("Electric"),
+                           Type_encoding("Fighting"), Type_encoding("Ground"),
+                           Type_encoding("Ghost"), Type_encoding("Psychic"),
+                           Type_encoding("Flying"), Type_encoding("Poison"),
+                           Type_encoding("Dragon"), Type_encoding("Grass"),},
+                .defense
+                = {Type_encoding("Ice-Water"), Type_encoding("Psychic-Water"),
+                   Type_encoding("Ice-Psychic"), Type_encoding("Ghost-Poison"),
+                   Type_encoding("Flying-Poison"), Type_encoding("Poison"),
+                   Type_encoding("Flying-Water"), Type_encoding("Dragon"),
+                   Type_encoding("Flying-Rock"), Type_encoding("Dragon-Flying"),
+                   Type_encoding("Flying-Normal"), Type_encoding("Psychic"),
+                   Type_encoding("Ground-Rock"), Type_encoding("Grass-Psychic"),
+                   Type_encoding("Fire-Flying"), Type_encoding("Fire"),
+                   Type_encoding("Water")},
+            }}},
+        .interactions = {}};
+
+    auto const key = [&expected](char const *city) -> Map_node * {
+        auto const found = expected.network.find(city);
+        EXPECT_NE(found, expected.network.end());
+        return &found->second;
     };
-    auto const key = [&expected](char const *city) -> std::string const * {
-        auto const found = expected.gen_map.network.find(city);
-        EXPECT_NE(found, expected.gen_map.network.end());
-        return &found->first;
-    };
-    auto const edges
-        = [&expected](char const *city) -> std::set<std::string const *> & {
-        auto const found = expected.gen_map.network.find(city);
-        EXPECT_NE(found, expected.gen_map.network.end());
+    auto const edges = [&expected](char const *city) -> std::set<Map_node *> & {
+        auto const found = expected.network.find(city);
+        EXPECT_NE(found, expected.network.end());
         return found->second.edges;
     };
-    edges("G1") = {key("G2"), key("G8")};
-    edges("G2") = {key("G1"), key("G6")};
-    edges("G3") = {key("G6"), key("G5")};
-    edges("G4") = {key("G6"), key("G5")};
-    edges("G5") = {key("G4"), key("G3")};
-    edges("G6") = {key("G2"), key("G4"), key("G3")};
-    edges("G7") = {};
-    edges("G8") = {key("G1"), key("E4")};
-    edges("E4") = {key("G8")};
-    std::ifstream kanto_map("data/dst/Gen-1-Kanto.dst");
-    EXPECT_EQ(kanto_map.is_open(), true);
-    Pokemon_test load_gen_1 = load_pokemon_generation(kanto_map);
-    EXPECT_EQ(load_gen_1.gen_map.network, expected.gen_map.network);
+    edges("Pewter City") = {key("Cerulean City"), key("Viridian City")};
+    edges("Cerulean City") = {key("Saffron City"), key("Pewter City")};
+    edges("Vermillion City") = {key("Saffron City"), key("Fuchsia City")};
+    edges("Celadon City") = {key("Saffron City")};
+    edges("Fuchsia City") = {key("Vermillion City")};
+    edges("Saffron City")
+        = {key("Vermillion City"), key("Celadon City"), key("Cerulean City")};
+    edges("Cinnabar Island") = {}; // no edges
+    edges("Viridian City") = {key("Pewter City"), key("Indigo Plateau")};
+    edges("Indigo Plateau") = {key("Viridian City")};
+    Pokemon_test load_gen_1 = load_pokemon_generation("Kanto");
+    EXPECT_EQ(load_gen_1.network, expected.network);
 }
 
 TEST(ParserTests, CheckLoadingMapTypingWorksCorrectly)
 {
     // Gen 1 only has 33 types but it would still be a huge map to hard code by
     // hand.
-    std::ifstream kanto_map("data/dst/Gen-1-Kanto.dst");
-    EXPECT_EQ(kanto_map.is_open(), true);
-    Pokemon_test load_gen_1 = load_pokemon_generation(kanto_map);
+    Pokemon_test load_gen_1 = load_pokemon_generation("Kanto");
     // If our parser picks up all the items we should be on the right track.
     EXPECT_EQ(load_gen_1.interactions.size(), 33);
     for (auto const &[_, resistances] : load_gen_1.interactions)

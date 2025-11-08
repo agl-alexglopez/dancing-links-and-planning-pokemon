@@ -49,7 +49,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <exception>
-#include <filesystem>
 #include <iostream>
 #include <map>
 #include <optional>
@@ -148,6 +147,12 @@ class Generation {
     static constexpr float text_label_font_size = 5.0;
     static constexpr float map_pad = 3.0;
     static constexpr char const *const dst_relative_path = "data/dst/";
+    static constexpr std::array<std::string_view, 9> generation_region_list = {
+        "Kanto", "Johto", "Hoenn", "Sinnoh", "Unova",
+        "Kalos", "Alola", "Galar", "Paldea",
+    };
+    static constexpr std::string_view generation_region_dropdown_options
+        = "Kanto;Johto;Hoenn;Sinnoh;Unova;Kalos;Alola;Galar;Paldea";
     /// The string provided to the solver drop down selection by Raylib.
     static constexpr char const *const dlx_solver_options
         = "Defense Exact Cover;Defense Overlapping Cover;Attack "
@@ -159,17 +164,7 @@ class Generation {
     //////////////////////   Data Structures  /////////////////////////////////
 
     /// The state we must track to successfully use a Raylib drop down.
-    Dropdown dst_map_select;
-
-    /// Raylib Dropdowns use an active integer to track which option of a drop
-    /// down is selected. So, it is helpful to store them contiguously
-    /// corresponding to each active index.
-    std::vector<std::string> dst_map_list;
-
-    /// Raylib requires a semicolon separated string to display all options in
-    /// the dropdown ("option1;option2"). The final options should not have a
-    /// trailing semicolon.
-    std::string dst_map_options;
+    Dropdown region_map_select;
 
     /// The choice of attack or defense and exact or overlapping coverage.
     Dropdown dlx_solver_select;
@@ -459,7 +454,7 @@ run()
 ///////////////////////////////////////////////////////////////////////////////
 
 Generation::Generation()
-    : dst_map_select(Dropdown{
+    : region_map_select(Dropdown{
           .dimensions = {},
           .active = 0,
           .editmode = false,
@@ -470,48 +465,15 @@ Generation::Generation()
           .editmode = false,
       })
 {
-    for (auto const &entry : std::filesystem::directory_iterator("data/dst"))
-    {
-        if (entry.is_directory())
-        {
-            continue;
-        }
-        std::filesystem::path const &p = entry.path();
-        std::string_view file_name(p.c_str());
-        file_name = file_name.substr(file_name.find_last_of('/') + 1);
-        dst_map_list.emplace_back(file_name);
-    }
-    if (dst_map_list.empty())
-    {
-        return;
-    }
-    std::ranges::sort(dst_map_list,
-                      [](std::string const &a, std::string const &b) {
-                          return a.compare(b) < 0;
-                      });
-    for (size_t i = 0; i < dst_map_list.size() - 1; ++i)
-    {
-        dst_map_options.append(dst_map_list[i]).append(";");
-    }
-    dst_map_options.append(dst_map_list.back());
     reload_generation();
 }
 
 void
 Generation::reload_generation()
 {
-    if (dst_map_select.active >= dst_map_list.size())
+    if (region_map_select.active >= generation_region_list.size())
     {
         std::cerr << "Active Pokemon Generation selector out of range.\n";
-        std::abort();
-    }
-    std::string const path = std::string(dst_relative_path)
-                                 .append(dst_map_list[dst_map_select.active]);
-    std::ifstream gen(path);
-    if (gen.fail())
-    {
-        std::cerr << "Cannot load Pokemon Generation .dst file " << path
-                  << '.\n';
         std::abort();
     }
     rendering_too_many_solutions = false;
@@ -522,10 +484,11 @@ Generation::reload_generation()
     // left with references to map data that does not exist.
     gym_toggles.clear();
     // Remember to load the Pokemon generation first.
-    generation = Dx::load_pokemon_generation(gen);
+    generation = Dx::load_pokemon_generation(
+        generation_region_list.at(region_map_select.active));
     // Next, the gym toggles can now finally be loaded and locked to the map.
-    for (auto gym = std::ranges::cbegin(generation.gen_map.network);
-         gym != std::ranges::cend(generation.gen_map.network);
+    for (auto gym = std::ranges::cbegin(generation.network);
+         gym != std::ranges::cend(generation.network);
          gym = std::ranges::next(gym))
     {
         gym_toggles.emplace_back(gym, false);
@@ -565,10 +528,8 @@ Generation::draw_minimap(int const window_width, int const window_height)
 
     float const minimap_aspect_ratio = minimap_width / minimap_height;
     float const file_specified_aspect_ratio
-        = (generation.gen_map.x_data_bounds.max
-           - generation.gen_map.x_data_bounds.min)
-          / (generation.gen_map.y_data_bounds.max
-             - generation.gen_map.y_data_bounds.min);
+        = (generation.x_data_bounds.max - generation.x_data_bounds.min)
+          / (generation.y_data_bounds.max - generation.y_data_bounds.min);
     float file_specified_width{};
     float file_specified_height{};
     if (file_specified_aspect_ratio >= minimap_aspect_ratio)
@@ -592,17 +553,16 @@ Generation::draw_minimap(int const window_width, int const window_height)
         = ((minimap_height - file_specified_height) / 2.0F) + map_pad;
     y_draw_bounds.max = y_draw_bounds.min + file_specified_height;
 
-    for (auto const &[city_string, node_info] : generation.gen_map.network)
+    for (auto const &[city_string, node_info] : generation.network)
     {
         Dx::Point const src = scale_map_point(
-            node_info.coordinates, generation.gen_map.x_data_bounds,
-            x_draw_bounds, generation.gen_map.y_data_bounds, y_draw_bounds);
-        for (std::string const *edge : node_info.edges)
+            node_info.coordinates, generation.x_data_bounds, x_draw_bounds,
+            generation.y_data_bounds, y_draw_bounds);
+        for (Dx::Map_node const *const edge : node_info.edges)
         {
-            Dx::Map_node const dst_info = generation.gen_map.network.at(*edge);
             Dx::Point const dst = scale_map_point(
-                dst_info.coordinates, generation.gen_map.x_data_bounds,
-                x_draw_bounds, generation.gen_map.y_data_bounds, y_draw_bounds);
+                edge->coordinates, generation.x_data_bounds, x_draw_bounds,
+                generation.y_data_bounds, y_draw_bounds);
             DrawLineV(
                 Vector2{
                     .x = src.x,
@@ -621,8 +581,8 @@ Generation::draw_minimap(int const window_width, int const window_height)
         Dx::Map_node const &file_coordinates
             = city_location_map_iterator->second;
         Dx::Point const scaled_coordinates = scale_map_point(
-            file_coordinates.coordinates, generation.gen_map.x_data_bounds,
-            x_draw_bounds, generation.gen_map.y_data_bounds, y_draw_bounds);
+            file_coordinates.coordinates, generation.x_data_bounds,
+            x_draw_bounds, generation.y_data_bounds, y_draw_bounds);
         // We want the lines that connect the button nodes to run through the
         // center of the button. Buttons are drawn as squares with the top
         // left corner at the x and y point so move that corner so that the
@@ -635,7 +595,8 @@ Generation::draw_minimap(int const window_width, int const window_height)
                 .x = scaled_coordinates.x - (minimap_button_size / 2),
                 .y = scaled_coordinates.y - (minimap_button_size / 2),
             },
-            city_location_map_iterator->first.c_str(), &active_toggle_state);
+            city_location_map_iterator->second.code.data(),
+            &active_toggle_state);
         if (active_toggle_state != prev_state)
         {
             requesting_solution = false;
@@ -669,7 +630,7 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
 {
     Vector2 const button_size
         = get_menu_button_size(minimap_canvas.width, minimap_canvas.height);
-    dst_map_select.dimensions = Rectangle{
+    region_map_select.dimensions = Rectangle{
         .width = button_size.x,
         .height = button_size.y,
         .x = minimap_canvas.x,
@@ -678,20 +639,21 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
     dlx_solver_select.dimensions = Rectangle{
         .width = button_size.x,
         .height = button_size.y,
-        .x = minimap_canvas.x + dst_map_select.dimensions.width,
+        .x = minimap_canvas.x + region_map_select.dimensions.width,
         .y = minimap_canvas.y + minimap_canvas.height,
     };
-    int const prev_map_selection = dst_map_select.active;
-    if (GuiDropdownBox(dst_map_select.dimensions, dst_map_options.c_str(),
-                       &dst_map_select.active, dst_map_select.editmode))
+    int const prev_map_selection = region_map_select.active;
+    if (GuiDropdownBox(region_map_select.dimensions,
+                       generation_region_dropdown_options.data(),
+                       &region_map_select.active, region_map_select.editmode))
     {
-        if (dst_map_select.active != prev_map_selection)
+        if (region_map_select.active != prev_map_selection)
         {
             requesting_solution = false;
             rendering_too_many_solutions = false;
         }
-        dst_map_select.editmode = !dst_map_select.editmode;
-        if (!dst_map_select.editmode)
+        region_map_select.editmode = !region_map_select.editmode;
+        if (!region_map_select.editmode)
         {
             reload_generation();
         }
@@ -711,7 +673,7 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
             Rectangle{
                 .width = button_size.x,
                 .height = button_size.y,
-                .x = minimap_canvas.x + dst_map_select.dimensions.width
+                .x = minimap_canvas.x + region_map_select.dimensions.width
                      + dlx_solver_select.dimensions.width,
                 .y = minimap_canvas.y + minimap_canvas.height,
             },
@@ -727,11 +689,13 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
         {
             std::set<Dx::Type_encoding> const subset_attack
                 = Dx::load_selected_gyms_attacks(
-                    dst_map_list[dst_map_select.active], selected_gyms);
+                    generation_region_list.at(region_map_select.active),
+                    selected_gyms);
             Dx::hide_items_except(defense_dlx, subset_attack);
             std::set<Dx::Type_encoding> const subset_defense
                 = Dx::load_selected_gyms_defenses(
-                    dst_map_list[dst_map_select.active], selected_gyms);
+                    generation_region_list.at(region_map_select.active),
+                    selected_gyms);
             Dx::hide_items_except(attack_dlx, subset_defense);
         }
         Dx::Pokemon_links const *solver{};

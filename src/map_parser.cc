@@ -9,6 +9,7 @@
 /// I adjusted the structure to support C++ modules.
 module;
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
@@ -27,41 +28,6 @@ export module dancing_links:map_parser;
 //////////////////////////////////////   Exported Interface
 
 export namespace Dancing_links {
-
-struct Point
-{
-    float x;
-    float y;
-};
-
-struct Min_max
-{
-    float min;
-    float max;
-};
-
-// This type is critical to how the network is stored and traversed. Every
-// entry in our network map will have a std::string key and this node as
-// the value. Only one std::string name for every city will ever be allocated
-// and it will be stored as the key for that city in the map. Then the edges
-// are simply pointers back to the keys in the map that already exist as our
-// string names.
-//
-// This way we do not waste tons of repetitive tiny string allocations on the
-// heap for the same city name in well connected networks. Instead we have a
-// set of trivially copyable pointers. These pointers will be searched and
-// stored in the set by their pointer address but this is OK because every
-// key in the map will be unique. Obviously, it's a map!
-struct Map_node
-{
-    // Where the user has specified the location of this city should be in
-    // their dst file. This is true to what they wrote in the file. We can
-    // adjust this to display as needed later in the GUI.
-    Point coordinates;
-    // The set of pointers to other string keys in the map that serve as our
-    // city edge connections. Simple pointers, no wasted strings.
-    std::set<std::string const *> edges;
-};
 
 /// Type representing a test case for the Disaster Preparation problem.
 struct Map_test
