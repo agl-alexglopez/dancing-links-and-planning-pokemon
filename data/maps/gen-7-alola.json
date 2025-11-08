@@ -1,0 +1,241 @@
+{
+    "7": {
+        "Alola": {
+            "Hau'oli City": {
+                "code": "HAU",
+                "point": [
+                    6, 
+                    3
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Normal",
+                    "Fire",
+                    "Water",
+                    "Dark",
+                    "Grass",
+                    "Psychic"
+                ],
+                "defense": [
+                    "Normal"
+                ]
+            },
+            "Konikoni City": {
+                "code": "KON",
+                "point": [
+                    8, 
+                    3
+                ],
+                "edges": [
+                    "Paniola Town",
+                    "Lush Jungle"
+                ],
+                "attack": [
+                    "Water",
+                    "Electric",
+                    "Ice",
+                    "Ground",
+                    "Normal",
+                    "Bug",
+                    "Dark"
+                ],
+                "defense": [
+                    "Electric-Water",
+                    "Ice-Water",
+                    "Bug-Water"
+                ]
+            },
+            "Paniola Town": {
+                "code": "PAN",
+                "point": [
+                    8, 
+                    4
+                ],
+                "edges": [
+                    "Lush Jungle"
+                ],
+                "attack": [
+                    "Dark",
+                    "Fire",
+                    "Normal",
+                    "Flying",
+                    "Ghost",
+                    "Ground"
+                ],
+                "defense": [
+                    "Fire",
+                    "Fire-Flying",
+                    "Fire-Ghost"
+                ]
+            },
+            "Lush Jungle": {
+                "code": "LUS",
+                "point": [
+                    9, 
+                    3
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Grass",
+                    "Ghost",
+                    "Fairy",
+                    "Psychic",
+                    "Fighting",
+                    "Bug"
+                ],
+                "defense": [
+                    "Ghost-Grass",
+                    "Fairy-Grass",
+                    "Grass"
+                ]
+            },
+            "Sophocles": {
+                "code": "SOP",
+                "point": [
+                    11, 
+                    7
+                ],
+                "edges": [
+                    "Acerola",
+                    "Pokemon League"
+                ],
+                "attack": [
+                    "Electric",
+                    "Grass",
+                    "Bug",
+                    "Steel",
+                    "Normal",
+                    "Fire",
+                    "Flying",
+                    "Rock"
+                ],
+                "defense": [
+                    "Electric-Steel",
+                    "Electric",
+                    "Bug-Electric",
+                    "Electric-Rock"
+                ]
+            },
+            "Acerola": {
+                "code": "ACE",
+                "point": [
+                    11, 
+                    8
+                ],
+                "edges": [
+                    "Pokemon League"
+                ],
+                "attack": [
+                    "Ghost",
+                    "Dark",
+                    "Bug",
+                    "Electric",
+                    "Fire",
+                    "Psychic",
+                    "Normal",
+                    "Steel",
+                    "Ground",
+                    "Ice",
+                    "Poison",
+                    "Grass"
+                ],
+                "defense": [
+                    "Ghost",
+                    "Flying-Ghost",
+                    "Ghost-Grass",
+                    "Ghost-Ice",
+                    "Ghost-Ground"
+                ]
+            },
+            "Poni Island": {
+                "code": "PON",
+                "point": [
+                    4, 
+                    8
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Bug",
+                    "Fairy",
+                    "Steel",
+                    "Dark",
+                    "Ground",
+                    "Rock",
+                    "Grass",
+                    "Psychic",
+                    "Normal",
+                    "Fire",
+                    "Ice"
+                ],
+                "defense": [
+                    "Fairy",
+                    "Fairy-Steel",
+                    "Fairy-Grass",
+                    "Fairy-Normal",
+                    "Bug-Fairy"
+                ]
+            },
+            "Pokemon League": {
+                "code": "PKL",
+                "point": [
+                    10, 
+                    8
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Ground",
+                    "Electric",
+                    "Steel",
+                    "Dark",
+                    "Bug",
+                    "Normal",
+                    "Psychic",
+                    "Ground",
+                    "Rock",
+                    "Grass",
+                    "Ghost",
+                    "Ice",
+                    "Flying",
+                    "Poison",
+                    "Fighting",
+                    "Fairy",
+                    "Dragon",
+                    "Water"
+                ],
+                "defense": [
+                    "Fairy-Steel",
+                    "Dark-Steel",
+                    "Electric-Steel",
+                    "Psychic-Steel",
+                    "Ground-Steel",
+                    "Bug-Rock",
+                    "Grass-Rock",
+                    "Rock",
+                    "Rock-Steel",
+                    "Ghost",
+                    "Flying-Ghost",
+                    "Ghost-Grass",
+                    "Ghost-Ice",
+                    "Ghost-Ground",
+                    "Flying-Normal",
+                    "Fighting-Flying",
+                    "Fire-Flying",
+                    "Dark-Flying",
+                    "Electric-Psychic",
+                    "Normal",
+                    "Dragon-Flying",
+                    "Fighting-Ice",
+                    "Fairy-Water",
+                    "Fire",
+                    "Water",
+                    "Grass",
+                    "Dark-Fire"
+                ]
+            }
+        }
+    }
+}

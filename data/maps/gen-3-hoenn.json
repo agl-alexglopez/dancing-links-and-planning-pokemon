@@ -1,0 +1,226 @@
+{
+    "3": {
+        "Hoenn": {
+            "Rustboro City": {
+                "code": "RST",
+                "point": [
+                    1,
+                    3
+                ],
+                "edges": [
+                    "Mauville City",
+                    "Lavaridge Town"
+                ],
+                "attack": [
+                    "Normal",
+                    "Rock"
+                ],
+                "defense": [
+                    "Ground-Rock",
+                    "Rock"
+                ]
+            },
+            "Dewford Town": {
+                "code": "DWF",
+                "point": [
+                    2,
+                    5
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Fighting",
+                    "Psychic"
+                ],
+                "defense": [
+                    "Fighting",
+                    "Fighting-Psychic"
+                ]
+            },
+            "Mauville City": {
+                "code": "MAV",
+                "point": [
+                    4,
+                    3
+                ],
+                "edges": [
+                    "Rustboro City",
+                    "Lavaridge Town",
+                    "Fortree City"
+                ],
+                "attack": [
+                    "Rock",
+                    "Electric",
+                    "Normal"
+                ],
+                "defense": [
+                    "Electric",
+                    "Electric-Steel"
+                ]
+            },
+            "Lavaridge Town": {
+                "code": "LVA",
+                "point": [
+                    3,
+                    2
+                ],
+                "edges": [
+                    "Rustboro City",
+                    "Mauville City"
+                ],
+                "attack": [
+                    "Fire",
+                    "Normal",
+                    "Ground",
+                    "Poison",
+                    "Psychic"
+                ],
+                "defense": [
+                    "Fire-Ground",
+                    "Fire"
+                ]
+            },
+            "Petalburg City": {
+                "code": "PTL",
+                "point": [
+                    2,
+                    4
+                ],
+                "edges": [
+                    "Mauville City"
+                ],
+                "attack": [
+                    "Normal",
+                    "Dark",
+                    "Psychic",
+                    "Fighting"
+                ],
+                "defense": [
+                    "Normal"
+                ]
+            },
+            "Fortree City": {
+                "code": "FTR",
+                "point": [
+                    5,
+                    1
+                ],
+                "edges": [
+                    "Mauville City"
+                ],
+                "attack": [
+                    "Normal",
+                    "Flying",
+                    "Grass",
+                    "Water",
+                    "Steel",
+                    "Ground",
+                    "Dragon"
+                ],
+                "defense": [
+                    "Flying-Normal",
+                    "Flying-Grass",
+                    "Flying-Water",
+                    "Flying-Steel",
+                    "Dragon-Flying"
+                ]
+            },
+            "Mossdeep City": {
+                "code": "MSP",
+                "point": [
+                    9,
+                    3
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Ground",
+                    "Rock",
+                    "Psychic",
+                    "Fire",
+                    "Ghost",
+                    "Grass"
+                ],
+                "defense": [
+                    "Ground-Psychic",
+                    "Flying-Psychic",
+                    "Psychic-Rock"
+                ]
+            },
+            "Sootopolis City": {
+                "code": "STP",
+                "point": [
+                    8,
+                    4
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Water",
+                    "Normal",
+                    "Psychic",
+                    "Ice",
+                    "Ground",
+                    "Dark"
+                ],
+                "defense": [
+                    "Water",
+                    "Ground-Water",
+                    "Ice-Water",
+                    "Dark-Water",
+                    "Dragon-Water"
+                ]
+            },
+            "Ever Grande City": {
+                "code": "EVG",
+                "point": [
+                    10,
+                    5
+                ],
+                "edges": [
+                ],
+                "attack": [
+                    "Dark",
+                    "Normal",
+                    "Psychic",
+                    "Grass",
+                    "Water",
+                    "Flying",
+                    "Rock",
+                    "Ghost",
+                    "Fire",
+                    "Ice",
+                    "Ground",
+                    "Electric",
+                    "Dragon",
+                    "Poison",
+                    "Steel"
+                ],
+                "defense": [
+                    "Dark",
+                    "Dark-Grass",
+                    "Dark-Water",
+                    "Ghost",
+                    "Dark-Ghost",
+                    "Ice-Water",
+                    "Ice",
+                    "Dragon",
+                    "Dragon-Flying",
+                    "Dragon-Water",
+                    "Dragon-Ground",
+                    "Poison-Water",
+                    "Flying-Water",
+                    "Grass-Water",
+                    "Ground-Water",
+                    "Water",
+                    "Flying-Steel",
+                    "Ground-Psychic",
+                    "Grass-Rock",
+                    "Bug-Rock",
+                    "Rock-Steel",
+                    "Psychic-Steel"
+                ]
+            }
+        }
+    }
+}

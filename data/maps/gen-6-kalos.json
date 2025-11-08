@@ -1,0 +1,237 @@
+{
+    "6": {
+        "Kalos": {
+            "Santalune City": {
+                "code": "SNT",
+                "point": [
+                    11,
+                    6
+                ],
+                "edges": [
+                    "Lumiose City",
+                    "Pokemon League"
+                ],
+                "attack": [
+                    "Normal",
+                    "Water",
+                    "Bug"
+                ],
+                "defense": [
+                    "Bug-Water",
+                    "Bug-Flying"
+                ]
+            },
+            "Cyllage City": {
+                "code": "CYL",
+                "point": [
+                    4,
+                    7
+                ],
+                "edges": [
+                    "Shalour City",
+                    "Lumiose City"
+                ],
+                "attack": [
+                    "Dark",
+                    "Rock",
+                    "Normal",
+                    "Electric",
+                    "Ice"
+                ],
+                "defense": [
+                    "Dragon-Rock",
+                    "Ice-Rock"
+                ]
+            },
+            "Shalour City": {
+                "code": "SHL",
+                "point": [
+                    3,
+                    4
+                ],
+                "edges": [
+                    "Courmaline City",
+                    "Cyllage City"
+                ],
+                "attack": [
+                    "Normal",
+                    "Fighting",
+                    "Rock"
+                ],
+                "defense": [
+                    "Fighting",
+                    "Fighting-Flying"
+                ]
+            },
+            "Courmaline City": {
+                "code": "COR",
+                "point": [
+                    6,
+                    3
+                ],
+                "edges": [
+                    "Shalour City",
+                    "Lumiose City"
+                ],
+                "attack": [
+                    "Grass",
+                    "Flying",
+                    "Ground",
+                    "Normal",
+                    "Poison"
+                ],
+                "defense": [
+                    "Flying-Grass",
+                    "Grass",
+                    "Grass-Poison"
+                ]
+            },
+            "Lumiose City": {
+                "code": "LUM",
+                "point": [
+                    10,
+                    4
+                ],
+                "edges": [
+                    "Courmaline City",
+                    "Santalune City",
+                    "Laverre City",
+                    "Anistar City"
+                ],
+                "attack": [
+                    "Electric",
+                    "Normal",
+                    "Flying",
+                    "Steel",
+                    "Grass"
+                ],
+                "defense": [
+                    "Electric-Flying",
+                    "Electric-Steel",
+                    "Electric-Normal"
+                ]
+            },
+            "Laverre City": {
+                "code": "LVR",
+                "point": [
+                    10, 
+                    2
+                ],
+                "edges": [
+                    "Lumiose City",
+                    "Anistar City"
+                ],
+                "attack": [
+                    "Dark",
+                    "Steel",
+                    "Psychic",
+                    "Normal",
+                    "Fairy"
+                ],
+                "defense": [
+                    "Fairy-Steel",
+                    "Fairy-Psychic",
+                    "Fairy"
+                ]
+            },
+            "Anistar City": {
+                "code": "ANS",
+                "point": [
+                    15, 
+                    4
+                ],
+                "edges": [
+                    "Laverre City",
+                    "Lumiose City",
+                    "Snowbelle City"
+                ],
+                "attack": [
+                    "Psychic",
+                    "Flying",
+                    "Rock",
+                    "Normal",
+                    "Ghost"
+                ],
+                "defense": [
+                    "Flying-Psychic",
+                    "Psychic-Water",
+                    "Psychic"
+                ]
+            },
+            "Snowbelle City": {
+                "code": "SNO",
+                "point": [
+                    15, 
+                    6
+                ],
+                "edges": [
+                    "Pokemon League",
+                    "Santalune City",
+                    "Anistar City"
+                ],
+                "attack": [
+                    "Ice",
+                    "Grass",
+                    "Ghost",
+                    "Steel",
+                    "Dark"
+                ],
+                "defense": [
+                    "Grass-Ice",
+                    "Ice"
+                ]
+            },
+            "Pokemon League": {
+                "code": "PKL",
+                "point": [
+                    13, 
+                    5
+                ],
+                "edges": [
+                    "Santalune City",
+                    "Snowbelle City"
+                ],
+                "attack": [
+                    "Normal",
+                    "Fire",
+                    "Electric",
+                    "Rock",
+                    "Ground",
+                    "Ghost",
+                    "Flying",
+                    "Fairy",
+                    "Dark",
+                    "Bug",
+                    "Fighting",
+                    "Steel",
+                    "Poison",
+                    "Water",
+                    "Dragon",
+                    "Grass"
+                ],
+                "defense": [
+                    "Fire-Normal",
+                    "Fire",
+                    "Fire-Ghost",
+                    "Fire-Flying",
+                    "Fairy-Steel",
+                    "Rock-Steel",
+                    "Bug-Steel",
+                    "Ghost-Steel",
+                    "Dragon-Poison",
+                    "Dragon-Flying",
+                    "Dragon",
+                    "Water",
+                    "Psychic-Water",
+                    "Flying-Water",
+                    "Rock-Water",
+                    "Fighting-Flying",
+                    "Dragon-Rock",
+                    "Ice-Rock",
+                    "Ghost-Grass",
+                    "Fairy-Psychic"
+                ]
+            }
+        }
+    }
+}

@@ -1,9 +1,9 @@
 include(FetchContent)
 
 FetchContent_Declare(
-  json
-  GIT_REPOSITORY https://github.com/nlohmann/json
-  GIT_TAG v3.12.0
+    json 
+    URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz
+    DOWNLOAD_EXTRACT_TIMESTAMP FALSE
 )
 FetchContent_MakeAvailable(json)
 
@@ -18,7 +18,6 @@ target_sources(dancing_links
       ${PROJECT_SOURCE_DIR}/src/pokemon_links.cc
       ${PROJECT_SOURCE_DIR}/src/ranked_set.cc
       ${PROJECT_SOURCE_DIR}/src/type_encoding.cc
-      ${PROJECT_SOURCE_DIR}/src/map_parser.cc
       ${PROJECT_SOURCE_DIR}/src/pokemon_parser.cc
       ${PROJECT_SOURCE_DIR}/src/resistance.cc
 )
