@@ -40,3 +40,10 @@ target_compile_options(raygui INTERFACE "-w")
 add_executable(pokemon_gui pokemon_gui.cc)
 target_link_libraries(pokemon_gui PRIVATE raylib raygui dancing_links)
 
+# Checks if OSX and links appropriate frameworks (Only required on MacOS)
+if (APPLE)
+    target_link_libraries(pokemon_gui "-framework IOKit")
+    target_link_libraries(pokemon_gui "-framework Cocoa")
+    target_link_libraries(pokemon_gui "-framework OpenGL")
+endif()
+
