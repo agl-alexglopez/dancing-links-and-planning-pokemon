@@ -63,7 +63,7 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
-#if defined(PLATFORM_WEB)
+#ifdef PLATFORM_WEB
 #    include <emscripten/emscripten.h>
 #endif
 
@@ -108,15 +108,15 @@ class Generation {
   public:
     Generation();
     [[nodiscard]] bool is_solution_requested() const;
-    [[nodiscard]] static Rectangle get_ui_canvas(int window_width,
-                                                 int window_height);
+    [[nodiscard]] static Rectangle get_ui_canvas(float window_width,
+                                                 float window_height);
     [[nodiscard]] std::optional<
         std::tuple<Dx::Pokemon_links const &,
                    std::vector<Ranked_set<Dx::Type_encoding>> const &, size_t>>
     get_current_solution() const;
     void set_current_solution(size_t cur);
 
-    void draw_minimap(int window_width, int window_height);
+    void draw_minimap(float window_width, float window_height);
 
   private:
     //////////////////////   Helper Types    //////////////////////////////////
@@ -368,7 +368,7 @@ void draw_wrapping_message(Rectangle const &canvas, std::string_view message,
                            Color const &tint);
 std::string_view get_token_with_trailing_delims(std::string_view view,
                                                 std::string_view delim_set);
-void update_draw_frame(void *);
+void update_draw_frame(void *generation);
 
 } // namespace
 
@@ -400,7 +400,7 @@ run()
         // all the necessary constants and tables in one class rather than
         // global state.
         Generation gen;
-#if defined(PLATFORM_WEB)
+#ifdef PLATFORM_WEB
         emscripten_set_main_loop_arg(update_draw_frame,
                                      static_cast<void *>(&gen), 60, 1);
 #else
@@ -423,10 +423,10 @@ run()
 void
 update_draw_frame(void *generation)
 {
-    auto gen = static_cast<Generation *>(generation);
+    auto *gen = static_cast<Generation *>(generation);
     BeginDrawing();
-    float const screen_width = GetScreenWidth();
-    float const screen_height = GetScreenHeight();
+    auto const screen_width = static_cast<float>(GetScreenWidth());
+    auto const screen_height = static_cast<float>(GetScreenHeight());
     ClearBackground(WHITE);
     Rectangle const ui_canvas
         = Generation::get_ui_canvas(screen_width, screen_height);
@@ -543,12 +543,11 @@ Generation::reload_generation()
 /// The window has been allowed to be resizable so this draw call should occur
 /// on every loop in case the window size is updated.
 void
-Generation::draw_minimap(int const window_width, int const window_height)
+Generation::draw_minimap(float const window_width, float const window_height)
 {
 
-    auto const minimap_width = static_cast<float>(window_width);
-    float const minimap_height
-        = static_cast<float>(window_height) * scale_minimap_y_factor;
+    auto const minimap_width = window_width;
+    float const minimap_height = window_height * scale_minimap_y_factor;
     // Layout the map and the drop down menu below it.
     DrawRectangleV(
         Vector2{
@@ -929,11 +928,11 @@ Generation::set_current_solution(size_t const cur)
 /// It is safe to draw anywhere outside of this canvas without interfering with
 /// the use of the UI.
 Rectangle
-Generation::get_ui_canvas(int const window_width, int const window_height)
+Generation::get_ui_canvas(float const window_width, float const window_height)
 {
     Rectangle res{
-        .width = static_cast<float>(window_width),
-        .height = (static_cast<float>(window_height) * scale_minimap_y_factor),
+        .width = window_width,
+        .height = window_height * scale_minimap_y_factor,
         .x = minimap_origin_x,
         .y = minimap_origin_y,
     };
@@ -1230,7 +1229,6 @@ Graph_draw::draw_graph_cover(
                 = Dx::item_resistance_from(dlx_solver, iter);
             Vector2 const covered_type_center
                 = get_circle_center(radius_row, theta_col);
-            auto const covered_type_idx = covered_type.type().decode_indices();
             draw_type_popup(canvas, t, inner_ring_node, center_node_radius,
                             covered_type, packing_radius, covered_type_center);
             auto const [next_row, next_col] = next_row_col(
@@ -1623,7 +1621,7 @@ draw_wrapping_message(Rectangle const &canvas, std::string_view message,
 
             if (line_width + word_width > canvas.width)
             {
-                total_height += base_size * 1.4F;
+                total_height += base_size * 1.5F;
                 line_width = 0.0F;
             }
             line_width += word_width;
