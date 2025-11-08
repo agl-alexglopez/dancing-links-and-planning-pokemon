@@ -4,12 +4,17 @@
 
 ## Navigation
 
+- [Pokemon Planning Web App](#pokémon-planning-web-app)
 - [Pokemon Planning GUI](#pokémon-planning-gui-usage-instructions)
 - [Pokemon Planning CLI](#pokémon-planning-cli-usage-instructions)
 - [Citations](#citations)
 
 > [!NOTE]
 > This project makes use of new C++ module features and therefore must be built with CMake >= 3.28.1, Clang >= 17.0.6, and Ninja >= 1.11.1. The C++ standard used is C++ 20 to enable use of modules and many other convenient features that cut down on lines of code significantly.
+
+## Pokémon Planning Web App
+
+If you don't want to build the code, try the web app!
 
 ## Pokémon Planning GUI Usage Instructions
 
