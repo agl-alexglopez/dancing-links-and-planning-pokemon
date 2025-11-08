@@ -250,8 +250,8 @@ class Generation {
                                      Dx::Min_max const &x_draw_bounds,
                                      Dx::Min_max const &y_data_bounds,
                                      Dx::Min_max const &y_draw_bounds);
-    static Vector2 get_menu_button_size(float minimap_width,
-                                        float minimap_height);
+    static Vector2 get_dropdown_button_size(float minimap_width,
+                                            float minimap_height);
     static void
     move_best_solutions(std::vector<Ranked_set<Dx::Type_encoding>> &fill,
                         std::set<Ranked_set<Dx::Type_encoding>> &&move_from);
@@ -690,7 +690,7 @@ void
 Generation::draw_ui_controls(Rectangle const &minimap_canvas)
 {
     Vector2 const button_size
-        = get_menu_button_size(minimap_canvas.width, minimap_canvas.height);
+        = get_dropdown_button_size(minimap_canvas.width, minimap_canvas.height);
     region_map_select.dimensions = Rectangle{
         .width = button_size.x,
         .height = button_size.y,
@@ -917,13 +917,13 @@ Generation::get_ui_canvas(int const window_width, int const window_height)
         .x = minimap_origin_x,
         .y = minimap_origin_y,
     };
-    res.height += get_menu_button_size(res.width, res.height).y;
+    res.height += get_dropdown_button_size(res.width, res.height).y;
     return res;
 }
 
 /// Given how large the mini map is returns the intended button size.
 Vector2
-Generation::get_menu_button_size(float minimap_width, float minimap_height)
+Generation::get_dropdown_button_size(float minimap_width, float minimap_height)
 {
     return {
         .x = minimap_width / 3.0F,
@@ -1424,25 +1424,45 @@ Graph_draw::draw_solution_navigation(Rectangle const &graph_canvas,
     assert(num_solutions);
     float const button_size
         = std::min(graph_canvas.width, graph_canvas.height) * 0.05F;
-    Rectangle const prev_button{
+    Rectangle const begin_button{
         .width = button_size,
         .height = button_size,
         .x = graph_canvas.x,
         .y = graph_canvas.y,
     };
-    Rectangle const next_button{
+    Rectangle const prev_button{
         .width = button_size,
         .height = button_size,
         .x = graph_canvas.x + button_size,
         .y = graph_canvas.y,
     };
+    Rectangle const next_button{
+        .width = button_size,
+        .height = button_size,
+        .x = graph_canvas.x + (button_size * 2),
+        .y = graph_canvas.y,
+    };
+    Rectangle const end_button{
+        .width = button_size,
+        .height = button_size,
+        .x = graph_canvas.x + (button_size * 3),
+        .y = graph_canvas.y,
+    };
+    if (GuiButton(begin_button, GuiIconText(ICON_PLAYER_PREVIOUS, "")))
+    {
+        cur_solution = 0;
+    }
     if (GuiButton(prev_button, GuiIconText(ICON_PLAYER_PLAY_BACK, "")))
     {
         cur_solution = cur_solution ? cur_solution - 1 : num_solutions - 1;
     }
-    else if (GuiButton(next_button, GuiIconText(ICON_PLAYER_PLAY, "")))
+    if (GuiButton(next_button, GuiIconText(ICON_PLAYER_PLAY, "")))
     {
         ++cur_solution %= num_solutions;
+    }
+    if (GuiButton(end_button, GuiIconText(ICON_PLAYER_NEXT, "")))
+    {
+        cur_solution = num_solutions ? num_solutions - 1 : 0;
     }
     // Maximum digits possible for 64 bit integer + null term.
     std::array<char, 20 + 1> cur_solution_string{};
