@@ -11,20 +11,20 @@
 /// Request an exact defensive cover of the entire Pokemon generation on a
 /// certain map. This is the default.
 ///
-/// ./build/bin/pokemon_cli data/dist/Gen-9-Paldea.dst
+/// ./build/bin/pokemon_cli Paldea
 ///
 /// The above command answers the question: given at most 6 Pokemon what is the
 /// minimum number I can use to have better than normal defense from every type
 /// in the game? Request the Attack coverage instead in this form.
 ///
-/// ./build/bin/pokemon_cli data/dist/Gen-9-Paldea.dst A
+/// ./build/bin/pokemon_cli Paldea A
 ///
 /// This answers the following question: given 24 attack slots across a team of
 /// 6 pokemon which attack types can I choose to be super effective against
 /// every type in the game? Ask for any subset of gyms for a given generation as
 /// follows.
 ///
-/// ./build/bin/pokemon_cli data/dist/Gen-9-Paldea.dst G1 G2 G4
+/// ./build/bin/pokemon_cli Paldea Cortondo Artazon
 ///
 /// The above format asks the following question: given a subset of gyms how do
 /// I defensively cover myself from the attack types present in those gyms? You
@@ -36,7 +36,7 @@
 /// a blanket approach that simply seeks to cover all the items even if multiple
 /// options cover the same items add the "O" flag as follows.
 ///
-/// ./build/bin/pokemon_cli data/dist/Gen-9-Paldea.dst G1 G2 G4 O
+/// ./build/bin/pokemon_cli Paldea Cortondo Artazon O
 ///
 /// This will generate many solutions because this is a much looser constraint
 /// to apply to cover problems. Solutions will be cut off at 200,000 and your
@@ -47,7 +47,6 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -114,18 +113,17 @@ constexpr std::array<std::string_view, 18> type_colors = {
 
 constexpr auto help_msg =
     R"(Pokemon CLI Usage:
-    h                - Read this help message.
-    plain            - Print without colors. Useful for piping or redirecting to file.
-    color            - The default color output to the terminal using ANSI escape sequences.
-    data/dst/map.dst - Path from the root of the repository to the generation map to solve.
-    G[GYM NUMBER]    - Add as many gyms to your argument to solve cover problems only for those gyms.
-    E4               - Add the "Elite Four" or equivalent stand-in final boss for a generation to the subset.
-    A                - The Attack flag to solve the attack type cover problem.
-    D                - The Defense flag to solve the defensive type cover problem. This is the default.
-    E                - Solve an Exact cover problem. This the default.
-    O                - Solve the overlapping cover problem
+    h                  - Read this help message.
+    plain              - Print without colors. Useful for piping or redirecting to file.
+    color              - The default color output to the terminal using ANSI escape sequences.
+    [Region]           - The name of any region from generations 1-9 (e.g. Paldea).
+    [Town]             - Add town names to cover. Towns must have gyms or the elite four for now.
+    A                  - The Attack flag to solve the attack type cover problem.
+    D                  - The Defense flag to solve the defensive type cover problem. This is the default.
+    E                  - Solve an Exact cover problem. This the default.
+    O                  - Solve the overlapping cover problem
 Example Command:
-    ./build/bin/pokemon_cli G1 G2 G3 G4 data/dst/Gen-5-Unova2.dst)";
+    ./build/bin/pokemon_cli Paldea Cortondo Artazon O)";
 
 enum class Solution_type : uint8_t
 {
@@ -154,7 +152,7 @@ struct Universe_sets
 
 struct Runner
 {
-    std::string map;
+    std::string_view map;
 
     std::set<std::string_view> selected_gyms;
     Dx::Pokemon_test generation;
@@ -175,13 +173,14 @@ void print_prep_message(Universe_sets const &sets, Print_style style);
 void break_line(size_t max_set_len, Table_type t);
 void print_solution_msg(std::set<Ranked_set<Dx::Type_encoding>> const &result,
                         Runner const &runner);
+bool is_region(std::string_view str);
 void help();
 
 } // namespace
 
 /// Run this program from the root of the repository. That way your request for
 /// any generation map will be handled correctly becuase the map you are
-/// requesting will be in the /data/dst or /data/json relative to the root.
+/// requesting will be in the /data/maps relative to the root.
 int
 main(int argc, char **argv)
 {
@@ -206,7 +205,7 @@ run(std::span<char const *const> const args)
         for (auto const &arg : args)
         {
             std::string_view const arg_str{arg};
-            if (arg_str.find('/') != std::string::npos)
+            if (is_region(arg_str))
             {
                 if (!runner.generation.interactions.empty())
                 {
@@ -215,13 +214,7 @@ run(std::span<char const *const> const args)
                     return 1;
                 }
                 runner.generation = Dx::load_pokemon_generation(arg_str);
-                auto const owned = std::string(arg_str);
-                std::ifstream f(owned);
-                runner.map = owned.substr(owned.find_last_of('/') + 1);
-            }
-            else if (arg_str.starts_with('G') || arg_str == "E4")
-            {
-                runner.selected_gyms.emplace(arg_str);
+                runner.map = arg_str;
             }
             else if (arg_str == "A")
             {
@@ -246,6 +239,10 @@ run(std::span<char const *const> const args)
             else if (arg_str == "plain")
             {
                 runner.style = Print_style::plain;
+            }
+            else if (!arg_str.empty() && std::isupper(arg_str[0]))
+            {
+                runner.selected_gyms.emplace(arg_str);
             }
             else if (arg_str == "h")
             {
@@ -548,6 +545,14 @@ break_line(size_t max_set_len, Table_type t)
         }
     }
     std::cout << "\n";
+}
+
+bool
+is_region(std::string_view const str)
+{
+    return str == "Kanto" || str == "Johto" || str == "Hoenn" || str == "Sinnoh"
+           || str == "Unova" || str == "Kalos" || str == "Alola"
+           || str == "Galar" || str == "Galar" || str == "Paldea";
 }
 
 void

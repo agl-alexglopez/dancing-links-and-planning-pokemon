@@ -36,7 +36,7 @@ Hovering over nodes will show their full type names. If hovering over covered no
 
 ![cli-app](/images/pokemon-cli.png)
 
-I have created a small Command Line Interface program to demonstrate the interesting problems that the Dancing Links algorithm can solve. Read the Overview and breakdown of the algorithm in the blog post, but here is a quick start guide to see output in the terminal right away.
+While the GUI app is fun, the CLI is another way to interact with the solver. Rather than only showing the solutions that tied for 1st place among all ranked solutions, this application shows **every** possible solution. Often, this means every solution is enumerated on the command line. However, solutions are cut off here as well if the program is running too long.
 
 1. Clone the repository.
 2. Build the project from the root of the repository.
@@ -51,15 +51,14 @@ Pokemon CLI Usage:
     h                  - Read this help message.
     plain              - Print without colors. Useful for piping or redirecting to file.
     color              - The default color output to the terminal using ANSI escape sequences.
-    data/maps/map.json - Path from the root of the repository to the generation map to solve.
-    G[GYM NUMBER]      - Add as many gyms to your argument to solve cover problems only for those gyms.
-    E4                 - Add the "Elite Four" or equivalent stand-in final boss for a generation to the subset.
+    [Region]           - The name of any region from generations 1-9 (e.g. Paldea).
+    [Town]             - Add town names to cover. Towns must have gyms or the elite four for now.
     A                  - The Attack flag to solve the attack type cover problem.
     D                  - The Defense flag to solve the defensive type cover problem. This is the default.
     E                  - Solve an Exact cover problem. This the default.
     O                  - Solve the overlapping cover problem
 Example Command:
-    ./build/bin/pokemon_cli G1 G2 G3 G4 data/maps/gen-5-unova.json
+    ./build/bin/pokemon_cli Paldea Cortondo Artazon O
 ```
 
 For what these types of cover problems mean, read the longer description below. A more robust and interesting graph cover visualizer is coming soon but is not complete yet. I find it interesting that only later generation maps have an exact cover for all possible types you will encounter in that generation. I am no expert on game design, but perhaps that communicates the variety and balance that Game Freak has achieved in their later games. However, looking at smaller subsets of gyms in the other maps can still be plenty of fun!
