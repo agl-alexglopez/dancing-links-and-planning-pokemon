@@ -2,32 +2,33 @@
 add_executable(pokemon_cli pokemon_cli.cc)
 target_link_libraries(pokemon_cli dancing_links)
 
-# Raylib graph visualizer demo.
-
-# Adding Raylib
+# Dependencies
+set(RAYLIB_VERSION 5.5)
 include(FetchContent)
-
-# Unfortunately raylib does not include source code in their releases and
-# only provide a compiled library file and include headers. So we must
-# grab whole repo and compile from source.
 FetchContent_Declare(
     raylib
-    GIT_REPOSITORY "https://github.com/raysan5/raylib.git"
-    GIT_TAG "master"
-    GIT_PROGRESS TRUE
+    DOWNLOAD_EXTRACT_TIMESTAMP FALSE
+    URL https://github.com/raysan5/raylib/archive/refs/tags/${RAYLIB_VERSION}.tar.gz
 )
-FetchContent_MakeAvailable(raylib)
+FetchContent_GetProperties(raylib)
+if (NOT raylib_POPULATED) # Have we downloaded raylib yet?
+    set(FETCHCONTENT_QUIET NO)
+    FetchContent_MakeAvailable(raylib)
+endif()
+set(RAYGUI_VERSION 4.0)
+FetchContent_Declare(
+    raygui
+    URL "https://github.com/raysan5/raygui/archive/refs/tags/${RAYGUI_VERSION}.zip"
+    DOWNLOAD_EXTRACT_TIMESTAMP FALSE
+)
+FetchContent_GetProperties(raygui)
+if (NOT raygui_POPULATED) # Have we downloaded raylib yet?
+    set(FETCHCONTENT_QUIET NO)
+    FetchContent_MakeAvailable(raygui)
+endif()
 # I don't want to see warnings during compilation about raylib code.
 target_compile_options(raylib PRIVATE "-w")
 
-# Raygui is nice in that it is header only so grabbing a release works fine.
-# There is no library file for specific platforms to worry about.
-FetchContent_Declare(
-    raygui
-    URL "https://github.com/raysan5/raygui/archive/refs/tags/4.0.zip"
-    DOWNLOAD_EXTRACT_TIMESTAMP FALSE
-)
-FetchContent_MakeAvailable(raygui)
 # I don't want to see warnings during compilation about raylib code.
 add_library(raygui INTERFACE)
 target_include_directories(raygui INTERFACE "${raygui_SOURCE_DIR}/src")
