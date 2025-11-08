@@ -248,13 +248,11 @@ load_map_from_json(std::string_view const region_name)
                   table.emplace_back(type_view);
               }
           };
-    std::tuple<std::basic_string_view<char>, std::basic_string_view<char>,
-               std::basic_string_view<char>> const *const generation_map
-        = std::ranges::find(generation_region_maps_json, region_name,
-                            [](std::tuple<std::string_view, std::string_view,
-                                          std::string_view> const &t) {
-                                return std::get<1>(t);
-                            });
+    // NOLINTNEXTLINE
+    auto const generation_map = std::ranges::find(
+        generation_region_maps_json, region_name,
+        [](std::tuple<std::string_view, std::string_view,
+                      std::string_view> const &t) { return std::get<1>(t); });
     if (generation_map == generation_region_maps_json.end())
     {
         std::cerr << "could not find generation region map data for "
@@ -316,13 +314,11 @@ load_map_from_json(std::string_view const region_name)
 std::map<Type_encoding, std::set<Resistance>>
 load_interaction_map(std::string_view region_name)
 {
-    std::tuple<std::basic_string_view<char>, std::basic_string_view<char>,
-               std::basic_string_view<char>> const *const interaction_map
-        = std::ranges::find(generation_type_rules_json, region_name,
-                            [](std::tuple<std::string_view, std::string_view,
-                                          std::string_view> const &t) {
-                                return std::get<1>(t);
-                            });
+    // NOLINTNEXTLINE
+    auto const interaction_map = std::ranges::find(
+        generation_type_rules_json, region_name,
+        [](std::tuple<std::string_view, std::string_view,
+                      std::string_view> const &t) { return std::get<1>(t); });
     if (interaction_map == generation_type_rules_json.end())
     {
         std::cerr << "could not find generation type interaction data for "
