@@ -155,8 +155,9 @@ struct Universe_sets
 struct Runner
 {
     std::string map;
-    std::map<Dx::Type_encoding, std::set<Dx::Resistance>> interactions;
+
     std::set<std::string_view> selected_gyms;
+    Dx::Pokemon_test generation;
     Dx::Pokemon_links::Coverage_type type{
         Dx::Pokemon_links::Coverage_type::defense};
     Solution_type sol_type{Solution_type::exact};
@@ -207,14 +208,13 @@ run(std::span<char const *const> const args)
             std::string_view const arg_str{arg};
             if (arg_str.find('/') != std::string::npos)
             {
-                if (!runner.interactions.empty())
+                if (!runner.generation.interactions.empty())
                 {
                     std::cerr << "Cannot load multiple generations "
                                  "simultaneously. Specify one.\n";
                     return 1;
                 }
-                runner.interactions
-                    = Dancing_links::load_interaction_map(arg_str);
+                runner.generation = Dx::load_pokemon_generation(arg_str);
                 auto const owned = std::string(arg_str);
                 std::ifstream f(owned);
                 runner.map = owned.substr(owned.find_last_of('/') + 1);
@@ -276,17 +276,17 @@ solve(Runner const &runner)
         std::cerr << "No data loaded from any map to solve.\n";
         return 1;
     }
-    Dx::Pokemon_links links(runner.interactions, runner.type);
+    Dx::Pokemon_links links(runner.generation.interactions, runner.type);
     if (!runner.selected_gyms.empty())
     {
         std::set<Dx::Type_encoding> subset{};
         // Load in the opposite of our coverage type so we know what we
         // attack/defend against in this subset of gyms.
         runner.type == Dx::Pokemon_links::Coverage_type::attack
-            ? subset = Dancing_links::load_selected_gyms_defenses(
-                  runner.map, runner.selected_gyms)
-            : subset = Dancing_links::load_selected_gyms_attacks(
-                  runner.map, runner.selected_gyms);
+            ? subset = Dancing_links::get_selected_gyms_defenses(
+                  runner.generation, runner.selected_gyms)
+            : subset = Dancing_links::get_selected_gyms_attacks(
+                  runner.generation, runner.selected_gyms);
         if (subset.empty())
         {
             std::cerr << "The existence of one or more requested gyms could "

@@ -688,14 +688,10 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
         if (!selected_gyms.empty())
         {
             std::set<Dx::Type_encoding> const subset_attack
-                = Dx::load_selected_gyms_attacks(
-                    generation_region_list.at(region_map_select.active),
-                    selected_gyms);
+                = Dx::get_selected_gyms_attacks(generation, selected_gyms);
             Dx::hide_items_except(defense_dlx, subset_attack);
             std::set<Dx::Type_encoding> const subset_defense
-                = Dx::load_selected_gyms_defenses(
-                    generation_region_list.at(region_map_select.active),
-                    selected_gyms);
+                = Dx::get_selected_gyms_defenses(generation, selected_gyms);
             Dx::hide_items_except(attack_dlx, subset_defense);
         }
         Dx::Pokemon_links const *solver{};

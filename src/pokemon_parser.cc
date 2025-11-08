@@ -5,16 +5,17 @@ module;
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <set>
+#include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
-#include <vector>
 export module dancing_links:pokemon_parser;
 import :resistance;
 import :type_encoding;
@@ -88,7 +89,7 @@ struct Map_node
 /// specification.
 struct Pokemon_test
 {
-    std::map<std::string, Map_node> network;
+    std::map<std::string, Map_node, std::less<>> network;
     struct Min_max x_data_bounds{};
     struct Min_max y_data_bounds{};
     /// This map will hold all types--dual types included--and a map of defense
@@ -109,37 +110,25 @@ struct Pokemon_test
 /// @return the completed pokemon test with map drawing and Pokemon info.
 Pokemon_test load_pokemon_generation(std::string_view region_name);
 
-/// @brief load_interaction_map builds the PokemonTest needed to interact with a
-/// generation's map in the Pokemon Planning GUI.
-/// @param source the file with the map that gives us info on which gen to
-/// build.
-/// @return the completed pokemon test with map drawing and Pokemon info.
-std::map<Type_encoding, std::set<Resistance>>
-load_interaction_map(std::string_view region_name);
-
-/// @brief load_selected_gyms_defenses when interacting with the GUI, the user
-/// can choose subsets of gyms on the current map they are viewing. If they make
-/// these selections we can load in the defensive types that are present at
-/// those gyms. These are intended to be fed to a PokemonLinks solver as the
-/// items we must defend against.
-/// @param selectedMap the current .dst file we are viewing.
-/// @param selectedGyms the gyms G1-E4 that we are considering attacking.
-/// @return the set of all defensive types present in the selection of gyms.
+/// @brief loads all the attack types at the selected gyms into one set.
+/// @param generation the fully loaded generation.
+/// @param selected_gyms the set of gyms attack types are loaded from.
+/// @return the set of only those attack types present at the selected gyms.
+/// @warning the names in the selected gyms set must match how they appeared
+/// when the generation was loaded from a json file.
 std::set<Type_encoding>
-load_selected_gyms_defenses(std::string_view selected_map,
-                            std::set<std::string_view> const &selected_gyms);
+get_selected_gyms_attacks(Pokemon_test const &generation,
+                          std::set<std::string_view> const &selected_gyms);
 
-/// @brief load_selected_gyms_attacks the user interacting with the GUI may want
-/// to defend themselves from only a selection of gyms. We will get the gym info
-/// for the selected map and return the types of attacks present across all of
-/// those selections. This set can then be passed to the PokemonLinks dancing
-/// links class as a second parameter.
-/// @param selected_map the current map the user interacts with.
-/// @param selected the gyms they have selected.
-/// @return a set of all attack types present across those gyms.
+/// @brief loads all the defense types at the selected gyms into one set.
+/// @param generation the fully loaded generation.
+/// @param selected_gyms the set of gyms defense types are loaded from.
+/// @return the set of only those defense types present at the selected gyms.
+/// @warning the names in the selected gyms set must match how they appeared
+/// when the generation was loaded from a json file.
 std::set<Type_encoding>
-load_selected_gyms_attacks(std::string_view selected_map,
-                           std::set<std::string_view> const &selected);
+get_selected_gyms_defenses(Pokemon_test const &generation,
+                           std::set<std::string_view> const &selected_gyms);
 
 } // namespace Dancing_links
 
@@ -149,13 +138,15 @@ namespace Dancing_links {
 
 namespace {
 
+enum class Gym_type : uint8_t
+{
+    attack,
+    defense,
+};
+
 namespace nlo = nlohmann;
 
 constexpr float file_coordinate_pad = 1.0;
-
-constexpr std::string_view json_all_maps_file = "data/json/all-maps.json";
-constexpr std::string_view gym_attacks_key = "attack";
-constexpr std::string_view gym_defense_key = "defense";
 
 // There is no 0th generation so we will make it easier to select the right file
 // by leaving 0 "".
@@ -264,7 +255,7 @@ fill_type_table(
     }
 }
 
-std::map<std::string, Map_node>
+std::map<std::string, Map_node, std::less<>>
 load_map_from_json(std::string_view const region_name)
 {
     auto const *const generation_map = std::ranges::find(
@@ -277,7 +268,7 @@ load_map_from_json(std::string_view const region_name)
                   << region_name << '\n';
         std::abort();
     }
-    std::map<std::string, Map_node> network{};
+    std::map<std::string, Map_node, std::less<>> network{};
     nlo::json generation = get_json_object(std::get<2>(*generation_map));
     auto const &region = generation[std::get<0>(*generation_map).data()]
                                    [std::get<1>(*generation_map).data()];
@@ -329,6 +320,58 @@ load_map_from_json(std::string_view const region_name)
     return network;
 }
 
+std::map<Type_encoding, std::set<Resistance>>
+load_interaction_map(std::string_view region_name)
+{
+    auto const *const interaction_map = std::ranges::find(
+        generation_type_rules_json, region_name,
+        [](std::tuple<std::string_view, std::string_view,
+                      std::string_view> const &t) { return std::get<1>(t); });
+    if (interaction_map == generation_type_rules_json.end())
+    {
+        std::cerr << "could not find generation type interaction data for "
+                  << region_name << '\n';
+        std::abort();
+    }
+    nlo::json const json_types = get_json_object(std::get<2>(*interaction_map));
+    std::map<Type_encoding, std::set<Resistance>> result = {};
+    for (auto const &[type, resistances] : json_types.items())
+    {
+        Type_encoding const encoded(type);
+        result.insert({encoded, {}});
+        set_resistances(result, encoded, resistances);
+    }
+    return result;
+}
+
+std::set<Type_encoding>
+get_selected_gyms_types(Pokemon_test const &generation,
+                        std::set<std::string_view> const &selected_gyms,
+                        Gym_type type)
+{
+    std::set<Type_encoding> result{};
+    for (auto const &gym : selected_gyms)
+    {
+        auto const found = generation.network.find(gym);
+        if (found == generation.network.end())
+        {
+            std::cerr << "selected gyms contains out of network name.\n";
+            std::abort();
+        }
+        size_t i = 0;
+        auto const table
+            = type == Gym_type::attack
+                  ? std::span<Type_encoding const>{found->second.attack}
+                  : std::span<Type_encoding const>{found->second.defense};
+        while (!table[i].is_empty())
+        {
+            result.insert(found->second.defense.at(i));
+            ++i;
+        }
+    }
+    return result;
+}
+
 } // namespace
 
 Pokemon_test
@@ -359,125 +402,19 @@ load_pokemon_generation(std::string_view region_name)
     return generation;
 }
 
-std::map<Type_encoding, std::set<Resistance>>
-load_interaction_map(std::string_view region_name)
+std::set<Type_encoding>
+get_selected_gyms_attacks(Pokemon_test const &generation,
+                          std::set<std::string_view> const &selected_gyms)
 {
-    auto const *const interaction_map = std::ranges::find(
-        generation_type_rules_json, region_name,
-        [](std::tuple<std::string_view, std::string_view,
-                      std::string_view> const &t) { return std::get<1>(t); });
-    if (interaction_map == generation_type_rules_json.end())
-    {
-        std::cerr << "could not find generation type interaction data for "
-                  << region_name << '\n';
-        std::abort();
-    }
-    nlo::json const json_types = get_json_object(std::get<2>(*interaction_map));
-    std::map<Type_encoding, std::set<Resistance>> result = {};
-    for (auto const &[type, resistances] : json_types.items())
-    {
-        Type_encoding const encoded(type);
-        result.insert({encoded, {}});
-        set_resistances(result, encoded, resistances);
-    }
-    return result;
+    return get_selected_gyms_types(generation, selected_gyms, Gym_type::attack);
 }
 
 std::set<Type_encoding>
-load_selected_gyms_defenses(std::string_view selected_map,
-                            std::set<std::string_view> const &selected_gyms)
-{
-    if (selected_gyms.empty())
-    {
-        std::cerr
-            << "Requesting to load zero gyms check selected gyms input.\n";
-    }
-    nlo::json const map_data = get_json_object(json_all_maps_file);
-    std::set<Type_encoding> result = {};
-
-    nlo::json const &gym_keys = map_data.at(selected_map);
-
-    std::vector<std::string_view> confirmed{};
-    confirmed.reserve(selected_gyms.size());
-    for (auto const &[gym, attack_defense_map] : gym_keys.items())
-    {
-        if (!selected_gyms.contains(gym))
-        {
-            continue;
-        }
-        confirmed.push_back(gym);
-        for (auto const &t : attack_defense_map.at(gym_defense_key))
-        {
-            auto const type = t.template get<std::string>();
-            result.emplace(type);
-        }
-    }
-    if (confirmed.size() != selected_gyms.size())
-    {
-        std::cerr << "Mismatch occured for " << selected_map
-                  << " gym selection.\nRequested: ";
-        for (auto const &s : selected_gyms)
-        {
-            std::cerr << s << " ";
-        }
-        std::cerr << "\nConfirmed: ";
-        for (auto const &s : confirmed)
-        {
-            std::cerr << s << " ";
-        }
-        std::cerr << "\n";
-        return {};
-    }
-    // This will be a much smaller set.
-    return result;
-}
-
-std::set<Type_encoding>
-load_selected_gyms_attacks(std::string_view selected_map,
+get_selected_gyms_defenses(Pokemon_test const &generation,
                            std::set<std::string_view> const &selected_gyms)
 {
-    if (selected_gyms.empty())
-    {
-        std::cerr
-            << "Requesting to load zero gyms check selected gyms input.\n";
-    }
-    nlo::json const map_data = get_json_object(json_all_maps_file);
-    std::set<Type_encoding> result = {};
-    nlo::json const &selection = map_data.at(selected_map);
-
-    std::vector<std::string_view> confirmed{};
-    confirmed.reserve(selected_gyms.size());
-    for (auto const &[gym, attack_defense_map] : selection.items())
-    {
-        if (!selected_gyms.contains(gym))
-        {
-            continue;
-        }
-        confirmed.push_back(gym);
-        for (auto const &t : attack_defense_map.at(gym_attacks_key))
-        {
-            auto const type = t.template get<std::string_view>();
-            result.emplace(type);
-        }
-    }
-    if (confirmed.size() != selected_gyms.size())
-    {
-        std::cerr << "Mismatch occured for " << selected_map
-                  << " gym selection.\nRequested: ";
-        for (auto const &s : selected_gyms)
-        {
-            std::cerr << s << " ";
-        }
-        std::cerr << "\nConfirmed: ";
-        for (auto const &s : confirmed)
-        {
-            std::cerr << s << " ";
-        }
-        std::cerr << "\n";
-        return {};
-    }
-    // Return a set rather than altering every resistances in a large map.
-    return result;
+    return get_selected_gyms_types(generation, selected_gyms,
+                                   Gym_type::defense);
 }
 
 } // namespace Dancing_links

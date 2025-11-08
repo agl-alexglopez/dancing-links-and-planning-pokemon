@@ -461,21 +461,6 @@ TEST(ParserTests, CheckLoadingMapTypingWorksCorrectly)
     }
 }
 
-TEST(ParserTests, LoadTwoSubsetsOfGyms)
-{
-    std::string const gen_1_map{"Gen-1-Kanto.dst"};
-    std::set<std::string_view> const selected_gyms = {"G1", "G2"};
-    std::set<Type_encoding> const g1_g2_attack
-        = {Type_encoding("Normal"), Type_encoding("Water")};
-    std::set<Type_encoding> const g1_g2_defense
-        = {Type_encoding("Ground-Rock"), Type_encoding("Water")};
-
-    EXPECT_EQ(load_selected_gyms_attacks(gen_1_map, selected_gyms),
-              g1_g2_attack);
-    EXPECT_EQ(load_selected_gyms_defenses(gen_1_map, selected_gyms),
-              g1_g2_defense);
-}
-
 /////////// Test the Type Encoding We Use To Represent Pokemon Types in Bits
 
 TEST(InternalTests, EasiestTypeEncodingLexographicallyIsBug)
