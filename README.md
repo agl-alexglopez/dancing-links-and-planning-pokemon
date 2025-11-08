@@ -19,6 +19,34 @@ While you can build and run the GUI locally, there is also a live web app versio
 > [!TIP]
 > Be sure to enable the window resizing and disable mouse locking and hiding for the program to work correctly. Also, it seems to work best in full screen mode.
 
+If you would like to build and view the web app locally follow these steps.
+
+1. Clone the repository.
+
+```zsh
+git clone https://github.com/agl-alexglopez/ccc.git
+```
+
+2. Set up the `emsdk` submodule. This remains contained to the submodule directory and does not touch system paths.
+
+```zsh
+make emsdk
+```
+
+3. Build the web application. Only a small release build is supported.
+
+```zsh
+make webrel
+```
+
+4. Run the web application on your local browser with `emrun`.
+
+```zsh
+make emrun
+```
+
+The same advice applies. Disable mouse locking and enable resizing. Use full screen for best results.
+
 ## Pokémon Planning GUI Usage Instructions
 
 This program implements an interactive Dancing Links graph cover visualizer. The user is able to load in any of 9 generation Pokemon maps and solve various graph cover questions. These questions basically boil down to the following:

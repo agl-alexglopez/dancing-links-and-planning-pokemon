@@ -12,7 +12,7 @@ emsdk:
 	cd deps/emsdk && ./emsdk install latest && ./emsdk activate latest
 
 emrun:
-	./deps/emsdk/upstream/emscripten/emrun ./build/bin/pokemon_gui.html
+	./deps/emsdk/upstream/emscripten/emrun ./build/bin/index.html
 
 rel:
 	cmake --preset=rel
