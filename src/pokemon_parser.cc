@@ -16,6 +16,7 @@ module;
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 export module dancing_links:pokemon_parser;
 import :resistance;
 import :type_encoding;
@@ -59,12 +60,10 @@ struct Map_node
     // The set of pointers to other string keys in the map that serve as our
     // city edge connections. Simple pointers, no wasted strings.
     std::set<Map_node *> edges;
-    // The maximum number of attack types you would ever see at a gym are all
-    // 18 types. This rarely, if ever, happens.
-    std::array<Type_encoding, 18> attack;
-    // The maximum number of defensive types at any one gym occurs if the
-    // Elite Four has all four members with full 6 Pokemon teams.
-    std::array<Type_encoding, 24> defense;
+    // The attack types across all the Pokemon one may face at this gym.
+    std::vector<Type_encoding> attack;
+    // The defense types across all the Pokemon one may face at this gym.
+    std::vector<Type_encoding> defense;
 };
 
 /// Leave a comment at the first line of the Pokemon Generation .dst file you
@@ -238,26 +237,18 @@ set_resistances(std::map<Type_encoding, std::set<Resistance>> &result,
     }
 }
 
-void
-fill_type_table(
-    std::span<Type_encoding> table,
-    std::tuple_element_t<
-        1, nlohmann::detail::iteration_proxy_value<
-               nlohmann::detail::iter_impl<nlohmann::basic_json<> const>> const>
-        e)
-{
-    size_t i = 0;
-    for (auto const &type : e)
-    {
-        assert(i < table.size());
-        auto const type_view = type.get<std::string_view>();
-        table[i++] = Type_encoding(type_view);
-    }
-}
-
 std::map<std::string, Map_node, std::less<>>
 load_map_from_json(std::string_view const region_name)
 {
+    auto const fill_type_table
+        = [](std::vector<Type_encoding> &table, auto &&json_table) {
+              table.reserve(json_table.size());
+              for (auto const &type : json_table)
+              {
+                  auto const type_view = type.template get<std::string_view>();
+                  table.emplace_back(type_view);
+              }
+          };
     auto const *const generation_map = std::ranges::find(
         generation_region_maps_json, region_name,
         [](std::tuple<std::string_view, std::string_view,
@@ -358,15 +349,12 @@ get_selected_gyms_types(Pokemon_test const &generation,
             std::cerr << "selected gyms contains out of network name.\n";
             std::abort();
         }
-        size_t i = 0;
-        auto const table
-            = type == Gym_type::attack
-                  ? std::span<Type_encoding const>{found->second.attack}
-                  : std::span<Type_encoding const>{found->second.defense};
-        while (!table[i].is_empty())
+        std::vector<Type_encoding> const &table = type == Gym_type::attack
+                                                      ? found->second.attack
+                                                      : found->second.defense;
+        for (Type_encoding const &encoding : table)
         {
-            result.insert(found->second.defense.at(i));
-            ++i;
+            result.insert(encoding);
         }
     }
     return result;

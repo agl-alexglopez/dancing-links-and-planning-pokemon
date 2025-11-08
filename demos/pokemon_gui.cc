@@ -143,10 +143,9 @@ class Generation {
     static constexpr float minimap_origin_x = 1.0;
     static constexpr float minimap_origin_y = 1.0;
     static constexpr float scale_minimap_y_factor = 0.25;
-    static constexpr float minimap_button_size = 30;
+    static constexpr float minimap_button_size = 35;
     static constexpr float text_label_font_size = 5.0;
     static constexpr float map_pad = 3.0;
-    static constexpr char const *const dst_relative_path = "data/dst/";
     static constexpr std::array<std::string_view, 9> generation_region_list = {
         "Kanto", "Johto", "Hoenn", "Sinnoh", "Unova",
         "Kalos", "Alola", "Galar", "Paldea",
@@ -235,9 +234,17 @@ class Generation {
 
     //////////////////////    Functions ///////////////////////////////////
 
+    void draw_city(
+        Rectangle const &button,
+        std::pair<std::map<std::string, Dx::Map_node>::const_iterator, bool>
+            &city);
     void draw_ui_controls(Rectangle const &minimap_canvas);
     void draw_too_many_solutions_message(Rectangle const &popup_canvas);
     void reload_generation();
+    static void draw_city_popup(
+        Rectangle const &minimap_canvas, Rectangle const &button,
+        std::pair<std::map<std::string, Dx::Map_node>::const_iterator, bool>
+            &city);
     static Dx::Point scale_map_point(Dx::Point const &p,
                                      Dx::Min_max const &x_data_bounds,
                                      Dx::Min_max const &x_draw_bounds,
@@ -402,6 +409,13 @@ run()
                 .x = ui_canvas.x,
                 .y = ui_canvas.y + ui_canvas.height,
             };
+            // Nice for messages to have padding.
+            Rectangle const graph_canvas_message_box{
+                .width = graph_canvas.width - (graph_canvas.width * 0.01F),
+                .height = graph_canvas.height - (graph_canvas.height * 0.01F),
+                .x = graph_canvas.x + (graph_canvas.width * 0.01F),
+                .y = graph_canvas.y + (graph_canvas.height * 0.01F),
+            };
             if (gen.is_solution_requested())
             {
                 std::optional<std::tuple<
@@ -419,13 +433,14 @@ run()
                 }
                 else
                 {
-                    draw_wrapping_message(graph_canvas, no_solution_message,
-                                          RED);
+                    draw_wrapping_message(graph_canvas_message_box,
+                                          no_solution_message, RED);
                 }
             }
             else
             {
-                draw_wrapping_message(graph_canvas, graph_idle_message, BLACK);
+                draw_wrapping_message(graph_canvas_message_box,
+                                      graph_idle_message, BLACK);
             }
             // Even though the user interacts with the menu before solving
             // we want it drawn last so drop down menus cover graph solutions.
@@ -553,6 +568,7 @@ Generation::draw_minimap(int const window_width, int const window_height)
         = ((minimap_height - file_specified_height) / 2.0F) + map_pad;
     y_draw_bounds.max = y_draw_bounds.min + file_specified_height;
 
+    // Order matters. Lines first.
     for (auto const &[city_string, node_info] : generation.network)
     {
         Dx::Point const src = scale_map_point(
@@ -575,54 +591,99 @@ Generation::draw_minimap(int const window_width, int const window_height)
                 BLACK);
         }
     }
+    Rectangle const minimap_canvas{
+        .width = minimap_width,
+        .height = minimap_height,
+        .x = minimap_origin_x,
+        .y = minimap_origin_y,
+    };
     // We may be mutating a buttons toggle state we mutably iterate.
-    for (auto &[city_location_map_iterator, active_toggle_state] : gym_toggles)
+    Rectangle button{
+        .height = minimap_button_size,
+        .width = minimap_button_size,
+    };
+    // Now the toggles that the user can interact with.
+    for (auto &toggle : gym_toggles)
     {
-        Dx::Map_node const &file_coordinates
-            = city_location_map_iterator->second;
+        Dx::Map_node const &city_data = toggle.first->second;
         Dx::Point const scaled_coordinates = scale_map_point(
-            file_coordinates.coordinates, generation.x_data_bounds,
-            x_draw_bounds, generation.y_data_bounds, y_draw_bounds);
-        // We want the lines that connect the button nodes to run through the
-        // center of the button. Buttons are drawn as squares with the top
-        // left corner at the x and y point so move that corner so that the
-        // center of the button is the center of node and line connections.
-        bool const prev_state = active_toggle_state;
-        GuiToggle(
-            Rectangle{
-                .height = minimap_button_size,
-                .width = minimap_button_size,
-                .x = scaled_coordinates.x - (minimap_button_size / 2),
-                .y = scaled_coordinates.y - (minimap_button_size / 2),
-            },
-            city_location_map_iterator->second.code.data(),
-            &active_toggle_state);
-        if (active_toggle_state != prev_state)
+            city_data.coordinates, generation.x_data_bounds, x_draw_bounds,
+            generation.y_data_bounds, y_draw_bounds);
+        button.x = scaled_coordinates.x - (minimap_button_size / 2);
+        button.y = scaled_coordinates.y - (minimap_button_size / 2);
+        draw_city(button, toggle);
+    }
+    // Now the lower map UI for drop downs.
+    draw_ui_controls(minimap_canvas);
+    // Next the pop up that gives the full city name. This may pop up over
+    // the drop down menus so draw it last.
+    for (auto &toggle : gym_toggles)
+    {
+        Dx::Map_node const &city_data = toggle.first->second;
+        Dx::Point const scaled_coordinates = scale_map_point(
+            city_data.coordinates, generation.x_data_bounds, x_draw_bounds,
+            generation.y_data_bounds, y_draw_bounds);
+        button.x = scaled_coordinates.x - (minimap_button_size / 2);
+        button.y = scaled_coordinates.y - (minimap_button_size / 2);
+        draw_city_popup(minimap_canvas, button, toggle);
+    }
+    // This message will cover the entire minimap until clicked.
+    draw_too_many_solutions_message(minimap_canvas);
+}
+
+void
+Generation::draw_city(
+    Rectangle const &button,
+    std::pair<std::map<std::string, Dx::Map_node>::const_iterator, bool> &city)
+{
+    bool const prev_state = city.second;
+    GuiToggle(button, city.first->second.code.data(), &city.second);
+    if (city.second != prev_state)
+    {
+        requesting_solution = false;
+        rendering_too_many_solutions = false;
+        if (city.second)
         {
-            requesting_solution = false;
-            rendering_too_many_solutions = false;
-            if (active_toggle_state)
-            {
-                selected_gyms.insert(city_location_map_iterator->first);
-            }
-            else
-            {
-                selected_gyms.erase(city_location_map_iterator->first);
-            }
+            selected_gyms.insert(city.first->first);
+        }
+        else
+        {
+            selected_gyms.erase(city.first->first);
         }
     }
-    draw_ui_controls(Rectangle{
-        .width = minimap_width,
-        .height = minimap_height,
-        .x = minimap_origin_x,
-        .y = minimap_origin_y,
-    });
-    draw_too_many_solutions_message(Rectangle{
-        .width = minimap_width,
-        .height = minimap_height,
-        .x = minimap_origin_x,
-        .y = minimap_origin_y,
-    });
+}
+
+void
+Generation::draw_city_popup(
+    Rectangle const &minimap_canvas, Rectangle const &button,
+    std::pair<std::map<std::string, Dx::Map_node>::const_iterator, bool> &city)
+{
+    Vector2 const mouse = GetMousePosition();
+    if (CheckCollisionPointRec(mouse, button))
+    {
+        Rectangle const textbox{
+            .width = minimap_canvas.width * 0.25F,
+            .height = minimap_canvas.height * 0.15F,
+            .x = mouse.x,
+            .y = mouse.y,
+        };
+        Font const font = GuiGetFont();
+        auto const base_size = static_cast<float>(font.baseSize);
+        float font_spacing = base_size * 0.2F;
+        Vector2 const measured_dimensions = MeasureTextEx(
+            font, city.first->first.data(), base_size, font_spacing);
+        float const font_scaling
+            = (textbox.width * 0.8F)
+              / std::max(measured_dimensions.x, measured_dimensions.y);
+        float const font_size = base_size * font_scaling;
+        font_spacing = font_size * 0.2F;
+        DrawTextEx(font, city.first->first.data(),
+                   Vector2{
+                       .x = textbox.x + (font_spacing * 4),
+                       .y = textbox.y + (font_spacing * 2),
+                   },
+                   font_size, font_spacing, BLACK);
+    }
 }
 
 void
@@ -781,14 +842,14 @@ Generation::draw_too_many_solutions_message(Rectangle const &popup_canvas)
         return;
     }
     float const border
-        = std::max(popup_canvas.width, popup_canvas.height) * 0.01F;
+        = std::max(popup_canvas.width, popup_canvas.height) * 0.005F;
     GuiDrawRectangle(popup_canvas, static_cast<int>(border), RED, WHITE);
     draw_wrapping_message(
         Rectangle{
-            .width = popup_canvas.width - border,
-            .height = popup_canvas.height - border,
-            .x = popup_canvas.x + border,
-            .y = popup_canvas.y + border,
+            .width = popup_canvas.width - (border * 2.0F * 1.01F),
+            .height = popup_canvas.height - (border * 2.0F * 1.01F),
+            .x = popup_canvas.x + (border * 2.0F * 1.01F),
+            .y = popup_canvas.y + (border * 2.0F * 1.01F),
         },
         too_many_solutions_message, RED);
 }
@@ -1477,78 +1538,115 @@ Graph_draw::select_max_contrast_black_or_white(Color const &background)
 ///
 ///////////////////////////////////////////////////////////////////////////////
 
-/// Attempts to display a helpful directions with word wrapping near the center
-/// of the screen. Because solving cover problems can be CPU intensive and take
-/// some time, we don't solve by default. The user must request a solution with
-/// the solve button so a message helps facilitate that.
+/// Attempts to display a helpful directions with word wrapping within the
+/// specified canvas of the screen. Because solving cover problems can be CPU
+/// intensive and take some time, we don't solve by default. The user must
+/// request a solution with the solve button so a message helps facilitate that.
 ///
 /// This function will respect some escaped characters in a string like the
 /// usual newline or return characters (\n or \r). However, some will not be
 /// rendered correctly such as escaped tabs (\t). For spaces just add the
 /// appropriate number of spaces to the string rather than adding an escaped
 /// tab.
+///
+/// Note that no effort is made to add padding the text drawn to the canvas.
+/// The canvas dimensions are used exactly so provide the necessary padding
+/// manually when creating the canvas.
 void
 draw_wrapping_message(Rectangle const &canvas, std::string_view message,
                       Color const &tint)
 {
     Font const font = GuiGetFont();
-    // Leave these constants here because you should consider scaling the font
-    // based on the canvas size, not hard coded values.
-    float const start_x = canvas.x + (canvas.width * 0.01F);
-    float const end_x = canvas.x + canvas.width;
-    float const end_y = canvas.y + canvas.height;
-    float const font_scaling = std::min(canvas.width, canvas.height) / 1700.0F;
-    auto const font_size = static_cast<float>(font.baseSize) * font_scaling;
+    // We want to obtain the rough area of the text we are going to draw if
+    // we were to respect its line breaks, spaces, and delimiters.
+    auto const measure_wrapped_text = [&](std::string_view text) -> Vector2 {
+        auto const base_size = static_cast<float>(font.baseSize);
+        float const spacing = base_size * 0.2F;
+
+        float line_width = 0.0F;
+        float max_width = 0.0F;
+        float total_height = base_size;
+        std::string_view const delims(" \r\t\n\v\f");
+        std::string buffer{};
+
+        while (!text.empty())
+        {
+            std::string_view const word
+                = get_token_with_trailing_delims(text, delims);
+            buffer = word;
+            float const word_width
+                = MeasureTextEx(font, buffer.c_str(), base_size, spacing).x;
+
+            if (line_width + word_width > canvas.width)
+            {
+                total_height += base_size * 1.4F;
+                line_width = 0.0F;
+            }
+            line_width += word_width;
+            max_width = std::max(max_width, line_width);
+
+            text.remove_prefix((word.data() + word.size()) - text.data());
+        }
+        return {max_width, total_height};
+    };
+
+    Vector2 const unscaled = measure_wrapped_text(message);
+
+    // The base width and height give use the scaled aspect ratio we need to
+    // ensure the text fits within the canvas at the maximum possible width
+    // and height.
+    float const font_scaling
+        = std::min(canvas.width / unscaled.x, canvas.height / unscaled.y);
+
+    float const font_size = static_cast<float>(font.baseSize) * font_scaling;
     float const font_x_spacing = font_size * 0.2F;
     float const font_y_spacing = font_size * 0.8F;
-    float cur_pos_x = start_x;
-    float cur_pos_y = canvas.y + (canvas.height / 3.5F);
 
-    /// Returns the codepoint and the glyph width of the specified character.
+    float const start_x = canvas.x;
+    float cur_pos_x = start_x;
+    float cur_pos_y = canvas.y;
+    float const end_x = canvas.x + canvas.width;
+    float const end_y = canvas.y + canvas.height;
+
+    // Even though we measured we still need to go glyph by glyph because we
+    // don't know how the scaling has changed when words wrap to next line.
     auto const get_glyph_info
-        = [=](char const *const c) -> std::pair<int, float> {
-        int codepoint_byte_count = 0;
-        int const codepoint = GetCodepoint(c, &codepoint_byte_count);
+        = [&](char const *const c) -> std::pair<int, float> {
+        int byte_count = 0;
+        int const codepoint = GetCodepoint(c, &byte_count);
         int const glyph_index = GetGlyphIndex(font, codepoint);
         float const glyph_width
             = font.glyphs[glyph_index].advanceX == 0
                   ? font.recs[glyph_index].width * font_scaling
                   : static_cast<float>(font.glyphs[glyph_index].advanceX)
                         * font_scaling;
-        return {
-            codepoint,
-            glyph_width,
-        };
+        return {codepoint, glyph_width};
     };
 
-    /// Returns the width of a word according the glyph width of each character
-    /// and the added spacing we have specified between letters.
-    auto const get_word_width = [=](std::string_view word) -> float {
-        float word_width = 0;
+    // We keep words together with their trailing delimiters.
+    auto const get_word_width = [&](std::string_view word) -> float {
+        float width = 0.0F;
         for (char const &c : word)
         {
-            float const glyph_width = get_glyph_info(&c).second;
-            word_width += glyph_width + font_x_spacing;
+            width += get_glyph_info(&c).second + font_x_spacing;
         }
-        return word_width;
+        return width;
     };
 
-    /// Advances x and y positions and returns if there is space for a new
-    /// line below the current. Returns true if there is more space for new
-    /// lines or false if the window is exhausted for space.
-    auto const advance_new_line
-        = [=](float &cur_pos_x, float &cur_pos_y) -> bool {
-        cur_pos_y += (static_cast<float>(font.baseSize) * font_scaling)
-                     + font_y_spacing;
-        // If we would write off the screen no point in continuing.
-        if (cur_pos_y > end_y)
+    // Advancing to a new line on wrap or when newline character found.
+    auto const advance_new_line = [&](float &x, float &y) -> bool {
+        y += font_size + font_y_spacing;
+        if (y > end_y)
         {
             return false;
         }
-        cur_pos_x = start_x;
+        x = start_x;
         return true;
     };
 
+    // Finally, chug through the message. We know it should fit, but we need
+    // to break when necessary manually by progressing the drawing pixels
+    // manually.
     std::string_view const delim_set(" \r\t\n\v\f");
     while (!message.empty())
     {
@@ -1560,6 +1658,7 @@ draw_wrapping_message(Rectangle const &canvas, std::string_view message,
         {
             return;
         }
+
         for (char const &c : word)
         {
             if (c == '\n' || c == '\r' || c == '\r\n')
@@ -1579,9 +1678,6 @@ draw_wrapping_message(Rectangle const &canvas, std::string_view message,
                               font_size, tint);
             cur_pos_x += glyph_width + font_x_spacing;
         }
-        // The word we got back as a token may have skipped leading delimiters
-        // in the original message so be sure to cut those off by using the
-        // true underlying pointer arithmetic, not just word size.
         message.remove_prefix((word.data() + word.size()) - message.data());
     }
 }
