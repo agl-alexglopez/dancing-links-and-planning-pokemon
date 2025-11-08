@@ -14,7 +14,7 @@
 
 ## Pokémon Planning Web App
 
-If you don't want to build the code, try the web app!
+To jump right in and give the application a whirl, try the [web app](https://agl-alexglopez.github.io/dancing-links-and-planning-pokemon/) powered raylib and Emscripten!
 
 ## Pokémon Planning GUI Usage Instructions
 
