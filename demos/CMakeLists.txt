@@ -1,6 +1,7 @@
 # Simpler command line application.
 add_executable(pokemon_cli pokemon_cli.cc)
 target_link_libraries(pokemon_cli dancing_links)
+project(pokemon_gui CXX)
 
 # Dependencies
 set(RAYLIB_VERSION 5.5)
@@ -37,13 +38,13 @@ target_include_directories(raygui INTERFACE "${raygui_SOURCE_DIR}/src")
 target_compile_options(raygui INTERFACE "-w")
 
 
-add_executable(pokemon_gui pokemon_gui.cc)
-target_link_libraries(pokemon_gui PRIVATE raylib raygui dancing_links)
+add_executable(${PROJECT_NAME} pokemon_gui.cc)
+target_link_libraries(${PROJECT_NAME} PRIVATE raylib raygui dancing_links)
 
 # Checks if OSX and links appropriate frameworks (Only required on MacOS)
 if (APPLE)
-    target_link_libraries(pokemon_gui "-framework IOKit")
-    target_link_libraries(pokemon_gui "-framework Cocoa")
-    target_link_libraries(pokemon_gui "-framework OpenGL")
+    target_link_libraries(${PROJECT_NAME} "-framework IOKit")
+    target_link_libraries(${PROJECT_NAME} "-framework Cocoa")
+    target_link_libraries(${PROJECT_NAME} "-framework OpenGL")
 endif()
 
