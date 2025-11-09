@@ -421,7 +421,7 @@ run()
 }
 
 void
-update_draw_frame(void *generation)
+update_draw_frame(void *const generation)
 {
     auto *gen = static_cast<Generation *>(generation);
     BeginDrawing();

@@ -17,7 +17,7 @@
 While you can build and run the GUI locally, there is also a live web app version of the program. To jump right in and give it a whirl, try the [web app powered raylib and Emscripten](https://agl-alexglopez.github.io/dancing-links-and-planning-pokemon/)!
 
 > [!TIP]
-> Be sure to enable the window resizing and disable mouse locking and hiding for the program to work correctly. Also, it seems to work best in full screen mode.
+> Be sure to go full screen mode. The mouse position is not tracked properly in windowed mode.
 
 If you would like to build and view the web app locally follow these steps.
 
