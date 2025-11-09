@@ -402,7 +402,7 @@ run()
         Generation gen;
 #ifdef PLATFORM_WEB
         emscripten_set_main_loop_arg(update_draw_frame,
-                                     static_cast<void *>(&gen), 60, 1);
+                                     static_cast<void *>(&gen), 0, 1);
 #else
         SetTargetFPS(60);
         while (!WindowShouldClose())
