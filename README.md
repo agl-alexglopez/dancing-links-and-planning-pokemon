@@ -7,6 +7,7 @@
 - [Pokemon Planning Web App](#pokémon-planning-web-app)
 - [Pokemon Planning GUI](#pokémon-planning-gui-usage-instructions)
 - [Pokemon Planning CLI](#pokémon-planning-cli-usage-instructions)
+- [Explanation of Dancing Links and Exact Covers for Pokemon](#overview)
 - [Citations](#citations)
 
 > [!NOTE]
