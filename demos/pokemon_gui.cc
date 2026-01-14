@@ -1090,7 +1090,7 @@ Graph_draw::draw_graph_cover(
              float const theta_end) -> std::pair<float, float> {
         float const one_radius_rotation
             = std::asin(covered_node_radius / radius_row);
-        theta_col += 2.0F * one_radius_rotation;
+        theta_col += (2.0F * one_radius_rotation);
         // Double check that drawing a new circle at this position would
         // not encroach on the next segments allotted space.
         if (theta_col + one_radius_rotation > theta_end)
