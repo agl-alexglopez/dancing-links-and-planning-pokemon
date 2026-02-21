@@ -125,11 +125,21 @@ constexpr auto help_msg =
 Example Command:
     ./build/bin/pokemon_cli Paldea Cortondo Artazon O)";
 
-enum class Solution_type : uint8_t { exact, overlapping };
+enum class Solution_type : uint8_t {
+    exact,
+    overlapping
+};
 
-enum class Table_type : uint8_t { first, normal, last };
+enum class Table_type : uint8_t {
+    first,
+    normal,
+    last
+};
 
-enum class Print_style : uint8_t { color, plain };
+enum class Print_style : uint8_t {
+    color,
+    plain
+};
 
 struct Universe_sets {
     std::vector<Dx::Type_encoding> items;

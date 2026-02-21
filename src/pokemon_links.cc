@@ -53,7 +53,10 @@ class Pokemon_links {
     static constexpr int hidden = -1;
 
     // The user is asking us for defense team to build or attacks to use.
-    enum class Coverage_type : uint8_t { defense, attack };
+    enum class Coverage_type : uint8_t {
+        defense,
+        attack
+    };
 
     // This type, in a seperate vector, controls the base case of our recursion.
     struct Type_name {

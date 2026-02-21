@@ -5,11 +5,15 @@ ColumnLimit: 80
 SpacesInParentheses: false
 IndentPPDirectives: AfterHash
 IndentCaseLabels: true
-AlwaysBreakAfterReturnType: AllDefinitions
+BreakAfterReturnType: AllDefinitions
 BreakBeforeBinaryOperators: All
 AllowShortBlocksOnASingleLine: Empty
 AllowShortFunctionsOnASingleLine: None
-AlignAfterOpenBracket: Align
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AlignAfterOpenBracket: true
 AlignTrailingComments: Always
 BinPackArguments: true
 BinPackParameters: true
