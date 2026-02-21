@@ -29,8 +29,7 @@ import :type_encoding;
 
 export namespace Dancing_links {
 
-enum class Multiplier : uint8_t
-{
+enum class Multiplier : uint8_t {
     /// It would not make sense for someone to let a multiplier in a Resistance
     /// default to IMMUNE, because that is a valuable multiplier to have for a
     /// Pokemon. Make sure you initialize multipliers unless you want an EMPTY_
@@ -60,34 +59,28 @@ class Resistance {
     [[nodiscard]] Multiplier multiplier() const;
 
     bool
-    operator<(Resistance const &rhs) const
-    {
+    operator<(Resistance const &rhs) const {
         return this->type() < rhs.type();
     }
     bool
-    operator==(Resistance const &rhs) const
-    {
+    operator==(Resistance const &rhs) const {
         return this->type() == rhs.type()
                && this->multiplier() == rhs.multiplier();
     }
     bool
-    operator>(Resistance const &rhs) const
-    {
+    operator>(Resistance const &rhs) const {
         return rhs < *this;
     }
     bool
-    operator>=(Resistance const &rhs) const
-    {
+    operator>=(Resistance const &rhs) const {
         return !(*this < rhs);
     }
     bool
-    operator<=(Resistance const &rhs) const
-    {
+    operator<=(Resistance const &rhs) const {
         return !(*this > rhs);
     }
     bool
-    operator!=(Resistance const &rhs) const
-    {
+    operator!=(Resistance const &rhs) const {
         return !(*this == rhs);
     }
 
@@ -102,14 +95,12 @@ std::ostream &operator<<(std::ostream &out, Multiplier const &mult);
 ////////////////////////      Free Functions for TypeResistance.h
 
 Type_encoding
-type(Resistance const &res)
-{
+type(Resistance const &res) {
     return res.type();
 }
 
 Multiplier
-multiplier(Resistance const &res)
-{
+multiplier(Resistance const &res) {
     return res.multiplier();
 }
 
@@ -122,27 +113,23 @@ namespace Dancing_links {
 /////////////////////////     Resistance Helper Class
 
 Resistance::Resistance(Type_encoding const &type, Multiplier const &multiplier)
-    : type_(type), multiplier_(multiplier)
-{}
+    : type_(type), multiplier_(multiplier) {
+}
 
 Type_encoding
-Resistance::type() const
-{
+Resistance::type() const {
     return type_;
 }
 
 Multiplier
-Resistance::multiplier() const
-{
+Resistance::multiplier() const {
     return multiplier_;
 }
 
 std::ostream &
-operator<<(std::ostream &out, Resistance const &res)
-{
+operator<<(std::ostream &out, Resistance const &res) {
     out << res.type() << " x";
-    switch (res.multiplier())
-    {
+    switch (res.multiplier()) {
         case Multiplier::emp:
             out << "NIL";
             break;
@@ -169,11 +156,9 @@ operator<<(std::ostream &out, Resistance const &res)
 }
 
 std::ostream &
-operator<<(std::ostream &out, Multiplier const &mult)
-{
+operator<<(std::ostream &out, Multiplier const &mult) {
     out << "Resistance::";
-    switch (mult)
-    {
+    switch (mult) {
         case Multiplier::emp:
             out << "Multiplier::emp";
             break;

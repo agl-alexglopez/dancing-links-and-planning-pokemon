@@ -36,8 +36,7 @@ export template <class T> class Ranked_set {
   public:
     Ranked_set() = default;
     Ranked_set(int rank, std::initializer_list<T> set)
-        : rank_(rank), flat_set_(std::move(set))
-    {
+        : rank_(rank), flat_set_(std::move(set)) {
         std::sort(flat_set_.begin(), flat_set_.end());
     }
 
@@ -48,38 +47,32 @@ export template <class T> class Ranked_set {
     ~Ranked_set() = default;
 
     [[nodiscard]] constexpr std::size_t
-    size() const noexcept
-    {
+    size() const noexcept {
         return flat_set_.size();
     }
 
     [[nodiscard]] constexpr bool
-    empty() const noexcept
-    {
+    empty() const noexcept {
         return flat_set_.empty();
     }
 
     [[nodiscard]] constexpr int
-    rank() const noexcept
-    {
+    rank() const noexcept {
         return rank_;
     }
 
     /// Recommended to use if you know how many elements you will store at max.
     /// Makes flat set faster.
     void
-    reserve(size_t size)
-    {
+    reserve(size_t size) {
         flat_set_.reserve(size);
     }
 
     [[nodiscard]] bool
-    insert(T const &elem)
-    {
+    insert(T const &elem) {
         auto const found
             = std::lower_bound(flat_set_.cbegin(), flat_set_.cend(), elem);
-        if (found != flat_set_.end() && *found == elem)
-        {
+        if (found != flat_set_.end() && *found == elem) {
             return false;
         }
         static_cast<void>(flat_set_.insert(found, elem));
@@ -87,12 +80,10 @@ export template <class T> class Ranked_set {
     }
 
     [[nodiscard]] bool
-    insert(int const rank, T const &elem)
-    {
+    insert(int const rank, T const &elem) {
         auto const found
             = std::lower_bound(flat_set_.cbegin(), flat_set_.cend(), elem);
-        if (found != flat_set_.end() && *found == elem)
-        {
+        if (found != flat_set_.end() && *found == elem) {
             return false;
         }
         rank_ += rank;
@@ -101,12 +92,10 @@ export template <class T> class Ranked_set {
     }
 
     [[nodiscard]] bool
-    erase(T const &elem)
-    {
+    erase(T const &elem) {
         auto found
             = std::lower_bound(flat_set_.cbegin(), flat_set_.cend(), elem);
-        if (found != flat_set_.end() && *found == elem)
-        {
+        if (found != flat_set_.end() && *found == elem) {
             static_cast<void>(flat_set_.erase(found));
             return true;
         }
@@ -114,12 +103,10 @@ export template <class T> class Ranked_set {
     }
 
     [[nodiscard]] bool
-    erase(int const rank, T const &elem)
-    {
+    erase(int const rank, T const &elem) {
         auto found
             = std::lower_bound(flat_set_.cbegin(), flat_set_.cend(), elem);
-        if (found != flat_set_.end() && *found == elem)
-        {
+        if (found != flat_set_.end() && *found == elem) {
             rank_ -= rank;
             static_cast<void>(flat_set_.erase(found));
             return true;
@@ -128,14 +115,12 @@ export template <class T> class Ranked_set {
     }
 
     void
-    add(int const rank_change)
-    {
+    add(int const rank_change) {
         rank_ += rank_change;
     }
 
     void
-    subtract(int const rank_change)
-    {
+    subtract(int const rank_change) {
         rank_ -= rank_change;
     }
 
@@ -144,35 +129,29 @@ export template <class T> class Ranked_set {
     using const_iterator = typename container::const_iterator;
 
     const_iterator
-    begin() const
-    {
+    begin() const {
         return flat_set_.cbegin();
     }
 
     const_iterator
-    cbegin() const noexcept
-    {
+    cbegin() const noexcept {
         return flat_set_.cbegin();
     }
 
     const_iterator
-    end() const
-    {
+    end() const {
         return flat_set_.cend();
     }
 
     const_iterator
-    cend() const noexcept
-    {
+    cend() const noexcept {
         return flat_set_.cend();
     }
 
     friend std::ostream &
-    operator<<(std::ostream &out, Ranked_set<T> const &rs)
-    {
+    operator<<(std::ostream &out, Ranked_set<T> const &rs) {
         out << "{" << rs.rank_ << ",{";
-        for (auto const &s : rs.flat_set_)
-        {
+        for (auto const &s : rs.flat_set_) {
             out << "\"" << s << "\",";
         }
         out << "}}\n";
@@ -180,28 +159,23 @@ export template <class T> class Ranked_set {
     }
 
     explicit
-    operator bool() const noexcept
-    {
+    operator bool() const noexcept {
         return rank_ != 0 || !flat_set_.empty();
     }
 
     constexpr bool
-    operator==(Ranked_set<T> const &rhs) const
-    {
+    operator==(Ranked_set<T> const &rhs) const {
         return rank_ == rhs.rank_ && flat_set_ == rhs.flat_set_;
     }
 
     constexpr std::strong_ordering
-    operator<=>(Ranked_set<T> const &rhs) const
-    {
+    operator<=>(Ranked_set<T> const &rhs) const {
         std::strong_ordering cmp = rank_ <=> rhs.rank_;
-        if (std::strong_ordering::equal != cmp)
-        {
+        if (std::strong_ordering::equal != cmp) {
             return cmp;
         }
         cmp = flat_set_.size() <=> rhs.flat_set_.size();
-        if (std::strong_ordering::equal != cmp)
-        {
+        if (std::strong_ordering::equal != cmp) {
             return cmp;
         }
         return flat_set_ <=> rhs.flat_set_;

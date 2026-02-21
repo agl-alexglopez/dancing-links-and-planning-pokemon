@@ -1,8 +1,10 @@
 file (GLOB_RECURSE PROJ_CC_FILES 
   ${CMAKE_SOURCE_DIR}/src/*.hh
   ${CMAKE_SOURCE_DIR}/demos/*.hh
+  ${CMAKE_SOURCE_DIR}/tests/*.hh
   ${CMAKE_SOURCE_DIR}/src/*.cc
   ${CMAKE_SOURCE_DIR}/demos/*.cc
+  ${CMAKE_SOURCE_DIR}/tests/*.cc
 )
 
 

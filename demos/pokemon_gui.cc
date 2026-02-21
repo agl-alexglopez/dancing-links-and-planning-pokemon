@@ -121,8 +121,7 @@ class Generation {
   private:
     //////////////////////   Helper Types    //////////////////////////////////
 
-    struct Dropdown
-    {
+    struct Dropdown {
         Rectangle dimensions;
         int active;
         bool editmode;
@@ -375,8 +374,7 @@ void update_draw_frame(void *generation);
 //////////////////////////     Main           /////////////////////////////////
 
 int
-main()
-{
+main() {
     return run();
 }
 
@@ -386,10 +384,8 @@ namespace {
 
 /// Runs the map and ui manager while drawing solutions as they occur.
 int
-run()
-{
-    try
-    {
+run() {
+    try {
         SetConfigFlags(FLAG_WINDOW_RESIZABLE);
         InitWindow(720, 480, "Dancing Links and Planning Pokemon");
         Font pokemon_gameboy_font
@@ -405,24 +401,21 @@ run()
                                      static_cast<void *>(&gen), 0, 1);
 #else
         SetTargetFPS(60);
-        while (!WindowShouldClose())
-        {
+        while (!WindowShouldClose()) {
             update_draw_frame(&gen);
         }
 #endif
         CloseWindow();
         UnloadFont(pokemon_gameboy_font);
         return 0;
-    } catch (std::exception const &e)
-    {
+    } catch (std::exception const &e) {
         std::cerr << "exception caught: " << e.what() << std::flush;
         return 1;
     }
 }
 
 void
-update_draw_frame(void *const generation)
-{
+update_draw_frame(void *const generation) {
     auto *gen = static_cast<Generation *>(generation);
     BeginDrawing();
     auto const screen_width = static_cast<float>(GetScreenWidth());
@@ -444,29 +437,23 @@ update_draw_frame(void *const generation)
         .x = graph_canvas.x + (graph_canvas.width * 0.01F),
         .y = graph_canvas.y + (graph_canvas.height * 0.01F),
     };
-    if (gen->is_solution_requested())
-    {
+    if (gen->is_solution_requested()) {
         std::optional<std::tuple<
             Dx::Pokemon_links const &,
             std::vector<Ranked_set<Dx::Type_encoding>> const &, size_t>> const
             solution
             = gen->get_current_solution();
-        if (solution.has_value())
-        {
+        if (solution.has_value()) {
             auto const [dlx, solution_set, index] = solution.value();
             // Drawing solutions requires no persistent state which is
             // important for performance as this can be a hot path.
             gen->set_current_solution(Graph_draw::draw_graph_cover(
                 graph_canvas, dlx, solution_set, index));
-        }
-        else
-        {
+        } else {
             draw_wrapping_message(graph_canvas_message_box, no_solution_message,
                                   RED);
         }
-    }
-    else
-    {
+    } else {
         draw_wrapping_message(graph_canvas_message_box, graph_idle_message,
                               BLACK);
     }
@@ -498,16 +485,13 @@ Generation::Generation()
           .dimensions = {},
           .active = 0,
           .editmode = false,
-      })
-{
+      }) {
     reload_generation();
 }
 
 void
-Generation::reload_generation()
-{
-    if (region_map_select.active >= generation_region_list.size())
-    {
+Generation::reload_generation() {
+    if (region_map_select.active >= generation_region_list.size()) {
         std::cerr << "Active Pokemon Generation selector out of range.\n";
         std::abort();
     }
@@ -524,8 +508,7 @@ Generation::reload_generation()
     // Next, the gym toggles can now finally be loaded and locked to the map.
     for (auto gym = std::ranges::cbegin(generation.network);
          gym != std::ranges::cend(generation.network);
-         gym = std::ranges::next(gym))
-    {
+         gym = std::ranges::next(gym)) {
         gym_toggles.emplace_back(gym, false);
     }
     defense_dlx = Dx::Pokemon_links(generation.interactions,
@@ -543,8 +526,7 @@ Generation::reload_generation()
 /// The window has been allowed to be resizable so this draw call should occur
 /// on every loop in case the window size is updated.
 void
-Generation::draw_minimap(float const window_width, float const window_height)
-{
+Generation::draw_minimap(float const window_width, float const window_height) {
 
     auto const minimap_width = window_width;
     float const minimap_height = window_height * scale_minimap_y_factor;
@@ -566,14 +548,11 @@ Generation::draw_minimap(float const window_width, float const window_height)
           / (generation.y_data_bounds.max - generation.y_data_bounds.min);
     float file_specified_width{};
     float file_specified_height{};
-    if (file_specified_aspect_ratio >= minimap_aspect_ratio)
-    {
+    if (file_specified_aspect_ratio >= minimap_aspect_ratio) {
         file_specified_width = minimap_width;
         file_specified_height
             = file_specified_width / file_specified_aspect_ratio;
-    }
-    else
-    {
+    } else {
         file_specified_height = minimap_height;
         file_specified_width
             = file_specified_aspect_ratio * file_specified_height;
@@ -588,13 +567,11 @@ Generation::draw_minimap(float const window_width, float const window_height)
     y_draw_bounds.max = y_draw_bounds.min + file_specified_height;
 
     // Order matters. Lines first.
-    for (auto const &[city_string, node_info] : generation.network)
-    {
+    for (auto const &[city_string, node_info] : generation.network) {
         Dx::Point const src = scale_map_point(
             node_info.coordinates, generation.x_data_bounds, x_draw_bounds,
             generation.y_data_bounds, y_draw_bounds);
-        for (Dx::Map_node const *const edge : node_info.edges)
-        {
+        for (Dx::Map_node const *const edge : node_info.edges) {
             Dx::Point const dst = scale_map_point(
                 edge->coordinates, generation.x_data_bounds, x_draw_bounds,
                 generation.y_data_bounds, y_draw_bounds);
@@ -622,8 +599,7 @@ Generation::draw_minimap(float const window_width, float const window_height)
         .width = minimap_button_size,
     };
     // Now the toggles that the user can interact with.
-    for (auto &toggle : gym_toggles)
-    {
+    for (auto &toggle : gym_toggles) {
         Dx::Map_node const &city_data = toggle.first->second;
         Dx::Point const scaled_coordinates = scale_map_point(
             city_data.coordinates, generation.x_data_bounds, x_draw_bounds,
@@ -636,8 +612,7 @@ Generation::draw_minimap(float const window_width, float const window_height)
     draw_ui_controls(minimap_canvas);
     // Next the pop up that gives the full city name. This may pop up over
     // the drop down menus so draw it last.
-    for (auto &toggle : gym_toggles)
-    {
+    for (auto &toggle : gym_toggles) {
         Dx::Map_node const &city_data = toggle.first->second;
         Dx::Point const scaled_coordinates = scale_map_point(
             city_data.coordinates, generation.x_data_bounds, x_draw_bounds,
@@ -653,20 +628,16 @@ Generation::draw_minimap(float const window_width, float const window_height)
 void
 Generation::draw_city(
     Rectangle const &button,
-    std::pair<std::map<std::string, Dx::Map_node>::const_iterator, bool> &city)
-{
+    std::pair<std::map<std::string, Dx::Map_node>::const_iterator, bool>
+        &city) {
     bool const prev_state = city.second;
     GuiToggle(button, city.first->second.code.data(), &city.second);
-    if (city.second != prev_state)
-    {
+    if (city.second != prev_state) {
         requesting_solution = false;
         rendering_too_many_solutions = false;
-        if (city.second)
-        {
+        if (city.second) {
             selected_gyms.insert(city.first->first);
-        }
-        else
-        {
+        } else {
             selected_gyms.erase(city.first->first);
         }
     }
@@ -675,11 +646,10 @@ Generation::draw_city(
 void
 Generation::draw_city_popup(
     Rectangle const &minimap_canvas, Rectangle const &button,
-    std::pair<std::map<std::string, Dx::Map_node>::const_iterator, bool> &city)
-{
+    std::pair<std::map<std::string, Dx::Map_node>::const_iterator, bool>
+        &city) {
     Vector2 const mouse = GetMousePosition();
-    if (CheckCollisionPointRec(mouse, button))
-    {
+    if (CheckCollisionPointRec(mouse, button)) {
         Rectangle const textbox{
             .width = minimap_canvas.width * 0.25F,
             .height = minimap_canvas.height * 0.15F,
@@ -706,8 +676,7 @@ Generation::draw_city_popup(
 }
 
 void
-Generation::draw_ui_controls(Rectangle const &minimap_canvas)
-{
+Generation::draw_ui_controls(Rectangle const &minimap_canvas) {
     Vector2 const button_size
         = get_dropdown_button_size(minimap_canvas.width, minimap_canvas.height);
     region_map_select.dimensions = Rectangle{
@@ -725,25 +694,20 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
     int const prev_map_selection = region_map_select.active;
     if (GuiDropdownBox(region_map_select.dimensions,
                        generation_region_dropdown_options.data(),
-                       &region_map_select.active, region_map_select.editmode))
-    {
-        if (region_map_select.active != prev_map_selection)
-        {
+                       &region_map_select.active, region_map_select.editmode)) {
+        if (region_map_select.active != prev_map_selection) {
             requesting_solution = false;
             rendering_too_many_solutions = false;
         }
         region_map_select.editmode = !region_map_select.editmode;
-        if (!region_map_select.editmode)
-        {
+        if (!region_map_select.editmode) {
             reload_generation();
         }
     }
     int const prev_solution_selction = dlx_solver_select.active;
     if (GuiDropdownBox(dlx_solver_select.dimensions, dlx_solver_options,
-                       &dlx_solver_select.active, dlx_solver_select.editmode))
-    {
-        if (dlx_solver_select.active != prev_solution_selction)
-        {
+                       &dlx_solver_select.active, dlx_solver_select.editmode)) {
+        if (dlx_solver_select.active != prev_solution_selction) {
             requesting_solution = false;
             rendering_too_many_solutions = false;
         }
@@ -757,16 +721,14 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
                      + dlx_solver_select.dimensions.width,
                 .y = minimap_canvas.y + minimap_canvas.height,
             },
-            "Solve!"))
-    {
+            "Solve!")) {
         cur_solution = 0;
         requesting_solution = true;
         auto const dlx_active_solver
             = static_cast<Solution_request>(dlx_solver_select.active);
         Dx::reset_items(defense_dlx);
         Dx::reset_items(attack_dlx);
-        if (!selected_gyms.empty())
-        {
+        if (!selected_gyms.empty()) {
             std::set<Dx::Type_encoding> const subset_attack
                 = Dx::get_selected_gyms_attacks(generation, selected_gyms);
             Dx::hide_items_except(defense_dlx, subset_attack);
@@ -775,8 +737,7 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
             Dx::hide_items_except(attack_dlx, subset_defense);
         }
         Dx::Pokemon_links const *solver{};
-        switch (dlx_active_solver)
-        {
+        switch (dlx_active_solver) {
             case Solution_request::attack_exact_cover:
                 move_best_solutions(
                     best_attack_solutions,
@@ -806,8 +767,7 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
                 std::abort();
                 break;
         }
-        if (Dx::has_max_solutions(*solver))
-        {
+        if (Dx::has_max_solutions(*solver)) {
             rendering_too_many_solutions = true;
         }
     }
@@ -819,19 +779,15 @@ Generation::draw_ui_controls(Rectangle const &minimap_canvas)
 void
 Generation::move_best_solutions(
     std::vector<Ranked_set<Dx::Type_encoding>> &fill,
-    std::set<Ranked_set<Dx::Type_encoding>> &&move_from)
-{
+    std::set<Ranked_set<Dx::Type_encoding>> &&move_from) {
     fill.clear();
     std::set<Ranked_set<Dx::Type_encoding>> moved = std::move(move_from);
-    if (moved.empty())
-    {
+    if (moved.empty()) {
         return;
     }
     int const leading_rank = moved.begin()->rank();
-    for (auto iter = moved.begin(); iter != moved.end();)
-    {
-        if (leading_rank != iter->rank())
-        {
+    for (auto iter = moved.begin(); iter != moved.end();) {
+        if (leading_rank != iter->rank()) {
             return;
         }
         auto next = std::next(iter);
@@ -848,15 +804,12 @@ Generation::move_best_solutions(
 /// Overlapping cover especially can have so many solutions they are not
 /// countable on a human time scale.
 void
-Generation::draw_too_many_solutions_message(Rectangle const &popup_canvas)
-{
-    if (!rendering_too_many_solutions)
-    {
+Generation::draw_too_many_solutions_message(Rectangle const &popup_canvas) {
+    if (!rendering_too_many_solutions) {
         return;
     }
     if (CheckCollisionPointRec(GetMousePosition(), popup_canvas)
-        && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-    {
+        && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         rendering_too_many_solutions = false;
         return;
     }
@@ -880,18 +833,15 @@ Generation::draw_too_many_solutions_message(Rectangle const &popup_canvas)
 std::optional<
     std::tuple<Dx::Pokemon_links const &,
                std::vector<Ranked_set<Dx::Type_encoding>> const &, size_t>>
-Generation::get_current_solution() const
-{
+Generation::get_current_solution() const {
     auto const dlx_active_solver
         = static_cast<Solution_request>(dlx_solver_select.active);
-    if (!requesting_solution)
-    {
+    if (!requesting_solution) {
         return {};
     }
     std::vector<Ranked_set<Dx::Type_encoding>> const *solution{};
     Dx::Pokemon_links const *dlx{};
-    switch (dlx_active_solver)
-    {
+    switch (dlx_active_solver) {
         case Solution_request::attack_exact_cover:
         case Solution_request::attack_overlapping_cover:
             solution = &best_attack_solutions;
@@ -906,18 +856,15 @@ Generation::get_current_solution() const
             return {};
             break;
     }
-    if (solution->empty())
-    {
+    if (solution->empty()) {
         return {};
     }
     return {{*dlx, *solution, cur_solution}};
 }
 
 void
-Generation::set_current_solution(size_t const cur)
-{
-    if (get_current_solution().has_value())
-    {
+Generation::set_current_solution(size_t const cur) {
+    if (get_current_solution().has_value()) {
         cur_solution = cur;
     }
 }
@@ -928,8 +875,7 @@ Generation::set_current_solution(size_t const cur)
 /// It is safe to draw anywhere outside of this canvas without interfering with
 /// the use of the UI.
 Rectangle
-Generation::get_ui_canvas(float const window_width, float const window_height)
-{
+Generation::get_ui_canvas(float const window_width, float const window_height) {
     Rectangle res{
         .width = window_width,
         .height = window_height * scale_minimap_y_factor,
@@ -942,8 +888,8 @@ Generation::get_ui_canvas(float const window_width, float const window_height)
 
 /// Given how large the mini map is returns the intended button size.
 Vector2
-Generation::get_dropdown_button_size(float minimap_width, float minimap_height)
-{
+Generation::get_dropdown_button_size(float minimap_width,
+                                     float minimap_height) {
     return {
         .x = minimap_width / 3.0F,
         .y = minimap_height * 0.08F,
@@ -957,8 +903,7 @@ Generation::scale_map_point(Dx::Point const &p,
                             Dx::Min_max const &x_data_bounds,
                             Dx::Min_max const &x_draw_bounds,
                             Dx::Min_max const &y_data_bounds,
-                            Dx::Min_max const &y_draw_bounds)
-{
+                            Dx::Min_max const &y_draw_bounds) {
     return Dx::Point{
         .x
         = (((p.x - x_data_bounds.min) / (x_data_bounds.max - x_data_bounds.min))
@@ -973,8 +918,7 @@ Generation::scale_map_point(Dx::Point const &p,
 
 /// Returns true if the solution should be rendered.
 bool
-Generation::is_solution_requested() const
-{
+Generation::is_solution_requested() const {
     return requesting_solution;
 }
 
@@ -1017,8 +961,7 @@ size_t
 Graph_draw::draw_graph_cover(
     Rectangle const &canvas, Dx::Pokemon_links const &dlx_solver,
     std::vector<Ranked_set<Dx::Type_encoding>> const &solutions,
-    size_t cur_solution)
-{
+    size_t cur_solution) {
     float const center_node_radius
         = std::min(canvas.width, canvas.height) * 0.06F;
     size_t const solution_size = solutions.at(cur_solution).size();
@@ -1093,8 +1036,7 @@ Graph_draw::draw_graph_cover(
         theta_col += (2.0F * one_radius_rotation);
         // Double check that drawing a new circle at this position would
         // not encroach on the next segments allotted space.
-        if (theta_col + one_radius_rotation > theta_end)
-        {
+        if (theta_col + one_radius_rotation > theta_end) {
             radius_row -= (2.0F * covered_node_radius);
             // Reset to the starting angle of the pie slice.
             theta_col
@@ -1162,8 +1104,7 @@ Graph_draw::draw_graph_cover(
     // Because we draw our nodes from the perimeter of the circle inward and
     // guarantee that no nodes overlap, we can draw our entire graph in one
     // pass over the outer nodes and one pass over inner.
-    for (Dx::Type_encoding const &t : solutions.at(cur_solution))
-    {
+    for (Dx::Type_encoding const &t : solutions.at(cur_solution)) {
         Vector2 const inner_ring_node
             = get_circle_center(inner_ring_node_center_radius, cur_theta);
         auto const n = static_cast<float>(Dx::items_count_for(dlx_solver, t));
@@ -1174,8 +1115,7 @@ Graph_draw::draw_graph_cover(
         for (Dx::Pokemon_links::Poke_link const *iter
              = Dx::items_for_begin(dlx_solver, t);
              iter != Dx::items_for_end();
-             iter = Dx::items_for_next(dlx_solver, iter))
-        {
+             iter = Dx::items_for_next(dlx_solver, iter)) {
             Dx::Resistance const covered_type
                 = Dx::item_resistance_from(dlx_solver, iter);
             Vector2 const covered_type_center
@@ -1194,8 +1134,7 @@ Graph_draw::draw_graph_cover(
         cur_theta += theta_segment_angle;
     }
     cur_theta = start_theta;
-    for (Dx::Type_encoding const &t : solutions.at(cur_solution))
-    {
+    for (Dx::Type_encoding const &t : solutions.at(cur_solution)) {
         Vector2 const inner_ring_node
             = get_circle_center(inner_ring_node_center_radius, cur_theta);
         auto const inner_node_idx = t.decode_indices();
@@ -1211,8 +1150,7 @@ Graph_draw::draw_graph_cover(
     // that use a hash set to remember all the points we have seen just for
     // one mouse click check. This would be a wasteful and slow allocation
     // in a hot loop.
-    for (Dx::Type_encoding const &t : solutions.at(cur_solution))
-    {
+    for (Dx::Type_encoding const &t : solutions.at(cur_solution)) {
         Vector2 const inner_ring_node
             = get_circle_center(inner_ring_node_center_radius, cur_theta);
         auto const n = static_cast<float>(Dx::items_count_for(dlx_solver, t));
@@ -1223,8 +1161,7 @@ Graph_draw::draw_graph_cover(
         for (Dx::Pokemon_links::Poke_link const *iter
              = Dx::items_for_begin(dlx_solver, t);
              iter != Dx::items_for_end();
-             iter = Dx::items_for_next(dlx_solver, iter))
-        {
+             iter = Dx::items_for_next(dlx_solver, iter)) {
             Dx::Resistance const covered_type
                 = Dx::item_resistance_from(dlx_solver, iter);
             Vector2 const covered_type_center
@@ -1252,16 +1189,15 @@ Graph_draw::draw_directed_line(Vector2 const &inner_point,
                                Dx::Resistance const outer_type,
                                float const outer_radius,
                                Vector2 const &outer_point,
-                               float const thickness)
-{
+                               float const thickness) {
     float const angle_radians = std::atan2(outer_point.y - inner_point.y,
                                            outer_point.x - inner_point.x);
     float const cos_angle = std::cos(angle_radians);
     float const sin_angle = std::sin(angle_radians);
     float const arrow_length = thickness * 3;
     Vector2 const arrow_tip = {
-        outer_point.x - (cos_angle * (outer_radius + arrow_length)),
-        outer_point.y - (sin_angle * (outer_radius + arrow_length)),
+        .x = outer_point.x - (cos_angle * (outer_radius + arrow_length)),
+        .y = outer_point.y - (sin_angle * (outer_radius + arrow_length)),
     };
     Color const &color
         = multiplier_colors.at(static_cast<size_t>(outer_type.multiplier()));
@@ -1282,22 +1218,19 @@ Graph_draw::draw_type_popup(Rectangle const &canvas,
                             float const inner_radius,
                             Dx::Resistance const outer_type,
                             float const outer_radius,
-                            Vector2 const &outer_point)
-{
+                            Vector2 const &outer_point) {
     Vector2 const mouse = GetMousePosition();
     if (!CheckCollisionPointCircle(mouse,
                                    Vector2{
                                        .x = outer_point.x,
                                        .y = outer_point.y,
                                    },
-                                   outer_radius))
-    {
+                                   outer_radius)) {
         return;
     }
     bool const is_outer_popup
         = inner_point.x != outer_point.x || inner_point.y != outer_point.y;
-    if (is_outer_popup)
-    {
+    if (is_outer_popup) {
         draw_directed_line(inner_point, outer_type, outer_radius, outer_point,
                            default_line_thickness * 3);
         auto const inner_indices = inner_type.decode_indices();
@@ -1318,22 +1251,20 @@ Graph_draw::draw_type_popup(Rectangle const &canvas,
     // the text box always starts from mouse and goes down.
     Vector2 point_origin = mouse;
     if (((mouse.x - canvas.x) + popup_bounding_square.x > canvas.width)
-        || ((mouse.y - canvas.y) + popup_bounding_square.y > canvas.height))
-    {
+        || ((mouse.y - canvas.y) + popup_bounding_square.y > canvas.height)) {
         point_origin.x = mouse.x - popup_bounding_square.x;
         point_origin.y = mouse.y - popup_bounding_square.y;
     }
     Vector2 const popup_circle_center{
-        point_origin.x + (popup_bounding_square.x / 2.0F),
-        point_origin.y + (popup_bounding_square.y / 2.0F),
+        .x = point_origin.x + (popup_bounding_square.x / 2.0F),
+        .y = point_origin.y + (popup_bounding_square.y / 2.0F),
     };
     float const popup_node_radius = popup_bounding_square.x / 2.0F;
     draw_type_node(outer_type.type().decode_type(),
                    get_colors(outer_type.type().decode_indices()),
                    popup_node_radius, popup_circle_center.x,
                    popup_circle_center.y);
-    if (is_outer_popup)
-    {
+    if (is_outer_popup) {
         auto const multiplier_index
             = static_cast<size_t>(outer_type.multiplier());
         std::string_view const multiplier_string
@@ -1369,15 +1300,13 @@ Graph_draw::draw_type_node(
     std::pair<std::string_view, std::optional<std::string_view>> const
         &type_string,
     std::pair<Color, std::optional<Color>> const &type_colors,
-    float const radius, float const center_x, float const center_y)
-{
+    float const radius, float const center_x, float const center_y) {
     Font const font = GuiGetFont();
     auto const base_size = static_cast<float>(font.baseSize);
     float font_spacing = base_size * 0.2F;
     std::string_view max_string = type_string.first;
     if (type_string.second.has_value()
-        && max_string.length() < type_string.second.value().length())
-    {
+        && max_string.length() < type_string.second.value().length()) {
         max_string = type_string.second.value();
     }
     Vector2 const measured_dimensions
@@ -1392,20 +1321,19 @@ Graph_draw::draw_type_node(
     font_spacing = font_size * 0.2F;
     Color const type1_text_color
         = select_max_contrast_black_or_white(type_colors.first);
-    if (type_string.second.has_value() && type_colors.second.has_value())
-    {
+    if (type_string.second.has_value() && type_colors.second.has_value()) {
         Color const type2_text_color
             = select_max_contrast_black_or_white(type_colors.second.value());
         DrawCircleSector(
             Vector2{
-                center_x,
-                center_y,
+                .x = center_x,
+                .y = center_y,
             },
             radius, 360, 180, 100, type_colors.first);
         DrawCircleSector(
             Vector2{
-                center_x,
-                center_y,
+                .x = center_x,
+                .y = center_y,
             },
             radius, 0, 180, 0, type_colors.second.value());
         DrawTextEx(font, type_string.first.data(),
@@ -1420,13 +1348,11 @@ Graph_draw::draw_type_node(
                        .y = center_y + (font_size / 2.0F),
                    },
                    font_size, font_spacing, type2_text_color);
-    }
-    else
-    {
+    } else {
         DrawCircleV(
             Vector2{
-                center_x,
-                center_y,
+                .x = center_x,
+                .y = center_y,
             },
             radius, type_colors.first);
         DrawTextEx(font, type_string.first.data(),
@@ -1441,8 +1367,7 @@ Graph_draw::draw_type_node(
 size_t
 Graph_draw::draw_solution_navigation(Rectangle const &graph_canvas,
                                      size_t const num_solutions,
-                                     size_t cur_solution)
-{
+                                     size_t cur_solution) {
     assert(num_solutions);
     float const button_size
         = std::min(graph_canvas.width, graph_canvas.height) * 0.05F;
@@ -1470,28 +1395,23 @@ Graph_draw::draw_solution_navigation(Rectangle const &graph_canvas,
         .x = graph_canvas.x + (button_size * 3),
         .y = graph_canvas.y,
     };
-    if (GuiButton(begin_button, GuiIconText(ICON_PLAYER_PREVIOUS, "")))
-    {
+    if (GuiButton(begin_button, GuiIconText(ICON_PLAYER_PREVIOUS, ""))) {
         cur_solution = 0;
     }
-    if (GuiButton(prev_button, GuiIconText(ICON_PLAYER_PLAY_BACK, "")))
-    {
+    if (GuiButton(prev_button, GuiIconText(ICON_PLAYER_PLAY_BACK, ""))) {
         cur_solution = cur_solution ? cur_solution - 1 : num_solutions - 1;
     }
-    if (GuiButton(next_button, GuiIconText(ICON_PLAYER_PLAY, "")))
-    {
+    if (GuiButton(next_button, GuiIconText(ICON_PLAYER_PLAY, ""))) {
         ++cur_solution %= num_solutions;
     }
-    if (GuiButton(end_button, GuiIconText(ICON_PLAYER_NEXT, "")))
-    {
+    if (GuiButton(end_button, GuiIconText(ICON_PLAYER_NEXT, ""))) {
         cur_solution = num_solutions ? num_solutions - 1 : 0;
     }
     // Maximum digits possible for 64 bit integer + null term.
     std::array<char, 20 + 1> cur_solution_string{};
     size_t digits = cur_solution + 1;
     size_t placed = 0;
-    while (digits && placed < cur_solution_string.size())
-    {
+    while (digits && placed < cur_solution_string.size()) {
         cur_solution_string.at(placed)
             = static_cast<char>((digits % 10U) + '0');
         digits /= 10;
@@ -1499,12 +1419,9 @@ Graph_draw::draw_solution_navigation(Rectangle const &graph_canvas,
     }
     std::reverse(cur_solution_string.begin(),
                  cur_solution_string.begin() + placed);
-    if (placed == cur_solution_string.size())
-    {
+    if (placed == cur_solution_string.size()) {
         cur_solution_string.back() = '\0';
-    }
-    else
-    {
+    } else {
         cur_solution_string.at(placed) = '\0';
     }
     Font const font = GuiGetFont();
@@ -1529,8 +1446,7 @@ Graph_draw::draw_solution_navigation(Rectangle const &graph_canvas,
 /// Find the appropriate colors in the color table for a single or dual type.
 std::pair<Color, std::optional<Color>>
 Graph_draw::get_colors(
-    std::pair<uint64_t, std::optional<uint64_t>> const &indices)
-{
+    std::pair<uint64_t, std::optional<uint64_t>> const &indices) {
     return {
         type_colors.at(indices.first),
         indices.second.has_value() ? type_colors.at(indices.second.value())
@@ -1541,8 +1457,7 @@ Graph_draw::get_colors(
 /// Find the appropriate string abbreviation for display node type names.
 std::pair<std::string_view, std::optional<std::string_view>>
 Graph_draw::get_string_abbreviation(
-    std::pair<uint64_t, std::optional<uint64_t>> const &indices)
-{
+    std::pair<uint64_t, std::optional<uint64_t>> const &indices) {
     return {
         type_string_abbrev.at(indices.first),
         indices.second.has_value()
@@ -1555,8 +1470,7 @@ Graph_draw::get_string_abbreviation(
 /// against the provided background color. This is to help display the text
 /// over Pokemon type nodes, but the concept could be applied anywhere.
 Color
-Graph_draw::select_max_contrast_black_or_white(Color const &background)
-{
+Graph_draw::select_max_contrast_black_or_white(Color const &background) {
     float const luminance = (0.2126F * static_cast<float>(background.r))
                             + (0.7152F * static_cast<float>(background.g))
                             + (0.0722F * static_cast<float>(background.b));
@@ -1567,8 +1481,7 @@ Graph_draw::select_max_contrast_black_or_white(Color const &background)
           / static_cast<float>(
               std::max({background.r, background.g, background.b}));
     auto text_color = WHITE;
-    if (saturation <= 0.5 && luminance > 0.5)
-    {
+    if (saturation <= 0.5 && luminance > 0.5) {
         text_color = BLACK;
     }
     return text_color;
@@ -1596,8 +1509,7 @@ Graph_draw::select_max_contrast_black_or_white(Color const &background)
 /// manually when creating the canvas.
 void
 draw_wrapping_message(Rectangle const &canvas, std::string_view message,
-                      Color const &tint)
-{
+                      Color const &tint) {
     Font const font = GuiGetFont();
     // We want to obtain the rough area of the text we are going to draw if
     // we were to respect its line breaks, spaces, and delimiters.
@@ -1611,16 +1523,14 @@ draw_wrapping_message(Rectangle const &canvas, std::string_view message,
         std::string_view const delims(" \r\t\n\v\f");
         std::string buffer{};
 
-        while (!text.empty())
-        {
+        while (!text.empty()) {
             std::string_view const word
                 = get_token_with_trailing_delims(text, delims);
             buffer = word;
             float const word_width
                 = MeasureTextEx(font, buffer.c_str(), base_size, spacing).x;
 
-            if (line_width + word_width > canvas.width)
-            {
+            if (line_width + word_width > canvas.width) {
                 total_height += base_size * 1.5F;
                 line_width = 0.0F;
             }
@@ -1629,7 +1539,7 @@ draw_wrapping_message(Rectangle const &canvas, std::string_view message,
 
             text.remove_prefix((word.data() + word.size()) - text.data());
         }
-        return {max_width, total_height};
+        return {.x = max_width, .y = total_height};
     };
 
     Vector2 const unscaled = measure_wrapped_text(message);
@@ -1668,8 +1578,7 @@ draw_wrapping_message(Rectangle const &canvas, std::string_view message,
     // We keep words together with their trailing delimiters.
     auto const get_word_width = [&](std::string_view word) -> float {
         float width = 0.0F;
-        for (char const &c : word)
-        {
+        for (char const &c : word) {
             width += get_glyph_info(&c).second + font_x_spacing;
         }
         return width;
@@ -1678,8 +1587,7 @@ draw_wrapping_message(Rectangle const &canvas, std::string_view message,
     // Advancing to a new line on wrap or when newline character found.
     auto const advance_new_line = [&](float &x, float &y) -> bool {
         y += font_size + font_y_spacing;
-        if (y > end_y)
-        {
+        if (y > end_y) {
             return false;
         }
         x = start_x;
@@ -1690,23 +1598,18 @@ draw_wrapping_message(Rectangle const &canvas, std::string_view message,
     // to break when necessary manually by progressing the drawing pixels
     // manually.
     std::string_view const delim_set(" \r\t\n\v\f");
-    while (!message.empty())
-    {
+    while (!message.empty()) {
         std::string_view const word
             = get_token_with_trailing_delims(message, delim_set);
         float const word_width = get_word_width(word);
         if (cur_pos_x + word_width > end_x
-            && !advance_new_line(cur_pos_x, cur_pos_y))
-        {
+            && !advance_new_line(cur_pos_x, cur_pos_y)) {
             return;
         }
 
-        for (char const &c : word)
-        {
-            if (c == '\n' || c == '\r' || c == '\r\n')
-            {
-                if (!advance_new_line(cur_pos_x, cur_pos_y))
-                {
+        for (char const &c : word) {
+            if (c == '\n' || c == '\r' || c == '\r\n') {
+                if (!advance_new_line(cur_pos_x, cur_pos_y)) {
                     return;
                 }
                 continue;
@@ -1732,24 +1635,20 @@ draw_wrapping_message(Rectangle const &canvas, std::string_view message,
 /// spaces, returns, or other formatting.
 std::string_view
 get_token_with_trailing_delims(std::string_view view,
-                               std::string_view delim_set)
-{
+                               std::string_view delim_set) {
     size_t const skip_leading = view.find_first_not_of(delim_set);
-    if (skip_leading == std::string_view::npos)
-    {
+    if (skip_leading == std::string_view::npos) {
         return view;
     }
     view.remove_prefix(skip_leading);
     size_t const first_found = view.find_first_of(delim_set);
-    if (first_found == std::string_view::npos)
-    {
+    if (first_found == std::string_view::npos) {
         return view;
     }
     size_t const end_of_delims
         = view.substr(first_found, view.length() - first_found)
               .find_first_not_of(delim_set);
-    if (end_of_delims == std::string_view::npos)
-    {
+    if (end_of_delims == std::string_view::npos) {
         return view;
     }
     return view.substr(0, first_found + end_of_delims);

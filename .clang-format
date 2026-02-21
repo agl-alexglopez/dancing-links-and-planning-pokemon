@@ -15,13 +15,4 @@ BinPackArguments: true
 BinPackParameters: true
 QualifierAlignment: Custom
 QualifierOrder: [static, inline, friend, constexpr, type, const, volatile]
-BreakBeforeBraces: Custom
-BraceWrapping:
-  AfterControlStatement: Always
-  AfterCaseLabel: true
-  AfterFunction: true
-  AfterStruct: true
-  AfterEnum: true
-  BeforeElse: true
-  SplitEmptyFunction: false
 ---

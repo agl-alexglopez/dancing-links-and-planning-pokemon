@@ -125,33 +125,18 @@ constexpr auto help_msg =
 Example Command:
     ./build/bin/pokemon_cli Paldea Cortondo Artazon O)";
 
-enum class Solution_type : uint8_t
-{
-    exact,
-    overlapping
-};
+enum class Solution_type : uint8_t { exact, overlapping };
 
-enum class Table_type : uint8_t
-{
-    first,
-    normal,
-    last
-};
+enum class Table_type : uint8_t { first, normal, last };
 
-enum class Print_style : uint8_t
-{
-    color,
-    plain
-};
+enum class Print_style : uint8_t { color, plain };
 
-struct Universe_sets
-{
+struct Universe_sets {
     std::vector<Dx::Type_encoding> items;
     std::vector<Dx::Type_encoding> options;
 };
 
-struct Runner
-{
+struct Runner {
     std::string_view map;
 
     std::set<std::string_view> selected_gyms;
@@ -182,13 +167,11 @@ void help();
 /// any generation map will be handled correctly becuase the map you are
 /// requesting will be in the /data/maps relative to the root.
 int
-main(int argc, char **argv)
-{
+main(int argc, char **argv) {
     auto const args
         = std::span<char const *const>{argv, static_cast<size_t>(argc)}.subspan(
             1);
-    if (args.empty())
-    {
+    if (args.empty()) {
         return 0;
     }
     return run(args);
@@ -197,68 +180,44 @@ main(int argc, char **argv)
 namespace {
 
 int
-run(std::span<char const *const> const args)
-{
-    try
-    {
+run(std::span<char const *const> const args) {
+    try {
         Runner runner;
-        for (auto const &arg : args)
-        {
+        for (auto const &arg : args) {
             std::string_view const arg_str{arg};
-            if (is_region(arg_str))
-            {
-                if (!runner.generation.interactions.empty())
-                {
+            if (is_region(arg_str)) {
+                if (!runner.generation.interactions.empty()) {
                     std::cerr << "Cannot load multiple generations "
                                  "simultaneously. Specify one.\n";
                     return 1;
                 }
                 runner.generation = Dx::load_pokemon_generation(arg_str);
                 runner.map = arg_str;
-            }
-            else if (arg_str == "A")
-            {
+            } else if (arg_str == "A") {
                 runner.type = Dx::Pokemon_links::Coverage_type::attack;
-            }
-            else if (arg_str == "D")
-            {
+            } else if (arg_str == "D") {
                 runner.type = Dx::Pokemon_links::Coverage_type::defense;
-            }
-            else if (arg_str == "E")
-            {
+            } else if (arg_str == "E") {
                 runner.sol_type = Solution_type::exact;
-            }
-            else if (arg_str == "O")
-            {
+            } else if (arg_str == "O") {
                 runner.sol_type = Solution_type::overlapping;
-            }
-            else if (arg_str == "color")
-            {
+            } else if (arg_str == "color") {
                 runner.style = Print_style::color;
-            }
-            else if (arg_str == "plain")
-            {
+            } else if (arg_str == "plain") {
                 runner.style = Print_style::plain;
-            }
-            else if (!arg_str.empty() && std::isupper(arg_str[0]))
-            {
+            } else if (!arg_str.empty() && std::isupper(arg_str[0])) {
                 runner.selected_gyms.emplace(arg_str);
-            }
-            else if (arg_str == "h")
-            {
+            } else if (arg_str == "h") {
                 help();
                 return 0;
-            }
-            else
-            {
+            } else {
                 std::cerr << "Unknown argument: " << arg_str << "\n";
                 help();
                 return 1;
             }
         }
         return solve(runner);
-    } catch (...)
-    {
+    } catch (...) {
         std::cerr << "Pokemon CLI application encountered exception.\n";
         help();
         return 1;
@@ -266,16 +225,13 @@ run(std::span<char const *const> const args)
 }
 
 int
-solve(Runner const &runner)
-{
-    if (runner.map.empty() || runner.map.empty())
-    {
+solve(Runner const &runner) {
+    if (runner.map.empty() || runner.map.empty()) {
         std::cerr << "No data loaded from any map to solve.\n";
         return 1;
     }
     Dx::Pokemon_links links(runner.generation.interactions, runner.type);
-    if (!runner.selected_gyms.empty())
-    {
+    if (!runner.selected_gyms.empty()) {
         std::set<Dx::Type_encoding> subset{};
         // Load in the opposite of our coverage type so we know what we
         // attack/defend against in this subset of gyms.
@@ -284,8 +240,7 @@ solve(Runner const &runner)
                   runner.generation, runner.selected_gyms)
             : subset = Dancing_links::get_selected_gyms_attacks(
                   runner.generation, runner.selected_gyms);
-        if (subset.empty())
-        {
+        if (subset.empty()) {
             std::cerr << "The existence of one or more requested gyms could "
                          "not be confirmed.\n";
             return 1;
@@ -306,8 +261,7 @@ solve(Runner const &runner)
               : Dx::overlapping_cover_stack(links, depth_limit);
 
     print_solution_msg(result, runner);
-    if (result.empty())
-    {
+    if (result.empty()) {
         return 0;
     }
     auto const &largest_ranked_set
@@ -318,17 +272,14 @@ solve(Runner const &runner)
     size_t const max_set_len = largest_ranked_set.size();
     break_line(max_set_len, Table_type::first);
     size_t cur_set = 1;
-    if (Dx::has_max_solutions(links))
-    {
+    if (Dx::has_max_solutions(links)) {
         std::cout << "Hit maximum solutions capacity, quitting early!\n";
     }
-    for (auto const &res : result)
-    {
+    for (auto const &res : result) {
         std::cout << std::left << std::setw(digit_width) << res.rank();
         size_t col = res.size();
         print_types(res, runner.style);
-        while (col < max_set_len)
-        {
+        while (col < max_set_len) {
             std::cout << "│" << std::left << std::setw(max_name_width) << "";
             ++col;
         }
@@ -337,8 +288,7 @@ solve(Runner const &runner)
                                  : break_line(max_set_len, Table_type::normal);
         ++cur_set;
     }
-    if (Dx::has_max_solutions(links))
-    {
+    if (Dx::has_max_solutions(links)) {
         std::cout << "Hit maximum solutions capacity, quitting early!\n";
     }
     print_solution_msg(result, runner);
@@ -347,10 +297,8 @@ solve(Runner const &runner)
 }
 
 void
-print_types(Ranked_set<Dx::Type_encoding> const &res, Print_style style)
-{
-    for (auto const &t : res)
-    {
+print_types(Ranked_set<Dx::Type_encoding> const &res, Print_style style) {
+    for (auto const &t : res) {
         std::pair<std::string_view, std::string_view> const type_pair
             = t.decode_type();
         std::pair<uint64_t, std::optional<uint64_t>> const type_indices
@@ -358,14 +306,11 @@ print_types(Ranked_set<Dx::Type_encoding> const &res, Print_style style)
         std::string const output
             = generate_type_string(type_pair, type_indices, style);
         int width = 0;
-        if (type_indices.second)
-        {
+        if (type_indices.second) {
             width = max_name_width
                     - static_cast<int>(type_pair.first.size() + 1
                                        + type_pair.second.size());
-        }
-        else
-        {
+        } else {
             width = max_name_width - static_cast<int>(type_pair.first.size());
         }
         std::cout << "│" << output << std::setw(width) << "";
@@ -375,13 +320,10 @@ print_types(Ranked_set<Dx::Type_encoding> const &res, Print_style style)
 std::string
 generate_type_string(std::pair<std::string_view, std::string_view> name,
                      std::pair<uint64_t, std::optional<uint64_t>> indices,
-                     Print_style style)
-{
+                     Print_style style) {
     std::string output = {};
-    if (indices.second)
-    {
-        if (style == Print_style::color)
-        {
+    if (indices.second) {
+        if (style == Print_style::color) {
             output = std::string(type_colors.at(indices.first))
                          .append(name.first)
                          .append(nil)
@@ -389,22 +331,15 @@ generate_type_string(std::pair<std::string_view, std::string_view> name,
                          .append(type_colors.at(indices.second.value()))
                          .append(name.second)
                          .append(nil);
-        }
-        else
-        {
+        } else {
             output = std::string(name.first).append("-").append(name.second);
         }
-    }
-    else
-    {
-        if (style == Print_style::color)
-        {
+    } else {
+        if (style == Print_style::color) {
             output = std::string(type_colors.at(indices.first))
                          .append(name.first)
                          .append(nil);
-        }
-        else
-        {
+        } else {
             output = std::string(name.first);
         }
     }
@@ -412,26 +347,21 @@ generate_type_string(std::pair<std::string_view, std::string_view> name,
 }
 
 void
-print_prep_message(Universe_sets const &sets, Print_style style)
-{
+print_prep_message(Universe_sets const &sets, Print_style style) {
     std::string item_msg = {};
-    if (style == Print_style::color)
-    {
+    if (style == Print_style::color) {
         item_msg.append("Trying to cover ")
             .append(ansi_yel)
             .append(std::to_string(sets.items.size()))
             .append(" items\n\n")
             .append(nil);
-    }
-    else
-    {
+    } else {
         item_msg.append("Trying to cover ")
             .append(std::to_string(sets.items.size()))
             .append(" items\n\n");
     }
     std::cout << item_msg;
-    for (auto const &type : sets.items)
-    {
+    for (auto const &type : sets.items) {
         std::pair<std::string_view, std::string_view> const type_pair
             = type.decode_type();
         std::pair<uint64_t, std::optional<uint64_t>> const type_indices
@@ -441,25 +371,21 @@ print_prep_message(Universe_sets const &sets, Print_style style)
         std::cout << output << ", ";
     }
     std::string option_msg = {};
-    if (style == Print_style::color)
-    {
+    if (style == Print_style::color) {
         option_msg.append("\n")
             .append(ansi_yel)
             .append(std::to_string(sets.options.size()))
             .append(" options")
             .append(nil)
             .append(" are available:\n\n");
-    }
-    else
-    {
+    } else {
         option_msg.append("\n")
             .append(std::to_string(sets.options.size()))
             .append(" options")
             .append(" are available:\n\n");
     }
     std::cout << "\n" << option_msg;
-    for (auto const &type : sets.options)
-    {
+    for (auto const &type : sets.options) {
         std::pair<std::string_view, std::string_view> const type_pair
             = type.decode_type();
         std::pair<uint64_t, std::optional<uint64_t>> const type_indices
@@ -473,11 +399,9 @@ print_prep_message(Universe_sets const &sets, Print_style style)
 
 void
 print_solution_msg(std::set<Ranked_set<Dx::Type_encoding>> const &result,
-                   Runner const &runner)
-{
+                   Runner const &runner) {
     std::string msg = {};
-    if (runner.style == Print_style::color)
-    {
+    if (runner.style == Print_style::color) {
         msg.append(result.empty() ? ansi_red : ansi_grn)
             .append("\nFound ")
             .append(std::to_string(result.size()))
@@ -489,9 +413,7 @@ print_solution_msg(std::set<Ranked_set<Dx::Type_encoding>> const &result,
                         : " Higher rank is better.")
             .append("\n\n")
             .append(nil);
-    }
-    else
-    {
+    } else {
         msg.append("\nFound ")
             .append(std::to_string(result.size()))
             .append(runner.sol_type == Solution_type::exact ? " exact"
@@ -506,11 +428,9 @@ print_solution_msg(std::set<Ranked_set<Dx::Type_encoding>> const &result,
 }
 
 void
-break_line(size_t max_set_len, Table_type t)
-{
+break_line(size_t max_set_len, Table_type t) {
     std::cout << std::left << std::setw(digit_width) << "";
-    switch (t)
-    {
+    switch (t) {
         case Table_type::first:
             std::cout << "┌";
             break;
@@ -523,14 +443,11 @@ break_line(size_t max_set_len, Table_type t)
         default:
             std::cerr << "Unknown table type\n";
     }
-    for (size_t col = 0; col < max_set_len; ++col)
-    {
-        for (size_t line = 0; line < max_name_width; ++line)
-        {
+    for (size_t col = 0; col < max_set_len; ++col) {
+        for (size_t line = 0; line < max_name_width; ++line) {
             std::cout << "─";
         }
-        switch (t)
-        {
+        switch (t) {
             case Table_type::first:
                 std::cout << (col == max_set_len - 1 ? "┐" : "┬");
                 break;
@@ -548,16 +465,14 @@ break_line(size_t max_set_len, Table_type t)
 }
 
 bool
-is_region(std::string_view const str)
-{
+is_region(std::string_view const str) {
     return str == "Kanto" || str == "Johto" || str == "Hoenn" || str == "Sinnoh"
            || str == "Unova" || str == "Kalos" || str == "Alola"
            || str == "Galar" || str == "Galar" || str == "Paldea";
 }
 
 void
-help()
-{
+help() {
     std::cout << help_msg << "\n";
 }
 
