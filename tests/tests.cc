@@ -956,6 +956,8 @@ constexpr Multiplier qd = Multiplier::qdr;
 
 } // namespace
 
+// NOLINTBEGIN(modernize-use-designated-initializers)
+
 //////////////////////////   Defense Links Init
 
 TEST(InternalTests, InitializeSmallDefensiveLinks) {
@@ -2930,5 +2932,7 @@ TEST(InternalTests, TestHidingAllOptionsAndItemsExactThenOverlappingSolution) {
     EXPECT_EQ(links.get_num_hid_items(), 0);
     EXPECT_EQ(links.get_num_hid_options(), 0);
 }
+
+// NOLINTEND(modernize-use-designated-initializers)
 
 } // namespace Dancing_links

@@ -7,6 +7,12 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
+# Don't want clang tidy parsing this library
+get_target_property(json_INCLUDES
+    nlohmann_json::nlohmann_json
+    INTERFACE_INCLUDE_DIRECTORIES
+)
+
 add_library(dancing_links)
 target_sources(dancing_links
   PUBLIC
@@ -21,5 +27,16 @@ target_sources(dancing_links
       ${PROJECT_SOURCE_DIR}/src/pokemon_parser.cc
       ${PROJECT_SOURCE_DIR}/src/resistance.cc
 )
-target_link_libraries(dancing_links nlohmann_json::nlohmann_json)
+
+# Treat json as system library so clang tidy ignores.
+target_include_directories(dancing_links
+    SYSTEM
+    PRIVATE
+        ${json_INCLUDES}
+)
+
+target_link_libraries(dancing_links 
+    PRIVATE 
+        nlohmann_json::nlohmann_json
+)
 target_compile_features(dancing_links PUBLIC cxx_std_20)

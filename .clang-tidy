@@ -23,6 +23,7 @@ Checks: >
    -bugprone-easily-swappable-parameters,
    -bugprone-suspicious-stringview-data-usage,
    -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+   -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
    -misc-no-recursion
 
 CheckOptions:
