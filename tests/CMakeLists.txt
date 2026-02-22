@@ -10,7 +10,16 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 target_compile_options(gtest PRIVATE "-w")
 target_compile_options(gtest_main PRIVATE "-w")
+get_target_property(gtest_SOURCE_DIR gtest SOURCE_DIR)
+get_target_property(gtest_main_SOURCE_DIR gtest_main SOURCE_DIR)
 add_executable(tests tests.cc)
+# We don't want compiler or tidy warnings from these libraries.
+target_include_directories(tests 
+    SYSTEM 
+    PRIVATE 
+        ${gtest_SOURCE_DIR}
+        ${gtest_main_SOURCE_DIR}
+)
 target_link_libraries(tests GTest::gtest_main dancing_links)
 # Don't want any warnings from google test compilation.
 include(GoogleTest)

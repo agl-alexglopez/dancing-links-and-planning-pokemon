@@ -31,16 +31,22 @@ if (NOT raygui_POPULATED) # Have we downloaded raylib yet?
 endif()
 # I don't want to see warnings during compilation about raylib code.
 target_compile_options(raylib PRIVATE "-w")
+# Get this directory so that we can include raylib as a system library that 
+# won't generate compiler or tidy warnings.
+get_target_property(raylib_SOURCE_DIR raylib SOURCE_DIR)
 
 # I don't want to see warnings during compilation about raylib code.
 add_library(raygui INTERFACE)
-target_include_directories(raygui INTERFACE "${raygui_SOURCE_DIR}/src")
+# Raygui is header only so mark it as a system library here, unlike raylib.
+target_include_directories(raygui SYSTEM INTERFACE "${raygui_SOURCE_DIR}/src")
 # Even though the header is compiled directly in our code we can ask for no
 # raygui related warnings during compilation step.
 target_compile_options(raygui INTERFACE "-w")
 
 
 add_executable(${PROJECT_NAME} pokemon_gui.cc)
+# Now raylib is built and included as system library. No compile/clang warnings. 
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${raylib_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib raygui dancing_links)
 
 if (EMSCRIPTEN)
