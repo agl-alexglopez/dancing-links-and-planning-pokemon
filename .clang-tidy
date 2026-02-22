@@ -24,6 +24,7 @@ Checks: >
    -bugprone-suspicious-stringview-data-usage,
    -cppcoreguidelines-pro-bounds-pointer-arithmetic,
    -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
+   -readability-avoid-const-params-in-decls,
    -misc-no-recursion
 
 CheckOptions:

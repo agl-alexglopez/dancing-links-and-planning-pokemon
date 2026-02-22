@@ -399,14 +399,14 @@ TEST(ParserTests, CheckMapParserLoadsInMapCorrectly) {
     edges("Cinnabar Island") = {}; // no edges
     edges("Viridian City") = {key("Pewter City"), key("Indigo Plateau")};
     edges("Indigo Plateau") = {key("Viridian City")};
-    Pokemon_test load_gen_1 = load_pokemon_generation("Kanto");
+    Pokemon_test const load_gen_1 = load_pokemon_generation("Kanto");
     EXPECT_EQ(load_gen_1.network, expected.network);
 }
 
 TEST(ParserTests, CheckLoadingMapTypingWorksCorrectly) {
     // Gen 1 only has 33 types but it would still be a huge map to hard code by
     // hand.
-    Pokemon_test load_gen_1 = load_pokemon_generation("Kanto");
+    Pokemon_test const load_gen_1 = load_pokemon_generation("Kanto");
     // If our parser picks up all the items we should be on the right track.
     EXPECT_EQ(load_gen_1.interactions.size(), 33);
     for (auto const &[_, resistances] : load_gen_1.interactions) {
@@ -503,7 +503,7 @@ TEST(InternalTests, TestEveryPossibleCombinationOfTypings) {
                 = Type_encoding::type_table()[std::countr_zero(bit2)];
             auto const check_dual_type
                 = std::string(check_single_type).append("-").append(t2);
-            Type_encoding dual_type_encoding(check_dual_type);
+            Type_encoding const dual_type_encoding(check_dual_type);
             EXPECT_EQ(dual_type_encoding.encoding(), bit1 | bit2);
             EXPECT_EQ(dual_type_encoding.to_string(), check_dual_type);
         }
@@ -573,7 +573,7 @@ TEST(InternalTests, CompareMyEncodingDecodingSpeed) {
         // This ensures we get a decent amount of single and dual types into the
         // mix.
         if (type2 < type1) {
-            std::string t2(Type_encoding::type_table()[type2]);
+            std::string const t2(Type_encoding::type_table()[type2]);
             type += "-" + t2;
             dual_type_total++;
             single_type_total--;
@@ -769,7 +769,7 @@ TEST(RankedSetTests, AddAndRemoveAllPokemonTypesRandomly) {
                   .append("-")
                   .append(
                       Type_encoding::type_table()[type_indices.second.value()]);
-        Type_encoding dual_type_encoding(check_dual_type);
+        Type_encoding const dual_type_encoding(check_dual_type);
         EXPECT_EQ(all_types.insert(dual_type_encoding), true);
     }
     EXPECT_EQ(all_types.size(), 171);
@@ -787,7 +787,7 @@ TEST(RankedSetTests, AddAndRemoveAllPokemonTypesRandomly) {
                   .append("-")
                   .append(
                       Type_encoding::type_table()[type_indices.second.value()]);
-        Type_encoding dual_type_encoding(check_dual_type);
+        Type_encoding const dual_type_encoding(check_dual_type);
         EXPECT_EQ(all_types.erase(dual_type_encoding), true);
     }
     EXPECT_EQ(all_types.empty(), true);
@@ -814,7 +814,7 @@ fill_and_empty_set_with_types(
                   .append("-")
                   .append(
                       Type_encoding::type_table()[type_indices.second.value()]);
-        Type_encoding dual_type_encoding(check_dual_type);
+        Type_encoding const dual_type_encoding(check_dual_type);
         static_cast<void>(set.insert(dual_type_encoding));
     }
     for (auto const &type_indices : type_table_indices) {
@@ -830,7 +830,7 @@ fill_and_empty_set_with_types(
                   .append("-")
                   .append(
                       Type_encoding::type_table()[type_indices.second.value()]);
-        Type_encoding dual_type_encoding(check_dual_type);
+        Type_encoding const dual_type_encoding(check_dual_type);
         static_cast<void>(set.erase(dual_type_encoding));
     }
     std::clock_t const end = std::clock();
@@ -845,36 +845,43 @@ insert_delete_small_n(T &set,
     std::clock_t const start = std::clock();
     for (uint64_t i = 0; i < 10'000ULL; ++i) {
         for (uint64_t j = 0; j < 13 && j < type_table_indices.size(); ++j) {
+            std::pair<uint64_t, std::optional<uint64_t>> type_indices
+                = type_table_indices[j];
             std::string_view const check_single_type(
-                Type_encoding::type_table()[type_table_indices[j].first]);
-            if (!type_table_indices[j].second) {
+                Type_encoding::type_table()[type_indices.first]);
+
+            if (!type_indices.second.has_value()) {
                 Type_encoding const single_type_encoding(check_single_type);
                 static_cast<void>(set.insert(single_type_encoding));
-                continue;
+            } else {
+                auto const check_dual_type
+                    = std::string(check_single_type)
+                          .append("-")
+                          .append(
+                              Type_encoding::type_table()[type_indices.second
+                                                              .value()]);
+                Type_encoding const dual_type_encoding(check_dual_type);
+                static_cast<void>(set.insert(dual_type_encoding));
             }
-            auto const check_dual_type
-                = std::string(check_single_type)
-                      .append("-")
-                      .append(Type_encoding::type_table()[type_table_indices[j]
-                                                              .second.value()]);
-            Type_encoding dual_type_encoding(check_dual_type);
-            static_cast<void>(set.insert(dual_type_encoding));
         }
         for (uint64_t j = 0; j < 13 && j < type_table_indices.size(); ++j) {
+            std::pair<uint64_t, std::optional<uint64_t>> type_indices
+                = type_table_indices[j];
             std::string_view const check_single_type(
-                Type_encoding::type_table()[type_table_indices[j].first]);
-            if (!type_table_indices[j].second) {
+                Type_encoding::type_table()[type_indices.first]);
+            if (!type_indices.second.has_value()) {
                 Type_encoding const single_type_encoding(check_single_type);
                 static_cast<void>(set.erase(single_type_encoding));
-                continue;
+            } else {
+                auto const check_dual_type
+                    = std::string(check_single_type)
+                          .append("-")
+                          .append(
+                              Type_encoding::type_table()[type_indices.second
+                                                              .value()]);
+                Type_encoding const dual_type_encoding(check_dual_type);
+                static_cast<void>(set.erase(dual_type_encoding));
             }
-            auto const check_dual_type
-                = std::string(check_single_type)
-                      .append("-")
-                      .append(Type_encoding::type_table()[type_table_indices[j]
-                                                              .second.value()]);
-            Type_encoding dual_type_encoding(check_dual_type);
-            static_cast<void>(set.erase(dual_type_encoding));
         }
     }
     std::clock_t const end = std::clock();
@@ -980,7 +987,7 @@ TEST(InternalTests, InitializeSmallDefensiveLinks) {
         {{"Water"}, 2, 0},
     };
     // clang-format off
-  const std::vector<Pokemon_links::Poke_link> dlx = {
+    std::vector<Pokemon_links::Poke_link> const dlx = {
     //   0                   1Fire               2Normal             3Water
     { 0, 0, 0, em, 0 },  { 1, 7, 7, em, 0 }, { 1, 5, 5, em, 0 }, { 1, 8, 8, em, 0 },    
     //  4Ghost               5Zero
@@ -989,7 +996,7 @@ TEST(InternalTests, InitializeSmallDefensiveLinks) {
     { -2, 5, 8, em, 0 }, { 1, 1, 1, f2, 0 }, { 3, 3, 3, f2, 0 }, 
     //     9
     { INT_MIN, 7, UINT64_MAX, em, 0 },
-  };
+    };
     // clang-format on
     Pokemon_links const links(types, Pokemon_links::Coverage_type::defense);
     EXPECT_EQ(option_table, links.option_table());
@@ -1057,7 +1064,7 @@ TEST(InternalTests, InitializeAWorldWhereThereAreOnlySingleTypes) {
         {{"Water"}, 5, 0},
     };
     // clang-format off
-  const std::vector<Pokemon_links::Poke_link> dlx = {
+    std::vector<Pokemon_links::Poke_link> const dlx = {
     //    0           1Electric       2Fire        3Grass          4Ice          5Normal        6Water
     {0,0,0,em,0},   {2,13,8,em,0}, {1,9,9,em,0}, {1,10,10,em,0},{1,17,17,em,0},{1,15,15,em,0},{1,11,11,em,0},
     //  7Dragon        8half          9half        10half                                       11half
@@ -1070,7 +1077,7 @@ TEST(InternalTests, InitializeAWorldWhereThereAreOnlySingleTypes) {
     {-4,15,17,em,0},                                           {4,4,4,f2,0},    
     //  18
     { INT_MIN, 17, UINT64_MAX, em, 0 },
-  };
+    };
     // clang-format on
     Pokemon_links const links(types, Pokemon_links::Coverage_type::defense);
     EXPECT_EQ(option_table, links.option_table());

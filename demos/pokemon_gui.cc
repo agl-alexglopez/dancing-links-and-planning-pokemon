@@ -1281,9 +1281,9 @@ Graph_draw::draw_type_popup(Rectangle const &canvas,
         font_spacing = font_size * 0.2F;
         DrawTextEx(font, multiplier_strings.at(multiplier_index).data(),
                    Vector2{
-                       .x = (popup_node_radius * std::cos(5.0F * (pi) / 4.0F))
+                       .x = (popup_node_radius * std::cos(5.0F * pi / 4.0F))
                             + popup_circle_center.x,
-                       .y = (popup_node_radius * std::sin(5.0F * (pi) / 4.0F))
+                       .y = (popup_node_radius * std::sin(5.0F * pi / 4.0F))
                             + popup_circle_center.y,
                    },
                    font_size, font_spacing,

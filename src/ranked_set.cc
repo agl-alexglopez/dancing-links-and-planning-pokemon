@@ -124,26 +124,26 @@ export template <class T> class Ranked_set {
         rank_ -= rank_change;
     }
 
-    using container = typename std::vector<T>;
-    using iterator = typename container::iterator;
-    using const_iterator = typename container::const_iterator;
+    using container = std::vector<T>;
+    using iterator = container::iterator;
+    using const_iterator = container::const_iterator;
 
-    const_iterator
+    [[nodiscard]] const_iterator
     begin() const {
         return flat_set_.cbegin();
     }
 
-    const_iterator
+    [[nodiscard]] const_iterator
     cbegin() const noexcept {
         return flat_set_.cbegin();
     }
 
-    const_iterator
+    [[nodiscard]] const_iterator
     end() const {
         return flat_set_.cend();
     }
 
-    const_iterator
+    [[nodiscard]] const_iterator
     cend() const noexcept {
         return flat_set_.cend();
     }

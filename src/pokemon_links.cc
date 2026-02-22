@@ -488,18 +488,18 @@ fill_items(Pokemon_links const &dlx, std::vector<Type_encoding> &output) {
 }
 
 void
-fill_items_for(Pokemon_links const &dlx, Type_encoding const type,
+fill_items_for(Pokemon_links const &dlx, Type_encoding type,
                std::vector<Resistance> &output) {
     dlx.fill_items_for(type, output);
 }
 
 uint64_t
-items_count_for(Pokemon_links const &dlx, Type_encoding const type) {
+items_count_for(Pokemon_links const &dlx, Type_encoding type) {
     return dlx.items_count_for(type);
 }
 
 Pokemon_links::Poke_link const *
-items_for_begin(Pokemon_links const &dlx, Type_encoding const type) {
+items_for_begin(Pokemon_links const &dlx, Type_encoding type) {
     return dlx.items_for_begin(type);
 }
 
@@ -509,14 +509,13 @@ items_for_end() {
 }
 
 Pokemon_links::Poke_link const *
-items_for_next(Pokemon_links const &dlx,
-               Pokemon_links::Poke_link const *const iter) {
+items_for_next(Pokemon_links const &dlx, Pokemon_links::Poke_link const *iter) {
     return dlx.items_for_next(iter);
 }
 
 Resistance
 item_resistance_from(Pokemon_links const &dlx,
-                     Pokemon_links::Poke_link const *const iter) {
+                     Pokemon_links::Poke_link const *iter) {
     return dlx.item_resistance_from(iter);
 }
 
