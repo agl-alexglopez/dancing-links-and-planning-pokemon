@@ -180,7 +180,7 @@ std::array<std::pair<std::string_view, Multiplier>, 6> const damage_multipliers
         {"half", Multiplier::f12},
         {"normal", Multiplier::nrm},
         {"double", Multiplier::dbl},
-        {"quad", Multiplier::qdr},
+        {"quadruple", Multiplier::qdr},
     }};
 
 Multiplier const &

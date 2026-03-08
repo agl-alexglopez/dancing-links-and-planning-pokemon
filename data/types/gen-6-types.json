@@ -26,7 +26,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -58,7 +58,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -89,7 +89,7 @@
             "Dragon",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
             "Flying"
         ],
         "quarter": [
@@ -120,7 +120,7 @@
             "Dragon",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
             "Rock"
         ],
         "quarter": [
@@ -151,7 +151,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Rock"
         ],
         "quarter": [
@@ -186,7 +186,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -214,7 +214,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Fire",
             "Flying"
         ],
@@ -250,7 +250,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -280,7 +280,7 @@
             "Dark",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Grass",
@@ -314,7 +314,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -344,7 +344,7 @@
             "Ghost",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
             "Fire"
         ],
         "quarter": [
@@ -378,7 +378,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -410,7 +410,7 @@
             "Dragon",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -441,7 +441,7 @@
             "Rock",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
             "Fairy"
         ],
         "quarter": [
@@ -472,7 +472,7 @@
             "Dragon",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
             "Fairy"
         ],
         "quarter": [
@@ -506,7 +506,7 @@
             "Dragon",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -538,7 +538,7 @@
             "Dragon",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -570,7 +570,7 @@
             "Dark",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -601,7 +601,7 @@
             "Dragon",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
             "Bug"
         ],
         "quarter": [
@@ -634,7 +634,7 @@
             "Dragon",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -665,7 +665,7 @@
             "Flying",
             "Dragon"
         ],
-        "quad": [
+        "quadruple": [
             "Fighting"
         ],
         "quarter": [
@@ -698,7 +698,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -729,7 +729,7 @@
             "Dark",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
             "Bug"
         ],
         "quarter": [
@@ -761,7 +761,7 @@
             "Rock",
             "Dragon"
         ],
-        "quad": [
+        "quadruple": [
             "Fighting"
         ],
         "quarter": [
@@ -793,7 +793,7 @@
             "Bug",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Fighting"
         ],
         "quarter": [
@@ -826,7 +826,7 @@
             "Rock",
             "Dragon"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -858,7 +858,7 @@
             "Dark",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -889,7 +889,7 @@
             "Ghost",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Electric"
@@ -922,7 +922,7 @@
             "Rock",
             "Ghost"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -952,7 +952,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Fire",
@@ -984,7 +984,7 @@
             "Dark",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
             "Ice"
         ],
         "quarter": [
@@ -1018,7 +1018,7 @@
             "Rock",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -1046,7 +1046,7 @@
             "Dark",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
             "Ice"
         ],
         "quarter": [
@@ -1081,7 +1081,7 @@
             "Dark",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
             "Ice"
         ],
         "quarter": [
@@ -1114,7 +1114,7 @@
             "Ghost",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -1145,7 +1145,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Grass"
@@ -1178,7 +1178,7 @@
             "Rock",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -1209,7 +1209,7 @@
             "Ghost",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Fire"
@@ -1241,7 +1241,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Grass"
@@ -1272,7 +1272,7 @@
             "Ghost",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Fire",
@@ -1306,7 +1306,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -1338,7 +1338,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -1368,7 +1368,7 @@
             "Dragon",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
             "Ground"
         ],
         "quarter": [
@@ -1402,7 +1402,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -1434,7 +1434,7 @@
             "Dragon",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -1465,7 +1465,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Electric"
@@ -1498,7 +1498,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -1530,7 +1530,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -1562,7 +1562,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -1591,7 +1591,7 @@
             "Ghost",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
             "Ground"
         ],
         "quarter": [
@@ -1625,7 +1625,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Steel"
@@ -1658,7 +1658,7 @@
             "Ghost",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -1688,7 +1688,7 @@
             "Ghost",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Fighting",
@@ -1721,7 +1721,7 @@
             "Ghost",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Poison"
         ],
         "quarter": [
@@ -1754,7 +1754,7 @@
             "Rock",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -1785,7 +1785,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Fighting"
@@ -1817,7 +1817,7 @@
             "Ghost",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Steel"
         ],
         "quarter": [
@@ -1849,7 +1849,7 @@
             "Ghost",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Bug"
@@ -1882,7 +1882,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -1914,7 +1914,7 @@
             "Dragon",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -1945,7 +1945,7 @@
             "Dragon",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Bug"
@@ -1977,7 +1977,7 @@
             "Dragon",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Bug"
@@ -2009,7 +2009,7 @@
             "Dragon",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
             "Flying"
         ],
         "quarter": [
@@ -2042,7 +2042,7 @@
             "Dragon",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -2072,7 +2072,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Psychic"
         ],
         "quarter": [
@@ -2106,7 +2106,7 @@
             "Dark",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -2138,7 +2138,7 @@
             "Ghost",
             "Dragon"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -2168,7 +2168,7 @@
             "Ghost",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Bug",
@@ -2202,7 +2202,7 @@
             "Ghost",
             "Dragon"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -2234,7 +2234,7 @@
             "Dragon",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -2263,7 +2263,7 @@
             "Dragon",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
             "Rock"
         ],
         "quarter": [
@@ -2297,7 +2297,7 @@
             "Psychic",
             "Dragon"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Bug"
@@ -2329,7 +2329,7 @@
             "Dragon",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
             "Water"
         ],
         "quarter": [
@@ -2362,7 +2362,7 @@
             "Dragon",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -2394,7 +2394,7 @@
             "Bug",
             "Dragon"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -2423,7 +2423,7 @@
             "Dark",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
             "Water",
             "Ground"
         ],
@@ -2452,7 +2452,7 @@
             "Ghost",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
             "Ground"
         ],
         "quarter": [
@@ -2487,7 +2487,7 @@
             "Dragon",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Fire",
@@ -2522,7 +2522,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -2553,7 +2553,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Bug"
@@ -2584,7 +2584,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Ice"
         ],
         "quarter": [
@@ -2617,7 +2617,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Ice"
         ],
         "quarter": [
@@ -2649,7 +2649,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Rock"
         ],
         "quarter": [
@@ -2682,7 +2682,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -2711,7 +2711,7 @@
             "Dark",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Grass",
@@ -2745,7 +2745,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Fighting"
@@ -2778,7 +2778,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -2808,7 +2808,7 @@
             "Ghost",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Grass",
@@ -2841,7 +2841,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Electric"
         ],
         "quarter": [
@@ -2874,7 +2874,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -2906,7 +2906,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -2937,7 +2937,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Poison"
@@ -2970,7 +2970,7 @@
             "Dragon",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3000,7 +3000,7 @@
             "Dragon",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Poison",
@@ -3032,7 +3032,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Ghost",
             "Dark"
         ],
@@ -3065,7 +3065,7 @@
             "Water",
             "Electric"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Bug"
@@ -3098,7 +3098,7 @@
             "Dragon",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3130,7 +3130,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3161,7 +3161,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Ice"
         ],
         "quarter": [
@@ -3193,7 +3193,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Fire"
         ],
         "quarter": [
@@ -3226,7 +3226,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3257,7 +3257,7 @@
             "Dark",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Grass"
@@ -3289,7 +3289,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Bug"
         ],
         "quarter": [
@@ -3322,7 +3322,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3352,7 +3352,7 @@
             "Ghost",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
             "Fire"
         ],
         "quarter": [
@@ -3385,7 +3385,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Water"
@@ -3418,7 +3418,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3450,7 +3450,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3482,7 +3482,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3513,7 +3513,7 @@
             "Dark",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Poison"
@@ -3546,7 +3546,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3575,7 +3575,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Water",
             "Grass"
         ],
@@ -3609,7 +3609,7 @@
             "Ghost",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Rock"
@@ -3641,7 +3641,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Grass"
         ],
         "quarter": [
@@ -3674,7 +3674,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3706,7 +3706,7 @@
             "Dragon",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3736,7 +3736,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Fighting",
             "Steel"
         ],
@@ -3769,7 +3769,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Ice"
@@ -3802,7 +3802,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3834,7 +3834,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3866,7 +3866,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3898,7 +3898,7 @@
             "Dark",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3930,7 +3930,7 @@
             "Dragon",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3962,7 +3962,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -3994,7 +3994,7 @@
             "Dragon",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -4025,7 +4025,7 @@
             "Fighting",
             "Bug"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Psychic"
@@ -4058,7 +4058,7 @@
             "Dragon",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -4090,7 +4090,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -4118,7 +4118,7 @@
             "Dark",
             "Steel"
         ],
-        "quad": [
+        "quadruple": [
             "Fighting",
             "Ground"
         ],
@@ -4152,7 +4152,7 @@
             "Steel",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
             "Grass"
         ],
         "quarter": [
@@ -4186,7 +4186,7 @@
             "Ghost",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]
@@ -4216,7 +4216,7 @@
             "Ghost",
             "Dark"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
             "Ice",
@@ -4250,7 +4250,7 @@
             "Dark",
             "Fairy"
         ],
-        "quad": [
+        "quadruple": [
         ],
         "quarter": [
         ]

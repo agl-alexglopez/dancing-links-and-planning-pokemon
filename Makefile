@@ -35,13 +35,18 @@ format:
 tidy:
 	cmake --build build/ --target tidy $(JOBS)
 
-dtest:
+test:
 	cmake --build build/ $(JOBS)
-	./build/debug/bin/tests --gtest_color=yes
+	@if [ -x "build/debug/bin/tests" ]; then       \
+		./build/debug/bin/tests --gtest_color=yes; \
+	elif [ -x "build/bin/tests" ]; then            \
+		./build/bin/tests --gtest_color=yes;       \
+	else                                           \
+		echo "No google tests found";              \
+		exit 1;                                    \
+	fi
+	@echo "RAN TESTS"
 
-rtest:
-	cmake --build build/ $(JOBS)
-	./build/bin/tests --gtest_color=yes
 
 clean:
 	rm -rf build/
