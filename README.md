@@ -25,7 +25,7 @@ If you would like to build and view the web app locally follow these steps.
 1. Clone the repository.
 
 ```zsh
-git clone https://github.com/agl-alexglopez/ccc.git
+git clone https://github.com/agl-alexglopez/dancing-links-and-planning-pokemon.git
 ```
 
 2. Set up the `emsdk` submodule. This remains contained to the submodule directory and does not touch system paths.
@@ -34,10 +34,10 @@ git clone https://github.com/agl-alexglopez/ccc.git
 make emsdk
 ```
 
-3. Build the web application. Only a small release build is supported.
+3. Build the release web application.
 
 ```zsh
-make webrel
+make web-release
 ```
 
 4. Run the web application on your local browser with `emrun`.
@@ -65,8 +65,8 @@ Hovering over nodes will show their full type names. If hovering over covered no
 
 1. Clone the repository.
 2. Build the project from the root of the repository.
-    - There is a provided configuration in `CMakePresets.json` and `CMakeUserPresets.json` that looks for `clang++` and the `Ninja` build generator to support building C++ modules. Alter any of these flags and settings to your liking if you cannot build.
-    - Use the cmake preset for realease mode `cmake --preset=rel` or with the provided convenience Makefile `make rel`.
+    - There is a provided configuration in `CMakePresets.json` and that looks for `clang++` and the `Ninja` build generator to support building C++ modules. Alter any of these flags and settings to your liking if you cannot build.
+    - Use the cmake preset for realease mode `cmake --preset=clang-release` or with the provided convenience Makefile `make release`.
 3. Run the Command Line Interface application `./build/bin/pokemon_gui`.
 
 ## Pokémon Planning CLI Usage Instructions
@@ -77,8 +77,8 @@ While the GUI app is fun, the CLI is another way to interact with the solver. Ra
 
 1. Clone the repository.
 2. Build the project from the root of the repository.
-    - There is a provided configuration in `CMakePresets.json` and `CMakeUserPresets.json` that looks for `clang++` and the `Ninja` build generator to support building C++ modules. Alter any of these flags and settings to your liking if you cannot build.
-    - Use the cmake preset for realease mode `cmake --preset=rel` or with the provided convenience Makefile `make rel`.
+    - There is a provided configuration in `CMakePresets.json` that looks for `clang++` and the `Ninja` build generator to support building C++ modules. Alter any of these flags and settings to your liking if you cannot build.
+    - Use the cmake preset for realease mode `cmake --preset=clang-release` or with the provided convenience Makefile `make release`.
 3. Run the Command Line Interface application `./build/bin/pokemon_cli`.
 
 Here are the flags and settings available for this program.
@@ -113,9 +113,9 @@ As mentioned in the intro, the core ideas of Algorithm X via Dancing Links belon
 
 For the `all-types.json` file, I got the information on type interactions from the following website.
 
-- https://pokemondb.net/type/dual
+- [pokemondb](https://pokemondb.net/type/dual)
 
 For the `all-maps.json` file, I got the information on gyms and the attack and defensive types present from the following website.
 
-- https://serebii.net
+- [serebii](https://serebii.net)
 

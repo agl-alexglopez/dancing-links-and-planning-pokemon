@@ -1,4 +1,4 @@
-.PHONY: default rel deb emsdk emrun webrel build format tidy dtest rtest clean
+.PHONY: default clang-release clang-debug emsdk emrun web-release web-debug build format tidy test clean
 
 MAKE := $(MAKE)
 MAKEFLAGS += --no-print-directory
@@ -12,18 +12,29 @@ emsdk:
 	cd deps/emsdk && ./emsdk install latest && ./emsdk activate latest
 
 emrun:
-	./deps/emsdk/upstream/emscripten/emrun ./build/bin/index.html
+	@if [ -x "build/debug/bin" ]; then                                       \
+		./deps/emsdk/upstream/emscripten/emrun ./build/debug/bin/index.html; \
+	elif [ -x "build/bin/" ]; then                                           \
+		./deps/emsdk/upstream/emscripten/emrun ./build/bin/index.html;       \
+	else                                                                     \
+		echo "No index.html found.";                                         \
+		exit 1;                                                              \
+	fi
 
-rel:
-	cmake --preset=rel
+clang-release:
+	cmake --preset=clang-release
 	cmake --build build/ $(JOBS)
 
-deb:
-	cmake --preset=deb
+clang-debug:
+	cmake --preset=clang-debug
 	cmake --build build/ $(JOBS)
 
-webrel:
-	cmake --preset=webrel
+web-release:
+	cmake --preset=web-release
+	cmake --build build/ $(JOBS) --target pokemon_gui
+
+web-debug:
+	cmake --preset=web-debug
 	cmake --build build/ $(JOBS) --target pokemon_gui
 
 build:
