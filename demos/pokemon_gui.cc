@@ -1519,10 +1519,11 @@ Graph_draw::select_max_contrast_black_or_white(Color const &background) {
 void
 draw_wrapping_message(Rectangle const &canvas, std::string_view message,
                       Color const &tint) {
-    Font const font = GuiGetFont();
     // We want to obtain the rough area of the text we are going to draw if
     // we were to respect its line breaks, spaces, and delimiters.
-    auto const measure_wrapped_text = [&](std::string_view text) -> Vector2 {
+    auto const measure_wrapped_text
+        = [](Rectangle const &canvas, Font const &font,
+             std::string_view text) -> Vector2 {
         auto const base_size = static_cast<float>(font.baseSize);
         float const spacing = base_size * 0.2F;
 
@@ -1550,8 +1551,24 @@ draw_wrapping_message(Rectangle const &canvas, std::string_view message,
         }
         return {.x = max_width, .y = total_height};
     };
+    // Even though we measured we still need to go glyph by glyph because we
+    // don't know how the scaling has changed when words wrap to next line.
+    auto const get_glyph_info
+        = [](char const *const c, Font const &font,
+             float const font_scaling) -> std::pair<int, float> {
+        int byte_count = 0;
+        int const codepoint = GetCodepoint(c, &byte_count);
+        int const glyph_index = GetGlyphIndex(font, codepoint);
+        float const glyph_width
+            = font.glyphs[glyph_index].advanceX == 0
+                  ? font.recs[glyph_index].width * font_scaling
+                  : static_cast<float>(font.glyphs[glyph_index].advanceX)
+                        * font_scaling;
+        return {codepoint, glyph_width};
+    };
 
-    Vector2 const unscaled = measure_wrapped_text(message);
+    Font const font = GuiGetFont();
+    Vector2 const unscaled = measure_wrapped_text(canvas, font, message);
 
     // The base width and height give use the scaled aspect ratio we need to
     // ensure the text fits within the canvas at the maximum possible width
@@ -1569,26 +1586,12 @@ draw_wrapping_message(Rectangle const &canvas, std::string_view message,
     float const end_x = canvas.x + canvas.width;
     float const end_y = canvas.y + canvas.height;
 
-    // Even though we measured we still need to go glyph by glyph because we
-    // don't know how the scaling has changed when words wrap to next line.
-    auto const get_glyph_info
-        = [&](char const *const c) -> std::pair<int, float> {
-        int byte_count = 0;
-        int const codepoint = GetCodepoint(c, &byte_count);
-        int const glyph_index = GetGlyphIndex(font, codepoint);
-        float const glyph_width
-            = font.glyphs[glyph_index].advanceX == 0
-                  ? font.recs[glyph_index].width * font_scaling
-                  : static_cast<float>(font.glyphs[glyph_index].advanceX)
-                        * font_scaling;
-        return {codepoint, glyph_width};
-    };
-
     // We keep words together with their trailing delimiters.
     auto const get_word_width = [&](std::string_view word) -> float {
         float width = 0.0F;
         for (char const &c : word) {
-            width += get_glyph_info(&c).second + font_x_spacing;
+            width += get_glyph_info(&c, font, font_scaling).second
+                     + font_x_spacing;
         }
         return width;
     };
@@ -1623,7 +1626,8 @@ draw_wrapping_message(Rectangle const &canvas, std::string_view message,
                 }
                 continue;
             }
-            auto const [codepoint, glyph_width] = get_glyph_info(&c);
+            auto const [codepoint, glyph_width]
+                = get_glyph_info(&c, font, font_scaling);
             DrawTextCodepoint(font, codepoint,
                               Vector2{
                                   .x = cur_pos_x,
