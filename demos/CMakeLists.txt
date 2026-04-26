@@ -12,6 +12,7 @@ FetchContent_Declare(
     raylib
     DOWNLOAD_EXTRACT_TIMESTAMP FALSE
     URL https://github.com/raysan5/raylib/archive/refs/tags/${RAYLIB_VERSION}.tar.gz
+    SYSTEM
 )
 FetchContent_GetProperties(raylib)
 if (NOT raylib_POPULATED) # Have we downloaded raylib yet?
@@ -23,17 +24,15 @@ FetchContent_Declare(
     raygui
     URL "https://github.com/raysan5/raygui/archive/refs/tags/${RAYGUI_VERSION}.zip"
     DOWNLOAD_EXTRACT_TIMESTAMP FALSE
+    SYSTEM
 )
 FetchContent_GetProperties(raygui)
-if (NOT raygui_POPULATED) # Have we downloaded raylib yet?
+if (NOT raygui_POPULATED)
     set(FETCHCONTENT_QUIET NO)
     FetchContent_MakeAvailable(raygui)
 endif()
 # I don't want to see warnings during compilation about raylib code.
 target_compile_options(raylib PRIVATE "-w")
-# Get this directory so that we can include raylib as a system library that 
-# won't generate compiler or tidy warnings.
-get_target_property(raylib_SOURCE_DIR raylib SOURCE_DIR)
 
 # I don't want to see warnings during compilation about raylib code.
 add_library(raygui INTERFACE)
@@ -45,8 +44,6 @@ target_compile_options(raygui INTERFACE "-w")
 
 
 add_executable(${PROJECT_NAME} pokemon_gui.cc)
-# Now raylib is built and included as system library. No compile/clang warnings. 
-target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${raylib_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib raygui dancing_links)
 
 if (EMSCRIPTEN)
