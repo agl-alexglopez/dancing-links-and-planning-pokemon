@@ -28,7 +28,7 @@ jobs:
 
       - name: Build Web Target
         run: |
-          make webrel 
+          make web-release
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v4
